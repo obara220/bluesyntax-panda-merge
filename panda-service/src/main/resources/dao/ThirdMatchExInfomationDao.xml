@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.dao.ThirdMatchExInfomationDao">
+
+    <select id="getItemPageByModifyTime" parameterType="com.panda.merge.dto.nonrealttime.query.ThirdMatchInfoDTO" resultMap="com.panda.merge.mapper.ThirdMatchExInfomationMapper.ResultMapWithBLOBs">
+        SELECT t1.*
+        FROM third_match_ex_infomation t1
+        WHERE  t1.modify_time &gt;= #{beginTime}
+        <if test="endTime != null">
+            and  t1.modify_time &lt;= #{endTime}
+        </if>
+        order by t1.modify_time, t1.id
+    </select>
+
+
+</mapper>

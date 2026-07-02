@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.dao.ThirdSportMarketOddsDao">
+    <select id="getMaxId"   resultType="java.lang.Long">
+        select max(id) from third_sport_market_odds
+    </select>
+
+    <select id="getListByParam"  resultMap="com.panda.merge.mapper.ThirdSportMarketOddsMapper.BaseResultMap">
+        select * from third_sport_market_odds  t1
+        where  t1.id &lt;= #{id}
+        order by id desc
+        limit 0,#{limit}
+    </select>
+
+    <update id="upDataList" parameterType="java.util.List">
+        <foreach collection="list" item="record" index="index" open="" close="" separator=";">
+            update third_sport_market_odds_${dataSourceCode}
+            <set>
+                <if test="record.referenceId != null">
+                    reference_id = #{record.referenceId,jdbcType=BIGINT},
+                </if>
+                <if test="record.active != null">
+                    active = #{record.active,jdbcType=TINYINT},
+                </if>
+                <if test="record.settlementResultText != null">
+                    settlement_result_text = #{record.settlementResultText,jdbcType=VARCHAR},
+                </if>
+                <if test="record.settlementResult != null">
+                    settlement_result = #{record.settlementResult,jdbcType=VARCHAR},
+                </if>
+                <if test="record.betSettlementCertainty != null">
+                    bet_settlement_certainty = #{record.betSettlementCertainty,jdbcType=VARCHAR},
+                </if>
+                <if test="record.oddsType != null">
+                    odds_type = #{record.oddsType,jdbcType=VARCHAR},
+                </if>
+                <if test="record.addition1 != null">
+                    addition1 = #{record.addition1,jdbcType=VARCHAR},
+                </if>
+                <if test="record.addition2 != null">
+                    addition2 = #{record.addition2,jdbcType=VARCHAR},
+                </if>
+                <if test="record.addition3 != null">
+                    addition3 = #{record.addition3,jdbcType=VARCHAR},
+                </if>
+                <if test="record.addition4 != null">
+                    addition4 = #{record.addition4,jdbcType=VARCHAR},
+                </if>
+                <if test="record.addition5 != null">
+                    addition5 = #{record.addition5,jdbcType=VARCHAR},
+                </if>
+                <if test="record.orderOdds != null">
+                    order_odds = #{record.orderOdds,jdbcType=INTEGER},
+                </if>
+                <if test="record.nameCode != null">
+                    name_code = #{record.nameCode,jdbcType=BIGINT},
+                </if>
+                <if test="record.nameExpressionValue != null">
+                    name_expression_value = #{record.nameExpressionValue,jdbcType=VARCHAR},
+                </if>
+                <if test="record.oddsValue != null">
+                    odds_value = #{record.oddsValue,jdbcType=INTEGER},
+                </if>
+                <if test="record.paOddsValue != null">
+                    pa_odds_value = #{record.paOddsValue,jdbcType=INTEGER},
+                </if>
+                <if test="record.originalOddsValue != null">
+                    original_odds_value = #{record.originalOddsValue,jdbcType=INTEGER},
+                </if>
+                <if test="record.oddsFieldsTemplateId != null">
+                    odds_fields_template_id = #{record.oddsFieldsTemplateId,jdbcType=BIGINT},
+                </if>
+                <if test="record.thirdTemplateSourceId != null">
+                    third_template_source_id = #{record.thirdTemplateSourceId,jdbcType=VARCHAR},
+                </if>
+                <if test="record.targetSide != null">
+                    target_side = #{record.targetSide,jdbcType=VARCHAR},
+                </if>
+                <if test="record.remark != null">
+                    remark = #{record.remark,jdbcType=VARCHAR},
+                </if>
+                <if test="record.createTime != null">
+                    create_time = #{record.createTime,jdbcType=BIGINT},
+                </if>
+                <if test="record.modifyTime != null">
+                    modify_time = #{record.modifyTime,jdbcType=BIGINT},
+                </if>
+                <if test="record.extraInfo != null">
+                    extra_info = #{record.extraInfo,jdbcType=VARCHAR},
+                </if>
+                <if test="record.name != null">
+                    name = #{record.name,jdbcType=VARCHAR},
+                </if>
+                <if test="record.thirdMatchId != null">
+                    third_match_id = #{record.thirdMatchId,jdbcType=BIGINT},
+                </if>
+            </set>
+            where data_source_code = #{dataSourceCode,jdbcType=VARCHAR} AND id = #{record.id,jdbcType=BIGINT}
+        </foreach>
+    </update>
+
+</mapper>

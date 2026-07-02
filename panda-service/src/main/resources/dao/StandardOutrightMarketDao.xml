@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.dao.StandardOutrightMarketDao">
+
+
+    <insert id="saveBatch">
+        insert into standard_outright_market (
+            id, standard_match_id, market_category_id, market_sell_status, name_code, market_status,next_closing_time,link_id, create_time, modfiy_time
+        ) values
+        <foreach collection="standardOutrightMarketList" item="item" index="index" separator=",">
+        (
+            #{item.id},#{item.standardMatchId}, #{item.marketCategoryId}, #{item.marketSellStatus},#{item.nameCode}, #{item.marketStatus}, #{item.nextClosingTime}, #{item.linkId},
+            REPLACE(unix_timestamp(current_timestamp(3)),'.',''),REPLACE(unix_timestamp(current_timestamp(3)),'.','')
+        )
+        </foreach>
+    </insert>
+
+
+    <update id="updateBatchById">
+        <foreach collection="standardOutrightMarketList" item="item" index="index" open="" close="" separator=";">
+            UPDATE standard_outright_market set
+            <if test="item.marketStatus != null">
+                market_status = #{item.marketStatus},
+            </if>
+            modify_time = REPLACE(unix_timestamp(current_timestamp(3)),'.','')
+            WHERE id = #{item.id,jdbcType=BIGINT}
+        </foreach>
+    </update>
+
+</mapper>

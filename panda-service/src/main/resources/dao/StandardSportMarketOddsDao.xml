@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.dao.StandardSportMarketOddsDao">
+
+    <select id="getMarketOddsByMatchIdList" resultMap="com.panda.merge.mapper.StandardSportMarketOddsMapper.BaseResultMap" >
+        SELECT
+        <include refid="com.panda.merge.mapper.StandardSportMarketOddsMapper.Base_Column_List"></include>
+        FROM standard_sport_market_odds
+        WHERE market_id in
+        <foreach collection="marketIdList" item="marketId" open="(" separator="," close=")">
+            #{marketId}
+        </foreach>
+    </select>
+</mapper>

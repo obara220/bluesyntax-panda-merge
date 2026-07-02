@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.dao.ThirdMarketCategoryDao">
+
+
+    <update id="updateBatchById">
+        <foreach collection="categoryList" item="item" index="index" open="" close="" separator=";">
+            UPDATE third_market_category
+            <trim prefix="SET" suffixOverrides=",">
+                <if test="item.nameCode != null">
+                    name_code = #{item.nameCode,jdbcType=BIGINT},
+                </if>
+                <if test="item.fieldsNum != null">
+                    fields_num = #{item.fieldsNum,jdbcType=INTEGER},
+                </if>
+                <if test="item.thirdSourceId != null">
+                    third_source_id = #{item.thirdSourceId,jdbcType=VARCHAR},
+                </if>
+                <if test="item.referenceId != null">
+                    reference_id = #{item.referenceId,jdbcType=BIGINT},
+                </if>
+                <if test="item.dataSourceCode != null">
+                    data_source_code = #{item.dataSourceCode,jdbcType=VARCHAR},
+                </if>
+                <if test="item.active != null">
+                    active = #{item.active,jdbcType=TINYINT},
+                </if>
+                <if test="item.createTime != null">
+                    create_time = #{item.createTime,jdbcType=BIGINT},
+                </if>
+                <if test="item.modifyTime != null">
+                    modify_time = #{item.modifyTime,jdbcType=BIGINT},
+                </if>
+            </trim>
+            WHERE id = #{item.id,jdbcType=BIGINT}
+        </foreach>
+    </update>
+</mapper>

@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.dao.StandardMatchInfoDao">
+
+    <resultMap id="childResultMap" type="com.panda.merge.dto.StandardMatchInfoDetail" extends="com.panda.merge.mapper.StandardMatchInfoMapper.ResultMapWithBLOBs">
+        <result column="tournament_level" jdbcType="TINYINT" property="tournamentLevel" />
+        <result column="display_market_count" jdbcType="TINYINT" property="displayMarketCount" />
+        <result column="live_market_count" jdbcType="TINYINT" property="liveMarketCount" />
+        <association property="marketSell" resultMap="com.panda.merge.mapper.StandardSportMarketSellMapper.BaseResultMap" columnPrefix="sell_"/>
+    </resultMap>
+	<resultMap id="BaseResultMap" type="com.panda.merge.model.StandardMatchInfo">
+	    <id column="id" jdbcType="BIGINT" property="id" />
+	    <result column="sport_id" jdbcType="BIGINT" property="sportId" />
+	    <result column="standard_tournament_id" jdbcType="BIGINT" property="standardTournamentId" />
+	    <result column="third_match_id" jdbcType="BIGINT" property="thirdMatchId" />
+	    <result column="seconds_match_start" jdbcType="INTEGER" property="secondsMatchStart" />
+	    <result column="seconds_match_modify_time" jdbcType="BIGINT" property="secondsMatchModifyTime" />
+	    <result column="pre_match_business" jdbcType="TINYINT" property="preMatchBusiness" />
+	    <result column="live_odd_business" jdbcType="TINYINT" property="liveOddBusiness" />
+	    <result column="odds_live" jdbcType="TINYINT" property="oddsLive" />
+	    <result column="operate_match_status" jdbcType="TINYINT" property="operateMatchStatus" />
+	    <result column="begin_time" jdbcType="BIGINT" property="beginTime" />
+	    <result column="begin_time_status" jdbcType="TINYINT" property="beginTimeStatus" />
+	    <result column="active" jdbcType="TINYINT" property="active" />
+	    <result column="match_status" jdbcType="TINYINT" property="matchStatus" />
+	    <result column="neutral_ground" jdbcType="TINYINT" property="neutralGround" />
+	    <result column="neutral_ground_status" jdbcType="TINYINT" property="neutralGroundStatus" />
+	    <result column="match_manage_id" jdbcType="VARCHAR" property="matchManageId" />
+	    <result column="match_position_name" jdbcType="VARCHAR" property="matchPositionName" />
+	    <result column="match_position_name_code" jdbcType="BIGINT" property="matchPositionNameCode" />
+	    <result column="risk_manager_code" jdbcType="VARCHAR" property="riskManagerCode" />
+	    <result column="data_source_code" jdbcType="VARCHAR" property="dataSourceCode" />
+	    <result column="related_data_source_coder_list" jdbcType="VARCHAR" property="relatedDataSourceCoderList" />
+	    <result column="related_data_source_coder_num" jdbcType="INTEGER" property="relatedDataSourceCoderNum" />
+	    <result column="match_data_provider_code" jdbcType="VARCHAR" property="matchDataProviderCode" />
+	    <result column="third_match_source_id" jdbcType="VARCHAR" property="thirdMatchSourceId" />
+	    <result column="home_away_info" jdbcType="VARCHAR" property="homeAwayInfo" />
+	    <result column="reverse_status" jdbcType="VARCHAR" property="reverseStatus" />
+	    <result column="parent_id" jdbcType="BIGINT" property="parentId" />
+	    <result column="whether_stop" jdbcType="INTEGER" property="whetherStop" />
+	    <result column="bet_status" jdbcType="TINYINT" property="betStatus" />
+	    <result column="match_period_id" jdbcType="BIGINT" property="matchPeriodId" />
+	    <result column="match_type" jdbcType="INTEGER" property="matchType" />
+	    <result column="season_id" jdbcType="VARCHAR" property="seasonId" />
+	    <result column="tournament_round_type" jdbcType="VARCHAR" property="tournamentRoundType" />
+	    <result column="tournament_round_number" jdbcType="INTEGER" property="tournamentRoundNumber" />
+	    <result column="tournament_round_group" jdbcType="VARCHAR" property="tournamentRoundGroup" />
+	    <result column="tournament_round_name" jdbcType="VARCHAR" property="tournamentRoundName" />
+	    <result column="tournament_round_phase" jdbcType="VARCHAR" property="tournamentRoundPhase" />
+	    <result column="round_type" jdbcType="INTEGER" property="roundType" />
+	    <result column="sold_flag" jdbcType="VARCHAR" property="soldFlag" />
+	    <result column="lottery_number" jdbcType="VARCHAR" property="lotteryNumber" />
+	    <result column="match_length" jdbcType="INTEGER" property="matchLength" />
+	    <result column="site_type" jdbcType="INTEGER" property="siteType" />
+	    <result column="match_over" jdbcType="INTEGER" property="matchOver" />
+	    <result column="hot_match_status" jdbcType="TINYINT" property="hotMatchStatus" />
+	    <result column="financial_time" jdbcType="BIGINT" property="financialTime" />
+	    <result column="remark" jdbcType="VARCHAR" property="remark" />
+	    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+	    <result column="modify_time" jdbcType="BIGINT" property="modifyTime" />
+	    <result column="tournament_name_code" jdbcType="BIGINT" property="tournamentNameCode" />
+	  </resultMap>
+    <select id="getItemPage" resultMap="childResultMap">
+        select t.tournament_level,m.*
+        from   standard_match_info m,standard_sport_tournament t
+        where  m.standard_tournament_id = t.id
+        and    m.operate_match_status in (1,2,3)
+        and    match_over in (0,2)
+        order by m.modify_time DESC,m.id
+    </select>
+
+    <select id="getItemPageByModifyTime" parameterType="com.panda.merge.dto.StandardMatchInfoDTO" resultMap="childResultMap">
+        SELECT m.*,
+        s.pre_match_time sell_pre_match_time,s.live_odd_time sell_live_odd_time,s.pre_risk_manager_code sell_pre_risk_manager_code,
+        s.live_risk_manager_code sell_live_risk_manager_code,s.tournament_level sell_tournament_level,
+        s.pre_match_sell_status sell_pre_match_sell_status,s.live_match_sell_status sell_live_match_sell_status,
+        s.label sell_label,s.business_event sell_business_event,s.auditor_id sell_auditor_id, s.auditor sell_auditor,
+        s.live_match_data_provider_code sell_live_match_data_provider_code,s.pre_match_data_provider_code sell_pre_match_data_provider_code,
+        s.pre_trader_id sell_pre_trader_id,s.pre_trader sell_pre_trader,s.live_trader_id sell_live_trader_id,s.live_trader sell_live_trader,
+        s.video_code sell_video_code,s.animation_code sell_animation_code
+        FROM   standard_match_info m JOIN standard_sport_market_sell s on s.match_info_id = m.id
+        WHERE 1 = 1
+        <if test="beginTime != null">
+            and m.modify_time &gt;= #{beginTime}
+        </if>
+        <if test="endTime != null">
+            and    m.modify_time &lt;= #{endTime}
+        </if>
+        order by m.modify_time, m.id
+    </select>
+
+    <select id="getItemByThirdSourceId" parameterType="com.panda.merge.model.StandardMatchInfo" resultMap="childResultMap">
+        select t.tournament_level,m.*
+        from   standard_match_info m,standard_sport_tournament t
+        where  m.standard_tournament_id = t.id
+        and    m.data_source_code= #{dataSourceCode}
+        <if test="thirdSportId != null">
+            and    m.sport_id = #{thirdSportId}
+        </if>
+        and    m.third_match_source_id = #{thirdMatchSourceId}
+    </select>
+
+    <select id="getItemById" parameterType="java.lang.Long" resultMap="childResultMap">
+        select t.tournament_level,m.*
+        from   standard_match_info m left join standard_sport_tournament t on m.standard_tournament_id = t.id
+        where  m.id = #{id}
+    </select>
+
+	<sql id="Base_Column_List">
+	    t.id, t.sport_id, t.standard_tournament_id, t.third_match_id, t.seconds_match_start, t.seconds_match_modify_time, 
+	    t.pre_match_business, t.live_odd_business, t.odds_live, t.operate_match_status, t.begin_time, 
+	    t.begin_time_status, t.active, t.match_status, t.neutral_ground, t.neutral_ground_status, t.match_manage_id, 
+	    t.match_position_name, t.match_position_name_code, t.risk_manager_code, t.data_source_code, 
+	    t.related_data_source_coder_list, t.related_data_source_coder_num, t.match_data_provider_code, 
+	    t.third_match_source_id, t.home_away_info, t.reverse_status, t.parent_id, t.whether_stop, t.bet_status, 
+	    t.match_period_id, t.match_type, t.season_id, t.tournament_round_type, t.tournament_round_number, 
+	    t.tournament_round_group, t.tournament_round_name, t.tournament_round_phase, t.round_type, 
+	    t.sold_flag, t.lottery_number, t.match_length, t.site_type, t.match_over, t.hot_match_status, 
+	    t.financial_time, t.remark, t.create_time, t.modify_time, t.tournament_name_code
+    </sql>
+	<select id="selectActiveByMarketCategoryIdAndSportId" parameterType="java.util.Map" resultMap="BaseResultMap">
+	    select
+	    <include refid="Base_Column_List" />
+	    from standard_match_info t, market_category_sell m where
+	    t.id = m.match_id and m.market_category_id = #{categoryId, jdbcType=INTEGER} and t.match_over = 0 and t.sport_id = #{sportId, jdbcType=INTEGER}
+    </select>
+	<select id="selectByConfigCashOutItem" parameterType="java.lang.String" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+
+		from standard_match_info t
+		where id in ( select DISTINCT(match_id)from config_cash_out_trade_item where data_source_code=#{dataSourceCode,jdbcType=VARCHAR} ) and match_over = 0
+	</select>
+</mapper>

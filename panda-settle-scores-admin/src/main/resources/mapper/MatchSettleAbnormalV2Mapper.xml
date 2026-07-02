@@ -1,0 +1,418 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.v2.mapper.MatchSettleAbnormalV2Mapper">
+  <resultMap id="BaseResultMap" type="com.panda.merge.v2.entity.MatchSettleAbnormalEntity">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="event_code" jdbcType="VARCHAR" property="eventCode" />
+    <result column="t1" jdbcType="INTEGER" property="t1" />
+    <result column="t2" jdbcType="INTEGER" property="t2" />
+    <result column="extry_info" jdbcType="VARCHAR" property="extryInfo" />
+    <result column="event_name" jdbcType="VARCHAR" property="eventName" />
+    <result column="operater" jdbcType="VARCHAR" property="operater" />
+    <result column="userId" jdbcType="VARCHAR" property="userid" />
+    <result column="settle_times" jdbcType="INTEGER" property="settleTimes" />
+    <result column="settle_count" jdbcType="INTEGER" property="settleCount" />
+    <result column="settle_num" jdbcType="VARCHAR" property="settleNum" />
+    <result column="sport_id" jdbcType="BIGINT" property="sportId" />
+    <result column="standard_match_id" jdbcType="BIGINT" property="standardMatchId" />
+    <result column="period_id" jdbcType="BIGINT" property="periodId" />
+    <result column="is_scores" jdbcType="INTEGER" property="isScores" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="modify_time" jdbcType="BIGINT" property="modifyTime" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, event_code, t1, t2, extry_info, event_name, operater, userId, settle_times, settle_count, 
+    settle_num, sport_id, standard_match_id, period_id, is_scores, status, modify_time, 
+    create_time
+  </sql>
+  <select id="selectByExample" parameterType="com.panda.merge.model.MatchSettleAbnormalExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from match_settle_abnormal
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from match_settle_abnormal
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from match_settle_abnormal
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.panda.merge.model.MatchSettleAbnormalExample">
+    delete from match_settle_abnormal
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.panda.merge.model.MatchSettleAbnormal">
+    insert into match_settle_abnormal (id, event_code, t1, 
+      t2, extry_info, event_name, 
+      operater, userId, settle_times, 
+      settle_count, settle_num, sport_id, 
+      standard_match_id, period_id, is_scores, 
+      status, modify_time, create_time
+      )
+    values (#{id,jdbcType=BIGINT}, #{eventCode,jdbcType=VARCHAR}, #{t1,jdbcType=INTEGER}, 
+      #{t2,jdbcType=INTEGER}, #{extryInfo,jdbcType=VARCHAR}, #{eventName,jdbcType=VARCHAR}, 
+      #{operater,jdbcType=VARCHAR}, #{userid,jdbcType=VARCHAR}, #{settleTimes,jdbcType=INTEGER}, 
+      #{settleCount,jdbcType=INTEGER}, #{settleNum,jdbcType=VARCHAR}, #{sportId,jdbcType=BIGINT}, 
+      #{standardMatchId,jdbcType=BIGINT}, #{periodId,jdbcType=BIGINT}, #{isScores,jdbcType=INTEGER}, 
+      #{status,jdbcType=INTEGER}, #{modifyTime,jdbcType=BIGINT}, #{createTime,jdbcType=BIGINT}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.panda.merge.model.MatchSettleAbnormal">
+    insert into match_settle_abnormal
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="eventCode != null">
+        event_code,
+      </if>
+      <if test="t1 != null">
+        t1,
+      </if>
+      <if test="t2 != null">
+        t2,
+      </if>
+      <if test="extryInfo != null">
+        extry_info,
+      </if>
+      <if test="eventName != null">
+        event_name,
+      </if>
+      <if test="operater != null">
+        operater,
+      </if>
+      <if test="userid != null">
+        userId,
+      </if>
+      <if test="settleTimes != null">
+        settle_times,
+      </if>
+      <if test="settleCount != null">
+        settle_count,
+      </if>
+      <if test="settleNum != null">
+        settle_num,
+      </if>
+      <if test="sportId != null">
+        sport_id,
+      </if>
+      <if test="standardMatchId != null">
+        standard_match_id,
+      </if>
+      <if test="periodId != null">
+        period_id,
+      </if>
+      <if test="isScores != null">
+        is_scores,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="modifyTime != null">
+        modify_time,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="eventCode != null">
+        #{eventCode,jdbcType=VARCHAR},
+      </if>
+      <if test="t1 != null">
+        #{t1,jdbcType=INTEGER},
+      </if>
+      <if test="t2 != null">
+        #{t2,jdbcType=INTEGER},
+      </if>
+      <if test="extryInfo != null">
+        #{extryInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="eventName != null">
+        #{eventName,jdbcType=VARCHAR},
+      </if>
+      <if test="operater != null">
+        #{operater,jdbcType=VARCHAR},
+      </if>
+      <if test="userid != null">
+        #{userid,jdbcType=VARCHAR},
+      </if>
+      <if test="settleTimes != null">
+        #{settleTimes,jdbcType=INTEGER},
+      </if>
+      <if test="settleCount != null">
+        #{settleCount,jdbcType=INTEGER},
+      </if>
+      <if test="settleNum != null">
+        #{settleNum,jdbcType=VARCHAR},
+      </if>
+      <if test="sportId != null">
+        #{sportId,jdbcType=BIGINT},
+      </if>
+      <if test="standardMatchId != null">
+        #{standardMatchId,jdbcType=BIGINT},
+      </if>
+      <if test="periodId != null">
+        #{periodId,jdbcType=BIGINT},
+      </if>
+      <if test="isScores != null">
+        #{isScores,jdbcType=INTEGER},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="modifyTime != null">
+        #{modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.panda.merge.model.MatchSettleAbnormalExample" resultType="java.lang.Long">
+    select count(*) from match_settle_abnormal
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update match_settle_abnormal
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.eventCode != null">
+        event_code = #{record.eventCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.t1 != null">
+        t1 = #{record.t1,jdbcType=INTEGER},
+      </if>
+      <if test="record.t2 != null">
+        t2 = #{record.t2,jdbcType=INTEGER},
+      </if>
+      <if test="record.extryInfo != null">
+        extry_info = #{record.extryInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.eventName != null">
+        event_name = #{record.eventName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.operater != null">
+        operater = #{record.operater,jdbcType=VARCHAR},
+      </if>
+      <if test="record.userid != null">
+        userId = #{record.userid,jdbcType=VARCHAR},
+      </if>
+      <if test="record.settleTimes != null">
+        settle_times = #{record.settleTimes,jdbcType=INTEGER},
+      </if>
+      <if test="record.settleCount != null">
+        settle_count = #{record.settleCount,jdbcType=INTEGER},
+      </if>
+      <if test="record.settleNum != null">
+        settle_num = #{record.settleNum,jdbcType=VARCHAR},
+      </if>
+      <if test="record.sportId != null">
+        sport_id = #{record.sportId,jdbcType=BIGINT},
+      </if>
+      <if test="record.standardMatchId != null">
+        standard_match_id = #{record.standardMatchId,jdbcType=BIGINT},
+      </if>
+      <if test="record.periodId != null">
+        period_id = #{record.periodId,jdbcType=BIGINT},
+      </if>
+      <if test="record.isScores != null">
+        is_scores = #{record.isScores,jdbcType=INTEGER},
+      </if>
+      <if test="record.status != null">
+        status = #{record.status,jdbcType=INTEGER},
+      </if>
+      <if test="record.modifyTime != null">
+        modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update match_settle_abnormal
+    set id = #{record.id,jdbcType=BIGINT},
+      event_code = #{record.eventCode,jdbcType=VARCHAR},
+      t1 = #{record.t1,jdbcType=INTEGER},
+      t2 = #{record.t2,jdbcType=INTEGER},
+      extry_info = #{record.extryInfo,jdbcType=VARCHAR},
+      event_name = #{record.eventName,jdbcType=VARCHAR},
+      operater = #{record.operater,jdbcType=VARCHAR},
+      userId = #{record.userid,jdbcType=VARCHAR},
+      settle_times = #{record.settleTimes,jdbcType=INTEGER},
+      settle_count = #{record.settleCount,jdbcType=INTEGER},
+      settle_num = #{record.settleNum,jdbcType=VARCHAR},
+      sport_id = #{record.sportId,jdbcType=BIGINT},
+      standard_match_id = #{record.standardMatchId,jdbcType=BIGINT},
+      period_id = #{record.periodId,jdbcType=BIGINT},
+      is_scores = #{record.isScores,jdbcType=INTEGER},
+      status = #{record.status,jdbcType=INTEGER},
+      modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      create_time = #{record.createTime,jdbcType=BIGINT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.panda.merge.model.MatchSettleAbnormal">
+    update match_settle_abnormal
+    <set>
+      <if test="eventCode != null">
+        event_code = #{eventCode,jdbcType=VARCHAR},
+      </if>
+      <if test="t1 != null">
+        t1 = #{t1,jdbcType=INTEGER},
+      </if>
+      <if test="t2 != null">
+        t2 = #{t2,jdbcType=INTEGER},
+      </if>
+      <if test="extryInfo != null">
+        extry_info = #{extryInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="eventName != null">
+        event_name = #{eventName,jdbcType=VARCHAR},
+      </if>
+      <if test="operater != null">
+        operater = #{operater,jdbcType=VARCHAR},
+      </if>
+      <if test="userid != null">
+        userId = #{userid,jdbcType=VARCHAR},
+      </if>
+      <if test="settleTimes != null">
+        settle_times = #{settleTimes,jdbcType=INTEGER},
+      </if>
+      <if test="settleCount != null">
+        settle_count = #{settleCount,jdbcType=INTEGER},
+      </if>
+      <if test="settleNum != null">
+        settle_num = #{settleNum,jdbcType=VARCHAR},
+      </if>
+      <if test="sportId != null">
+        sport_id = #{sportId,jdbcType=BIGINT},
+      </if>
+      <if test="standardMatchId != null">
+        standard_match_id = #{standardMatchId,jdbcType=BIGINT},
+      </if>
+      <if test="periodId != null">
+        period_id = #{periodId,jdbcType=BIGINT},
+      </if>
+      <if test="isScores != null">
+        is_scores = #{isScores,jdbcType=INTEGER},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="modifyTime != null">
+        modify_time = #{modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.panda.merge.model.MatchSettleAbnormal">
+    update match_settle_abnormal
+    set event_code = #{eventCode,jdbcType=VARCHAR},
+      t1 = #{t1,jdbcType=INTEGER},
+      t2 = #{t2,jdbcType=INTEGER},
+      extry_info = #{extryInfo,jdbcType=VARCHAR},
+      event_name = #{eventName,jdbcType=VARCHAR},
+      operater = #{operater,jdbcType=VARCHAR},
+      userId = #{userid,jdbcType=VARCHAR},
+      settle_times = #{settleTimes,jdbcType=INTEGER},
+      settle_count = #{settleCount,jdbcType=INTEGER},
+      settle_num = #{settleNum,jdbcType=VARCHAR},
+      sport_id = #{sportId,jdbcType=BIGINT},
+      standard_match_id = #{standardMatchId,jdbcType=BIGINT},
+      period_id = #{periodId,jdbcType=BIGINT},
+      is_scores = #{isScores,jdbcType=INTEGER},
+      status = #{status,jdbcType=INTEGER},
+      modify_time = #{modifyTime,jdbcType=BIGINT},
+      create_time = #{createTime,jdbcType=BIGINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

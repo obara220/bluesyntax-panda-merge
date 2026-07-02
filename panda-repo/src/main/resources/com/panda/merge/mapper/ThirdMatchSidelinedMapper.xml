@@ -1,0 +1,418 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.mapper.ThirdMatchSidelinedMapper">
+  <resultMap id="BaseResultMap" type="com.panda.merge.model.ThirdMatchSidelined">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="third_match_source_id" jdbcType="VARCHAR" property="thirdMatchSourceId" />
+    <result column="sport_id" jdbcType="BIGINT" property="sportId" />
+    <result column="data_source_code" jdbcType="VARCHAR" property="dataSourceCode" />
+    <result column="third_team_source_id" jdbcType="VARCHAR" property="thirdTeamSourceId" />
+    <result column="third_player_source_id" jdbcType="VARCHAR" property="thirdPlayerSourceId" />
+    <result column="third_player_name" jdbcType="VARCHAR" property="thirdPlayerName" />
+    <result column="third_player_en_name" jdbcType="VARCHAR" property="thirdPlayerEnName" />
+    <result column="third_player_pic_url" jdbcType="VARCHAR" property="thirdPlayerPicUrl" />
+    <result column="position" jdbcType="VARCHAR" property="position" />
+    <result column="shirt_number" jdbcType="INTEGER" property="shirtNumber" />
+    <result column="home_away" jdbcType="INTEGER" property="homeAway" />
+    <result column="reason" jdbcType="VARCHAR" property="reason" />
+    <result column="description_id" jdbcType="VARCHAR" property="descriptionId" />
+    <result column="description" jdbcType="VARCHAR" property="description" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="modify_time" jdbcType="BIGINT" property="modifyTime" />
+    <result column="invalid" jdbcType="TINYINT" property="invalid" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, third_match_source_id, sport_id, data_source_code, third_team_source_id, third_player_source_id,
+    third_player_name, third_player_en_name, third_player_pic_url, position, shirt_number,
+    home_away, reason, description_id, description, create_time, modify_time, invalid
+  </sql>
+  <select id="selectByExample" parameterType="com.panda.merge.model.ThirdMatchSidelinedExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from third_match_sidelined
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from third_match_sidelined
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from third_match_sidelined
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.panda.merge.model.ThirdMatchSidelinedExample">
+    delete from third_match_sidelined
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.panda.merge.model.ThirdMatchSidelined">
+    insert into third_match_sidelined (id, third_match_source_id, sport_id,
+      data_source_code, third_team_source_id, third_player_source_id,
+      third_player_name, third_player_en_name, third_player_pic_url,
+      position, shirt_number, home_away,
+      reason, description_id, description,
+      create_time, modify_time, invalid
+      )
+    values (#{id,jdbcType=VARCHAR}, #{thirdMatchSourceId,jdbcType=VARCHAR}, #{sportId,jdbcType=BIGINT},
+      #{dataSourceCode,jdbcType=VARCHAR}, #{thirdTeamSourceId,jdbcType=VARCHAR}, #{thirdPlayerSourceId,jdbcType=VARCHAR},
+      #{thirdPlayerName,jdbcType=VARCHAR}, #{thirdPlayerEnName,jdbcType=VARCHAR}, #{thirdPlayerPicUrl,jdbcType=VARCHAR},
+      #{position,jdbcType=VARCHAR}, #{shirtNumber,jdbcType=INTEGER}, #{homeAway,jdbcType=INTEGER},
+      #{reason,jdbcType=VARCHAR}, #{descriptionId,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR},
+      #{createTime,jdbcType=BIGINT}, #{modifyTime,jdbcType=BIGINT}, #{invalid,jdbcType=TINYINT}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.panda.merge.model.ThirdMatchSidelined">
+    insert into third_match_sidelined
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="thirdMatchSourceId != null">
+        third_match_source_id,
+      </if>
+      <if test="sportId != null">
+        sport_id,
+      </if>
+      <if test="dataSourceCode != null">
+        data_source_code,
+      </if>
+      <if test="thirdTeamSourceId != null">
+        third_team_source_id,
+      </if>
+      <if test="thirdPlayerSourceId != null">
+        third_player_source_id,
+      </if>
+      <if test="thirdPlayerName != null">
+        third_player_name,
+      </if>
+      <if test="thirdPlayerEnName != null">
+        third_player_en_name,
+      </if>
+      <if test="thirdPlayerPicUrl != null">
+        third_player_pic_url,
+      </if>
+      <if test="position != null">
+        position,
+      </if>
+      <if test="shirtNumber != null">
+        shirt_number,
+      </if>
+      <if test="homeAway != null">
+        home_away,
+      </if>
+      <if test="reason != null">
+        reason,
+      </if>
+      <if test="descriptionId != null">
+        description_id,
+      </if>
+      <if test="description != null">
+        description,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="modifyTime != null">
+        modify_time,
+      </if>
+      <if test="invalid != null">
+        invalid,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdMatchSourceId != null">
+        #{thirdMatchSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="sportId != null">
+        #{sportId,jdbcType=BIGINT},
+      </if>
+      <if test="dataSourceCode != null">
+        #{dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdTeamSourceId != null">
+        #{thirdTeamSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdPlayerSourceId != null">
+        #{thirdPlayerSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdPlayerName != null">
+        #{thirdPlayerName,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdPlayerEnName != null">
+        #{thirdPlayerEnName,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdPlayerPicUrl != null">
+        #{thirdPlayerPicUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="position != null">
+        #{position,jdbcType=VARCHAR},
+      </if>
+      <if test="shirtNumber != null">
+        #{shirtNumber,jdbcType=INTEGER},
+      </if>
+      <if test="homeAway != null">
+        #{homeAway,jdbcType=INTEGER},
+      </if>
+      <if test="reason != null">
+        #{reason,jdbcType=VARCHAR},
+      </if>
+      <if test="descriptionId != null">
+        #{descriptionId,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null">
+        #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null">
+        #{modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="invalid != null">
+        #{invalid,jdbcType=TINYINT},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.panda.merge.model.ThirdMatchSidelinedExample" resultType="java.lang.Long">
+    select count(*) from third_match_sidelined
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update third_match_sidelined
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
+      </if>
+      <if test="record.thirdMatchSourceId != null">
+        third_match_source_id = #{record.thirdMatchSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.sportId != null">
+        sport_id = #{record.sportId,jdbcType=BIGINT},
+      </if>
+      <if test="record.dataSourceCode != null">
+        data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.thirdTeamSourceId != null">
+        third_team_source_id = #{record.thirdTeamSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.thirdPlayerSourceId != null">
+        third_player_source_id = #{record.thirdPlayerSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.thirdPlayerName != null">
+        third_player_name = #{record.thirdPlayerName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.thirdPlayerEnName != null">
+        third_player_en_name = #{record.thirdPlayerEnName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.thirdPlayerPicUrl != null">
+        third_player_pic_url = #{record.thirdPlayerPicUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.position != null">
+        position = #{record.position,jdbcType=VARCHAR},
+      </if>
+      <if test="record.shirtNumber != null">
+        shirt_number = #{record.shirtNumber,jdbcType=INTEGER},
+      </if>
+      <if test="record.homeAway != null">
+        home_away = #{record.homeAway,jdbcType=INTEGER},
+      </if>
+      <if test="record.reason != null">
+        reason = #{record.reason,jdbcType=VARCHAR},
+      </if>
+      <if test="record.descriptionId != null">
+        description_id = #{record.descriptionId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.description != null">
+        description = #{record.description,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.modifyTime != null">
+        modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.invalid != null">
+        invalid = #{record.invalid,jdbcType=TINYINT},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update third_match_sidelined
+    set id = #{record.id,jdbcType=VARCHAR},
+      third_match_source_id = #{record.thirdMatchSourceId,jdbcType=VARCHAR},
+      sport_id = #{record.sportId,jdbcType=BIGINT},
+      data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+      third_team_source_id = #{record.thirdTeamSourceId,jdbcType=VARCHAR},
+      third_player_source_id = #{record.thirdPlayerSourceId,jdbcType=VARCHAR},
+      third_player_name = #{record.thirdPlayerName,jdbcType=VARCHAR},
+      third_player_en_name = #{record.thirdPlayerEnName,jdbcType=VARCHAR},
+      third_player_pic_url = #{record.thirdPlayerPicUrl,jdbcType=VARCHAR},
+      position = #{record.position,jdbcType=VARCHAR},
+      shirt_number = #{record.shirtNumber,jdbcType=INTEGER},
+      home_away = #{record.homeAway,jdbcType=INTEGER},
+      reason = #{record.reason,jdbcType=VARCHAR},
+      description_id = #{record.descriptionId,jdbcType=VARCHAR},
+      description = #{record.description,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      invalid = #{record.invalid,jdbcType=TINYINT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.panda.merge.model.ThirdMatchSidelined">
+    update third_match_sidelined
+    <set>
+      <if test="thirdMatchSourceId != null">
+        third_match_source_id = #{thirdMatchSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="sportId != null">
+        sport_id = #{sportId,jdbcType=BIGINT},
+      </if>
+      <if test="dataSourceCode != null">
+        data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdTeamSourceId != null">
+        third_team_source_id = #{thirdTeamSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdPlayerSourceId != null">
+        third_player_source_id = #{thirdPlayerSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdPlayerName != null">
+        third_player_name = #{thirdPlayerName,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdPlayerEnName != null">
+        third_player_en_name = #{thirdPlayerEnName,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdPlayerPicUrl != null">
+        third_player_pic_url = #{thirdPlayerPicUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="position != null">
+        position = #{position,jdbcType=VARCHAR},
+      </if>
+      <if test="shirtNumber != null">
+        shirt_number = #{shirtNumber,jdbcType=INTEGER},
+      </if>
+      <if test="homeAway != null">
+        home_away = #{homeAway,jdbcType=INTEGER},
+      </if>
+      <if test="reason != null">
+        reason = #{reason,jdbcType=VARCHAR},
+      </if>
+      <if test="descriptionId != null">
+        description_id = #{descriptionId,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null">
+        description = #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null">
+        modify_time = #{modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="invalid != null">
+        invalid = #{invalid,jdbcType=TINYINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.panda.merge.model.ThirdMatchSidelined">
+    update third_match_sidelined
+    set third_match_source_id = #{thirdMatchSourceId,jdbcType=VARCHAR},
+      sport_id = #{sportId,jdbcType=BIGINT},
+      data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
+      third_team_source_id = #{thirdTeamSourceId,jdbcType=VARCHAR},
+      third_player_source_id = #{thirdPlayerSourceId,jdbcType=VARCHAR},
+      third_player_name = #{thirdPlayerName,jdbcType=VARCHAR},
+      third_player_en_name = #{thirdPlayerEnName,jdbcType=VARCHAR},
+      third_player_pic_url = #{thirdPlayerPicUrl,jdbcType=VARCHAR},
+      position = #{position,jdbcType=VARCHAR},
+      shirt_number = #{shirtNumber,jdbcType=INTEGER},
+      home_away = #{homeAway,jdbcType=INTEGER},
+      reason = #{reason,jdbcType=VARCHAR},
+      description_id = #{descriptionId,jdbcType=VARCHAR},
+      description = #{description,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      modify_time = #{modifyTime,jdbcType=BIGINT},
+      invalid = #{invalid,jdbcType=TINYINT}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>

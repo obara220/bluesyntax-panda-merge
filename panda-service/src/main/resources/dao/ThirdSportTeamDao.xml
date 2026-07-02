@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.dao.ThirdSportTeamDao">
+
+    <resultMap id="childResultMap" type="com.panda.merge.dto.ThirdSportTeamDetail" extends="com.panda.merge.mapper.ThirdSportTeamMapper.BaseResultMap">
+    </resultMap>
+
+    <select id="getItemByThirdTeamSourceId" parameterType="com.panda.merge.dto.ThirdSportTeamDTO" resultMap="childResultMap">
+        select t.*
+        from   third_sport_team t
+        where  t.data_source_code = #{dataSourceCode}
+        and    t.sport_id = #{sportId}
+        and    t.third_team_source_id = #{thirdTeamSourceId}
+    </select>
+
+
+    <select id="getItemsByTeamIds" parameterType="java.util.List" resultMap="childResultMap">
+        select t.*
+        from   third_sport_team t
+        where  t.id IN
+        <foreach item="thirdTeamId" index="index" collection="thirdTeamIds" open="(" separator="," close=")">
+            #{thirdTeamId}
+        </foreach>
+    </select>
+
+
+    <insert id="insertList" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO third_sport_team(
+            id, sport_id, data_source_code, third_team_source_id,name,
+            name_spell, country_id, region_id,type,logo_url,logo_url_thumb,coach,
+            statium,name_code,remark,create_time, modify_time) VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.id}, #{item.sportId}, #{item.dataSourceCode}, #{item.thirdTeamSourceId}, #{item.name},
+            #{item.nameSpell},#{item.countryId},#{item.regionId},#{item.type},#{item.logoUrl},#{item.logoUrlThumb},#{item.coach},
+            #{item.statium},#{item.nameCode},#{item.remark},
+            REPLACE(unix_timestamp(current_timestamp(3)),'.',''), REPLACE(unix_timestamp(current_timestamp(3)),'.',''))
+        </foreach>
+    </insert>
+
+    <update id="updateList" parameterType="java.util.List">
+        <foreach collection="list" item="item" separator=";">
+            UPDATE third_sport_team
+            <set>
+                <if test="item.name != null">
+                    name = #{item.name},
+                </if>
+                <if test="item.nameSpell != null">
+                    name_spell = #{item.nameSpell},
+                </if>
+                <if test="item.countryId != null">
+                    country_id = #{item.countryId},
+                </if>
+                <if test="item.regionId != null">
+                    region_id = #{item.regionId},
+                </if>
+                <if test="item.type != null">
+                    type = #{item.type},
+                </if>
+                <if test="item.logoUrl != null">
+                    logo_url = #{item.logoUrl},
+                </if>
+                <if test="item.logoUrlThumb != null">
+                    logo_url_thumb = #{item.logoUrlThumb},
+                </if>
+                <if test="item.coach != null">
+                    coach = #{item.coach},
+                </if>
+                <if test="item.statium != null">
+                    statium = #{item.statium},
+                </if>
+                <if test="item.remark != null">
+                    remark = #{item.remark},
+                </if>
+                modify_time = REPLACE(unix_timestamp(current_timestamp(3)),'.','')
+            </set>
+            WHERE id = #{item.id}
+        </foreach>
+    </update>
+</mapper>

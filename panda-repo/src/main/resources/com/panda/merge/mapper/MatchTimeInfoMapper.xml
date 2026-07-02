@@ -1,0 +1,505 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.mapper.MatchTimeInfoMapper">
+  <resultMap id="BaseResultMap" type="com.panda.merge.model.MatchTimeInfo">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="third_match_id" jdbcType="BIGINT" property="thirdMatchId" />
+    <result column="data_source_type" jdbcType="VARCHAR" property="dataSourceType" />
+    <result column="period" jdbcType="BIGINT" property="period" />
+    <result column="time_go" jdbcType="TINYINT" property="timeGo" />
+    <result column="second_from_start" jdbcType="BIGINT" property="secondFromStart" />
+    <result column="half_time" jdbcType="BIGINT" property="halfTime" />
+    <result column="rest_time" jdbcType="BIGINT" property="restTime" />
+    <result column="event_time" jdbcType="BIGINT" property="eventTime" />
+    <result column="remaining_time" jdbcType="BIGINT" property="remainingTime" />
+    <result column="match_length" jdbcType="INTEGER" property="matchLength" />
+    <result column="first_num" jdbcType="INTEGER" property="firstNum" />
+    <result column="period_length" jdbcType="BIGINT" property="periodLength" />
+    <result column="period_length_json" jdbcType="VARCHAR" property="periodLengthJson" />
+    <result column="match_length_json" jdbcType="VARCHAR" property="matchLengthJson" />
+    <result column="time_out_list" jdbcType="VARCHAR" property="timeOutList" />
+    <result column="round_type" jdbcType="INTEGER" property="roundType" />
+    <result column="current_set" jdbcType="INTEGER" property="currentSet" />
+    <result column="current_round" jdbcType="INTEGER" property="currentRound" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="modify_time" jdbcType="BIGINT" property="modifyTime" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, third_match_id, data_source_type, period, time_go, second_from_start, half_time, rest_time, event_time,
+    remaining_time, match_length, first_num, period_length, period_length_json, match_length_json, 
+    time_out_list, round_type, current_set, current_round, create_time, modify_time
+  </sql>
+  <select id="selectByExample" parameterType="com.panda.merge.model.MatchTimeInfoExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from match_time_info
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from match_time_info
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from match_time_info
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.panda.merge.model.MatchTimeInfoExample">
+    delete from match_time_info
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.panda.merge.model.MatchTimeInfo">
+    insert into match_time_info (id, third_match_id, data_source_type, 
+      period, time_go, second_from_start, 
+      event_time, remaining_time, match_length, 
+      first_num, period_length, period_length_json, 
+      match_length_json, round_type, current_set, 
+      current_round, create_time, modify_time
+      )
+    values (#{id,jdbcType=BIGINT}, #{thirdMatchId,jdbcType=BIGINT}, #{dataSourceType,jdbcType=VARCHAR}, 
+      #{period,jdbcType=BIGINT}, #{timeGo,jdbcType=TINYINT}, #{secondFromStart,jdbcType=BIGINT}, 
+      #{eventTime,jdbcType=BIGINT}, #{remainingTime,jdbcType=BIGINT}, #{matchLength,jdbcType=INTEGER}, 
+      #{firstNum,jdbcType=INTEGER}, #{periodLength,jdbcType=BIGINT}, #{periodLengthJson,jdbcType=VARCHAR}, 
+      #{matchLengthJson,jdbcType=VARCHAR}, #{roundType,jdbcType=INTEGER}, #{currentSet,jdbcType=INTEGER}, 
+      #{currentRound,jdbcType=INTEGER}, #{createTime,jdbcType=BIGINT}, #{modifyTime,jdbcType=BIGINT}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.panda.merge.model.MatchTimeInfo">
+    insert into match_time_info
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="thirdMatchId != null">
+        third_match_id,
+      </if>
+      <if test="dataSourceType != null">
+        data_source_type,
+      </if>
+      <if test="period != null">
+        period,
+      </if>
+      <if test="timeGo != null">
+        time_go,
+      </if>
+      <if test="secondFromStart != null">
+        second_from_start,
+      </if>
+      <if test="eventTime != null">
+        event_time,
+      </if>
+      <if test="remainingTime != null">
+        remaining_time,
+      </if>
+      <if test="matchLength != null">
+        match_length,
+      </if>
+      <if test="firstNum != null">
+        first_num,
+      </if>
+      <if test="periodLength != null">
+        period_length,
+      </if>
+      <if test="periodLengthJson != null">
+        period_length_json,
+      </if>
+      <if test="matchLengthJson != null">
+        match_length_json,
+      </if>
+      <if test="roundType != null">
+        round_type,
+      </if>
+      <if test="currentSet != null">
+        current_set,
+      </if>
+      <if test="currentRound != null">
+        current_round,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="modifyTime != null">
+        modify_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="thirdMatchId != null">
+        #{thirdMatchId,jdbcType=BIGINT},
+      </if>
+      <if test="dataSourceType != null">
+        #{dataSourceType,jdbcType=VARCHAR},
+      </if>
+      <if test="period != null">
+        #{period,jdbcType=BIGINT},
+      </if>
+      <if test="timeGo != null">
+        #{timeGo,jdbcType=TINYINT},
+      </if>
+      <if test="secondFromStart != null">
+        #{secondFromStart,jdbcType=BIGINT},
+      </if>
+      <if test="eventTime != null">
+        #{eventTime,jdbcType=BIGINT},
+      </if>
+      <if test="remainingTime != null">
+        #{remainingTime,jdbcType=BIGINT},
+      </if>
+      <if test="matchLength != null">
+        #{matchLength,jdbcType=INTEGER},
+      </if>
+      <if test="firstNum != null">
+        #{firstNum,jdbcType=INTEGER},
+      </if>
+      <if test="periodLength != null">
+        #{periodLength,jdbcType=BIGINT},
+      </if>
+      <if test="periodLengthJson != null">
+        #{periodLengthJson,jdbcType=VARCHAR},
+      </if>
+      <if test="matchLengthJson != null">
+        #{matchLengthJson,jdbcType=VARCHAR},
+      </if>
+      <if test="roundType != null">
+        #{roundType,jdbcType=INTEGER},
+      </if>
+      <if test="currentSet != null">
+        #{currentSet,jdbcType=INTEGER},
+      </if>
+      <if test="currentRound != null">
+        #{currentRound,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null">
+        #{modifyTime,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.panda.merge.model.MatchTimeInfoExample" resultType="java.lang.Long">
+    select count(*) from match_time_info
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update match_time_info
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.thirdMatchId != null">
+        third_match_id = #{record.thirdMatchId,jdbcType=BIGINT},
+      </if>
+      <if test="record.dataSourceType != null">
+        data_source_type = #{record.dataSourceType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.period != null">
+        period = #{record.period,jdbcType=BIGINT},
+      </if>
+      <if test="record.timeGo != null">
+        time_go = #{record.timeGo,jdbcType=TINYINT},
+      </if>
+      <if test="record.secondFromStart != null">
+        second_from_start = #{record.secondFromStart,jdbcType=BIGINT},
+      </if>
+      <if test="record.eventTime != null">
+        event_time = #{record.eventTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.remainingTime != null">
+        remaining_time = #{record.remainingTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.matchLength != null">
+        match_length = #{record.matchLength,jdbcType=INTEGER},
+      </if>
+      <if test="record.firstNum != null">
+        first_num = #{record.firstNum,jdbcType=INTEGER},
+      </if>
+      <if test="record.periodLength != null">
+        period_length = #{record.periodLength,jdbcType=BIGINT},
+      </if>
+      <if test="record.periodLengthJson != null">
+        period_length_json = #{record.periodLengthJson,jdbcType=VARCHAR},
+      </if>
+      <if test="record.matchLengthJson != null">
+        match_length_json = #{record.matchLengthJson,jdbcType=VARCHAR},
+      </if>
+      <if test="record.roundType != null">
+        round_type = #{record.roundType,jdbcType=INTEGER},
+      </if>
+      <if test="record.currentSet != null">
+        current_set = #{record.currentSet,jdbcType=INTEGER},
+      </if>
+      <if test="record.currentRound != null">
+        current_round = #{record.currentRound,jdbcType=INTEGER},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.modifyTime != null">
+        modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update match_time_info
+    set id = #{record.id,jdbcType=BIGINT},
+      third_match_id = #{record.thirdMatchId,jdbcType=BIGINT},
+      data_source_type = #{record.dataSourceType,jdbcType=VARCHAR},
+      period = #{record.period,jdbcType=BIGINT},
+      time_go = #{record.timeGo,jdbcType=TINYINT},
+      second_from_start = #{record.secondFromStart,jdbcType=BIGINT},
+      event_time = #{record.eventTime,jdbcType=BIGINT},
+      remaining_time = #{record.remainingTime,jdbcType=BIGINT},
+      match_length = #{record.matchLength,jdbcType=INTEGER},
+      first_num = #{record.firstNum,jdbcType=INTEGER},
+      period_length = #{record.periodLength,jdbcType=BIGINT},
+      period_length_json = #{record.periodLengthJson,jdbcType=VARCHAR},
+      match_length_json = #{record.matchLengthJson,jdbcType=VARCHAR},
+      round_type = #{record.roundType,jdbcType=INTEGER},
+      current_set = #{record.currentSet,jdbcType=INTEGER},
+      current_round = #{record.currentRound,jdbcType=INTEGER},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      modify_time = #{record.modifyTime,jdbcType=BIGINT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.panda.merge.model.MatchTimeInfo">
+    update match_time_info
+    <set>
+      <if test="thirdMatchId != null">
+        third_match_id = #{thirdMatchId,jdbcType=BIGINT},
+      </if>
+      <if test="dataSourceType != null">
+        data_source_type = #{dataSourceType,jdbcType=VARCHAR},
+      </if>
+      <if test="period != null">
+        period = #{period,jdbcType=BIGINT},
+      </if>
+      <if test="timeGo != null">
+        time_go = #{timeGo,jdbcType=TINYINT},
+      </if>
+      <if test="secondFromStart != null">
+        second_from_start = #{secondFromStart,jdbcType=BIGINT},
+      </if>
+      <if test="eventTime != null">
+        event_time = #{eventTime,jdbcType=BIGINT},
+      </if>
+      <if test="remainingTime != null">
+        remaining_time = #{remainingTime,jdbcType=BIGINT},
+      </if>
+      <if test="matchLength != null">
+        match_length = #{matchLength,jdbcType=INTEGER},
+      </if>
+      <if test="firstNum != null">
+        first_num = #{firstNum,jdbcType=INTEGER},
+      </if>
+      <if test="periodLength != null">
+        period_length = #{periodLength,jdbcType=BIGINT},
+      </if>
+      <if test="periodLengthJson != null">
+        period_length_json = #{periodLengthJson,jdbcType=VARCHAR},
+      </if>
+      <if test="matchLengthJson != null">
+        match_length_json = #{matchLengthJson,jdbcType=VARCHAR},
+      </if>
+      <if test="roundType != null">
+        round_type = #{roundType,jdbcType=INTEGER},
+      </if>
+      <if test="currentSet != null">
+        current_set = #{currentSet,jdbcType=INTEGER},
+      </if>
+      <if test="currentRound != null">
+        current_round = #{currentRound,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null">
+        modify_time = #{modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="timeOutList != null">
+        time_out_list = #{timeOutList,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.panda.merge.model.MatchTimeInfo">
+    update match_time_info
+    set third_match_id = #{thirdMatchId,jdbcType=BIGINT},
+      data_source_type = #{dataSourceType,jdbcType=VARCHAR},
+      period = #{period,jdbcType=BIGINT},
+      time_go = #{timeGo,jdbcType=TINYINT},
+      second_from_start = #{secondFromStart,jdbcType=BIGINT},
+      half_time = #{halfTime,jdbcType=BIGINT},
+      rest_time = #{restTime,jdbcType=BIGINT},
+      event_time = #{eventTime,jdbcType=BIGINT},
+      remaining_time = #{remainingTime,jdbcType=BIGINT},
+      match_length = #{matchLength,jdbcType=INTEGER},
+      first_num = #{firstNum,jdbcType=INTEGER},
+      period_length = #{periodLength,jdbcType=BIGINT},
+      period_length_json = #{periodLengthJson,jdbcType=VARCHAR},
+      match_length_json = #{matchLengthJson,jdbcType=VARCHAR},
+      round_type = #{roundType,jdbcType=INTEGER},
+      current_set = #{currentSet,jdbcType=INTEGER},
+      current_round = #{currentRound,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=BIGINT},
+      modify_time = #{modifyTime,jdbcType=BIGINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateInjuryTimeByPrimaryKey">
+    update match_time_info
+    set time_out_list = #{timeOutList,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <insert id="batchUpdateByPrimaryKey" parameterType="java.util.List">
+    insert into match_time_info (
+      id,
+      third_match_id,
+      data_source_type,
+      period,
+      time_go,
+      second_from_start,
+      half_time,
+      rest_time,
+      event_time,
+      remaining_time,
+      match_length,
+      first_num,
+      period_length,
+      period_length_json,
+      match_length_json,
+      time_out_list,
+      round_type,
+      current_set,
+      current_round,
+      create_time,
+      modify_time
+     )
+    VALUES
+    <foreach collection="list" index="index" item="item" separator=",">
+      (
+      #{item.id,jdbcType=BIGINT},
+      #{item.thirdMatchId,jdbcType=BIGINT},
+      #{item.dataSourceType,jdbcType=BIGINT},
+      #{item.period,jdbcType=BIGINT},
+      #{item.timeGo,jdbcType=BIGINT},
+      #{item.secondFromStart,jdbcType=BIGINT},
+      #{item.halfTime,jdbcType=BIGINT},
+      #{item.restTime,jdbcType=BIGINT},
+      #{item.eventTime,jdbcType=BIGINT},
+      #{item.remainingTime,jdbcType=BIGINT},
+      #{item.matchLength,jdbcType=BIGINT},
+      #{item.firstNum,jdbcType=BIGINT},
+      #{item.periodLength,jdbcType=BIGINT},
+      #{item.periodLengthJson,jdbcType=VARCHAR},
+      #{item.matchLengthJson,jdbcType=VARCHAR},
+      #{item.timeOutList,jdbcType=VARCHAR},
+      #{item.roundType,jdbcType=BIGINT},
+      #{item.currentSet,jdbcType=BIGINT},
+      #{item.currentRound,jdbcType=BIGINT},
+      #{item.createTime,jdbcType=BIGINT},
+      #{item.modifyTime,jdbcType=BIGINT}
+      )
+    </foreach>
+        ON DUPLICATE KEY UPDATE
+        id = VALUES(id),
+        third_match_id  = VALUES(third_match_id),
+        data_source_type = VALUES(data_source_type),
+        period = VALUES(period),
+        time_go = VALUES(time_go),
+        second_from_start = VALUES(second_from_start),
+        half_time = VALUES(half_time),
+        rest_time = VALUES(rest_time),
+        event_time = VALUES(event_time),
+        remaining_time = VALUES(remaining_time),
+        match_length = VALUES(match_length),
+        first_num = VALUES(first_num),
+        period_length = VALUES(period_length),
+        period_length_json = VALUES(period_length_json),
+        match_length_json = VALUES(match_length_json),
+        time_out_list = VALUES(time_out_list),
+        round_type = VALUES(round_type),
+        current_set = VALUES(current_set),
+        current_round = VALUES(current_round),
+        create_time = VALUES(create_time),
+        modify_time = VALUES(modify_time)
+    </insert>
+</mapper>

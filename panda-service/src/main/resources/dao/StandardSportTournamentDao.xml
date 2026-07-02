@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.dao.StandardSportTournamentDao">
+
+    <resultMap id="childResultMap" type="com.panda.merge.dto.StandardSportTournamentDetail" extends="com.panda.merge.mapper.StandardSportTournamentMapper.ResultMapWithBLOBs">
+    </resultMap>
+
+
+    <select id="getItemPageByModifyTime" parameterType="com.panda.merge.dto.StandardSportTournamentDTO" resultMap="childResultMap">
+        select t1.*,t1.hot_status AS hotStatus
+        from   standard_sport_tournament t1
+        where  t1.modify_time &gt;= #{beginTime}
+        <if test="endTime != null">
+            and    t1.modify_time &lt;= #{endTime}
+        </if>
+        order by t1.modify_time,t1.id desc
+    </select>
+
+
+
+</mapper>

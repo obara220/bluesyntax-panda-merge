@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.dao.ThirdMatchHistoryExpressionDao">
+
+
+    <select id="getHistoryExpressionPageByModifyTime" parameterType="com.panda.merge.dto.nonrealttime.query.QueryThirdRankingInfoDTO"
+            resultMap="com.panda.merge.mapper.ThirdMatchHistoryExpressionMapper.BaseResultMap">
+        SELECT *
+        FROM third_match_history_expression
+        WHERE 1=1
+        <if test="beginTime != null">
+            AND modify_time &gt;= #{beginTime}
+        </if>
+        <if test="sportIds != null">
+            AND sport_id in
+            <foreach item="sportId" index="index" collection="sportIds" open="(" separator="," close=")">
+                #{sportId}
+            </foreach>
+        </if>
+        <if test="thirdTournamentSourceId != null">
+            AND third_tournament_source_id = #{thirdTournamentSourceId}
+        </if>
+        order by modify_time, id
+    </select>
+
+</mapper>

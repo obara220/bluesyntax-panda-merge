@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.mapper.StandardSportSeasonMapper">
+  <resultMap id="BaseResultMap" type="com.panda.merge.model.StandardSportSeason">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="third_season_id" jdbcType="BIGINT" property="thirdSeasonId" />
+    <result column="season_name" jdbcType="VARCHAR" property="seasonName" />
+    <result column="name_code" jdbcType="BIGINT" property="nameCode" />
+    <result column="standard_tournament_id" jdbcType="BIGINT" property="standardTournamentId" />
+    <result column="start_date" jdbcType="BIGINT" property="startDate" />
+    <result column="end_date" jdbcType="BIGINT" property="endDate" />
+    <result column="year" jdbcType="VARCHAR" property="year" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="modify_time" jdbcType="BIGINT" property="modifyTime" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, third_season_id, season_name, name_code, standard_tournament_id, start_date, 
+    end_date, year, create_time, modify_time
+  </sql>
+  <select id="selectByExample" parameterType="com.panda.merge.model.StandardSportSeasonExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from standard_sport_season
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from standard_sport_season
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from standard_sport_season
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.panda.merge.model.StandardSportSeasonExample">
+    delete from standard_sport_season
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.panda.merge.model.StandardSportSeason">
+    insert into standard_sport_season (id, third_season_id, season_name, 
+      name_code, standard_tournament_id, start_date, 
+      end_date, year, create_time, 
+      modify_time)
+    values (#{id,jdbcType=BIGINT}, #{thirdSeasonId,jdbcType=BIGINT}, #{seasonName,jdbcType=VARCHAR}, 
+      #{nameCode,jdbcType=BIGINT}, #{standardTournamentId,jdbcType=BIGINT}, #{startDate,jdbcType=BIGINT}, 
+      #{endDate,jdbcType=BIGINT}, #{year,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
+      #{modifyTime,jdbcType=BIGINT})
+  </insert>
+  <insert id="insertSelective" parameterType="com.panda.merge.model.StandardSportSeason">
+    insert into standard_sport_season
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="thirdSeasonId != null">
+        third_season_id,
+      </if>
+      <if test="seasonName != null">
+        season_name,
+      </if>
+      <if test="nameCode != null">
+        name_code,
+      </if>
+      <if test="standardTournamentId != null">
+        standard_tournament_id,
+      </if>
+      <if test="startDate != null">
+        start_date,
+      </if>
+      <if test="endDate != null">
+        end_date,
+      </if>
+      <if test="year != null">
+        year,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="modifyTime != null">
+        modify_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="thirdSeasonId != null">
+        #{thirdSeasonId,jdbcType=BIGINT},
+      </if>
+      <if test="seasonName != null">
+        #{seasonName,jdbcType=VARCHAR},
+      </if>
+      <if test="nameCode != null">
+        #{nameCode,jdbcType=BIGINT},
+      </if>
+      <if test="standardTournamentId != null">
+        #{standardTournamentId,jdbcType=BIGINT},
+      </if>
+      <if test="startDate != null">
+        #{startDate,jdbcType=BIGINT},
+      </if>
+      <if test="endDate != null">
+        #{endDate,jdbcType=BIGINT},
+      </if>
+      <if test="year != null">
+        #{year,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null">
+        #{modifyTime,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.panda.merge.model.StandardSportSeasonExample" resultType="java.lang.Long">
+    select count(*) from standard_sport_season
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update standard_sport_season
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.thirdSeasonId != null">
+        third_season_id = #{record.thirdSeasonId,jdbcType=BIGINT},
+      </if>
+      <if test="record.seasonName != null">
+        season_name = #{record.seasonName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.nameCode != null">
+        name_code = #{record.nameCode,jdbcType=BIGINT},
+      </if>
+      <if test="record.standardTournamentId != null">
+        standard_tournament_id = #{record.standardTournamentId,jdbcType=BIGINT},
+      </if>
+      <if test="record.startDate != null">
+        start_date = #{record.startDate,jdbcType=BIGINT},
+      </if>
+      <if test="record.endDate != null">
+        end_date = #{record.endDate,jdbcType=BIGINT},
+      </if>
+      <if test="record.year != null">
+        year = #{record.year,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.modifyTime != null">
+        modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update standard_sport_season
+    set id = #{record.id,jdbcType=BIGINT},
+      third_season_id = #{record.thirdSeasonId,jdbcType=BIGINT},
+      season_name = #{record.seasonName,jdbcType=VARCHAR},
+      name_code = #{record.nameCode,jdbcType=BIGINT},
+      standard_tournament_id = #{record.standardTournamentId,jdbcType=BIGINT},
+      start_date = #{record.startDate,jdbcType=BIGINT},
+      end_date = #{record.endDate,jdbcType=BIGINT},
+      year = #{record.year,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      modify_time = #{record.modifyTime,jdbcType=BIGINT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.panda.merge.model.StandardSportSeason">
+    update standard_sport_season
+    <set>
+      <if test="thirdSeasonId != null">
+        third_season_id = #{thirdSeasonId,jdbcType=BIGINT},
+      </if>
+      <if test="seasonName != null">
+        season_name = #{seasonName,jdbcType=VARCHAR},
+      </if>
+      <if test="nameCode != null">
+        name_code = #{nameCode,jdbcType=BIGINT},
+      </if>
+      <if test="standardTournamentId != null">
+        standard_tournament_id = #{standardTournamentId,jdbcType=BIGINT},
+      </if>
+      <if test="startDate != null">
+        start_date = #{startDate,jdbcType=BIGINT},
+      </if>
+      <if test="endDate != null">
+        end_date = #{endDate,jdbcType=BIGINT},
+      </if>
+      <if test="year != null">
+        year = #{year,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null">
+        modify_time = #{modifyTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.panda.merge.model.StandardSportSeason">
+    update standard_sport_season
+    set third_season_id = #{thirdSeasonId,jdbcType=BIGINT},
+      season_name = #{seasonName,jdbcType=VARCHAR},
+      name_code = #{nameCode,jdbcType=BIGINT},
+      standard_tournament_id = #{standardTournamentId,jdbcType=BIGINT},
+      start_date = #{startDate,jdbcType=BIGINT},
+      end_date = #{endDate,jdbcType=BIGINT},
+      year = #{year,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      modify_time = #{modifyTime,jdbcType=BIGINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

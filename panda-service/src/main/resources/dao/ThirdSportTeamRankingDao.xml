@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.dao.ThirdSportTeamRankingDao">
+
+
+    <select id="getItemPageByModifyTime" parameterType="com.panda.merge.dto.nonrealttime.query.QueryThirdRankingInfoDTO"
+            resultMap="com.panda.merge.mapper.ThirdSportTeamRankingMapper.ResultMapWithBLOBs">
+        SELECT *
+        FROM third_sport_team_ranking
+        WHERE 1=1
+        <if test="beginTime != null">
+            AND modify_time &gt;= #{beginTime}
+        </if>
+        <if test="sportIds != null">
+            AND sport_id in
+            <foreach item="sportId" index="index" collection="sportIds" open="(" separator="," close=")">
+                #{sportId}
+            </foreach>
+        </if>
+        <if test="seasonId != null">
+            AND third_source_season_id = #{seasonId}
+        </if>
+        <if test="thirdTournamentSourceId != null">
+            AND third_tournament_source_id = #{thirdTournamentSourceId}
+        </if>
+        order by modify_time, id
+    </select>
+
+    <!--目前已经废弃-->
+    <select id="getTeamRankingBySeasonIdAndMatchId" parameterType="com.panda.merge.dto.nonrealttime.query.QueryThirdRankingInfoDTO"
+            resultMap="com.panda.merge.mapper.ThirdSportTeamRankingMapper.ResultMapWithBLOBs">
+        SELECT tst.id team_id, tsr.*
+        FROM third_sport_team_ranking tsr
+                 JOIN third_sport_team tst ON tsr.third_team_source_id = tst.third_team_source_id
+                 JOIN third_match_team_relation tmtr ON tst.id = tmtr.team_id
+        WHERE tsr.third_source_season_id = #{seasonId}
+          AND tmtr.match_id = #{matchId}
+        order by tsr.third_source_season_id
+    </select>
+
+
+</mapper>

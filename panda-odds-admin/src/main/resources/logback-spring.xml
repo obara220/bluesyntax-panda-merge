@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="false">
+    <!--环境变量-->
+    <springProperty scope="context" name="env" source="spring.profiles.active"/>
+    <!-- 项目名称 -->
+    <springProperty scope="context" name="app" source="spring.application.name"/>
+       <!--定义日志文件的存储地址 勿在 LogBack 的配置中使用相对路径-->
+    <property name="LOG_HOME" value="/opt/logs/panda-data-service-group/panda-odds-admin"/>
+    <!-- 控制台输出 -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+        <encoder charset="UTF-8" class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <pattern>
+                    <pattern>
+                        {
+                        "date": "%d{yyyy-MM-dd HH:mm:ss.SSS}"
+                        ,"app": "${app}"
+                        ,"env": "${env}"
+                        <!--日志级别-->
+                        ,"logLevel": "%level"
+                        <!--线程名称-->
+                        ,"thread": "%thread"
+                        <!--进程ID-->
+                        ,"pid": "${PID:-}"
+                        <!--类名-->
+                        ,"class": "%logger{40}"
+                        <!--方法名-->
+                        ,"method": "%method"
+                        <!--当前行-->
+                        ,"line": "%line"
+                        <!--日志打印的信息-->
+                        ,"message": "%message"
+                        <!--堆栈异常信息-->
+                        ,"statck_trace":"%exception"
+                        }
+                    </pattern>
+                </pattern>
+            </providers>
+        </encoder>
+    </appender>
+       <!-- 按照每天生成日志文件 -->
+    <appender name="FILE_DEBUG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!--日志文件输出的文件名-->
+            <FileNamePattern>${LOG_HOME}/debug/panda-odds-debug.%d{yyyy-MM-dd}.%i.log</FileNamePattern>
+            <!-- 日志文件最大尺寸 -->
+            <maxFileSize>256MB</maxFileSize>
+            <!--日志文件保留天数-->
+            <MaxHistory>3</MaxHistory>
+        </rollingPolicy>
+        <encoder charset="UTF-8" class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <pattern>
+                    <pattern>
+                        {
+                        "date": "%d{yyyy-MM-dd HH:mm:ss.SSS}"
+                        ,"app": "${app}"
+                        ,"env": "${env}"
+                        <!--日志级别-->
+                        ,"logLevel": "%level"
+                        <!--线程名称-->
+                        ,"thread": "%thread"
+                        <!--进程ID-->
+                        ,"pid": "${PID:-}"
+                        <!--类名-->
+                        ,"class": "%logger{40}"
+                        <!--方法名-->
+                        ,"method": "%method"
+                        <!--当前行-->
+                        ,"line": "%line"
+                        <!--日志打印的信息-->
+                        ,"message": "%message"
+                        <!--堆栈异常信息-->
+                        ,"statck_trace":"%exception"
+                        }
+                    </pattern>
+                </pattern>
+            </providers>
+        </encoder>
+    </appender>
+       <!-- 按照每天生成日志文件 -->
+    <appender name="FILE_INFO" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!--日志文件输出的文件名-->
+            <FileNamePattern>${LOG_HOME}/info/panda-odds-info.%d{yyyy-MM-dd}.%i.log</FileNamePattern>
+            <!-- 日志文件最大尺寸 -->
+            <maxFileSize>256MB</maxFileSize>
+            <!--日志文件保留天数-->
+            <MaxHistory>3</MaxHistory>
+        </rollingPolicy>
+        <encoder charset="UTF-8" class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <pattern>
+                    <pattern>
+                        {
+                        "date": "%d{yyyy-MM-dd HH:mm:ss.SSS}"
+                        ,"app": "${app}"
+                        ,"env": "${env}"
+                        <!--日志级别-->
+                        ,"logLevel": "%level"
+                        <!--线程名称-->
+                        ,"thread": "%thread"
+                        <!--进程ID-->
+                        ,"pid": "${PID:-}"
+                        <!--类名-->
+                        ,"class": "%logger{40}"
+                        <!--方法名-->
+                        ,"method": "%method"
+                        <!--当前行-->
+                        ,"line": "%line"
+                        <!--日志打印的信息-->
+                        ,"message": "%message"
+                        <!--堆栈异常信息-->
+                        ,"statck_trace":"%exception"
+                        }
+                    </pattern>
+                </pattern>
+            </providers>
+        </encoder>
+    </appender>
+       <!-- 按照每天生成日志文件 -->
+    <appender name="FILE_WARN" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>WARN</level>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!--日志文件输出的文件名-->
+            <FileNamePattern>${LOG_HOME}/warn/panda-odds-warn.%d{yyyy-MM-dd}.%i.log</FileNamePattern>
+            <!-- 日志文件最大尺寸 -->
+            <maxFileSize>256MB</maxFileSize>
+            <!--日志文件保留天数-->
+            <MaxHistory>3</MaxHistory>
+        </rollingPolicy>
+        <encoder charset="UTF-8" class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <pattern>
+                    <pattern>
+                        {
+                        "date": "%d{yyyy-MM-dd HH:mm:ss.SSS}"
+                        ,"app": "${app}"
+                        ,"env": "${env}"
+                        <!--日志级别-->
+                        ,"logLevel": "%level"
+                        <!--线程名称-->
+                        ,"thread": "%thread"
+                        <!--进程ID-->
+                        ,"pid": "${PID:-}"
+                        <!--类名-->
+                        ,"class": "%logger{40}"
+                        <!--方法名-->
+                        ,"method": "%method"
+                        <!--当前行-->
+                        ,"line": "%line"
+                        <!--日志打印的信息-->
+                        ,"message": "%message"
+                        <!--堆栈异常信息-->
+                        ,"statck_trace":"%exception"
+                        }
+                    </pattern>
+                </pattern>
+            </providers>
+        </encoder>
+    </appender>
+     
+    <appender name="FILE_ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!--日志文件输出的文件名-->
+            <FileNamePattern>${LOG_HOME}/error/panda-odds-error.%d{yyyy-MM-dd}.%i.log</FileNamePattern>
+            <!-- 日志文件最大尺寸 -->
+            <maxFileSize>256MB</maxFileSize>
+            <!--日志文件保留天数-->
+            <MaxHistory>3</MaxHistory>
+        </rollingPolicy>
+        <encoder charset="UTF-8" class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <pattern>
+                    <pattern>
+                        {
+                        "date": "%d{yyyy-MM-dd HH:mm:ss.SSS}"
+                        ,"app": "${app}"
+                        ,"env": "${env}"
+                        <!--日志级别-->
+                        ,"logLevel": "%level"
+                        <!--线程名称-->
+                        ,"thread": "%thread"
+                        <!--进程ID-->
+                        ,"pid": "${PID:-}"
+                        <!--类名-->
+                        ,"class": "%logger{40}"
+                        <!--方法名-->
+                        ,"method": "%method"
+                        <!--当前行-->
+                        ,"line": "%line"
+                        <!--日志打印的信息-->
+                        ,"message": "%message"
+                        <!--堆栈异常信息-->
+                        ,"statck_trace":"%exception"
+                        }
+                    </pattern>
+                </pattern>
+            </providers>
+        </encoder>
+    </appender>
+    <!--数据商盘口处理相关日志输出-->  
+    <appender name="ThirdMatchMarketBatchProcessor" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!--日志文件输出的文件名-->
+            <FileNamePattern>${LOG_HOME}/ThirdMatchMarketProcessor/ThirdMatchMarketProcessor.%d{yyyy-MM-dd}.%i.log</FileNamePattern>
+            <!-- 日志文件最大尺寸 -->
+            <maxFileSize>256MB</maxFileSize>
+            <!--日志文件保留天数-->
+            <MaxHistory>3</MaxHistory>
+        </rollingPolicy>
+        <encoder charset="UTF-8" class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <pattern>
+                    <pattern>
+                        {
+                        "date": "%d{yyyy-MM-dd HH:mm:ss.SSS}"
+                        ,"app": "${app}"
+                        ,"env": "${env}"
+                        <!--日志级别-->
+                        ,"logLevel": "%level"
+                        <!--线程名称-->
+                        ,"thread": "%thread"
+                        <!--进程ID-->
+                        ,"pid": "${PID:-}"
+                        <!--类名-->
+                        ,"class": "%logger{40}"
+                        <!--方法名-->
+                        ,"method": "%method"
+                        <!--当前行-->
+                        ,"line": "%line"
+                        <!--日志打印的信息-->
+                        ,"message": "%message"
+                        <!--堆栈异常信息-->
+                        ,"statck_trace":"%exception"
+                        }
+                    </pattern>
+                </pattern>
+            </providers>
+        </encoder>
+    </appender>
+    <!--操盘配置相关的日志输出-->
+    <appender name="TradeMarketConfigApiServiceImpl" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!--日志文件输出的文件名-->
+            <FileNamePattern>${LOG_HOME}/TradeMarketConfigApiServiceImpl/TradeMarketConfigApiServiceImpl.%d{yyyy-MM-dd}.%i.log</FileNamePattern>
+            <!-- 日志文件最大尺寸 -->
+            <maxFileSize>256MB</maxFileSize>
+            <!--日志文件保留天数-->
+            <MaxHistory>3</MaxHistory>
+        </rollingPolicy>
+        <encoder charset="UTF-8" class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <pattern>
+                    <pattern>
+                        {
+                        "date": "%d{yyyy-MM-dd HH:mm:ss.SSS}"
+                        ,"app": "${app}"
+                        ,"env": "${env}"
+                        <!--日志级别-->
+                        ,"logLevel": "%level"
+                        <!--线程名称-->
+                        ,"thread": "%thread"
+                        <!--进程ID-->
+                        ,"pid": "${PID:-}"
+                        <!--类名-->
+                        ,"class": "%logger{40}"
+                        <!--方法名-->
+                        ,"method": "%method"
+                        <!--当前行-->
+                        ,"line": "%line"
+                        <!--日志打印的信息-->
+                        ,"message": "%message"
+                        <!--堆栈异常信息-->
+                        ,"statck_trace":"%exception"
+                        }
+                    </pattern>
+                </pattern>
+            </providers>
+        </encoder>
+    </appender>
+
+    <!--手动盘口处理相关日志输出--> 
+    <appender name="TradeMarketOddsApiServiceImpl" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!--日志文件输出的文件名-->
+            <FileNamePattern>${LOG_HOME}/TradeMarketOddsApiServiceImpl/TradeMarketOddsApiServiceImpls.%d{yyyy-MM-dd}.%i.log</FileNamePattern>
+            <!-- 日志文件最大尺寸 -->
+            <maxFileSize>256MB</maxFileSize>
+            <!--日志文件保留天数-->
+            <MaxHistory>3</MaxHistory>
+        </rollingPolicy>
+        <encoder charset="UTF-8" class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <pattern>
+                    <pattern>
+                        {
+                        "date": "%d{yyyy-MM-dd HH:mm:ss.SSS}"
+                        ,"app": "${app}"
+                        ,"env": "${env}"
+                        <!--日志级别-->
+                        ,"logLevel": "%level"
+                        <!--线程名称-->
+                        ,"thread": "%thread"
+                        <!--进程ID-->
+                        ,"pid": "${PID:-}"
+                        <!--类名-->
+                        ,"class": "%logger{40}"
+                        <!--方法名-->
+                        ,"method": "%method"
+                        <!--当前行-->
+                        ,"line": "%line"
+                        <!--日志打印的信息-->
+                        ,"message": "%message"
+                        <!--堆栈异常信息-->
+                        ,"statck_trace":"%exception"
+                        }
+                    </pattern>
+                </pattern>
+            </providers>
+        </encoder>
+    </appender>
+
+    <!--数据商盘口处理相关日志输出--> 
+    <logger name="com.panda.merge.rocketmq.processor.ThirdMatchMarketBatchProcessor" level="INFO" additivity="false">
+        <appender-ref ref="ThirdMatchMarketBatchProcessor" />
+        <appender-ref ref="STDOUT"/>
+    </logger>
+    <!--操盘配置相关的日志输出-->
+    <logger name="com.panda.merge.dubbo.TradeMarketConfigApiServiceImpl" level="INFO" additivity="false">
+        <appender-ref ref="TradeMarketConfigApiServiceImpl" />
+        <appender-ref ref="STDOUT"/>
+    </logger>
+    <!--手动盘口处理相关日志输出--> 
+    <logger name="com.panda.merge.dubbo.TradeMarketOddsApiServiceImpl" level="INFO" additivity="false">
+        <appender-ref ref="TradeMarketOddsApiServiceImpl" />
+        <appender-ref ref="STDOUT"/>
+    </logger>
+    <!--    &lt;!&ndash;生产环境需要隐藏下面2个配置&ndash;&gt; -->
+    <!--    <logger name="com.panda.merge.mapper" level="INFO"></logger>       -->
+    <!--    <logger name="com.panda.merge.dao" level="INFO"></logger>-->
+    <!-- 通用日志输出 -->
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
+<!--        <appender-ref ref="FILE_DEBUG"/>-->
+        <appender-ref ref="FILE_INFO"/>
+        <appender-ref ref="FILE_WARN"/>
+        <appender-ref ref="FILE_ERROR"/>
+    </root>
+</configuration>

@@ -1,0 +1,1127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.mapper.StandardMatchInfoHisMapper">
+  <resultMap id="BaseResultMap" type="com.panda.merge.model.StandardMatchInfoHis">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="sport_id" jdbcType="BIGINT" property="sportId" />
+    <result column="standard_tournament_id" jdbcType="BIGINT" property="standardTournamentId" />
+    <result column="third_match_id" jdbcType="BIGINT" property="thirdMatchId" />
+    <result column="seconds_match_start" jdbcType="INTEGER" property="secondsMatchStart" />
+    <result column="seconds_match_modify_time" jdbcType="BIGINT" property="secondsMatchModifyTime" />
+    <result column="pre_match_business" jdbcType="TINYINT" property="preMatchBusiness" />
+    <result column="live_odd_business" jdbcType="TINYINT" property="liveOddBusiness" />
+    <result column="operate_match_status" jdbcType="TINYINT" property="operateMatchStatus" />
+    <result column="begin_time" jdbcType="BIGINT" property="beginTime" />
+    <result column="begin_time_status" jdbcType="TINYINT" property="beginTimeStatus" />
+    <result column="active" jdbcType="TINYINT" property="active" />
+    <result column="match_status" jdbcType="TINYINT" property="matchStatus" />
+    <result column="neutral_ground" jdbcType="TINYINT" property="neutralGround" />
+    <result column="neutral_ground_status" jdbcType="TINYINT" property="neutralGroundStatus" />
+    <result column="match_manage_id" jdbcType="VARCHAR" property="matchManageId" />
+    <result column="match_position_name" jdbcType="VARCHAR" property="matchPositionName" />
+    <result column="match_position_name_code" jdbcType="BIGINT" property="matchPositionNameCode" />
+    <result column="risk_manager_code" jdbcType="VARCHAR" property="riskManagerCode" />
+    <result column="data_source_code" jdbcType="VARCHAR" property="dataSourceCode" />
+    <result column="related_data_source_coder_list" jdbcType="VARCHAR" property="relatedDataSourceCoderList" />
+    <result column="related_data_source_coder_num" jdbcType="INTEGER" property="relatedDataSourceCoderNum" />
+    <result column="match_data_provider_code" jdbcType="VARCHAR" property="matchDataProviderCode" />
+    <result column="third_match_source_id" jdbcType="VARCHAR" property="thirdMatchSourceId" />
+    <result column="home_away_info" jdbcType="VARCHAR" property="homeAwayInfo" />
+    <result column="reverse_status" jdbcType="VARCHAR" property="reverseStatus" />
+    <result column="parent_id" jdbcType="BIGINT" property="parentId" />
+    <result column="whether_stop" jdbcType="INTEGER" property="whetherStop" />
+    <result column="bet_status" jdbcType="TINYINT" property="betStatus" />
+    <result column="match_period_id" jdbcType="BIGINT" property="matchPeriodId" />
+    <result column="match_type" jdbcType="INTEGER" property="matchType" />
+    <result column="season_id" jdbcType="VARCHAR" property="seasonId" />
+    <result column="tournament_round_type" jdbcType="VARCHAR" property="tournamentRoundType" />
+    <result column="tournament_round_number" jdbcType="INTEGER" property="tournamentRoundNumber" />
+    <result column="tournament_round_group" jdbcType="VARCHAR" property="tournamentRoundGroup" />
+    <result column="tournament_round_name" jdbcType="VARCHAR" property="tournamentRoundName" />
+    <result column="tournament_round_phase" jdbcType="VARCHAR" property="tournamentRoundPhase" />
+    <result column="round_type" jdbcType="INTEGER" property="roundType" />
+    <result column="sold_flag" jdbcType="VARCHAR" property="soldFlag" />
+    <result column="lottery_number" jdbcType="VARCHAR" property="lotteryNumber" />
+    <result column="match_length" jdbcType="INTEGER" property="matchLength" />
+    <result column="site_type" jdbcType="INTEGER" property="siteType" />
+    <result column="match_over" jdbcType="INTEGER" property="matchOver" />
+    <result column="hot_match_status" jdbcType="TINYINT" property="hotMatchStatus" />
+    <result column="financial_time" jdbcType="BIGINT" property="financialTime" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="modify_time" jdbcType="BIGINT" property="modifyTime" />
+    <result column="odds_live" jdbcType="TINYINT" property="oddsLive" />
+    <result column="tournament_name_code" jdbcType="BIGINT" property="tournamentNameCode" />
+    <result column="auto_audit_flag" jdbcType="TINYINT" property="autoAuditFlag" />
+    <result column="score_opflag" jdbcType="TINYINT" property="scoreOpflag" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.panda.merge.model.StandardMatchInfoHis">
+    <result column="team_name" jdbcType="LONGVARCHAR" property="teamName" />
+    <result column="team_manage_id" jdbcType="LONGVARCHAR" property="teamManageId" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, sport_id, standard_tournament_id, third_match_id, seconds_match_start, seconds_match_modify_time, 
+    pre_match_business, live_odd_business, operate_match_status, begin_time, begin_time_status, 
+    active, match_status, neutral_ground, neutral_ground_status, match_manage_id, match_position_name, 
+    match_position_name_code, risk_manager_code, data_source_code, related_data_source_coder_list, 
+    related_data_source_coder_num, match_data_provider_code, third_match_source_id, home_away_info, 
+    reverse_status, parent_id, whether_stop, bet_status, match_period_id, match_type, 
+    season_id, tournament_round_type, tournament_round_number, tournament_round_group, 
+    tournament_round_name, tournament_round_phase, round_type, sold_flag, lottery_number, 
+    match_length, site_type, match_over, hot_match_status, financial_time, remark, create_time, 
+    modify_time, odds_live, tournament_name_code, auto_audit_flag, score_opflag
+  </sql>
+  <sql id="Blob_Column_List">
+    team_name, team_manage_id
+  </sql>
+  <select id="selectByExampleWithBLOBs" parameterType="com.panda.merge.model.StandardMatchInfoHisExample" resultMap="ResultMapWithBLOBs">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from standard_match_info_his
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" parameterType="com.panda.merge.model.StandardMatchInfoHisExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from standard_match_info_his
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from standard_match_info_his
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from standard_match_info_his
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.panda.merge.model.StandardMatchInfoHisExample">
+    delete from standard_match_info_his
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.panda.merge.model.StandardMatchInfoHis">
+    insert into standard_match_info_his (id, sport_id, standard_tournament_id, 
+      third_match_id, seconds_match_start, seconds_match_modify_time, 
+      pre_match_business, live_odd_business, operate_match_status, 
+      begin_time, begin_time_status, active, 
+      match_status, neutral_ground, neutral_ground_status, 
+      match_manage_id, match_position_name, match_position_name_code, 
+      risk_manager_code, data_source_code, related_data_source_coder_list, 
+      related_data_source_coder_num, match_data_provider_code, 
+      third_match_source_id, home_away_info, reverse_status, 
+      parent_id, whether_stop, bet_status, 
+      match_period_id, match_type, season_id, 
+      tournament_round_type, tournament_round_number, 
+      tournament_round_group, tournament_round_name, 
+      tournament_round_phase, round_type, sold_flag, 
+      lottery_number, match_length, site_type, 
+      match_over, hot_match_status, financial_time, 
+      remark, create_time, modify_time, 
+      odds_live, tournament_name_code, auto_audit_flag, 
+      score_opflag, team_name, team_manage_id
+      )
+    values (#{id,jdbcType=BIGINT}, #{sportId,jdbcType=BIGINT}, #{standardTournamentId,jdbcType=BIGINT}, 
+      #{thirdMatchId,jdbcType=BIGINT}, #{secondsMatchStart,jdbcType=INTEGER}, #{secondsMatchModifyTime,jdbcType=BIGINT}, 
+      #{preMatchBusiness,jdbcType=TINYINT}, #{liveOddBusiness,jdbcType=TINYINT}, #{operateMatchStatus,jdbcType=TINYINT}, 
+      #{beginTime,jdbcType=BIGINT}, #{beginTimeStatus,jdbcType=TINYINT}, #{active,jdbcType=TINYINT}, 
+      #{matchStatus,jdbcType=TINYINT}, #{neutralGround,jdbcType=TINYINT}, #{neutralGroundStatus,jdbcType=TINYINT}, 
+      #{matchManageId,jdbcType=VARCHAR}, #{matchPositionName,jdbcType=VARCHAR}, #{matchPositionNameCode,jdbcType=BIGINT}, 
+      #{riskManagerCode,jdbcType=VARCHAR}, #{dataSourceCode,jdbcType=VARCHAR}, #{relatedDataSourceCoderList,jdbcType=VARCHAR}, 
+      #{relatedDataSourceCoderNum,jdbcType=INTEGER}, #{matchDataProviderCode,jdbcType=VARCHAR}, 
+      #{thirdMatchSourceId,jdbcType=VARCHAR}, #{homeAwayInfo,jdbcType=VARCHAR}, #{reverseStatus,jdbcType=VARCHAR}, 
+      #{parentId,jdbcType=BIGINT}, #{whetherStop,jdbcType=INTEGER}, #{betStatus,jdbcType=TINYINT}, 
+      #{matchPeriodId,jdbcType=BIGINT}, #{matchType,jdbcType=INTEGER}, #{seasonId,jdbcType=VARCHAR}, 
+      #{tournamentRoundType,jdbcType=VARCHAR}, #{tournamentRoundNumber,jdbcType=INTEGER}, 
+      #{tournamentRoundGroup,jdbcType=VARCHAR}, #{tournamentRoundName,jdbcType=VARCHAR}, 
+      #{tournamentRoundPhase,jdbcType=VARCHAR}, #{roundType,jdbcType=INTEGER}, #{soldFlag,jdbcType=VARCHAR}, 
+      #{lotteryNumber,jdbcType=VARCHAR}, #{matchLength,jdbcType=INTEGER}, #{siteType,jdbcType=INTEGER}, 
+      #{matchOver,jdbcType=INTEGER}, #{hotMatchStatus,jdbcType=TINYINT}, #{financialTime,jdbcType=BIGINT}, 
+      #{remark,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{modifyTime,jdbcType=BIGINT}, 
+      #{oddsLive,jdbcType=TINYINT}, #{tournamentNameCode,jdbcType=BIGINT}, #{autoAuditFlag,jdbcType=TINYINT}, 
+      #{scoreOpflag,jdbcType=TINYINT}, #{teamName,jdbcType=LONGVARCHAR}, #{teamManageId,jdbcType=LONGVARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.panda.merge.model.StandardMatchInfoHis">
+    insert into standard_match_info_his
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="sportId != null">
+        sport_id,
+      </if>
+      <if test="standardTournamentId != null">
+        standard_tournament_id,
+      </if>
+      <if test="thirdMatchId != null">
+        third_match_id,
+      </if>
+      <if test="secondsMatchStart != null">
+        seconds_match_start,
+      </if>
+      <if test="secondsMatchModifyTime != null">
+        seconds_match_modify_time,
+      </if>
+      <if test="preMatchBusiness != null">
+        pre_match_business,
+      </if>
+      <if test="liveOddBusiness != null">
+        live_odd_business,
+      </if>
+      <if test="operateMatchStatus != null">
+        operate_match_status,
+      </if>
+      <if test="beginTime != null">
+        begin_time,
+      </if>
+      <if test="beginTimeStatus != null">
+        begin_time_status,
+      </if>
+      <if test="active != null">
+        active,
+      </if>
+      <if test="matchStatus != null">
+        match_status,
+      </if>
+      <if test="neutralGround != null">
+        neutral_ground,
+      </if>
+      <if test="neutralGroundStatus != null">
+        neutral_ground_status,
+      </if>
+      <if test="matchManageId != null">
+        match_manage_id,
+      </if>
+      <if test="matchPositionName != null">
+        match_position_name,
+      </if>
+      <if test="matchPositionNameCode != null">
+        match_position_name_code,
+      </if>
+      <if test="riskManagerCode != null">
+        risk_manager_code,
+      </if>
+      <if test="dataSourceCode != null">
+        data_source_code,
+      </if>
+      <if test="relatedDataSourceCoderList != null">
+        related_data_source_coder_list,
+      </if>
+      <if test="relatedDataSourceCoderNum != null">
+        related_data_source_coder_num,
+      </if>
+      <if test="matchDataProviderCode != null">
+        match_data_provider_code,
+      </if>
+      <if test="thirdMatchSourceId != null">
+        third_match_source_id,
+      </if>
+      <if test="homeAwayInfo != null">
+        home_away_info,
+      </if>
+      <if test="reverseStatus != null">
+        reverse_status,
+      </if>
+      <if test="parentId != null">
+        parent_id,
+      </if>
+      <if test="whetherStop != null">
+        whether_stop,
+      </if>
+      <if test="betStatus != null">
+        bet_status,
+      </if>
+      <if test="matchPeriodId != null">
+        match_period_id,
+      </if>
+      <if test="matchType != null">
+        match_type,
+      </if>
+      <if test="seasonId != null">
+        season_id,
+      </if>
+      <if test="tournamentRoundType != null">
+        tournament_round_type,
+      </if>
+      <if test="tournamentRoundNumber != null">
+        tournament_round_number,
+      </if>
+      <if test="tournamentRoundGroup != null">
+        tournament_round_group,
+      </if>
+      <if test="tournamentRoundName != null">
+        tournament_round_name,
+      </if>
+      <if test="tournamentRoundPhase != null">
+        tournament_round_phase,
+      </if>
+      <if test="roundType != null">
+        round_type,
+      </if>
+      <if test="soldFlag != null">
+        sold_flag,
+      </if>
+      <if test="lotteryNumber != null">
+        lottery_number,
+      </if>
+      <if test="matchLength != null">
+        match_length,
+      </if>
+      <if test="siteType != null">
+        site_type,
+      </if>
+      <if test="matchOver != null">
+        match_over,
+      </if>
+      <if test="hotMatchStatus != null">
+        hot_match_status,
+      </if>
+      <if test="financialTime != null">
+        financial_time,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="modifyTime != null">
+        modify_time,
+      </if>
+      <if test="oddsLive != null">
+        odds_live,
+      </if>
+      <if test="tournamentNameCode != null">
+        tournament_name_code,
+      </if>
+      <if test="autoAuditFlag != null">
+        auto_audit_flag,
+      </if>
+      <if test="scoreOpflag != null">
+        score_opflag,
+      </if>
+      <if test="teamName != null">
+        team_name,
+      </if>
+      <if test="teamManageId != null">
+        team_manage_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="sportId != null">
+        #{sportId,jdbcType=BIGINT},
+      </if>
+      <if test="standardTournamentId != null">
+        #{standardTournamentId,jdbcType=BIGINT},
+      </if>
+      <if test="thirdMatchId != null">
+        #{thirdMatchId,jdbcType=BIGINT},
+      </if>
+      <if test="secondsMatchStart != null">
+        #{secondsMatchStart,jdbcType=INTEGER},
+      </if>
+      <if test="secondsMatchModifyTime != null">
+        #{secondsMatchModifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="preMatchBusiness != null">
+        #{preMatchBusiness,jdbcType=TINYINT},
+      </if>
+      <if test="liveOddBusiness != null">
+        #{liveOddBusiness,jdbcType=TINYINT},
+      </if>
+      <if test="operateMatchStatus != null">
+        #{operateMatchStatus,jdbcType=TINYINT},
+      </if>
+      <if test="beginTime != null">
+        #{beginTime,jdbcType=BIGINT},
+      </if>
+      <if test="beginTimeStatus != null">
+        #{beginTimeStatus,jdbcType=TINYINT},
+      </if>
+      <if test="active != null">
+        #{active,jdbcType=TINYINT},
+      </if>
+      <if test="matchStatus != null">
+        #{matchStatus,jdbcType=TINYINT},
+      </if>
+      <if test="neutralGround != null">
+        #{neutralGround,jdbcType=TINYINT},
+      </if>
+      <if test="neutralGroundStatus != null">
+        #{neutralGroundStatus,jdbcType=TINYINT},
+      </if>
+      <if test="matchManageId != null">
+        #{matchManageId,jdbcType=VARCHAR},
+      </if>
+      <if test="matchPositionName != null">
+        #{matchPositionName,jdbcType=VARCHAR},
+      </if>
+      <if test="matchPositionNameCode != null">
+        #{matchPositionNameCode,jdbcType=BIGINT},
+      </if>
+      <if test="riskManagerCode != null">
+        #{riskManagerCode,jdbcType=VARCHAR},
+      </if>
+      <if test="dataSourceCode != null">
+        #{dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="relatedDataSourceCoderList != null">
+        #{relatedDataSourceCoderList,jdbcType=VARCHAR},
+      </if>
+      <if test="relatedDataSourceCoderNum != null">
+        #{relatedDataSourceCoderNum,jdbcType=INTEGER},
+      </if>
+      <if test="matchDataProviderCode != null">
+        #{matchDataProviderCode,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdMatchSourceId != null">
+        #{thirdMatchSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="homeAwayInfo != null">
+        #{homeAwayInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="reverseStatus != null">
+        #{reverseStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="parentId != null">
+        #{parentId,jdbcType=BIGINT},
+      </if>
+      <if test="whetherStop != null">
+        #{whetherStop,jdbcType=INTEGER},
+      </if>
+      <if test="betStatus != null">
+        #{betStatus,jdbcType=TINYINT},
+      </if>
+      <if test="matchPeriodId != null">
+        #{matchPeriodId,jdbcType=BIGINT},
+      </if>
+      <if test="matchType != null">
+        #{matchType,jdbcType=INTEGER},
+      </if>
+      <if test="seasonId != null">
+        #{seasonId,jdbcType=VARCHAR},
+      </if>
+      <if test="tournamentRoundType != null">
+        #{tournamentRoundType,jdbcType=VARCHAR},
+      </if>
+      <if test="tournamentRoundNumber != null">
+        #{tournamentRoundNumber,jdbcType=INTEGER},
+      </if>
+      <if test="tournamentRoundGroup != null">
+        #{tournamentRoundGroup,jdbcType=VARCHAR},
+      </if>
+      <if test="tournamentRoundName != null">
+        #{tournamentRoundName,jdbcType=VARCHAR},
+      </if>
+      <if test="tournamentRoundPhase != null">
+        #{tournamentRoundPhase,jdbcType=VARCHAR},
+      </if>
+      <if test="roundType != null">
+        #{roundType,jdbcType=INTEGER},
+      </if>
+      <if test="soldFlag != null">
+        #{soldFlag,jdbcType=VARCHAR},
+      </if>
+      <if test="lotteryNumber != null">
+        #{lotteryNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="matchLength != null">
+        #{matchLength,jdbcType=INTEGER},
+      </if>
+      <if test="siteType != null">
+        #{siteType,jdbcType=INTEGER},
+      </if>
+      <if test="matchOver != null">
+        #{matchOver,jdbcType=INTEGER},
+      </if>
+      <if test="hotMatchStatus != null">
+        #{hotMatchStatus,jdbcType=TINYINT},
+      </if>
+      <if test="financialTime != null">
+        #{financialTime,jdbcType=BIGINT},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null">
+        #{modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="oddsLive != null">
+        #{oddsLive,jdbcType=TINYINT},
+      </if>
+      <if test="tournamentNameCode != null">
+        #{tournamentNameCode,jdbcType=BIGINT},
+      </if>
+      <if test="autoAuditFlag != null">
+        #{autoAuditFlag,jdbcType=TINYINT},
+      </if>
+      <if test="scoreOpflag != null">
+        #{scoreOpflag,jdbcType=TINYINT},
+      </if>
+      <if test="teamName != null">
+        #{teamName,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="teamManageId != null">
+        #{teamManageId,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.panda.merge.model.StandardMatchInfoHisExample" resultType="java.lang.Long">
+    select count(*) from standard_match_info_his
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update standard_match_info_his
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.sportId != null">
+        sport_id = #{record.sportId,jdbcType=BIGINT},
+      </if>
+      <if test="record.standardTournamentId != null">
+        standard_tournament_id = #{record.standardTournamentId,jdbcType=BIGINT},
+      </if>
+      <if test="record.thirdMatchId != null">
+        third_match_id = #{record.thirdMatchId,jdbcType=BIGINT},
+      </if>
+      <if test="record.secondsMatchStart != null">
+        seconds_match_start = #{record.secondsMatchStart,jdbcType=INTEGER},
+      </if>
+      <if test="record.secondsMatchModifyTime != null">
+        seconds_match_modify_time = #{record.secondsMatchModifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.preMatchBusiness != null">
+        pre_match_business = #{record.preMatchBusiness,jdbcType=TINYINT},
+      </if>
+      <if test="record.liveOddBusiness != null">
+        live_odd_business = #{record.liveOddBusiness,jdbcType=TINYINT},
+      </if>
+      <if test="record.operateMatchStatus != null">
+        operate_match_status = #{record.operateMatchStatus,jdbcType=TINYINT},
+      </if>
+      <if test="record.beginTime != null">
+        begin_time = #{record.beginTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.beginTimeStatus != null">
+        begin_time_status = #{record.beginTimeStatus,jdbcType=TINYINT},
+      </if>
+      <if test="record.active != null">
+        active = #{record.active,jdbcType=TINYINT},
+      </if>
+      <if test="record.matchStatus != null">
+        match_status = #{record.matchStatus,jdbcType=TINYINT},
+      </if>
+      <if test="record.neutralGround != null">
+        neutral_ground = #{record.neutralGround,jdbcType=TINYINT},
+      </if>
+      <if test="record.neutralGroundStatus != null">
+        neutral_ground_status = #{record.neutralGroundStatus,jdbcType=TINYINT},
+      </if>
+      <if test="record.matchManageId != null">
+        match_manage_id = #{record.matchManageId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.matchPositionName != null">
+        match_position_name = #{record.matchPositionName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.matchPositionNameCode != null">
+        match_position_name_code = #{record.matchPositionNameCode,jdbcType=BIGINT},
+      </if>
+      <if test="record.riskManagerCode != null">
+        risk_manager_code = #{record.riskManagerCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.dataSourceCode != null">
+        data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.relatedDataSourceCoderList != null">
+        related_data_source_coder_list = #{record.relatedDataSourceCoderList,jdbcType=VARCHAR},
+      </if>
+      <if test="record.relatedDataSourceCoderNum != null">
+        related_data_source_coder_num = #{record.relatedDataSourceCoderNum,jdbcType=INTEGER},
+      </if>
+      <if test="record.matchDataProviderCode != null">
+        match_data_provider_code = #{record.matchDataProviderCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.thirdMatchSourceId != null">
+        third_match_source_id = #{record.thirdMatchSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.homeAwayInfo != null">
+        home_away_info = #{record.homeAwayInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.reverseStatus != null">
+        reverse_status = #{record.reverseStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="record.parentId != null">
+        parent_id = #{record.parentId,jdbcType=BIGINT},
+      </if>
+      <if test="record.whetherStop != null">
+        whether_stop = #{record.whetherStop,jdbcType=INTEGER},
+      </if>
+      <if test="record.betStatus != null">
+        bet_status = #{record.betStatus,jdbcType=TINYINT},
+      </if>
+      <if test="record.matchPeriodId != null">
+        match_period_id = #{record.matchPeriodId,jdbcType=BIGINT},
+      </if>
+      <if test="record.matchType != null">
+        match_type = #{record.matchType,jdbcType=INTEGER},
+      </if>
+      <if test="record.seasonId != null">
+        season_id = #{record.seasonId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.tournamentRoundType != null">
+        tournament_round_type = #{record.tournamentRoundType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.tournamentRoundNumber != null">
+        tournament_round_number = #{record.tournamentRoundNumber,jdbcType=INTEGER},
+      </if>
+      <if test="record.tournamentRoundGroup != null">
+        tournament_round_group = #{record.tournamentRoundGroup,jdbcType=VARCHAR},
+      </if>
+      <if test="record.tournamentRoundName != null">
+        tournament_round_name = #{record.tournamentRoundName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.tournamentRoundPhase != null">
+        tournament_round_phase = #{record.tournamentRoundPhase,jdbcType=VARCHAR},
+      </if>
+      <if test="record.roundType != null">
+        round_type = #{record.roundType,jdbcType=INTEGER},
+      </if>
+      <if test="record.soldFlag != null">
+        sold_flag = #{record.soldFlag,jdbcType=VARCHAR},
+      </if>
+      <if test="record.lotteryNumber != null">
+        lottery_number = #{record.lotteryNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="record.matchLength != null">
+        match_length = #{record.matchLength,jdbcType=INTEGER},
+      </if>
+      <if test="record.siteType != null">
+        site_type = #{record.siteType,jdbcType=INTEGER},
+      </if>
+      <if test="record.matchOver != null">
+        match_over = #{record.matchOver,jdbcType=INTEGER},
+      </if>
+      <if test="record.hotMatchStatus != null">
+        hot_match_status = #{record.hotMatchStatus,jdbcType=TINYINT},
+      </if>
+      <if test="record.financialTime != null">
+        financial_time = #{record.financialTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.remark != null">
+        remark = #{record.remark,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.modifyTime != null">
+        modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.oddsLive != null">
+        odds_live = #{record.oddsLive,jdbcType=TINYINT},
+      </if>
+      <if test="record.tournamentNameCode != null">
+        tournament_name_code = #{record.tournamentNameCode,jdbcType=BIGINT},
+      </if>
+      <if test="record.autoAuditFlag != null">
+        auto_audit_flag = #{record.autoAuditFlag,jdbcType=TINYINT},
+      </if>
+      <if test="record.scoreOpflag != null">
+        score_opflag = #{record.scoreOpflag,jdbcType=TINYINT},
+      </if>
+      <if test="record.teamName != null">
+        team_name = #{record.teamName,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.teamManageId != null">
+        team_manage_id = #{record.teamManageId,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map">
+    update standard_match_info_his
+    set id = #{record.id,jdbcType=BIGINT},
+      sport_id = #{record.sportId,jdbcType=BIGINT},
+      standard_tournament_id = #{record.standardTournamentId,jdbcType=BIGINT},
+      third_match_id = #{record.thirdMatchId,jdbcType=BIGINT},
+      seconds_match_start = #{record.secondsMatchStart,jdbcType=INTEGER},
+      seconds_match_modify_time = #{record.secondsMatchModifyTime,jdbcType=BIGINT},
+      pre_match_business = #{record.preMatchBusiness,jdbcType=TINYINT},
+      live_odd_business = #{record.liveOddBusiness,jdbcType=TINYINT},
+      operate_match_status = #{record.operateMatchStatus,jdbcType=TINYINT},
+      begin_time = #{record.beginTime,jdbcType=BIGINT},
+      begin_time_status = #{record.beginTimeStatus,jdbcType=TINYINT},
+      active = #{record.active,jdbcType=TINYINT},
+      match_status = #{record.matchStatus,jdbcType=TINYINT},
+      neutral_ground = #{record.neutralGround,jdbcType=TINYINT},
+      neutral_ground_status = #{record.neutralGroundStatus,jdbcType=TINYINT},
+      match_manage_id = #{record.matchManageId,jdbcType=VARCHAR},
+      match_position_name = #{record.matchPositionName,jdbcType=VARCHAR},
+      match_position_name_code = #{record.matchPositionNameCode,jdbcType=BIGINT},
+      risk_manager_code = #{record.riskManagerCode,jdbcType=VARCHAR},
+      data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+      related_data_source_coder_list = #{record.relatedDataSourceCoderList,jdbcType=VARCHAR},
+      related_data_source_coder_num = #{record.relatedDataSourceCoderNum,jdbcType=INTEGER},
+      match_data_provider_code = #{record.matchDataProviderCode,jdbcType=VARCHAR},
+      third_match_source_id = #{record.thirdMatchSourceId,jdbcType=VARCHAR},
+      home_away_info = #{record.homeAwayInfo,jdbcType=VARCHAR},
+      reverse_status = #{record.reverseStatus,jdbcType=VARCHAR},
+      parent_id = #{record.parentId,jdbcType=BIGINT},
+      whether_stop = #{record.whetherStop,jdbcType=INTEGER},
+      bet_status = #{record.betStatus,jdbcType=TINYINT},
+      match_period_id = #{record.matchPeriodId,jdbcType=BIGINT},
+      match_type = #{record.matchType,jdbcType=INTEGER},
+      season_id = #{record.seasonId,jdbcType=VARCHAR},
+      tournament_round_type = #{record.tournamentRoundType,jdbcType=VARCHAR},
+      tournament_round_number = #{record.tournamentRoundNumber,jdbcType=INTEGER},
+      tournament_round_group = #{record.tournamentRoundGroup,jdbcType=VARCHAR},
+      tournament_round_name = #{record.tournamentRoundName,jdbcType=VARCHAR},
+      tournament_round_phase = #{record.tournamentRoundPhase,jdbcType=VARCHAR},
+      round_type = #{record.roundType,jdbcType=INTEGER},
+      sold_flag = #{record.soldFlag,jdbcType=VARCHAR},
+      lottery_number = #{record.lotteryNumber,jdbcType=VARCHAR},
+      match_length = #{record.matchLength,jdbcType=INTEGER},
+      site_type = #{record.siteType,jdbcType=INTEGER},
+      match_over = #{record.matchOver,jdbcType=INTEGER},
+      hot_match_status = #{record.hotMatchStatus,jdbcType=TINYINT},
+      financial_time = #{record.financialTime,jdbcType=BIGINT},
+      remark = #{record.remark,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      odds_live = #{record.oddsLive,jdbcType=TINYINT},
+      tournament_name_code = #{record.tournamentNameCode,jdbcType=BIGINT},
+      auto_audit_flag = #{record.autoAuditFlag,jdbcType=TINYINT},
+      score_opflag = #{record.scoreOpflag,jdbcType=TINYINT},
+      team_name = #{record.teamName,jdbcType=LONGVARCHAR},
+      team_manage_id = #{record.teamManageId,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update standard_match_info_his
+    set id = #{record.id,jdbcType=BIGINT},
+      sport_id = #{record.sportId,jdbcType=BIGINT},
+      standard_tournament_id = #{record.standardTournamentId,jdbcType=BIGINT},
+      third_match_id = #{record.thirdMatchId,jdbcType=BIGINT},
+      seconds_match_start = #{record.secondsMatchStart,jdbcType=INTEGER},
+      seconds_match_modify_time = #{record.secondsMatchModifyTime,jdbcType=BIGINT},
+      pre_match_business = #{record.preMatchBusiness,jdbcType=TINYINT},
+      live_odd_business = #{record.liveOddBusiness,jdbcType=TINYINT},
+      operate_match_status = #{record.operateMatchStatus,jdbcType=TINYINT},
+      begin_time = #{record.beginTime,jdbcType=BIGINT},
+      begin_time_status = #{record.beginTimeStatus,jdbcType=TINYINT},
+      active = #{record.active,jdbcType=TINYINT},
+      match_status = #{record.matchStatus,jdbcType=TINYINT},
+      neutral_ground = #{record.neutralGround,jdbcType=TINYINT},
+      neutral_ground_status = #{record.neutralGroundStatus,jdbcType=TINYINT},
+      match_manage_id = #{record.matchManageId,jdbcType=VARCHAR},
+      match_position_name = #{record.matchPositionName,jdbcType=VARCHAR},
+      match_position_name_code = #{record.matchPositionNameCode,jdbcType=BIGINT},
+      risk_manager_code = #{record.riskManagerCode,jdbcType=VARCHAR},
+      data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+      related_data_source_coder_list = #{record.relatedDataSourceCoderList,jdbcType=VARCHAR},
+      related_data_source_coder_num = #{record.relatedDataSourceCoderNum,jdbcType=INTEGER},
+      match_data_provider_code = #{record.matchDataProviderCode,jdbcType=VARCHAR},
+      third_match_source_id = #{record.thirdMatchSourceId,jdbcType=VARCHAR},
+      home_away_info = #{record.homeAwayInfo,jdbcType=VARCHAR},
+      reverse_status = #{record.reverseStatus,jdbcType=VARCHAR},
+      parent_id = #{record.parentId,jdbcType=BIGINT},
+      whether_stop = #{record.whetherStop,jdbcType=INTEGER},
+      bet_status = #{record.betStatus,jdbcType=TINYINT},
+      match_period_id = #{record.matchPeriodId,jdbcType=BIGINT},
+      match_type = #{record.matchType,jdbcType=INTEGER},
+      season_id = #{record.seasonId,jdbcType=VARCHAR},
+      tournament_round_type = #{record.tournamentRoundType,jdbcType=VARCHAR},
+      tournament_round_number = #{record.tournamentRoundNumber,jdbcType=INTEGER},
+      tournament_round_group = #{record.tournamentRoundGroup,jdbcType=VARCHAR},
+      tournament_round_name = #{record.tournamentRoundName,jdbcType=VARCHAR},
+      tournament_round_phase = #{record.tournamentRoundPhase,jdbcType=VARCHAR},
+      round_type = #{record.roundType,jdbcType=INTEGER},
+      sold_flag = #{record.soldFlag,jdbcType=VARCHAR},
+      lottery_number = #{record.lotteryNumber,jdbcType=VARCHAR},
+      match_length = #{record.matchLength,jdbcType=INTEGER},
+      site_type = #{record.siteType,jdbcType=INTEGER},
+      match_over = #{record.matchOver,jdbcType=INTEGER},
+      hot_match_status = #{record.hotMatchStatus,jdbcType=TINYINT},
+      financial_time = #{record.financialTime,jdbcType=BIGINT},
+      remark = #{record.remark,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      odds_live = #{record.oddsLive,jdbcType=TINYINT},
+      tournament_name_code = #{record.tournamentNameCode,jdbcType=BIGINT},
+      auto_audit_flag = #{record.autoAuditFlag,jdbcType=TINYINT},
+      score_opflag = #{record.scoreOpflag,jdbcType=TINYINT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.panda.merge.model.StandardMatchInfoHis">
+    update standard_match_info_his
+    <set>
+      <if test="sportId != null">
+        sport_id = #{sportId,jdbcType=BIGINT},
+      </if>
+      <if test="standardTournamentId != null">
+        standard_tournament_id = #{standardTournamentId,jdbcType=BIGINT},
+      </if>
+      <if test="thirdMatchId != null">
+        third_match_id = #{thirdMatchId,jdbcType=BIGINT},
+      </if>
+      <if test="secondsMatchStart != null">
+        seconds_match_start = #{secondsMatchStart,jdbcType=INTEGER},
+      </if>
+      <if test="secondsMatchModifyTime != null">
+        seconds_match_modify_time = #{secondsMatchModifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="preMatchBusiness != null">
+        pre_match_business = #{preMatchBusiness,jdbcType=TINYINT},
+      </if>
+      <if test="liveOddBusiness != null">
+        live_odd_business = #{liveOddBusiness,jdbcType=TINYINT},
+      </if>
+      <if test="operateMatchStatus != null">
+        operate_match_status = #{operateMatchStatus,jdbcType=TINYINT},
+      </if>
+      <if test="beginTime != null">
+        begin_time = #{beginTime,jdbcType=BIGINT},
+      </if>
+      <if test="beginTimeStatus != null">
+        begin_time_status = #{beginTimeStatus,jdbcType=TINYINT},
+      </if>
+      <if test="active != null">
+        active = #{active,jdbcType=TINYINT},
+      </if>
+      <if test="matchStatus != null">
+        match_status = #{matchStatus,jdbcType=TINYINT},
+      </if>
+      <if test="neutralGround != null">
+        neutral_ground = #{neutralGround,jdbcType=TINYINT},
+      </if>
+      <if test="neutralGroundStatus != null">
+        neutral_ground_status = #{neutralGroundStatus,jdbcType=TINYINT},
+      </if>
+      <if test="matchManageId != null">
+        match_manage_id = #{matchManageId,jdbcType=VARCHAR},
+      </if>
+      <if test="matchPositionName != null">
+        match_position_name = #{matchPositionName,jdbcType=VARCHAR},
+      </if>
+      <if test="matchPositionNameCode != null">
+        match_position_name_code = #{matchPositionNameCode,jdbcType=BIGINT},
+      </if>
+      <if test="riskManagerCode != null">
+        risk_manager_code = #{riskManagerCode,jdbcType=VARCHAR},
+      </if>
+      <if test="dataSourceCode != null">
+        data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="relatedDataSourceCoderList != null">
+        related_data_source_coder_list = #{relatedDataSourceCoderList,jdbcType=VARCHAR},
+      </if>
+      <if test="relatedDataSourceCoderNum != null">
+        related_data_source_coder_num = #{relatedDataSourceCoderNum,jdbcType=INTEGER},
+      </if>
+      <if test="matchDataProviderCode != null">
+        match_data_provider_code = #{matchDataProviderCode,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdMatchSourceId != null">
+        third_match_source_id = #{thirdMatchSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="homeAwayInfo != null">
+        home_away_info = #{homeAwayInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="reverseStatus != null">
+        reverse_status = #{reverseStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="parentId != null">
+        parent_id = #{parentId,jdbcType=BIGINT},
+      </if>
+      <if test="whetherStop != null">
+        whether_stop = #{whetherStop,jdbcType=INTEGER},
+      </if>
+      <if test="betStatus != null">
+        bet_status = #{betStatus,jdbcType=TINYINT},
+      </if>
+      <if test="matchPeriodId != null">
+        match_period_id = #{matchPeriodId,jdbcType=BIGINT},
+      </if>
+      <if test="matchType != null">
+        match_type = #{matchType,jdbcType=INTEGER},
+      </if>
+      <if test="seasonId != null">
+        season_id = #{seasonId,jdbcType=VARCHAR},
+      </if>
+      <if test="tournamentRoundType != null">
+        tournament_round_type = #{tournamentRoundType,jdbcType=VARCHAR},
+      </if>
+      <if test="tournamentRoundNumber != null">
+        tournament_round_number = #{tournamentRoundNumber,jdbcType=INTEGER},
+      </if>
+      <if test="tournamentRoundGroup != null">
+        tournament_round_group = #{tournamentRoundGroup,jdbcType=VARCHAR},
+      </if>
+      <if test="tournamentRoundName != null">
+        tournament_round_name = #{tournamentRoundName,jdbcType=VARCHAR},
+      </if>
+      <if test="tournamentRoundPhase != null">
+        tournament_round_phase = #{tournamentRoundPhase,jdbcType=VARCHAR},
+      </if>
+      <if test="roundType != null">
+        round_type = #{roundType,jdbcType=INTEGER},
+      </if>
+      <if test="soldFlag != null">
+        sold_flag = #{soldFlag,jdbcType=VARCHAR},
+      </if>
+      <if test="lotteryNumber != null">
+        lottery_number = #{lotteryNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="matchLength != null">
+        match_length = #{matchLength,jdbcType=INTEGER},
+      </if>
+      <if test="siteType != null">
+        site_type = #{siteType,jdbcType=INTEGER},
+      </if>
+      <if test="matchOver != null">
+        match_over = #{matchOver,jdbcType=INTEGER},
+      </if>
+      <if test="hotMatchStatus != null">
+        hot_match_status = #{hotMatchStatus,jdbcType=TINYINT},
+      </if>
+      <if test="financialTime != null">
+        financial_time = #{financialTime,jdbcType=BIGINT},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null">
+        modify_time = #{modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="oddsLive != null">
+        odds_live = #{oddsLive,jdbcType=TINYINT},
+      </if>
+      <if test="tournamentNameCode != null">
+        tournament_name_code = #{tournamentNameCode,jdbcType=BIGINT},
+      </if>
+      <if test="autoAuditFlag != null">
+        auto_audit_flag = #{autoAuditFlag,jdbcType=TINYINT},
+      </if>
+      <if test="scoreOpflag != null">
+        score_opflag = #{scoreOpflag,jdbcType=TINYINT},
+      </if>
+      <if test="teamName != null">
+        team_name = #{teamName,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="teamManageId != null">
+        team_manage_id = #{teamManageId,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.panda.merge.model.StandardMatchInfoHis">
+    update standard_match_info_his
+    set sport_id = #{sportId,jdbcType=BIGINT},
+      standard_tournament_id = #{standardTournamentId,jdbcType=BIGINT},
+      third_match_id = #{thirdMatchId,jdbcType=BIGINT},
+      seconds_match_start = #{secondsMatchStart,jdbcType=INTEGER},
+      seconds_match_modify_time = #{secondsMatchModifyTime,jdbcType=BIGINT},
+      pre_match_business = #{preMatchBusiness,jdbcType=TINYINT},
+      live_odd_business = #{liveOddBusiness,jdbcType=TINYINT},
+      operate_match_status = #{operateMatchStatus,jdbcType=TINYINT},
+      begin_time = #{beginTime,jdbcType=BIGINT},
+      begin_time_status = #{beginTimeStatus,jdbcType=TINYINT},
+      active = #{active,jdbcType=TINYINT},
+      match_status = #{matchStatus,jdbcType=TINYINT},
+      neutral_ground = #{neutralGround,jdbcType=TINYINT},
+      neutral_ground_status = #{neutralGroundStatus,jdbcType=TINYINT},
+      match_manage_id = #{matchManageId,jdbcType=VARCHAR},
+      match_position_name = #{matchPositionName,jdbcType=VARCHAR},
+      match_position_name_code = #{matchPositionNameCode,jdbcType=BIGINT},
+      risk_manager_code = #{riskManagerCode,jdbcType=VARCHAR},
+      data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
+      related_data_source_coder_list = #{relatedDataSourceCoderList,jdbcType=VARCHAR},
+      related_data_source_coder_num = #{relatedDataSourceCoderNum,jdbcType=INTEGER},
+      match_data_provider_code = #{matchDataProviderCode,jdbcType=VARCHAR},
+      third_match_source_id = #{thirdMatchSourceId,jdbcType=VARCHAR},
+      home_away_info = #{homeAwayInfo,jdbcType=VARCHAR},
+      reverse_status = #{reverseStatus,jdbcType=VARCHAR},
+      parent_id = #{parentId,jdbcType=BIGINT},
+      whether_stop = #{whetherStop,jdbcType=INTEGER},
+      bet_status = #{betStatus,jdbcType=TINYINT},
+      match_period_id = #{matchPeriodId,jdbcType=BIGINT},
+      match_type = #{matchType,jdbcType=INTEGER},
+      season_id = #{seasonId,jdbcType=VARCHAR},
+      tournament_round_type = #{tournamentRoundType,jdbcType=VARCHAR},
+      tournament_round_number = #{tournamentRoundNumber,jdbcType=INTEGER},
+      tournament_round_group = #{tournamentRoundGroup,jdbcType=VARCHAR},
+      tournament_round_name = #{tournamentRoundName,jdbcType=VARCHAR},
+      tournament_round_phase = #{tournamentRoundPhase,jdbcType=VARCHAR},
+      round_type = #{roundType,jdbcType=INTEGER},
+      sold_flag = #{soldFlag,jdbcType=VARCHAR},
+      lottery_number = #{lotteryNumber,jdbcType=VARCHAR},
+      match_length = #{matchLength,jdbcType=INTEGER},
+      site_type = #{siteType,jdbcType=INTEGER},
+      match_over = #{matchOver,jdbcType=INTEGER},
+      hot_match_status = #{hotMatchStatus,jdbcType=TINYINT},
+      financial_time = #{financialTime,jdbcType=BIGINT},
+      remark = #{remark,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      modify_time = #{modifyTime,jdbcType=BIGINT},
+      odds_live = #{oddsLive,jdbcType=TINYINT},
+      tournament_name_code = #{tournamentNameCode,jdbcType=BIGINT},
+      auto_audit_flag = #{autoAuditFlag,jdbcType=TINYINT},
+      score_opflag = #{scoreOpflag,jdbcType=TINYINT},
+      team_name = #{teamName,jdbcType=LONGVARCHAR},
+      team_manage_id = #{teamManageId,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.panda.merge.model.StandardMatchInfoHis">
+    update standard_match_info_his
+    set sport_id = #{sportId,jdbcType=BIGINT},
+      standard_tournament_id = #{standardTournamentId,jdbcType=BIGINT},
+      third_match_id = #{thirdMatchId,jdbcType=BIGINT},
+      seconds_match_start = #{secondsMatchStart,jdbcType=INTEGER},
+      seconds_match_modify_time = #{secondsMatchModifyTime,jdbcType=BIGINT},
+      pre_match_business = #{preMatchBusiness,jdbcType=TINYINT},
+      live_odd_business = #{liveOddBusiness,jdbcType=TINYINT},
+      operate_match_status = #{operateMatchStatus,jdbcType=TINYINT},
+      begin_time = #{beginTime,jdbcType=BIGINT},
+      begin_time_status = #{beginTimeStatus,jdbcType=TINYINT},
+      active = #{active,jdbcType=TINYINT},
+      match_status = #{matchStatus,jdbcType=TINYINT},
+      neutral_ground = #{neutralGround,jdbcType=TINYINT},
+      neutral_ground_status = #{neutralGroundStatus,jdbcType=TINYINT},
+      match_manage_id = #{matchManageId,jdbcType=VARCHAR},
+      match_position_name = #{matchPositionName,jdbcType=VARCHAR},
+      match_position_name_code = #{matchPositionNameCode,jdbcType=BIGINT},
+      risk_manager_code = #{riskManagerCode,jdbcType=VARCHAR},
+      data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
+      related_data_source_coder_list = #{relatedDataSourceCoderList,jdbcType=VARCHAR},
+      related_data_source_coder_num = #{relatedDataSourceCoderNum,jdbcType=INTEGER},
+      match_data_provider_code = #{matchDataProviderCode,jdbcType=VARCHAR},
+      third_match_source_id = #{thirdMatchSourceId,jdbcType=VARCHAR},
+      home_away_info = #{homeAwayInfo,jdbcType=VARCHAR},
+      reverse_status = #{reverseStatus,jdbcType=VARCHAR},
+      parent_id = #{parentId,jdbcType=BIGINT},
+      whether_stop = #{whetherStop,jdbcType=INTEGER},
+      bet_status = #{betStatus,jdbcType=TINYINT},
+      match_period_id = #{matchPeriodId,jdbcType=BIGINT},
+      match_type = #{matchType,jdbcType=INTEGER},
+      season_id = #{seasonId,jdbcType=VARCHAR},
+      tournament_round_type = #{tournamentRoundType,jdbcType=VARCHAR},
+      tournament_round_number = #{tournamentRoundNumber,jdbcType=INTEGER},
+      tournament_round_group = #{tournamentRoundGroup,jdbcType=VARCHAR},
+      tournament_round_name = #{tournamentRoundName,jdbcType=VARCHAR},
+      tournament_round_phase = #{tournamentRoundPhase,jdbcType=VARCHAR},
+      round_type = #{roundType,jdbcType=INTEGER},
+      sold_flag = #{soldFlag,jdbcType=VARCHAR},
+      lottery_number = #{lotteryNumber,jdbcType=VARCHAR},
+      match_length = #{matchLength,jdbcType=INTEGER},
+      site_type = #{siteType,jdbcType=INTEGER},
+      match_over = #{matchOver,jdbcType=INTEGER},
+      hot_match_status = #{hotMatchStatus,jdbcType=TINYINT},
+      financial_time = #{financialTime,jdbcType=BIGINT},
+      remark = #{remark,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      modify_time = #{modifyTime,jdbcType=BIGINT},
+      odds_live = #{oddsLive,jdbcType=TINYINT},
+      tournament_name_code = #{tournamentNameCode,jdbcType=BIGINT},
+      auto_audit_flag = #{autoAuditFlag,jdbcType=TINYINT},
+      score_opflag = #{scoreOpflag,jdbcType=TINYINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

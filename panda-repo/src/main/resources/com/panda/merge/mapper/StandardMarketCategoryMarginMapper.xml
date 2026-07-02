@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.mapper.StandardMarketCategoryMarginMapper">
+  <resultMap id="BaseResultMap" type="com.panda.merge.model.StandardMarketCategoryMargin">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="time_frame" jdbcType="BIGINT" property="timeFrame" />
+    <result column="margin" jdbcType="INTEGER" property="margin" />
+    <result column="standard_market_category_id" jdbcType="BIGINT" property="standardMarketCategoryId" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="modify_time" jdbcType="BIGINT" property="modifyTime" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, time_frame, margin, standard_market_category_id, create_time, modify_time
+  </sql>
+  <select id="selectByExample" parameterType="com.panda.merge.model.StandardMarketCategoryMarginExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from standard_market_category_margin
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from standard_market_category_margin
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from standard_market_category_margin
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.panda.merge.model.StandardMarketCategoryMarginExample">
+    delete from standard_market_category_margin
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.panda.merge.model.StandardMarketCategoryMargin">
+    insert into standard_market_category_margin (id, time_frame, margin, 
+      standard_market_category_id, create_time, modify_time
+      )
+    values (#{id,jdbcType=BIGINT}, #{timeFrame,jdbcType=BIGINT}, #{margin,jdbcType=INTEGER}, 
+      #{standardMarketCategoryId,jdbcType=BIGINT}, #{createTime,jdbcType=BIGINT}, #{modifyTime,jdbcType=BIGINT}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.panda.merge.model.StandardMarketCategoryMargin">
+    insert into standard_market_category_margin
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="timeFrame != null">
+        time_frame,
+      </if>
+      <if test="margin != null">
+        margin,
+      </if>
+      <if test="standardMarketCategoryId != null">
+        standard_market_category_id,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="modifyTime != null">
+        modify_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="timeFrame != null">
+        #{timeFrame,jdbcType=BIGINT},
+      </if>
+      <if test="margin != null">
+        #{margin,jdbcType=INTEGER},
+      </if>
+      <if test="standardMarketCategoryId != null">
+        #{standardMarketCategoryId,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null">
+        #{modifyTime,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.panda.merge.model.StandardMarketCategoryMarginExample" resultType="java.lang.Long">
+    select count(*) from standard_market_category_margin
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update standard_market_category_margin
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.timeFrame != null">
+        time_frame = #{record.timeFrame,jdbcType=BIGINT},
+      </if>
+      <if test="record.margin != null">
+        margin = #{record.margin,jdbcType=INTEGER},
+      </if>
+      <if test="record.standardMarketCategoryId != null">
+        standard_market_category_id = #{record.standardMarketCategoryId,jdbcType=BIGINT},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.modifyTime != null">
+        modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update standard_market_category_margin
+    set id = #{record.id,jdbcType=BIGINT},
+      time_frame = #{record.timeFrame,jdbcType=BIGINT},
+      margin = #{record.margin,jdbcType=INTEGER},
+      standard_market_category_id = #{record.standardMarketCategoryId,jdbcType=BIGINT},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      modify_time = #{record.modifyTime,jdbcType=BIGINT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.panda.merge.model.StandardMarketCategoryMargin">
+    update standard_market_category_margin
+    <set>
+      <if test="timeFrame != null">
+        time_frame = #{timeFrame,jdbcType=BIGINT},
+      </if>
+      <if test="margin != null">
+        margin = #{margin,jdbcType=INTEGER},
+      </if>
+      <if test="standardMarketCategoryId != null">
+        standard_market_category_id = #{standardMarketCategoryId,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null">
+        modify_time = #{modifyTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.panda.merge.model.StandardMarketCategoryMargin">
+    update standard_market_category_margin
+    set time_frame = #{timeFrame,jdbcType=BIGINT},
+      margin = #{margin,jdbcType=INTEGER},
+      standard_market_category_id = #{standardMarketCategoryId,jdbcType=BIGINT},
+      create_time = #{createTime,jdbcType=BIGINT},
+      modify_time = #{modifyTime,jdbcType=BIGINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

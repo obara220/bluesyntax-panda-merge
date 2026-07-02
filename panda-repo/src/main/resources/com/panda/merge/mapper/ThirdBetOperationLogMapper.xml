@@ -1,0 +1,377 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.mapper.ThirdBetOperationLogMapper">
+  <resultMap id="BaseResultMap" type="com.panda.merge.model.ThirdBetOperationLog">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="product" jdbcType="VARCHAR" property="product" />
+    <result column="operation_type" jdbcType="VARCHAR" property="operationType" />
+    <result column="start_time" jdbcType="BIGINT" property="startTime" />
+    <result column="end_time" jdbcType="BIGINT" property="endTime" />
+    <result column="source_time_stamp" jdbcType="BIGINT" property="sourceTimeStamp" />
+    <result column="send_time_stamp" jdbcType="BIGINT" property="sendTimeStamp" />
+    <result column="send_time_stamp_panda_data" jdbcType="BIGINT" property="sendTimeStampPandaData" />
+    <result column="data_source_code" jdbcType="VARCHAR" property="dataSourceCode" />
+    <result column="third_match_source_id" jdbcType="VARCHAR" property="thirdMatchSourceId" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.panda.merge.model.ThirdBetOperationLog">
+    <result column="market_data" jdbcType="LONGVARCHAR" property="marketData" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, product, operation_type, start_time, end_time, source_time_stamp, send_time_stamp, 
+    send_time_stamp_panda_data, data_source_code, third_match_source_id, create_time
+  </sql>
+  <sql id="Blob_Column_List">
+    market_data
+  </sql>
+  <select id="selectByExampleWithBLOBs" parameterType="com.panda.merge.model.ThirdBetOperationLogExample" resultMap="ResultMapWithBLOBs">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from third_bet_operation_log
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" parameterType="com.panda.merge.model.ThirdBetOperationLogExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from third_bet_operation_log
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from third_bet_operation_log
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from third_bet_operation_log
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.panda.merge.model.ThirdBetOperationLogExample">
+    delete from third_bet_operation_log
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.panda.merge.model.ThirdBetOperationLog">
+    insert into third_bet_operation_log (id, product, operation_type, 
+      start_time, end_time, source_time_stamp, 
+      send_time_stamp, send_time_stamp_panda_data, data_source_code, 
+      third_match_source_id, create_time, market_data
+      )
+    values (#{id,jdbcType=BIGINT}, #{product,jdbcType=VARCHAR}, #{operationType,jdbcType=VARCHAR}, 
+      #{startTime,jdbcType=BIGINT}, #{endTime,jdbcType=BIGINT}, #{sourceTimeStamp,jdbcType=BIGINT}, 
+      #{sendTimeStamp,jdbcType=BIGINT}, #{sendTimeStampPandaData,jdbcType=BIGINT}, #{dataSourceCode,jdbcType=VARCHAR}, 
+      #{thirdMatchSourceId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{marketData,jdbcType=LONGVARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.panda.merge.model.ThirdBetOperationLog">
+    insert into third_bet_operation_log
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="product != null">
+        product,
+      </if>
+      <if test="operationType != null">
+        operation_type,
+      </if>
+      <if test="startTime != null">
+        start_time,
+      </if>
+      <if test="endTime != null">
+        end_time,
+      </if>
+      <if test="sourceTimeStamp != null">
+        source_time_stamp,
+      </if>
+      <if test="sendTimeStamp != null">
+        send_time_stamp,
+      </if>
+      <if test="sendTimeStampPandaData != null">
+        send_time_stamp_panda_data,
+      </if>
+      <if test="dataSourceCode != null">
+        data_source_code,
+      </if>
+      <if test="thirdMatchSourceId != null">
+        third_match_source_id,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="marketData != null">
+        market_data,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="product != null">
+        #{product,jdbcType=VARCHAR},
+      </if>
+      <if test="operationType != null">
+        #{operationType,jdbcType=VARCHAR},
+      </if>
+      <if test="startTime != null">
+        #{startTime,jdbcType=BIGINT},
+      </if>
+      <if test="endTime != null">
+        #{endTime,jdbcType=BIGINT},
+      </if>
+      <if test="sourceTimeStamp != null">
+        #{sourceTimeStamp,jdbcType=BIGINT},
+      </if>
+      <if test="sendTimeStamp != null">
+        #{sendTimeStamp,jdbcType=BIGINT},
+      </if>
+      <if test="sendTimeStampPandaData != null">
+        #{sendTimeStampPandaData,jdbcType=BIGINT},
+      </if>
+      <if test="dataSourceCode != null">
+        #{dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdMatchSourceId != null">
+        #{thirdMatchSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="marketData != null">
+        #{marketData,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.panda.merge.model.ThirdBetOperationLogExample" resultType="java.lang.Long">
+    select count(*) from third_bet_operation_log
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update third_bet_operation_log
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.product != null">
+        product = #{record.product,jdbcType=VARCHAR},
+      </if>
+      <if test="record.operationType != null">
+        operation_type = #{record.operationType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.startTime != null">
+        start_time = #{record.startTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.endTime != null">
+        end_time = #{record.endTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.sourceTimeStamp != null">
+        source_time_stamp = #{record.sourceTimeStamp,jdbcType=BIGINT},
+      </if>
+      <if test="record.sendTimeStamp != null">
+        send_time_stamp = #{record.sendTimeStamp,jdbcType=BIGINT},
+      </if>
+      <if test="record.sendTimeStampPandaData != null">
+        send_time_stamp_panda_data = #{record.sendTimeStampPandaData,jdbcType=BIGINT},
+      </if>
+      <if test="record.dataSourceCode != null">
+        data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.thirdMatchSourceId != null">
+        third_match_source_id = #{record.thirdMatchSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.marketData != null">
+        market_data = #{record.marketData,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map">
+    update third_bet_operation_log
+    set id = #{record.id,jdbcType=BIGINT},
+      product = #{record.product,jdbcType=VARCHAR},
+      operation_type = #{record.operationType,jdbcType=VARCHAR},
+      start_time = #{record.startTime,jdbcType=BIGINT},
+      end_time = #{record.endTime,jdbcType=BIGINT},
+      source_time_stamp = #{record.sourceTimeStamp,jdbcType=BIGINT},
+      send_time_stamp = #{record.sendTimeStamp,jdbcType=BIGINT},
+      send_time_stamp_panda_data = #{record.sendTimeStampPandaData,jdbcType=BIGINT},
+      data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+      third_match_source_id = #{record.thirdMatchSourceId,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      market_data = #{record.marketData,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update third_bet_operation_log
+    set id = #{record.id,jdbcType=BIGINT},
+      product = #{record.product,jdbcType=VARCHAR},
+      operation_type = #{record.operationType,jdbcType=VARCHAR},
+      start_time = #{record.startTime,jdbcType=BIGINT},
+      end_time = #{record.endTime,jdbcType=BIGINT},
+      source_time_stamp = #{record.sourceTimeStamp,jdbcType=BIGINT},
+      send_time_stamp = #{record.sendTimeStamp,jdbcType=BIGINT},
+      send_time_stamp_panda_data = #{record.sendTimeStampPandaData,jdbcType=BIGINT},
+      data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+      third_match_source_id = #{record.thirdMatchSourceId,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.panda.merge.model.ThirdBetOperationLog">
+    update third_bet_operation_log
+    <set>
+      <if test="product != null">
+        product = #{product,jdbcType=VARCHAR},
+      </if>
+      <if test="operationType != null">
+        operation_type = #{operationType,jdbcType=VARCHAR},
+      </if>
+      <if test="startTime != null">
+        start_time = #{startTime,jdbcType=BIGINT},
+      </if>
+      <if test="endTime != null">
+        end_time = #{endTime,jdbcType=BIGINT},
+      </if>
+      <if test="sourceTimeStamp != null">
+        source_time_stamp = #{sourceTimeStamp,jdbcType=BIGINT},
+      </if>
+      <if test="sendTimeStamp != null">
+        send_time_stamp = #{sendTimeStamp,jdbcType=BIGINT},
+      </if>
+      <if test="sendTimeStampPandaData != null">
+        send_time_stamp_panda_data = #{sendTimeStampPandaData,jdbcType=BIGINT},
+      </if>
+      <if test="dataSourceCode != null">
+        data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdMatchSourceId != null">
+        third_match_source_id = #{thirdMatchSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="marketData != null">
+        market_data = #{marketData,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.panda.merge.model.ThirdBetOperationLog">
+    update third_bet_operation_log
+    set product = #{product,jdbcType=VARCHAR},
+      operation_type = #{operationType,jdbcType=VARCHAR},
+      start_time = #{startTime,jdbcType=BIGINT},
+      end_time = #{endTime,jdbcType=BIGINT},
+      source_time_stamp = #{sourceTimeStamp,jdbcType=BIGINT},
+      send_time_stamp = #{sendTimeStamp,jdbcType=BIGINT},
+      send_time_stamp_panda_data = #{sendTimeStampPandaData,jdbcType=BIGINT},
+      data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
+      third_match_source_id = #{thirdMatchSourceId,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      market_data = #{marketData,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.panda.merge.model.ThirdBetOperationLog">
+    update third_bet_operation_log
+    set product = #{product,jdbcType=VARCHAR},
+      operation_type = #{operationType,jdbcType=VARCHAR},
+      start_time = #{startTime,jdbcType=BIGINT},
+      end_time = #{endTime,jdbcType=BIGINT},
+      source_time_stamp = #{sourceTimeStamp,jdbcType=BIGINT},
+      send_time_stamp = #{sendTimeStamp,jdbcType=BIGINT},
+      send_time_stamp_panda_data = #{sendTimeStampPandaData,jdbcType=BIGINT},
+      data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
+      third_match_source_id = #{thirdMatchSourceId,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

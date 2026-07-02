@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.dao.ConfigMarketMarginGapLogDao">
+
+    <insert id="insertList" parameterType="java.util.List">
+        insert into config_market_margin_gap_log (id, match_id, market_category_id,place_num,
+        odds_type,linkage_mode, margin, diff_value,probability, anchor, operater_id,link_id, modify_time, create_time,child_standard_category_id)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.id,jdbcType=BIGINT}, #{item.matchId,jdbcType=BIGINT}, #{item.marketCategoryId,jdbcType=BIGINT},
+            #{item.placeNum,jdbcType=INTEGER},
+            #{item.oddsType,jdbcType=VARCHAR},#{item.linkageMode,jdbcType=TINYINT}, #{item.margin,jdbcType=DOUBLE},
+            #{item.diffValue,jdbcType=DOUBLE},
+            #{item.probability,jdbcType=DOUBLE}, #{item.anchor,jdbcType=BIGINT}, #{item.operaterId,jdbcType=BIGINT},
+            #{item.linkId,jdbcType=VARCHAR},
+            REPLACE(unix_timestamp(current_timestamp(3)),'.',''),REPLACE(unix_timestamp(current_timestamp(3)),'.',''), #{item.childStandardCategoryId,jdbcType=BIGINT})
+        </foreach>
+    </insert>
+</mapper>

@@ -1,0 +1,747 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.v2.mapper.MatchSettleInfoV2Mapper">
+    <resultMap id="BaseResultMap" type="com.panda.merge.v2.entity.MatchSettleInfoEntity">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="sport_id" jdbcType="BIGINT" property="sportId" />
+        <result column="ft_t1" jdbcType="INTEGER" property="ftT1" />
+        <result column="ft_t2" jdbcType="INTEGER" property="ftT2" />
+        <result column="h1_t1" jdbcType="INTEGER" property="h1T1" />
+        <result column="h1_t2" jdbcType="INTEGER" property="h1T2" />
+        <result column="standard_match_id" jdbcType="BIGINT" property="standardMatchId" />
+        <result column="scores_json" jdbcType="VARCHAR" property="scoresJson" />
+        <result column="scores_json_extra" jdbcType="VARCHAR" property="scoresJsonExtra" />
+        <result column="freeze_status" jdbcType="INTEGER" property="freezeStatus" />
+        <result column="settle_type" jdbcType="INTEGER" property="settleType" />
+        <result column="all_live_trader" jdbcType="VARCHAR" property="allLiveTrader" />
+        <result column="live_trader" jdbcType="VARCHAR" property="liveTrader" />
+        <result column="live_trader_id" jdbcType="VARCHAR" property="liveTraderId" />
+        <result column="limit_user_array" jdbcType="VARCHAR" property="limitUserArray" />
+        <result column="auditor_json" jdbcType="VARCHAR" property="auditorJson" />
+        <result column="is_auto_settle_data_source" jdbcType="INTEGER" property="isAutoSettleDataSource" />
+        <result column="goal_auto_settle_data_source" jdbcType="INTEGER" property="goalAutoSettleDataSource" />
+        <result column="corner_auto_settle_data_source" jdbcType="INTEGER" property="cornerAutoSettleDataSource" />
+        <result column="current_event_status" jdbcType="INTEGER" property="currentEventStatus" />
+        <result column="current_event_tag" jdbcType="INTEGER" property="currentEventTag" />
+        <result column="is_gray" jdbcType="INTEGER" property="isGray" />
+        <result column="has_delete_event" jdbcType="INTEGER" property="hasDeleteEvent" />
+        <result column="booking_auto_settle_data_source" jdbcType="INTEGER" property="bookingAutoSettleDataSource" />
+        <result column="isMemo" jdbcType="INTEGER" property="ismemo" />
+        <result column="settle_order_closed" jdbcType="INTEGER" property="settleOrderClosed" />
+        <result column="five_min_switch" jdbcType="INTEGER" property="fiveMinSwitch" />
+        <result column="auditor_active_array" jdbcType="VARCHAR" property="auditorActiveArray" />
+        <result column="create_time" jdbcType="BIGINT" property="createTime" />
+        <result column="modify_time" jdbcType="BIGINT" property="modifyTime" />
+    </resultMap>
+    <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.panda.merge.model.MatchSettleInfo">
+        <result column="category_freeze_status" jdbcType="LONGVARCHAR" property="categoryFreezeStatus" />
+    </resultMap>
+    <sql id="Example_Where_Clause">
+        <where>
+            <foreach collection="oredCriteria" item="criteria" separator="or">
+                <if test="criteria.valid">
+                    <trim prefix="(" prefixOverrides="and" suffix=")">
+                        <foreach collection="criteria.criteria" item="criterion">
+                            <choose>
+                                <when test="criterion.noValue">
+                                    and ${criterion.condition}
+                                </when>
+                                <when test="criterion.singleValue">
+                                    and ${criterion.condition} #{criterion.value}
+                                </when>
+                                <when test="criterion.betweenValue">
+                                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                                </when>
+                                <when test="criterion.listValue">
+                                    and ${criterion.condition}
+                                    <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                                        #{listItem}
+                                    </foreach>
+                                </when>
+                            </choose>
+                        </foreach>
+                    </trim>
+                </if>
+            </foreach>
+        </where>
+    </sql>
+    <sql id="Update_By_Example_Where_Clause">
+        <where>
+            <foreach collection="example.oredCriteria" item="criteria" separator="or">
+                <if test="criteria.valid">
+                    <trim prefix="(" prefixOverrides="and" suffix=")">
+                        <foreach collection="criteria.criteria" item="criterion">
+                            <choose>
+                                <when test="criterion.noValue">
+                                    and ${criterion.condition}
+                                </when>
+                                <when test="criterion.singleValue">
+                                    and ${criterion.condition} #{criterion.value}
+                                </when>
+                                <when test="criterion.betweenValue">
+                                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                                </when>
+                                <when test="criterion.listValue">
+                                    and ${criterion.condition}
+                                    <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                                        #{listItem}
+                                    </foreach>
+                                </when>
+                            </choose>
+                        </foreach>
+                    </trim>
+                </if>
+            </foreach>
+        </where>
+    </sql>
+    <sql id="Base_Column_List">
+        id, sport_id, ft_t1, ft_t2, h1_t1, h1_t2, standard_match_id, scores_json, scores_json_extra,
+    freeze_status, settle_type, all_live_trader, live_trader, live_trader_id, limit_user_array,
+    auditor_json, is_auto_settle_data_source, goal_auto_settle_data_source, corner_auto_settle_data_source,
+    current_event_status, is_gray, has_delete_event,current_event_tag, booking_auto_settle_data_source,
+    isMemo, settle_order_closed, five_min_switch, auditor_active_array, create_time,
+    modify_time
+    </sql>
+    <sql id="Blob_Column_List">
+        category_freeze_status
+    </sql>
+    <select id="selectByExampleWithBLOBs" parameterType="com.panda.merge.model.MatchSettleInfoExample" resultMap="ResultMapWithBLOBs">
+        select
+        <if test="distinct">
+            distinct
+        </if>
+        <include refid="Base_Column_List" />
+        ,
+        <include refid="Blob_Column_List" />
+        from match_settle_info
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause" />
+        </if>
+        <if test="orderByClause != null">
+            order by ${orderByClause}
+        </if>
+    </select>
+    <select id="selectByExample" parameterType="com.panda.merge.model.MatchSettleInfoExample" resultMap="BaseResultMap">
+        select
+        <if test="distinct">
+            distinct
+        </if>
+        <include refid="Base_Column_List" />
+        from match_settle_info
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause" />
+        </if>
+        <if test="orderByClause != null">
+            order by ${orderByClause}
+        </if>
+    </select>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="ResultMapWithBLOBs">
+        select
+        <include refid="Base_Column_List" />
+        ,
+        <include refid="Blob_Column_List" />
+        from match_settle_info
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete from match_settle_info
+        where id = #{id,jdbcType=BIGINT}
+    </delete>
+    <delete id="deleteByExample" parameterType="com.panda.merge.model.MatchSettleInfoExample">
+        delete from match_settle_info
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause" />
+        </if>
+    </delete>
+    <insert id="insert" parameterType="com.panda.merge.model.MatchSettleInfo">
+        insert into match_settle_info (id, sport_id, ft_t1,
+                                       ft_t2, h1_t1, h1_t2, standard_match_id,
+                                       scores_json, scores_json_extra, freeze_status,
+                                       settle_type, all_live_trader, live_trader,
+                                       live_trader_id, limit_user_array, auditor_json,
+                                       is_auto_settle_data_source, goal_auto_settle_data_source,
+                                       corner_auto_settle_data_source, current_event_status,
+                                       is_gray, has_delete_event,current_event_tag, booking_auto_settle_data_source,
+                                       isMemo, settle_order_closed, five_min_switch,
+                                       auditor_active_array, create_time, modify_time,
+                                       category_freeze_status)
+        values (#{id,jdbcType=BIGINT}, #{sportId,jdbcType=BIGINT}, #{ftT1,jdbcType=INTEGER},
+                #{ftT2,jdbcType=INTEGER}, #{h1T1,jdbcType=INTEGER}, #{h1T2,jdbcType=INTEGER}, #{standardMatchId,jdbcType=BIGINT},
+                #{scoresJson,jdbcType=VARCHAR}, #{scoresJsonExtra,jdbcType=VARCHAR}, #{freezeStatus,jdbcType=INTEGER},
+                #{settleType,jdbcType=INTEGER}, #{allLiveTrader,jdbcType=VARCHAR}, #{liveTrader,jdbcType=VARCHAR},
+                #{liveTraderId,jdbcType=VARCHAR}, #{limitUserArray,jdbcType=VARCHAR}, #{auditorJson,jdbcType=VARCHAR},
+                #{isAutoSettleDataSource,jdbcType=INTEGER}, #{goalAutoSettleDataSource,jdbcType=INTEGER},
+                #{cornerAutoSettleDataSource,jdbcType=INTEGER}, #{currentEventStatus,jdbcType=INTEGER},
+                #{isGray,jdbcType=INTEGER}, #{hasDeleteEvent,jdbcType=INTEGER},#{currentEventTag,jdbcType=INTEGER}, #{bookingAutoSettleDataSource,jdbcType=INTEGER},
+                #{ismemo,jdbcType=INTEGER}, #{settleOrderClosed,jdbcType=INTEGER}, #{fiveMinSwitch,jdbcType=INTEGER},
+                #{auditorActiveArray,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{modifyTime,jdbcType=BIGINT},
+                #{categoryFreezeStatus,jdbcType=LONGVARCHAR})
+    </insert>
+    <insert id="insertSelective" parameterType="com.panda.merge.model.MatchSettleInfo">
+        insert into match_settle_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="sportId != null">
+                sport_id,
+            </if>
+            <if test="ftT1 != null">
+                ft_t1,
+            </if>
+            <if test="ftT2 != null">
+                ft_t2,
+            </if>
+            <if test="h1T1 != null">
+                h1_t1,
+            </if>
+            <if test="h1T2 != null">
+                h1_t2,
+            </if>
+            <if test="standardMatchId != null">
+                standard_match_id,
+            </if>
+            <if test="scoresJson != null">
+                scores_json,
+            </if>
+            <if test="scoresJsonExtra != null">
+                scores_json_extra,
+            </if>
+            <if test="freezeStatus != null">
+                freeze_status,
+            </if>
+            <if test="settleType != null">
+                settle_type,
+            </if>
+            <if test="allLiveTrader != null">
+                all_live_trader,
+            </if>
+            <if test="liveTrader != null">
+                live_trader,
+            </if>
+            <if test="liveTraderId != null">
+                live_trader_id,
+            </if>
+            <if test="limitUserArray != null">
+                limit_user_array,
+            </if>
+            <if test="auditorJson != null">
+                auditor_json,
+            </if>
+            <if test="isAutoSettleDataSource != null">
+                is_auto_settle_data_source,
+            </if>
+            <if test="goalAutoSettleDataSource != null">
+                goal_auto_settle_data_source,
+            </if>
+            <if test="cornerAutoSettleDataSource != null">
+                corner_auto_settle_data_source,
+            </if>
+            <if test="currentEventStatus != null">
+                current_event_status,
+            </if>
+            <if test="isGray != null">
+                is_gray,
+            </if>
+            <if test="hasDeleteEvent != null">
+                has_delete_event,
+            </if>
+            <if test="currentEventTag != null">
+                current_event_tag,
+            </if>
+            <if test="bookingAutoSettleDataSource != null">
+                booking_auto_settle_data_source,
+            </if>
+            <if test="ismemo != null">
+                isMemo,
+            </if>
+            <if test="settleOrderClosed != null">
+                settle_order_closed,
+            </if>
+            <if test="fiveMinSwitch != null">
+                five_min_switch,
+            </if>
+            <if test="auditorActiveArray != null">
+                auditor_active_array,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="modifyTime != null">
+                modify_time,
+            </if>
+            <if test="categoryFreezeStatus != null">
+                category_freeze_status,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="sportId != null">
+                #{sportId,jdbcType=BIGINT},
+            </if>
+            <if test="ftT1 != null">
+                #{ftT1,jdbcType=INTEGER},
+            </if>
+            <if test="ftT2 != null">
+                #{ftT2,jdbcType=INTEGER},
+            </if>
+            <if test="h1T1 != null">
+                #{h1T1,jdbcType=INTEGER},
+            </if>
+            <if test="h1T2 != null">
+                #{h1T2,jdbcType=INTEGER},
+            </if>
+            <if test="standardMatchId != null">
+                #{standardMatchId,jdbcType=BIGINT},
+            </if>
+            <if test="scoresJson != null">
+                #{scoresJson,jdbcType=VARCHAR},
+            </if>
+            <if test="scoresJsonExtra != null">
+                #{scoresJsonExtra,jdbcType=VARCHAR},
+            </if>
+            <if test="freezeStatus != null">
+                #{freezeStatus,jdbcType=INTEGER},
+            </if>
+            <if test="settleType != null">
+                #{settleType,jdbcType=INTEGER},
+            </if>
+            <if test="allLiveTrader != null">
+                #{allLiveTrader,jdbcType=VARCHAR},
+            </if>
+            <if test="liveTrader != null">
+                #{liveTrader,jdbcType=VARCHAR},
+            </if>
+            <if test="liveTraderId != null">
+                #{liveTraderId,jdbcType=VARCHAR},
+            </if>
+            <if test="limitUserArray != null">
+                #{limitUserArray,jdbcType=VARCHAR},
+            </if>
+            <if test="auditorJson != null">
+                #{auditorJson,jdbcType=VARCHAR},
+            </if>
+            <if test="isAutoSettleDataSource != null">
+                #{isAutoSettleDataSource,jdbcType=INTEGER},
+            </if>
+            <if test="goalAutoSettleDataSource != null">
+                #{goalAutoSettleDataSource,jdbcType=INTEGER},
+            </if>
+            <if test="cornerAutoSettleDataSource != null">
+                #{cornerAutoSettleDataSource,jdbcType=INTEGER},
+            </if>
+            <if test="currentEventStatus != null">
+                #{currentEventStatus,jdbcType=INTEGER},
+            </if>
+            <if test="isGray != null">
+                #{isGray,jdbcType=INTEGER},
+            </if>
+            <if test="hasDeleteEvent != null">
+                #{hasDeleteEvent,jdbcType=INTEGER},
+            </if>
+            <if test="bookingAutoSettleDataSource != null">
+                #{bookingAutoSettleDataSource,jdbcType=INTEGER},
+            </if>
+            <if test="ismemo != null">
+                #{ismemo,jdbcType=INTEGER},
+            </if>
+            <if test="settleOrderClosed != null">
+                #{settleOrderClosed,jdbcType=INTEGER},
+            </if>
+            <if test="fiveMinSwitch != null">
+                #{fiveMinSwitch,jdbcType=INTEGER},
+            </if>
+            <if test="auditorActiveArray != null">
+                #{auditorActiveArray,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=BIGINT},
+            </if>
+            <if test="modifyTime != null">
+                #{modifyTime,jdbcType=BIGINT},
+            </if>
+            <if test="categoryFreezeStatus != null">
+                #{categoryFreezeStatus,jdbcType=LONGVARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <select id="countByExample" parameterType="com.panda.merge.model.MatchSettleInfoExample" resultType="java.lang.Long">
+        select count(*) from match_settle_info
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause" />
+        </if>
+    </select>
+    <update id="updateByExampleSelective" parameterType="map">
+        update match_settle_info
+        <set>
+            <if test="record.id != null">
+                id = #{record.id,jdbcType=BIGINT},
+            </if>
+            <if test="record.sportId != null">
+                sport_id = #{record.sportId,jdbcType=BIGINT},
+            </if>
+            <if test="record.ftT1 != null">
+                ft_t1 = #{record.ftT1,jdbcType=INTEGER},
+            </if>
+            <if test="record.ftT2 != null">
+                ft_t2 = #{record.ftT2,jdbcType=INTEGER},
+            </if>
+            <if test="record.h1T1 != null">
+                h1_t1 = #{record.h1T1,jdbcType=INTEGER},
+            </if>
+            <if test="record.h1T2 != null">
+                h1_t2 = #{record.h1T2,jdbcType=INTEGER},
+            </if>
+            <if test="record.standardMatchId != null">
+                standard_match_id = #{record.standardMatchId,jdbcType=BIGINT},
+            </if>
+            <if test="record.scoresJson != null">
+                scores_json = #{record.scoresJson,jdbcType=VARCHAR},
+            </if>
+            <if test="record.scoresJsonExtra != null">
+                scores_json_extra = #{record.scoresJsonExtra,jdbcType=VARCHAR},
+            </if>
+            <if test="record.freezeStatus != null">
+                freeze_status = #{record.freezeStatus,jdbcType=INTEGER},
+            </if>
+            <if test="record.settleType != null">
+                settle_type = #{record.settleType,jdbcType=INTEGER},
+            </if>
+            <if test="record.allLiveTrader != null">
+                all_live_trader = #{record.allLiveTrader,jdbcType=VARCHAR},
+            </if>
+            <if test="record.liveTrader != null">
+                live_trader = #{record.liveTrader,jdbcType=VARCHAR},
+            </if>
+            <if test="record.liveTraderId != null">
+                live_trader_id = #{record.liveTraderId,jdbcType=VARCHAR},
+            </if>
+            <if test="record.limitUserArray != null">
+                limit_user_array = #{record.limitUserArray,jdbcType=VARCHAR},
+            </if>
+            <if test="record.auditorJson != null">
+                auditor_json = #{record.auditorJson,jdbcType=VARCHAR},
+            </if>
+            <if test="record.isAutoSettleDataSource != null">
+                is_auto_settle_data_source = #{record.isAutoSettleDataSource,jdbcType=INTEGER},
+            </if>
+            <if test="record.goalAutoSettleDataSource != null">
+                goal_auto_settle_data_source = #{record.goalAutoSettleDataSource,jdbcType=INTEGER},
+            </if>
+            <if test="record.cornerAutoSettleDataSource != null">
+                corner_auto_settle_data_source = #{record.cornerAutoSettleDataSource,jdbcType=INTEGER},
+            </if>
+            <if test="record.currentEventStatus != null">
+                current_event_status = #{record.currentEventStatus,jdbcType=INTEGER},
+            </if>
+            <if test="record.isGray != null">
+                is_gray = #{record.isGray,jdbcType=INTEGER},
+            </if>
+            <if test="record.hasDeleteEvent != null">
+                has_delete_event = #{record.hasDeleteEvent,jdbcType=INTEGER},
+            </if>
+            <if test="record.currentEventTag != null">
+                current_event_tag = #{record.currentEventTag,jdbcType=INTEGER},
+            </if>
+
+            <if test="record.bookingAutoSettleDataSource != null">
+                booking_auto_settle_data_source = #{record.bookingAutoSettleDataSource,jdbcType=INTEGER},
+            </if>
+            <if test="record.ismemo != null">
+                isMemo = #{record.ismemo,jdbcType=INTEGER},
+            </if>
+            <if test="record.settleOrderClosed != null">
+                settle_order_closed = #{record.settleOrderClosed,jdbcType=INTEGER},
+            </if>
+            <if test="record.fiveMinSwitch != null">
+                five_min_switch = #{record.fiveMinSwitch,jdbcType=INTEGER},
+            </if>
+            <if test="record.auditorActiveArray != null">
+                auditor_active_array = #{record.auditorActiveArray,jdbcType=VARCHAR},
+            </if>
+            <if test="record.createTime != null">
+                create_time = #{record.createTime,jdbcType=BIGINT},
+            </if>
+            <if test="record.modifyTime != null">
+                modify_time = #{record.modifyTime,jdbcType=BIGINT},
+            </if>
+            <if test="record.categoryFreezeStatus != null">
+                category_freeze_status = #{record.categoryFreezeStatus,jdbcType=LONGVARCHAR},
+            </if>
+        </set>
+        <if test="_parameter != null">
+            <include refid="Update_By_Example_Where_Clause" />
+        </if>
+    </update>
+    <update id="updateByExampleWithBLOBs" parameterType="map">
+        update match_settle_info
+        set id = #{record.id,jdbcType=BIGINT},
+        sport_id = #{record.sportId,jdbcType=BIGINT},
+        ft_t1 = #{record.ftT1,jdbcType=INTEGER},
+        ft_t2 = #{record.ftT2,jdbcType=INTEGER},
+        h1_t1 = #{record.h1T1,jdbcType=INTEGER},
+        h1_t2 = #{record.h1T2,jdbcType=INTEGER},
+        standard_match_id = #{record.standardMatchId,jdbcType=BIGINT},
+        scores_json = #{record.scoresJson,jdbcType=VARCHAR},
+        scores_json_extra = #{record.scoresJsonExtra,jdbcType=VARCHAR},
+        freeze_status = #{record.freezeStatus,jdbcType=INTEGER},
+        settle_type = #{record.settleType,jdbcType=INTEGER},
+        all_live_trader = #{record.allLiveTrader,jdbcType=VARCHAR},
+        live_trader = #{record.liveTrader,jdbcType=VARCHAR},
+        live_trader_id = #{record.liveTraderId,jdbcType=VARCHAR},
+        limit_user_array = #{record.limitUserArray,jdbcType=VARCHAR},
+        auditor_json = #{record.auditorJson,jdbcType=VARCHAR},
+        is_auto_settle_data_source = #{record.isAutoSettleDataSource,jdbcType=INTEGER},
+        goal_auto_settle_data_source = #{record.goalAutoSettleDataSource,jdbcType=INTEGER},
+        corner_auto_settle_data_source = #{record.cornerAutoSettleDataSource,jdbcType=INTEGER},
+        current_event_status = #{record.currentEventStatus,jdbcType=INTEGER},
+        is_gray = #{record.isGray,jdbcType=INTEGER},
+        has_delete_event = #{record.hasDeleteEvent,jdbcType=INTEGER},
+        current_event_tag = #{record.currentEventTag,jdbcType=INTEGER},
+        booking_auto_settle_data_source = #{record.bookingAutoSettleDataSource,jdbcType=INTEGER},
+        isMemo = #{record.ismemo,jdbcType=INTEGER},
+        settle_order_closed = #{record.settleOrderClosed,jdbcType=INTEGER},
+        five_min_switch = #{record.fiveMinSwitch,jdbcType=INTEGER},
+        auditor_active_array = #{record.auditorActiveArray,jdbcType=VARCHAR},
+        create_time = #{record.createTime,jdbcType=BIGINT},
+        modify_time = #{record.modifyTime,jdbcType=BIGINT},
+        category_freeze_status = #{record.categoryFreezeStatus,jdbcType=LONGVARCHAR}
+        <if test="_parameter != null">
+            <include refid="Update_By_Example_Where_Clause" />
+        </if>
+    </update>
+    <update id="updateByExample" parameterType="map">
+        update match_settle_info
+        set id = #{record.id,jdbcType=BIGINT},
+        sport_id = #{record.sportId,jdbcType=BIGINT},
+        ft_t1 = #{record.ftT1,jdbcType=INTEGER},
+        ft_t2 = #{record.ftT2,jdbcType=INTEGER},
+        h1_t1 = #{record.h1T1,jdbcType=INTEGER},
+        h1_t2 = #{record.h1T2,jdbcType=INTEGER},
+        standard_match_id = #{record.standardMatchId,jdbcType=BIGINT},
+        scores_json = #{record.scoresJson,jdbcType=VARCHAR},
+        scores_json_extra = #{record.scoresJsonExtra,jdbcType=VARCHAR},
+        freeze_status = #{record.freezeStatus,jdbcType=INTEGER},
+        settle_type = #{record.settleType,jdbcType=INTEGER},
+        all_live_trader = #{record.allLiveTrader,jdbcType=VARCHAR},
+        live_trader = #{record.liveTrader,jdbcType=VARCHAR},
+        live_trader_id = #{record.liveTraderId,jdbcType=VARCHAR},
+        limit_user_array = #{record.limitUserArray,jdbcType=VARCHAR},
+        auditor_json = #{record.auditorJson,jdbcType=VARCHAR},
+        is_auto_settle_data_source = #{record.isAutoSettleDataSource,jdbcType=INTEGER},
+        goal_auto_settle_data_source = #{record.goalAutoSettleDataSource,jdbcType=INTEGER},
+        corner_auto_settle_data_source = #{record.cornerAutoSettleDataSource,jdbcType=INTEGER},
+        current_event_status = #{record.currentEventStatus,jdbcType=INTEGER},
+        is_gray = #{record.isGray,jdbcType=INTEGER},
+        has_delete_event = #{record.hasDeleteEvent,jdbcType=INTEGER},
+        current_event_tag = #{record.currentEventTag,jdbcType=INTEGER},
+        booking_auto_settle_data_source = #{record.bookingAutoSettleDataSource,jdbcType=INTEGER},
+        isMemo = #{record.ismemo,jdbcType=INTEGER},
+        settle_order_closed = #{record.settleOrderClosed,jdbcType=INTEGER},
+        five_min_switch = #{record.fiveMinSwitch,jdbcType=INTEGER},
+        auditor_active_array = #{record.auditorActiveArray,jdbcType=VARCHAR},
+        create_time = #{record.createTime,jdbcType=BIGINT},
+        modify_time = #{record.modifyTime,jdbcType=BIGINT}
+        <if test="_parameter != null">
+            <include refid="Update_By_Example_Where_Clause" />
+        </if>
+    </update>
+    <update id="updateByPrimaryKeySelective" parameterType="com.panda.merge.model.MatchSettleInfo">
+        update match_settle_info
+        <set>
+            <if test="sportId != null">
+                sport_id = #{sportId,jdbcType=BIGINT},
+            </if>
+            <if test="ftT1 != null">
+                ft_t1 = #{ftT1,jdbcType=INTEGER},
+            </if>
+            <if test="ftT2 != null">
+                ft_t2 = #{ftT2,jdbcType=INTEGER},
+            </if>
+            <if test="h1T1 != null">
+                h1_t1 = #{h1T1,jdbcType=INTEGER},
+            </if>
+            <if test="h1T2 != null">
+                h1_t2 = #{h1T2,jdbcType=INTEGER},
+            </if>
+            <if test="standardMatchId != null">
+                standard_match_id = #{standardMatchId,jdbcType=BIGINT},
+            </if>
+            <if test="scoresJson != null">
+                scores_json = #{scoresJson,jdbcType=VARCHAR},
+            </if>
+            <if test="scoresJsonExtra != null">
+                scores_json_extra = #{scoresJsonExtra,jdbcType=VARCHAR},
+            </if>
+            <if test="freezeStatus != null">
+                freeze_status = #{freezeStatus,jdbcType=INTEGER},
+            </if>
+            <if test="settleType != null">
+                settle_type = #{settleType,jdbcType=INTEGER},
+            </if>
+            <if test="allLiveTrader != null">
+                all_live_trader = #{allLiveTrader,jdbcType=VARCHAR},
+            </if>
+            <if test="liveTrader != null">
+                live_trader = #{liveTrader,jdbcType=VARCHAR},
+            </if>
+            <if test="liveTraderId != null">
+                live_trader_id = #{liveTraderId,jdbcType=VARCHAR},
+            </if>
+            <if test="limitUserArray != null">
+                limit_user_array = #{limitUserArray,jdbcType=VARCHAR},
+            </if>
+            <if test="auditorJson != null">
+                auditor_json = #{auditorJson,jdbcType=VARCHAR},
+            </if>
+            <if test="isAutoSettleDataSource != null">
+                is_auto_settle_data_source = #{isAutoSettleDataSource,jdbcType=INTEGER},
+            </if>
+            <if test="goalAutoSettleDataSource != null">
+                goal_auto_settle_data_source = #{goalAutoSettleDataSource,jdbcType=INTEGER},
+            </if>
+            <if test="cornerAutoSettleDataSource != null">
+                corner_auto_settle_data_source = #{cornerAutoSettleDataSource,jdbcType=INTEGER},
+            </if>
+            <if test="currentEventStatus != null">
+                current_event_status = #{currentEventStatus,jdbcType=INTEGER},
+            </if>
+            <if test="isGray != null">
+                is_gray = #{isGray,jdbcType=INTEGER},
+            </if>
+            <if test="hasDeleteEvent != null">
+                has_delete_event = #{hasDeleteEvent,jdbcType=INTEGER},
+            </if>
+            <if test="currentEventTag != null">
+                current_event_tag = #{currentEventTag,jdbcType=INTEGER},
+            </if>
+            <if test="bookingAutoSettleDataSource != null">
+                booking_auto_settle_data_source = #{bookingAutoSettleDataSource,jdbcType=INTEGER},
+            </if>
+            <if test="ismemo != null">
+                isMemo = #{ismemo,jdbcType=INTEGER},
+            </if>
+            <if test="settleOrderClosed != null">
+                settle_order_closed = #{settleOrderClosed,jdbcType=INTEGER},
+            </if>
+            <if test="fiveMinSwitch != null">
+                five_min_switch = #{fiveMinSwitch,jdbcType=INTEGER},
+            </if>
+            <if test="auditorActiveArray != null">
+                auditor_active_array = #{auditorActiveArray,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=BIGINT},
+            </if>
+            <if test="modifyTime != null">
+                modify_time = #{modifyTime,jdbcType=BIGINT},
+            </if>
+            <if test="categoryFreezeStatus != null">
+                category_freeze_status = #{categoryFreezeStatus,jdbcType=LONGVARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.panda.merge.model.MatchSettleInfo">
+        update match_settle_info
+        set sport_id = #{sportId,jdbcType=BIGINT},
+            ft_t1 = #{ftT1,jdbcType=INTEGER},
+            ft_t2 = #{ftT2,jdbcType=INTEGER},
+            h1_t1 = #{h1T1,jdbcType=INTEGER},
+            h1_t2 = #{h1T2,jdbcType=INTEGER},
+            standard_match_id = #{standardMatchId,jdbcType=BIGINT},
+            scores_json = #{scoresJson,jdbcType=VARCHAR},
+            scores_json_extra = #{scoresJsonExtra,jdbcType=VARCHAR},
+            freeze_status = #{freezeStatus,jdbcType=INTEGER},
+            settle_type = #{settleType,jdbcType=INTEGER},
+            all_live_trader = #{allLiveTrader,jdbcType=VARCHAR},
+            live_trader = #{liveTrader,jdbcType=VARCHAR},
+            live_trader_id = #{liveTraderId,jdbcType=VARCHAR},
+            limit_user_array = #{limitUserArray,jdbcType=VARCHAR},
+            auditor_json = #{auditorJson,jdbcType=VARCHAR},
+            is_auto_settle_data_source = #{isAutoSettleDataSource,jdbcType=INTEGER},
+            goal_auto_settle_data_source = #{goalAutoSettleDataSource,jdbcType=INTEGER},
+            corner_auto_settle_data_source = #{cornerAutoSettleDataSource,jdbcType=INTEGER},
+            current_event_status = #{currentEventStatus,jdbcType=INTEGER},
+            is_gray = #{isGray,jdbcType=INTEGER},
+            has_delete_event = #{hasDeleteEvent,jdbcType=INTEGER},
+            current_event_tag = #{currentEventTag,jdbcType=INTEGER},
+            booking_auto_settle_data_source = #{bookingAutoSettleDataSource,jdbcType=INTEGER},
+            isMemo = #{ismemo,jdbcType=INTEGER},
+            settle_order_closed = #{settleOrderClosed,jdbcType=INTEGER},
+            five_min_switch = #{fiveMinSwitch,jdbcType=INTEGER},
+            auditor_active_array = #{auditorActiveArray,jdbcType=VARCHAR},
+            create_time = #{createTime,jdbcType=BIGINT},
+            modify_time = #{modifyTime,jdbcType=BIGINT},
+            category_freeze_status = #{categoryFreezeStatus,jdbcType=LONGVARCHAR}
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.panda.merge.model.MatchSettleInfo">
+        update match_settle_info
+        set sport_id = #{sportId,jdbcType=BIGINT},
+            ft_t1 = #{ftT1,jdbcType=INTEGER},
+            ft_t2 = #{ftT2,jdbcType=INTEGER},
+            h1_t1 = #{h1T1,jdbcType=INTEGER},
+            h1_t2 = #{h1T2,jdbcType=INTEGER},
+            standard_match_id = #{standardMatchId,jdbcType=BIGINT},
+            scores_json = #{scoresJson,jdbcType=VARCHAR},
+            scores_json_extra = #{scoresJsonExtra,jdbcType=VARCHAR},
+            freeze_status = #{freezeStatus,jdbcType=INTEGER},
+            settle_type = #{settleType,jdbcType=INTEGER},
+            all_live_trader = #{allLiveTrader,jdbcType=VARCHAR},
+            live_trader = #{liveTrader,jdbcType=VARCHAR},
+            live_trader_id = #{liveTraderId,jdbcType=VARCHAR},
+            limit_user_array = #{limitUserArray,jdbcType=VARCHAR},
+            auditor_json = #{auditorJson,jdbcType=VARCHAR},
+            is_auto_settle_data_source = #{isAutoSettleDataSource,jdbcType=INTEGER},
+            goal_auto_settle_data_source = #{goalAutoSettleDataSource,jdbcType=INTEGER},
+            corner_auto_settle_data_source = #{cornerAutoSettleDataSource,jdbcType=INTEGER},
+            current_event_status = #{currentEventStatus,jdbcType=INTEGER},
+            is_gray = #{isGray,jdbcType=INTEGER},
+            has_delete_event = #{hasDeleteEvent,jdbcType=INTEGER},
+            current_event_tag = #{currentEventTag,jdbcType=INTEGER},
+            booking_auto_settle_data_source = #{bookingAutoSettleDataSource,jdbcType=INTEGER},
+            isMemo = #{ismemo,jdbcType=INTEGER},
+            settle_order_closed = #{settleOrderClosed,jdbcType=INTEGER},
+            five_min_switch = #{fiveMinSwitch,jdbcType=INTEGER},
+            auditor_active_array = #{auditorActiveArray,jdbcType=VARCHAR},
+            create_time = #{createTime,jdbcType=BIGINT},
+            modify_time = #{modifyTime,jdbcType=BIGINT}
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <select id="queryDeleteMatchSettleInfo" parameterType="java.lang.Long"  resultMap="BaseResultMap">
+        select
+            t.id, t.sport_id, t.ft_t1, t.ft_t2, t.h1_t1, t.h1_t2, t.standard_match_id, t.scores_json, t.scores_json_extra,
+            t.freeze_status, t.settle_type, t.all_live_trader, t.live_trader, t.live_trader_id, t.limit_user_array,
+            t.auditor_json, t.is_auto_settle_data_source, t.goal_auto_settle_data_source, t.corner_auto_settle_data_source,
+            t.current_event_status, t.is_gray, t.has_delete_event,t.current_event_tag, t.booking_auto_settle_data_source,
+            t.isMemo, t.settle_order_closed, t.five_min_switch, t.auditor_active_array, t.create_time,
+            t.modify_time
+        from  match_settle_info t left join standard_Match_Info s
+                                            on s.id = t.standard_Match_Id
+        where s.match_over = 1
+          and s.begin_time <![CDATA[<= ]]> #{beginTime}
+        order by t.create_time asc
+            limit 1
+    </select>
+
+    <select id="querySettleInfoNotInStandardMatchInfo" parameterType="java.lang.Long"  resultMap="BaseResultMap">
+        select
+            t.id, t.sport_id, t.ft_t1, t.ft_t2, t.h1_t1, t.h1_t2, t.standard_match_id, t.scores_json, t.scores_json_extra,
+            t.freeze_status, t.settle_type, t.all_live_trader, t.live_trader, t.live_trader_id, t.limit_user_array,
+            t.auditor_json, t.is_auto_settle_data_source, t.goal_auto_settle_data_source, t.corner_auto_settle_data_source,
+            t.current_event_status, t.is_gray, t.has_delete_event,t.current_event_tag, t.booking_auto_settle_data_source,
+            t.isMemo, t.settle_order_closed, t.five_min_switch, t.auditor_active_array, t.create_time,
+            t.modify_time
+        from  match_settle_info t left join standard_Match_Info s
+                                            on t.standard_Match_Id =s.id
+        where s.id is null
+          and t.create_time <![CDATA[<= ]]> #{beginTime}
+        order by t.create_time asc
+            limit 1
+    </select>
+
+</mapper>

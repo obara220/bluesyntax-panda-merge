@@ -4,86 +4,87 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <groupId>com.panda.merge</groupId>
+    <artifactId>panda-merge</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>panda-common</module>
+        <module>panda-repo</module>
+        <module>panda-odds-admin</module>
+        <module>panda-nonrealtime-admin</module>
+        <module>panda-realtime-admin</module>
+        <module>panda-api</module>
+        <module>panda-service</module>
+        <module>panda-odds-service</module>
+        <module>panda-dubbo-consumer</module>
+        <module>panda-scores-admin</module>
+        <module>panda-settle-scores-admin</module>
+        <module>panda-websocket-admin</module>
+        <module>panda-es-admin</module>
+        <module>panda-test-admin</module>
+        <module>panda-rocketmq-starter</module>
+        <module>panda-druid-monitor</module>
+        <module>panda-odds-share</module>
+        <module>panda-a99</module>
+    </modules>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.6.15</version>
+        <version>2.3.4.RELEASE</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-
-
-    <groupId>com.panda.aoodds.sports.os</groupId>
-    <artifactId>aoodds-data-os</artifactId>
-    <version>1.0-SNAPSHOT</version>
-    <packaging>pom</packaging>
-    <modules>
-        <module>aoodds-os-service</module>
-        <module>aoodds-os-api</module>
-        <module>aoodds-os-common</module>
-    </modules>
-
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
-        <spring.framework.version>5.3.1</spring.framework.version>
-        <java.version>1.8</java.version>
+        <skipTests>true</skipTests>
+        <docker.host>http://192.168.3.101:2375</docker.host>
+        <docker.maven.plugin.version>1.1.0</docker.maven.plugin.version>
+        <pagehelper-starter.version>1.2.10</pagehelper-starter.version>
+        <pagehelper.version>5.1.8</pagehelper.version>
+        <druid.version>1.1.22</druid.version>
+        <hutool.version>4.5.7</hutool.version>
+        <swagger2.version>2.9.2</swagger2.version>
+        <swagger-models.version>1.6.0</swagger-models.version>
+        <swagger-annotations.version>1.6.0</swagger-annotations.version>
+        <mybatis-generator.version>1.3.7</mybatis-generator.version>
+        <mybatis.version>3.5.6</mybatis.version>
+        <mysql-connector.version>8.0.16</mysql-connector.version>
+        <spring-data-commons.version>2.3.4.RELEASE</spring-data-commons.version>
+        <jjwt.version>0.9.0</jjwt.version>
+        <aliyun-oss.version>2.5.0</aliyun-oss.version>
+        <logstash-logback.version>6.4</logstash-logback.version>
+        <minio.version>3.0.10</minio.version>
         <guava.version>20.0</guava.version>
-        <fastjson.version>1.2.83</fastjson.version>
-        <aoodds-data-api.version>1.0.11-SNAPSHOT</aoodds-data-api.version>
+        <panda-common.version>1.3-SNAPSHOT</panda-common.version>
+        <panda-repo.version>1.0-SNAPSHOT</panda-repo.version>
+        <panda-api.version>1.10.32-SNAPSHOT</panda-api.version>
+        <panda-service.version>1.0-SNAPSHOT</panda-service.version>
+        <panda-odds-service.version>1.0-SNAPSHOT</panda-odds-service.version>
+        <jackson.version> 2.13.4</jackson.version>
+        <dubbo.version>2.7.23</dubbo.version>
+        <log4j.version>2.20.0</log4j.version>
+        <nacos-client.version>1.1.3</nacos-client.version>
+        <rocketmq.starter.version>2.1.1</rocketmq.starter.version>
+<!--        <spring-framework.version>5.3.39</spring-framework.version>-->
 
-        <ao-marketstate.version>1.0-SNAPSHOT</ao-marketstate.version>
-        <panda-api.version>1.9.93-SNAPSHOT</panda-api.version>
+		<!--<fastjson.version>1.2.69_sec12</fastjson.versionx>-->
     </properties>
+
 
     <dependencies>
         <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
+            <groupId>org.apache.dubbo</groupId>
+            <artifactId>dubbo-spring-boot-starter</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-configuration-processor</artifactId>
-            <optional>true</optional>
-        </dependency>
-
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>fastjson</artifactId>
-            <version>${fastjson.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-mongodb</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-redis</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>${guava.version}</version>
-        </dependency>
-
-
-
-        <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger2</artifactId>
-
-            <version>2.10.4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.rocketmq</groupId>
-            <artifactId>rocketmq-spring-boot-starter</artifactId>
-            <version>2.2.3</version>
+            <artifactId>spring-boot-starter-actuator</artifactId>
             <exclusions>
                 <exclusion>
                     <artifactId>log4j-to-slf4j</artifactId>
@@ -92,42 +93,246 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-bootstrap</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
-
         <dependency>
-            <groupId>com.alibaba.cloud</groupId>
-            <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.junit.vintage</groupId>
+                    <artifactId>junit-vintage-engine</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 
     <dependencyManagement>
-        <!--通用模块-->
         <dependencies>
+            <!--odds通用模块-->
+            <dependency>
+                <groupId>org.apache.dubbo</groupId>
+                <artifactId>dubbo-spring-boot-starter</artifactId>
+                <version>${dubbo.version}</version>
+            </dependency>
 
             <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-dependencies</artifactId>
+                <groupId>com.panda.merge</groupId>
+                <artifactId>panda-common</artifactId>
+                <version>${panda-common.version}</version>
+            </dependency>
+            <!--odds中repo生成模块-->
+            <dependency>
+                <groupId>com.panda.merge</groupId>
+                <artifactId>panda-repo</artifactId>
+                <version>${panda-repo.version}</version>
+            </dependency>
+            <!--odds中API生成模块-->
+            <dependency>
+                <groupId>com.panda.merge</groupId>
+                <artifactId>panda-api</artifactId>
+                <version>${panda-api.version}</version>
+            </dependency>
+            <!--odds通用模块-->
+            <dependency>
+                <groupId>com.panda.merge</groupId>
+                <artifactId>panda-service</artifactId>
+                <version>${panda-service.version}</version>
+            </dependency>
+            <!--odds-service 通用模块-->
+            <dependency>
+                <groupId>com.panda.merge</groupId>
+                <artifactId>panda-odds-service</artifactId>
+                <version>${panda-odds-service.version}</version>
+            </dependency>
+            <!--MyBatis分页插件starter-->
+            <dependency>
+                <groupId>com.github.pagehelper</groupId>
+                <artifactId>pagehelper-spring-boot-starter</artifactId>
+                <version>${pagehelper-starter.version}</version>
+            </dependency>
+            <!--MyBatis分页插件-->
+            <dependency>
+                <groupId>com.github.pagehelper</groupId>
+                <artifactId>pagehelper</artifactId>
+                <version>${pagehelper.version}</version>
+            </dependency>
 
-                <version>2021.0.5</version>
-                <type>pom</type>
-                <scope>import</scope>
+            <!--集成druid连接池-->
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>druid</artifactId>
+                <version>${druid.version}</version>
+            </dependency>
+            <!--Hutool Java工具包-->
+            <dependency>
+                <groupId>cn.hutool</groupId>
+                <artifactId>hutool-all</artifactId>
+                <version>${hutool.version}</version>
+            </dependency>
+            <!--Swagger-UI API文档生产工具-->
+            <dependency>
+                <groupId>io.springfox</groupId>
+                <artifactId>springfox-swagger2</artifactId>
+                <version>${swagger2.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.alibaba.cloud</groupId>
-                <artifactId>spring-cloud-alibaba-dependencies</artifactId>
+                <groupId>io.springfox</groupId>
+                <artifactId>springfox-swagger-ui</artifactId>
+                <version>${swagger2.version}</version>
+            </dependency>
+            <!--解决Swagger 2.9.2版本NumberFormatException-->
+            <dependency>
+                <groupId>io.swagger</groupId>
+                <artifactId>swagger-models</artifactId>
+                <version>${swagger-models.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.swagger</groupId>
+                <artifactId>swagger-annotations</artifactId>
+                <version>${swagger-annotations.version}</version>
+            </dependency>
+            <!-- MyBatis 生成器 -->
+            <dependency>
+                <groupId>org.mybatis.generator</groupId>
+                <artifactId>mybatis-generator-core</artifactId>
+                <version>${mybatis-generator.version}</version>
+            </dependency>
+            <!-- MyBatis-->
+            <dependency>
+                <groupId>org.mybatis</groupId>
+                <artifactId>mybatis</artifactId>
+                <version>${mybatis.version}</version>
+            </dependency>
+            <!--Mysql数据库驱动-->
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>${mysql-connector.version}</version>
+            </dependency>
+            <!--SpringData工具包-->
+            <dependency>
+                <groupId>org.springframework.data</groupId>
+                <artifactId>spring-data-commons</artifactId>
+                <version>${spring-data-commons.version}</version>
+            </dependency>
+            <!--JWT(Json Web Token)登录支持-->
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt</artifactId>
+                <version>${jjwt.version}</version>
+            </dependency>
+            <!-- &lt;!&ndash; 阿里云OSS &ndash;&gt;
+             <dependency>
+                 <groupId>com.aliyun.oss</groupId>
+                 <artifactId>aliyun-sdk-oss</artifactId>
+                 <version>${aliyun-oss.version}</version>
+             </dependency>-->
+            <!--集成logstash-->
+            <dependency>
+                <groupId>net.logstash.logback</groupId>
+                <artifactId>logstash-logback-encoder</artifactId>
+                <version>${logstash-logback.version}</version>
+            </dependency>
+            <!-- &lt;!&ndash;MinIO JAVA SDK&ndash;&gt;
+             <dependency>
+                 <groupId>io.minio</groupId>
+                 <artifactId>minio</artifactId>
+                 <version>${minio.version}</version>
+             </dependency>-->
+            <!--统一Guava版本防止冲突-->
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
 
-                <version>2021.0.5.0</version>
-                <type>pom</type>
-                <scope>import</scope>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-api</artifactId>
+                <version>${log4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-core</artifactId>
+                <version>${log4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.sgroschupf</groupId>
+                <artifactId>zkclient</artifactId>
+                <version>0.1</version>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>log4j</artifactId>
+                        <groupId>log4j</groupId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.alibaba.nacos</groupId>
-                <artifactId>nacos-client</artifactId>
-                <version>1.4.5</version>
+                <artifactId>nacos-api</artifactId>
+                <version>${nacos-client.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.rocketmq</groupId>
+                <artifactId>rocketmq-spring-boot-starter</artifactId>
+                <version>${rocketmq.starter.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alibaba.nacos</groupId>
+                <artifactId>nacos-spring-context</artifactId>
+                <version>0.3.3</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-collections4</artifactId>
+                <version>4.4</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.ben-manes.caffeine</groupId>
+                <artifactId>caffeine</artifactId>
+                <version>2.9.3</version>
             </dependency>
         </dependencies>
 
     </dependencyManagement>
+
 </project>

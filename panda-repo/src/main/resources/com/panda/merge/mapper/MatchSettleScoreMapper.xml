@@ -1,0 +1,797 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.mapper.MatchSettleScoreMapper">
+  <resultMap id="BaseResultMap" type="com.panda.merge.model.MatchSettleScore">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="event_code" jdbcType="VARCHAR" property="eventCode" />
+    <result column="t1" jdbcType="INTEGER" property="t1" />
+    <result column="t2" jdbcType="INTEGER" property="t2" />
+    <result column="first_num" jdbcType="INTEGER" property="firstNum" />
+    <result column="second_num" jdbcType="INTEGER" property="secondNum" />
+    <result column="first_t1" jdbcType="INTEGER" property="firstT1" />
+    <result column="first_t2" jdbcType="INTEGER" property="firstT2" />
+    <result column="second_t1" jdbcType="INTEGER" property="secondT1" />
+    <result column="second_t2" jdbcType="INTEGER" property="secondT2" />
+    <result column="extry_info" jdbcType="VARCHAR" property="extryInfo" />
+    <result column="event_name" jdbcType="VARCHAR" property="eventName" />
+    <result column="operate_type" jdbcType="INTEGER" property="operateType" />
+    <result column="operater" jdbcType="VARCHAR" property="operater" />
+    <result column="userId" jdbcType="VARCHAR" property="userid" />
+    <result column="settle_times" jdbcType="INTEGER" property="settleTimes" />
+    <result column="settle_count" jdbcType="INTEGER" property="settleCount" />
+    <result column="settle_reason" jdbcType="INTEGER" property="settleReason" />
+    <result column="settle_reason_detail" jdbcType="VARCHAR" property="settleReasonDetail" />
+    <result column="settle_num" jdbcType="VARCHAR" property="settleNum" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="sport_id" jdbcType="BIGINT" property="sportId" />
+    <result column="data_source_code" jdbcType="VARCHAR" property="dataSourceCode" />
+    <result column="standard_match_id" jdbcType="BIGINT" property="standardMatchId" />
+    <result column="period_id" jdbcType="BIGINT" property="periodId" />
+    <result column="settle_freeze" jdbcType="INTEGER" property="settleFreeze" />
+    <result column="check_number" jdbcType="INTEGER" property="checkNumber" />
+    <result column="is_auto_settle" jdbcType="INTEGER" property="isAutoSettle" />
+    <result column="has_delete_event" jdbcType="INTEGER" property="hasDeleteEvent" />
+    <result column="current_event_tag" jdbcType="INTEGER" property="currentEventTag" />
+    <result column="popup_users" jdbcType="VARCHAR" property="popupUsers" />
+    <result column="score_check_tag" jdbcType="INTEGER" property="scoreCheckTag" />
+    <result column="addition1" jdbcType="VARCHAR" property="addition1" />
+    <result column="addition2" jdbcType="VARCHAR" property="addition2" />
+    <result column="current_event_status" jdbcType="INTEGER" property="currentEventStatus" />
+    <result column="is_grey" jdbcType="INTEGER" property="isGrey" />
+    <result column="go_water_status" jdbcType="INTEGER" property="goWaterStatus" />
+    <result column="modify_time" jdbcType="BIGINT" property="modifyTime" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="event_time" jdbcType="BIGINT" property="eventTime" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, event_code, t1, t2, first_num, second_num, first_t1, first_t2, second_t1, second_t2, 
+    extry_info, event_name, operate_type, operater, userId, settle_times, settle_count, 
+    settle_reason, settle_reason_detail, settle_num, status, sport_id, data_source_code, 
+    standard_match_id, period_id, settle_freeze, check_number, is_auto_settle, has_delete_event,current_event_tag,popup_users,score_check_tag,
+    addition1, addition2, current_event_status, is_grey, go_water_status, modify_time,
+    create_time, event_time
+  </sql>
+  <select id="selectByExample" parameterType="com.panda.merge.model.MatchSettleScoreExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from match_settle_score
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from match_settle_score
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from match_settle_score
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.panda.merge.model.MatchSettleScoreExample">
+    delete from match_settle_score
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.panda.merge.model.MatchSettleScore">
+    insert into match_settle_score (id, event_code, t1, 
+      t2, first_num, second_num, 
+      first_t1, first_t2, second_t1, 
+      second_t2, extry_info, event_name, 
+      operate_type, operater, userId, 
+      settle_times, settle_count, settle_reason, 
+      settle_reason_detail, settle_num, status, 
+      sport_id, data_source_code, standard_match_id, 
+      period_id, settle_freeze, check_number,
+      is_auto_settle, has_delete_event,current_event_tag,popup_users,score_check_tag,addition1,
+      addition2, current_event_status, is_grey,
+      go_water_status, modify_time, create_time,
+      event_time)
+    values (#{id,jdbcType=BIGINT}, #{eventCode,jdbcType=VARCHAR}, #{t1,jdbcType=INTEGER}, 
+      #{t2,jdbcType=INTEGER}, #{firstNum,jdbcType=INTEGER}, #{secondNum,jdbcType=INTEGER}, 
+      #{firstT1,jdbcType=INTEGER}, #{firstT2,jdbcType=INTEGER}, #{secondT1,jdbcType=INTEGER}, 
+      #{secondT2,jdbcType=INTEGER}, #{extryInfo,jdbcType=VARCHAR}, #{eventName,jdbcType=VARCHAR}, 
+      #{operateType,jdbcType=INTEGER}, #{operater,jdbcType=VARCHAR}, #{userid,jdbcType=VARCHAR}, 
+      #{settleTimes,jdbcType=INTEGER}, #{settleCount,jdbcType=INTEGER}, #{settleReason,jdbcType=INTEGER}, 
+      #{settleReasonDetail,jdbcType=VARCHAR}, #{settleNum,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, 
+      #{sportId,jdbcType=BIGINT}, #{dataSourceCode,jdbcType=VARCHAR}, #{standardMatchId,jdbcType=BIGINT}, 
+      #{periodId,jdbcType=BIGINT}, #{settleFreeze,jdbcType=INTEGER}, #{checkNumber,jdbcType=INTEGER},
+      #{isAutoSettle,jdbcType=INTEGER}, #{hasDeleteEvent,jdbcType=INTEGER},#{currentEventTag,jdbcType=INTEGER},
+            #{popupUsers,jdbcType=VARCHAR}, #{scoreCheckTag,jdbcType=INTEGER}, #{addition1,jdbcType=VARCHAR},
+      #{addition2,jdbcType=VARCHAR}, #{currentEventStatus,jdbcType=INTEGER}, #{isGrey,jdbcType=INTEGER},
+      #{goWaterStatus,jdbcType=INTEGER}, #{modifyTime,jdbcType=BIGINT}, #{createTime,jdbcType=BIGINT},
+      #{eventTime,jdbcType=BIGINT})
+  </insert>
+  <insert id="insertSelective" parameterType="com.panda.merge.model.MatchSettleScore">
+    insert into match_settle_score
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="eventCode != null">
+        event_code,
+      </if>
+      <if test="t1 != null">
+        t1,
+      </if>
+      <if test="t2 != null">
+        t2,
+      </if>
+      <if test="firstNum != null">
+        first_num,
+      </if>
+      <if test="secondNum != null">
+        second_num,
+      </if>
+      <if test="firstT1 != null">
+        first_t1,
+      </if>
+      <if test="firstT2 != null">
+        first_t2,
+      </if>
+      <if test="secondT1 != null">
+        second_t1,
+      </if>
+      <if test="secondT2 != null">
+        second_t2,
+      </if>
+      <if test="extryInfo != null">
+        extry_info,
+      </if>
+      <if test="eventName != null">
+        event_name,
+      </if>
+      <if test="operateType != null">
+        operate_type,
+      </if>
+      <if test="operater != null">
+        operater,
+      </if>
+      <if test="userid != null">
+        userId,
+      </if>
+      <if test="settleTimes != null">
+        settle_times,
+      </if>
+      <if test="settleCount != null">
+        settle_count,
+      </if>
+      <if test="settleReason != null">
+        settle_reason,
+      </if>
+      <if test="settleReasonDetail != null">
+        settle_reason_detail,
+      </if>
+      <if test="settleNum != null">
+        settle_num,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="sportId != null">
+        sport_id,
+      </if>
+      <if test="dataSourceCode != null">
+        data_source_code,
+      </if>
+      <if test="standardMatchId != null">
+        standard_match_id,
+      </if>
+      <if test="periodId != null">
+        period_id,
+      </if>
+      <if test="settleFreeze != null">
+        settle_freeze,
+      </if>
+      <if test="checkNumber != null">
+        check_number,
+      </if>
+      <if test="isAutoSettle != null">
+        is_auto_settle,
+      </if>
+      <if test="hasDeleteEvent != null">
+        has_delete_event,
+      </if>
+      <if test="currentEventTag != null">
+        current_event_tag,
+      </if>
+      <if test="popupUsers != null">
+        popup_users,
+      </if>
+      <if test="scoreCheckTag != null">
+        score_check_tag,
+      </if>
+      <if test="addition1 != null">
+        addition1,
+      </if>
+      <if test="addition2 != null">
+        addition2,
+      </if>
+      <if test="currentEventStatus != null">
+        current_event_status,
+      </if>
+      <if test="isGrey != null">
+        is_grey,
+      </if>
+      <if test="goWaterStatus != null">
+        go_water_status,
+      </if>
+      <if test="modifyTime != null">
+        modify_time,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="eventTime != null">
+        event_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="eventCode != null">
+        #{eventCode,jdbcType=VARCHAR},
+      </if>
+      <if test="t1 != null">
+        #{t1,jdbcType=INTEGER},
+      </if>
+      <if test="t2 != null">
+        #{t2,jdbcType=INTEGER},
+      </if>
+      <if test="firstNum != null">
+        #{firstNum,jdbcType=INTEGER},
+      </if>
+      <if test="secondNum != null">
+        #{secondNum,jdbcType=INTEGER},
+      </if>
+      <if test="firstT1 != null">
+        #{firstT1,jdbcType=INTEGER},
+      </if>
+      <if test="firstT2 != null">
+        #{firstT2,jdbcType=INTEGER},
+      </if>
+      <if test="secondT1 != null">
+        #{secondT1,jdbcType=INTEGER},
+      </if>
+      <if test="secondT2 != null">
+        #{secondT2,jdbcType=INTEGER},
+      </if>
+      <if test="extryInfo != null">
+        #{extryInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="eventName != null">
+        #{eventName,jdbcType=VARCHAR},
+      </if>
+      <if test="operateType != null">
+        #{operateType,jdbcType=INTEGER},
+      </if>
+      <if test="operater != null">
+        #{operater,jdbcType=VARCHAR},
+      </if>
+      <if test="userid != null">
+        #{userid,jdbcType=VARCHAR},
+      </if>
+      <if test="settleTimes != null">
+        #{settleTimes,jdbcType=INTEGER},
+      </if>
+      <if test="settleCount != null">
+        #{settleCount,jdbcType=INTEGER},
+      </if>
+      <if test="settleReason != null">
+        #{settleReason,jdbcType=INTEGER},
+      </if>
+      <if test="settleReasonDetail != null">
+        #{settleReasonDetail,jdbcType=VARCHAR},
+      </if>
+      <if test="settleNum != null">
+        #{settleNum,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="sportId != null">
+        #{sportId,jdbcType=BIGINT},
+      </if>
+      <if test="dataSourceCode != null">
+        #{dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="standardMatchId != null">
+        #{standardMatchId,jdbcType=BIGINT},
+      </if>
+      <if test="periodId != null">
+        #{periodId,jdbcType=BIGINT},
+      </if>
+      <if test="settleFreeze != null">
+        #{settleFreeze,jdbcType=INTEGER},
+      </if>
+      <if test="checkNumber != null">
+        #{checkNumber,jdbcType=INTEGER},
+      </if>
+      <if test="isAutoSettle != null">
+        #{isAutoSettle,jdbcType=INTEGER},
+      </if>
+      <if test="hasDeleteEvent != null">
+        #{hasDeleteEvent,jdbcType=INTEGER},
+      </if>
+      <if test="currentEventTag != null">
+        #{currentEventTag,jdbcType=INTEGER},
+      </if>
+      <if test="popupUsers != null">
+        #{popupUsers,jdbcType=VARCHAR},
+      </if>
+      <if test="scoreCheckTag != null">
+        #{scoreCheckTag,jdbcType=INTEGER},
+      </if>
+      <if test="addition1 != null">
+        #{addition1,jdbcType=VARCHAR},
+      </if>
+      <if test="addition2 != null">
+        #{addition2,jdbcType=VARCHAR},
+      </if>
+      <if test="currentEventStatus != null">
+        #{currentEventStatus,jdbcType=INTEGER},
+      </if>
+      <if test="isGrey != null">
+        #{isGrey,jdbcType=INTEGER},
+      </if>
+      <if test="goWaterStatus != null">
+        #{goWaterStatus,jdbcType=INTEGER},
+      </if>
+      <if test="modifyTime != null">
+        #{modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="eventTime != null">
+        #{eventTime,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.panda.merge.model.MatchSettleScoreExample" resultType="java.lang.Long">
+    select count(*) from match_settle_score
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update match_settle_score
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.eventCode != null">
+        event_code = #{record.eventCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.t1 != null">
+        t1 = #{record.t1,jdbcType=INTEGER},
+      </if>
+      <if test="record.t2 != null">
+        t2 = #{record.t2,jdbcType=INTEGER},
+      </if>
+      <if test="record.firstNum != null">
+        first_num = #{record.firstNum,jdbcType=INTEGER},
+      </if>
+      <if test="record.secondNum != null">
+        second_num = #{record.secondNum,jdbcType=INTEGER},
+      </if>
+      <if test="record.firstT1 != null">
+        first_t1 = #{record.firstT1,jdbcType=INTEGER},
+      </if>
+      <if test="record.firstT2 != null">
+        first_t2 = #{record.firstT2,jdbcType=INTEGER},
+      </if>
+      <if test="record.secondT1 != null">
+        second_t1 = #{record.secondT1,jdbcType=INTEGER},
+      </if>
+      <if test="record.secondT2 != null">
+        second_t2 = #{record.secondT2,jdbcType=INTEGER},
+      </if>
+      <if test="record.extryInfo != null">
+        extry_info = #{record.extryInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.eventName != null">
+        event_name = #{record.eventName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.operateType != null">
+        operate_type = #{record.operateType,jdbcType=INTEGER},
+      </if>
+      <if test="record.operater != null">
+        operater = #{record.operater,jdbcType=VARCHAR},
+      </if>
+      <if test="record.userid != null">
+        userId = #{record.userid,jdbcType=VARCHAR},
+      </if>
+      <if test="record.settleTimes != null">
+        settle_times = #{record.settleTimes,jdbcType=INTEGER},
+      </if>
+      <if test="record.settleCount != null">
+        settle_count = #{record.settleCount,jdbcType=INTEGER},
+      </if>
+      <if test="record.settleReason != null">
+        settle_reason = #{record.settleReason,jdbcType=INTEGER},
+      </if>
+      <if test="record.settleReasonDetail != null">
+        settle_reason_detail = #{record.settleReasonDetail,jdbcType=VARCHAR},
+      </if>
+      <if test="record.settleNum != null">
+        settle_num = #{record.settleNum,jdbcType=VARCHAR},
+      </if>
+      <if test="record.status != null">
+        status = #{record.status,jdbcType=INTEGER},
+      </if>
+      <if test="record.sportId != null">
+        sport_id = #{record.sportId,jdbcType=BIGINT},
+      </if>
+      <if test="record.dataSourceCode != null">
+        data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.standardMatchId != null">
+        standard_match_id = #{record.standardMatchId,jdbcType=BIGINT},
+      </if>
+      <if test="record.periodId != null">
+        period_id = #{record.periodId,jdbcType=BIGINT},
+      </if>
+      <if test="record.settleFreeze != null">
+        settle_freeze = #{record.settleFreeze,jdbcType=INTEGER},
+      </if>
+      <if test="record.checkNumber != null">
+        check_number = #{record.checkNumber,jdbcType=INTEGER},
+      </if>
+      <if test="record.isAutoSettle != null">
+        is_auto_settle = #{record.isAutoSettle,jdbcType=INTEGER},
+      </if>
+      <if test="record.hasDeleteEvent != null">
+        has_delete_event = #{record.hasDeleteEvent,jdbcType=INTEGER},
+      </if>
+      <if test="record.currentEventTag != null">
+        current_event_tag = #{record.currentEventTag,jdbcType=INTEGER},
+      </if>
+      <if test="record.popupUsers != null">
+        popup_users = #{record.popupUsers,jdbcType=VARCHAR},
+      </if>
+      <if test="record.scoreCheckTag != null">
+        score_check_tag = #{record.scoreCheckTag,jdbcType=INTEGER},
+      </if>
+      <if test="record.addition1 != null">
+        addition1 = #{record.addition1,jdbcType=VARCHAR},
+      </if>
+      <if test="record.addition2 != null">
+        addition2 = #{record.addition2,jdbcType=VARCHAR},
+      </if>
+      <if test="record.currentEventStatus != null">
+        current_event_status = #{record.currentEventStatus,jdbcType=INTEGER},
+      </if>
+      <if test="record.isGrey != null">
+        is_grey = #{record.isGrey,jdbcType=INTEGER},
+      </if>
+      <if test="record.goWaterStatus != null">
+        go_water_status = #{record.goWaterStatus,jdbcType=INTEGER},
+      </if>
+      <if test="record.modifyTime != null">
+        modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.eventTime != null">
+        event_time = #{record.eventTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update match_settle_score
+    set id = #{record.id,jdbcType=BIGINT},
+      event_code = #{record.eventCode,jdbcType=VARCHAR},
+      t1 = #{record.t1,jdbcType=INTEGER},
+      t2 = #{record.t2,jdbcType=INTEGER},
+      first_num = #{record.firstNum,jdbcType=INTEGER},
+      second_num = #{record.secondNum,jdbcType=INTEGER},
+      first_t1 = #{record.firstT1,jdbcType=INTEGER},
+      first_t2 = #{record.firstT2,jdbcType=INTEGER},
+      second_t1 = #{record.secondT1,jdbcType=INTEGER},
+      second_t2 = #{record.secondT2,jdbcType=INTEGER},
+      extry_info = #{record.extryInfo,jdbcType=VARCHAR},
+      event_name = #{record.eventName,jdbcType=VARCHAR},
+      operate_type = #{record.operateType,jdbcType=INTEGER},
+      operater = #{record.operater,jdbcType=VARCHAR},
+      userId = #{record.userid,jdbcType=VARCHAR},
+      settle_times = #{record.settleTimes,jdbcType=INTEGER},
+      settle_count = #{record.settleCount,jdbcType=INTEGER},
+      settle_reason = #{record.settleReason,jdbcType=INTEGER},
+      settle_reason_detail = #{record.settleReasonDetail,jdbcType=VARCHAR},
+      settle_num = #{record.settleNum,jdbcType=VARCHAR},
+      status = #{record.status,jdbcType=INTEGER},
+      sport_id = #{record.sportId,jdbcType=BIGINT},
+      data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+      standard_match_id = #{record.standardMatchId,jdbcType=BIGINT},
+      period_id = #{record.periodId,jdbcType=BIGINT},
+      settle_freeze = #{record.settleFreeze,jdbcType=INTEGER},
+      check_number = #{record.checkNumber,jdbcType=INTEGER},
+      is_auto_settle = #{record.isAutoSettle,jdbcType=INTEGER},
+      has_delete_event = #{record.hasDeleteEvent,jdbcType=INTEGER},
+      current_event_tag = #{record.currentEventTag,jdbcType=INTEGER},
+      popup_users = #{record.popupUsers,jdbcType=VARCHAR},
+      score_check_tag = #{record.scoreCheckTag,jdbcType=INTEGER},
+      addition1 = #{record.addition1,jdbcType=VARCHAR},
+      addition2 = #{record.addition2,jdbcType=VARCHAR},
+      current_event_status = #{record.currentEventStatus,jdbcType=INTEGER},
+      is_grey = #{record.isGrey,jdbcType=INTEGER},
+      go_water_status = #{record.goWaterStatus,jdbcType=INTEGER},
+      modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      event_time = #{record.eventTime,jdbcType=BIGINT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.panda.merge.model.MatchSettleScore">
+    update match_settle_score
+    <set>
+      <if test="eventCode != null">
+        event_code = #{eventCode,jdbcType=VARCHAR},
+      </if>
+      <if test="t1 != null">
+        t1 = #{t1,jdbcType=INTEGER},
+      </if>
+      <if test="t2 != null">
+        t2 = #{t2,jdbcType=INTEGER},
+      </if>
+      <if test="firstNum != null">
+        first_num = #{firstNum,jdbcType=INTEGER},
+      </if>
+      <if test="secondNum != null">
+        second_num = #{secondNum,jdbcType=INTEGER},
+      </if>
+      <if test="firstT1 != null">
+        first_t1 = #{firstT1,jdbcType=INTEGER},
+      </if>
+      <if test="firstT2 != null">
+        first_t2 = #{firstT2,jdbcType=INTEGER},
+      </if>
+      <if test="secondT1 != null">
+        second_t1 = #{secondT1,jdbcType=INTEGER},
+      </if>
+      <if test="secondT2 != null">
+        second_t2 = #{secondT2,jdbcType=INTEGER},
+      </if>
+      <if test="extryInfo != null">
+        extry_info = #{extryInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="eventName != null">
+        event_name = #{eventName,jdbcType=VARCHAR},
+      </if>
+      <if test="operateType != null">
+        operate_type = #{operateType,jdbcType=INTEGER},
+      </if>
+      <if test="operater != null">
+        operater = #{operater,jdbcType=VARCHAR},
+      </if>
+      <if test="userid != null">
+        userId = #{userid,jdbcType=VARCHAR},
+      </if>
+      <if test="settleTimes != null">
+        settle_times = #{settleTimes,jdbcType=INTEGER},
+      </if>
+      <if test="settleCount != null">
+        settle_count = #{settleCount,jdbcType=INTEGER},
+      </if>
+      <if test="settleReason != null">
+        settle_reason = #{settleReason,jdbcType=INTEGER},
+      </if>
+      <if test="settleReasonDetail != null">
+        settle_reason_detail = #{settleReasonDetail,jdbcType=VARCHAR},
+      </if>
+      <if test="settleNum != null">
+        settle_num = #{settleNum,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="sportId != null">
+        sport_id = #{sportId,jdbcType=BIGINT},
+      </if>
+      <if test="dataSourceCode != null">
+        data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="standardMatchId != null">
+        standard_match_id = #{standardMatchId,jdbcType=BIGINT},
+      </if>
+      <if test="periodId != null">
+        period_id = #{periodId,jdbcType=BIGINT},
+      </if>
+      <if test="settleFreeze != null">
+        settle_freeze = #{settleFreeze,jdbcType=INTEGER},
+      </if>
+      <if test="checkNumber != null">
+        check_number = #{checkNumber,jdbcType=INTEGER},
+      </if>
+      <if test="isAutoSettle != null">
+        is_auto_settle = #{isAutoSettle,jdbcType=INTEGER},
+      </if>
+      <if test="hasDeleteEvent != null">
+        has_delete_event = #{hasDeleteEvent,jdbcType=INTEGER},
+      </if>
+      <if test="currentEventTag != null">
+        current_event_tag = #{currentEventTag,jdbcType=INTEGER},
+      </if>
+      <if test="popupUsers != null">
+        popup_users = #{record.popupUsers,jdbcType=VARCHAR},
+      </if>
+      <if test="scoreCheckTag != null">
+        score_check_tag = #{record.scoreCheckTag,jdbcType=INTEGER},
+      </if>
+      <if test="addition1 != null">
+        addition1 = #{addition1,jdbcType=VARCHAR},
+      </if>
+      <if test="addition2 != null">
+        addition2 = #{addition2,jdbcType=VARCHAR},
+      </if>
+      <if test="currentEventStatus != null">
+        current_event_status = #{currentEventStatus,jdbcType=INTEGER},
+      </if>
+      <if test="isGrey != null">
+        is_grey = #{isGrey,jdbcType=INTEGER},
+      </if>
+      <if test="goWaterStatus != null">
+        go_water_status = #{goWaterStatus,jdbcType=INTEGER},
+      </if>
+      <if test="modifyTime != null">
+        modify_time = #{modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="eventTime != null">
+        event_time = #{eventTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.panda.merge.model.MatchSettleScore">
+    update match_settle_score
+    set event_code = #{eventCode,jdbcType=VARCHAR},
+      t1 = #{t1,jdbcType=INTEGER},
+      t2 = #{t2,jdbcType=INTEGER},
+      first_num = #{firstNum,jdbcType=INTEGER},
+      second_num = #{secondNum,jdbcType=INTEGER},
+      first_t1 = #{firstT1,jdbcType=INTEGER},
+      first_t2 = #{firstT2,jdbcType=INTEGER},
+      second_t1 = #{secondT1,jdbcType=INTEGER},
+      second_t2 = #{secondT2,jdbcType=INTEGER},
+      extry_info = #{extryInfo,jdbcType=VARCHAR},
+      event_name = #{eventName,jdbcType=VARCHAR},
+      operate_type = #{operateType,jdbcType=INTEGER},
+      operater = #{operater,jdbcType=VARCHAR},
+      userId = #{userid,jdbcType=VARCHAR},
+      settle_times = #{settleTimes,jdbcType=INTEGER},
+      settle_count = #{settleCount,jdbcType=INTEGER},
+      settle_reason = #{settleReason,jdbcType=INTEGER},
+      settle_reason_detail = #{settleReasonDetail,jdbcType=VARCHAR},
+      settle_num = #{settleNum,jdbcType=VARCHAR},
+      status = #{status,jdbcType=INTEGER},
+      sport_id = #{sportId,jdbcType=BIGINT},
+      data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
+      standard_match_id = #{standardMatchId,jdbcType=BIGINT},
+      period_id = #{periodId,jdbcType=BIGINT},
+      settle_freeze = #{settleFreeze,jdbcType=INTEGER},
+      check_number = #{checkNumber,jdbcType=INTEGER},
+      is_auto_settle = #{isAutoSettle,jdbcType=INTEGER},
+      has_delete_event = #{hasDeleteEvent,jdbcType=INTEGER},
+      current_event_tag = #{currentEventTag,jdbcType=INTEGER},
+      popup_users = #{popupUsers,jdbcType=VARCHAR},
+      score_check_tag = #{scoreCheckTag,jdbcType=INTEGER},
+      addition1 = #{addition1,jdbcType=VARCHAR},
+      addition2 = #{addition2,jdbcType=VARCHAR},
+      current_event_status = #{currentEventStatus,jdbcType=INTEGER},
+      is_grey = #{isGrey,jdbcType=INTEGER},
+      go_water_status = #{goWaterStatus,jdbcType=INTEGER},
+      modify_time = #{modifyTime,jdbcType=BIGINT},
+      create_time = #{createTime,jdbcType=BIGINT},
+      event_time = #{eventTime,jdbcType=BIGINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <insert id="batchInsert" parameterType="java.util.List">
+    insert into match_settle_score (id, event_code, t1,
+    t2, first_num, second_num,
+    first_t1, first_t2, second_t1,
+    second_t2, extry_info, event_name,
+    operate_type, operater, userId,
+    settle_times, settle_count, settle_reason,
+    settle_reason_detail, settle_num, status,
+    sport_id, data_source_code, standard_match_id,
+    period_id, settle_freeze, check_number,
+    is_auto_settle, has_delete_event,current_event_tag,popup_users,score_check_tag,addition1,
+    addition2, current_event_status, is_grey,
+    go_water_status, modify_time, create_time,
+    event_time)
+    values
+    <foreach collection="configs" item="config" separator=",">
+      (#{config.id,jdbcType=BIGINT}, #{config.eventCode,jdbcType=VARCHAR}, #{config.t1,jdbcType=INTEGER},
+      #{config.t2,jdbcType=INTEGER}, #{config.firstNum,jdbcType=INTEGER}, #{config.secondNum,jdbcType=INTEGER},
+      #{config.firstT1,jdbcType=INTEGER}, #{config.firstT2,jdbcType=INTEGER}, #{config.secondT1,jdbcType=INTEGER},
+      #{config.secondT2,jdbcType=INTEGER}, #{config.extryInfo,jdbcType=VARCHAR}, #{config.eventName,jdbcType=VARCHAR},
+      #{config.operateType,jdbcType=INTEGER}, #{config.operater,jdbcType=VARCHAR}, #{config.userid,jdbcType=VARCHAR},
+      #{config.settleTimes,jdbcType=INTEGER}, #{config.settleCount,jdbcType=INTEGER}, #{config.settleReason,jdbcType=INTEGER},
+      #{config.settleReasonDetail,jdbcType=VARCHAR}, #{config.settleNum,jdbcType=VARCHAR}, #{config.status,jdbcType=INTEGER},
+      #{config.sportId,jdbcType=BIGINT}, #{config.dataSourceCode,jdbcType=VARCHAR}, #{config.standardMatchId,jdbcType=BIGINT},
+      #{config.periodId,jdbcType=BIGINT}, #{config.settleFreeze,jdbcType=INTEGER}, #{config.checkNumber,jdbcType=INTEGER},
+      #{config.isAutoSettle,jdbcType=INTEGER}, #{config.hasDeleteEvent,jdbcType=INTEGER},#{config.currentEventTag,jdbcType=INTEGER},
+      #{config.popupUsers,jdbcType=VARCHAR}, #{config.scoreCheckTag,jdbcType=INTEGER}, #{config.addition1,jdbcType=VARCHAR},
+      #{config.addition2,jdbcType=VARCHAR}, #{config.currentEventStatus,jdbcType=INTEGER}, #{config.isGrey,jdbcType=INTEGER},
+      #{config.goWaterStatus,jdbcType=INTEGER}, #{config.modifyTime,jdbcType=BIGINT}, #{config.createTime,jdbcType=BIGINT},
+      #{config.eventTime,jdbcType=BIGINT})
+    </foreach>
+  </insert>
+</mapper>

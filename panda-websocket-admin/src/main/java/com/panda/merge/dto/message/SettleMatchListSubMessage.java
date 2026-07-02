@@ -1,0 +1,20 @@
+package com.panda.merge.dto.message;
+
+import com.panda.merge.constant.SubscriptionTypeEnum;
+import lombok.Data;
+
+@Data
+public class SettleMatchListSubMessage extends AbstructMessage{
+    private Integer command = SubscriptionTypeEnum.SETTLE_MATCH_LIST_SUB.getCode();
+
+    private String msg =SubscriptionTypeEnum.SETTLE_MATCH_LIST_SUB.getVal();
+
+    private Long index;
+
+    private Long timestamp;
+
+    public SettleMatchListSubMessage(Long index) {
+        this.index = index;
+        timestamp=System.currentTimeMillis();
+    }
+}

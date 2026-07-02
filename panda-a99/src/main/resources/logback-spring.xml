@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="30 seconds">
+    <!--环境变量-->
+    <springProperty scope="context" name="env" source="spring.profiles.active"/>
+    <!--项目名称-->
+    <springProperty scope="context" name="app" source="spring.application.name"/>
+    <!--定义日志文件 输出位置-->
+    <property name="log_dir" value="/opt/logs/panda-data-service-group/panda-a99"/>
+    <!-- 日志最大的历史 10天 -->
+    <property name="maxHistory" value="3"/>
+    <!--配置控制台打印的log-->
+    <appender name="consoleLog" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="org.apache.skywalking.apm.toolkit.log.logback.v1.x.TraceIdPatternLogbackLayout">
+                <Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%tid] [%X{tracelogId}] [%thread] %-5level %logger{36} #-# %msg%n</Pattern>
+            </layout>
+        </encoder>
+    </appender>
+
+    <!-- 按照每天生成日志文件 -->
+    <appender name="fileInfoLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <!--定义日志输出的路径-->
+        <file>${log_dir}/panda-a99.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!--日志文件输出的文件名-->
+            <fileNamePattern>${log_dir}/info/%d{yyyy-MM-dd}/info.%d-%i.log</fileNamePattern>
+            <!-- 日志文件最大尺寸 -->
+            <maxFileSize>256MB</maxFileSize>
+            <!--日志文件保留天数-->
+            <maxHistory>${maxHistory}</maxHistory>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="org.apache.skywalking.apm.toolkit.log.logback.v1.x.TraceIdPatternLogbackLayout">
+                <Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%tid] [%X{tracelogId}] [%thread] %-5level %logger{36} #-# %msg%n</Pattern>
+            </layout>
+        </encoder>
+<!--        <encoder charset="UTF-8" class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">-->
+<!--            <providers>-->
+<!--                <pattern>-->
+<!--                    <pattern>-->
+<!--                        {-->
+<!--                        "date": "%d{yyyy-MM-dd HH:mm:ss.SSS}"-->
+<!--                        ,"app": "${app}"-->
+<!--                        ,"env": "${env}"-->
+<!--                        &lt;!&ndash;日志级别&ndash;&gt;-->
+<!--                        ,"logLevel": "%level"-->
+<!--                        &lt;!&ndash;线程名称&ndash;&gt;-->
+<!--                        ,"thread": "%thread"-->
+<!--                        &lt;!&ndash;进程ID&ndash;&gt;-->
+<!--                        ,"pid": "${PID:-}"-->
+<!--                        &lt;!&ndash;类名&ndash;&gt;-->
+<!--                        ,"class": "%logger{40}"-->
+<!--                        &lt;!&ndash;方法名&ndash;&gt;-->
+<!--                        ,"method": "%method"-->
+<!--                        &lt;!&ndash;当前行&ndash;&gt;-->
+<!--                        ,"line": "%line"-->
+<!--                        &lt;!&ndash;日志打印的信息&ndash;&gt;-->
+<!--                        ,"message": "%message"-->
+<!--                        &lt;!&ndash;堆栈异常信息&ndash;&gt;-->
+<!--                        ,"statck_trace":"%exception"-->
+<!--                        }-->
+<!--                    </pattern>-->
+<!--                </pattern>-->
+<!--            </providers>-->
+<!--        </encoder>-->
+    </appender>
+
+    <appender name="fileErrorLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!--日志文件输出的文件名-->
+            <FileNamePattern>${log_dir}/error/error.%d{yyyy-MM-dd}.%i.log</FileNamePattern>
+            <!-- 日志文件最大尺寸 -->
+            <maxFileSize>256MB</maxFileSize>
+            <!--日志文件保留天数-->
+            <maxHistory>${maxHistory}</maxHistory>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="org.apache.skywalking.apm.toolkit.log.logback.v1.x.TraceIdPatternLogbackLayout">
+                <Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%tid] [%X{tracelogId}] [%thread] %-5level %logger{36} #-# %msg%n</Pattern>
+            </layout>
+        </encoder>
+<!--        <encoder charset="UTF-8" class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">-->
+<!--            <providers>-->
+<!--                <pattern>-->
+<!--                    <pattern>-->
+<!--                        {-->
+<!--                        "date": "%d{yyyy-MM-dd HH:mm:ss.SSS}"-->
+<!--                        ,"app": "${app}"-->
+<!--                        ,"env": "${env}"-->
+<!--                        &lt;!&ndash;日志级别&ndash;&gt;-->
+<!--                        ,"logLevel": "%level"-->
+<!--                        &lt;!&ndash;线程名称&ndash;&gt;-->
+<!--                        ,"thread": "%thread"-->
+<!--                        &lt;!&ndash;进程ID&ndash;&gt;-->
+<!--                        ,"pid": "${PID:-}"-->
+<!--                        &lt;!&ndash;类名&ndash;&gt;-->
+<!--                        ,"class": "%logger{40}"-->
+<!--                        &lt;!&ndash;方法名&ndash;&gt;-->
+<!--                        ,"method": "%method"-->
+<!--                        &lt;!&ndash;当前行&ndash;&gt;-->
+<!--                        ,"line": "%line"-->
+<!--                        &lt;!&ndash;日志打印的信息&ndash;&gt;-->
+<!--                        ,"message": "%message"-->
+<!--                        &lt;!&ndash;堆栈异常信息&ndash;&gt;-->
+<!--                        ,"statck_trace":"%exception"-->
+<!--                        }-->
+<!--                    </pattern>-->
+<!--                </pattern>-->
+<!--            </providers>-->
+<!--        </encoder>-->
+    </appender>
+
+
+    <!--MQ接入三方数据相关日志输出-->
+    <appender name="rocketmq" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!--日志文件输出的文件名-->
+            <FileNamePattern>${log_dir}/rocketmq/%d{yyyy-MM-dd}/rocketmq.%d{yyyy-MM-dd}.%i.log</FileNamePattern>
+            <!-- 日志文件最大尺寸 -->
+            <maxFileSize>256MB</maxFileSize>
+            <!--日志文件保留天数-->
+            <maxHistory>${maxHistory}</maxHistory>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="org.apache.skywalking.apm.toolkit.log.logback.v1.x.TraceIdPatternLogbackLayout">
+                <Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%tid] [%X{tracelogId}] [%thread] %-5level %logger{36} #-# %msg%n</Pattern>
+            </layout>
+        </encoder>
+<!--        <encoder charset="UTF-8" class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">-->
+<!--            <providers>-->
+<!--                <pattern>-->
+<!--                    <pattern>-->
+<!--                        {-->
+<!--                        "date": "%d{yyyy-MM-dd HH:mm:ss.SSS}"-->
+<!--                        ,"app": "${app}"-->
+<!--                        ,"env": "${env}"-->
+<!--                        &lt;!&ndash;日志级别&ndash;&gt;-->
+<!--                        ,"logLevel": "%level"-->
+<!--                        &lt;!&ndash;线程名称&ndash;&gt;-->
+<!--                        ,"thread": "%thread"-->
+<!--                        &lt;!&ndash;进程ID&ndash;&gt;-->
+<!--                        ,"pid": "${PID:-}"-->
+<!--                        &lt;!&ndash;类名&ndash;&gt;-->
+<!--                        ,"class": "%logger{40}"-->
+<!--                        &lt;!&ndash;方法名&ndash;&gt;-->
+<!--                        ,"method": "%method"-->
+<!--                        &lt;!&ndash;当前行&ndash;&gt;-->
+<!--                        ,"line": "%line"-->
+<!--                        &lt;!&ndash;日志打印的信息&ndash;&gt;-->
+<!--                        ,"message": "%message"-->
+<!--                        &lt;!&ndash;堆栈异常信息&ndash;&gt;-->
+<!--                        ,"statck_trace":"%exception"-->
+<!--                        }-->
+<!--                    </pattern>-->
+<!--                </pattern>-->
+<!--            </providers>-->
+<!--        </encoder>-->
+    </appender>
+    <logger name="com.panda.merge.rocketmq" level="INFO" additivity="false">
+        <appender-ref ref="rocketmq" />
+        <appender-ref ref="consoleLog"/>
+    </logger>
+
+    <!--dubbo接口相关日志输出-->
+    <appender name="dubbo" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!--日志文件输出的文件名-->
+            <FileNamePattern>${log_dir}/dubbo/%d{yyyy-MM-dd}/dubbo.%d{yyyy-MM-dd}.%i.log</FileNamePattern>
+            <!-- 日志文件最大尺寸 -->
+            <maxFileSize>256MB</maxFileSize>
+            <!--日志文件保留天数-->
+            <maxHistory>${maxHistory}</maxHistory>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="org.apache.skywalking.apm.toolkit.log.logback.v1.x.TraceIdPatternLogbackLayout">
+                <Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%tid] [%X{tracelogId}] [%thread] %-5level %logger{36} #-# %msg%n</Pattern>
+            </layout>
+        </encoder>
+<!--        <encoder charset="UTF-8" class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">-->
+<!--            <providers>-->
+<!--                <pattern>-->
+<!--                    <pattern>-->
+<!--                        {-->
+<!--                        "date": "%d{yyyy-MM-dd HH:mm:ss.SSS}"-->
+<!--                        ,"app": "${app}"-->
+<!--                        ,"env": "${env}"-->
+<!--                        &lt;!&ndash;日志级别&ndash;&gt;-->
+<!--                        ,"logLevel": "%level"-->
+<!--                        &lt;!&ndash;线程名称&ndash;&gt;-->
+<!--                        ,"thread": "%thread"-->
+<!--                        &lt;!&ndash;进程ID&ndash;&gt;-->
+<!--                        ,"pid": "${PID:-}"-->
+<!--                        &lt;!&ndash;类名&ndash;&gt;-->
+<!--                        ,"class": "%logger{40}"-->
+<!--                        &lt;!&ndash;方法名&ndash;&gt;-->
+<!--                        ,"method": "%method"-->
+<!--                        &lt;!&ndash;当前行&ndash;&gt;-->
+<!--                        ,"line": "%line"-->
+<!--                        &lt;!&ndash;日志打印的信息&ndash;&gt;-->
+<!--                        ,"message": "%message"-->
+<!--                        &lt;!&ndash;堆栈异常信息&ndash;&gt;-->
+<!--                        ,"statck_trace":"%exception"-->
+<!--                        }-->
+<!--                    </pattern>-->
+<!--                </pattern>-->
+<!--            </providers>-->
+<!--        </encoder>-->
+    </appender>
+    <logger name="com.panda.merge.dubbo" level="INFO" additivity="false">
+        <appender-ref ref="dubbo"/>
+        <appender-ref ref="consoleLog"/>
+    </logger>
+
+    <!--<logger name="com.panda.merge.mapper" level="DEBUG"></logger>
+    <logger name="com.panda.merge.dao" level="DEBUG"></logger>-->
+
+    <!-- 日志输出级别 -->
+    <root level="INFO">
+        <appender-ref ref="consoleLog" />
+        <appender-ref ref="fileInfoLog" />
+        <appender-ref ref="fileErrorLog" />
+    </root>
+</configuration>

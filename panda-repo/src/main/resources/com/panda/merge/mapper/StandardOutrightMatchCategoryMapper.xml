@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.mapper.StandardOutrightMatchCategoryMapper">
+  <resultMap id="BaseResultMap" type="com.panda.merge.model.StandardOutrightMatchCategory">
+    <result column="id" jdbcType="BIGINT" property="id" />
+    <result column="standard_match_id" jdbcType="BIGINT" property="standardMatchId" />
+    <result column="category_sell_status" jdbcType="VARCHAR" property="categorySellStatus" />
+    <result column="match_result_status" jdbcType="INTEGER" property="matchResultStatus" />
+    <result column="support_odds" jdbcType="VARCHAR" property="supportOdds" />
+    <result column="template_pc" jdbcType="TINYINT" property="templatePc" />
+    <result column="template_h5" jdbcType="TINYINT" property="templateH5" />
+    <result column="status" jdbcType="TINYINT" property="status" />
+    <result column="order_no" jdbcType="INTEGER" property="orderNo" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="modfiy_time" jdbcType="BIGINT" property="modfiyTime"/>
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, standard_match_id, category_sell_status, match_result_status, support_odds, template_pc, 
+    template_h5, status, order_no, create_time, modfiy_time
+  </sql>
+  <select id="selectByExample" parameterType="com.panda.merge.model.StandardOutrightMatchCategoryExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from standard_outright_match_category
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <delete id="deleteByExample" parameterType="com.panda.merge.model.StandardOutrightMatchCategoryExample">
+    delete from standard_outright_match_category
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.panda.merge.model.StandardOutrightMatchCategory">
+    insert into standard_outright_match_category (id, standard_match_id, category_sell_status, 
+      match_result_status, support_odds, template_pc, 
+      template_h5, status, order_no, 
+      create_time, modfiy_time)
+    values (#{id,jdbcType=BIGINT}, #{standardMatchId,jdbcType=BIGINT}, #{categorySellStatus,jdbcType=VARCHAR}, 
+      #{matchResultStatus,jdbcType=INTEGER}, #{supportOdds,jdbcType=VARCHAR}, #{templatePc,jdbcType=TINYINT}, 
+      #{templateH5,jdbcType=TINYINT}, #{status,jdbcType=TINYINT}, #{orderNo,jdbcType=INTEGER}, 
+      #{createTime,jdbcType=BIGINT}, #{modfiyTime,jdbcType=BIGINT})
+  </insert>
+  <insert id="insertSelective" parameterType="com.panda.merge.model.StandardOutrightMatchCategory">
+    insert into standard_outright_match_category
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="standardMatchId != null">
+        standard_match_id,
+      </if>
+      <if test="categorySellStatus != null">
+        category_sell_status,
+      </if>
+      <if test="matchResultStatus != null">
+        match_result_status,
+      </if>
+      <if test="supportOdds != null">
+        support_odds,
+      </if>
+      <if test="templatePc != null">
+        template_pc,
+      </if>
+      <if test="templateH5 != null">
+        template_h5,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="orderNo != null">
+        order_no,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="modfiyTime != null">
+        modfiy_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="standardMatchId != null">
+        #{standardMatchId,jdbcType=BIGINT},
+      </if>
+      <if test="categorySellStatus != null">
+        #{categorySellStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="matchResultStatus != null">
+        #{matchResultStatus,jdbcType=INTEGER},
+      </if>
+      <if test="supportOdds != null">
+        #{supportOdds,jdbcType=VARCHAR},
+      </if>
+      <if test="templatePc != null">
+        #{templatePc,jdbcType=TINYINT},
+      </if>
+      <if test="templateH5 != null">
+        #{templateH5,jdbcType=TINYINT},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=TINYINT},
+      </if>
+      <if test="orderNo != null">
+        #{orderNo,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="modfiyTime != null">
+        #{modfiyTime,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.panda.merge.model.StandardOutrightMatchCategoryExample" resultType="java.lang.Long">
+    select count(*) from standard_outright_match_category
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update standard_outright_match_category
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.standardMatchId != null">
+        standard_match_id = #{record.standardMatchId,jdbcType=BIGINT},
+      </if>
+      <if test="record.categorySellStatus != null">
+        category_sell_status = #{record.categorySellStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="record.matchResultStatus != null">
+        match_result_status = #{record.matchResultStatus,jdbcType=INTEGER},
+      </if>
+      <if test="record.supportOdds != null">
+        support_odds = #{record.supportOdds,jdbcType=VARCHAR},
+      </if>
+      <if test="record.templatePc != null">
+        template_pc = #{record.templatePc,jdbcType=TINYINT},
+      </if>
+      <if test="record.templateH5 != null">
+        template_h5 = #{record.templateH5,jdbcType=TINYINT},
+      </if>
+      <if test="record.status != null">
+        status = #{record.status,jdbcType=TINYINT},
+      </if>
+      <if test="record.orderNo != null">
+        order_no = #{record.orderNo,jdbcType=INTEGER},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.modfiyTime != null">
+        modfiy_time = #{record.modfiyTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update standard_outright_match_category
+    set id = #{record.id,jdbcType=BIGINT},
+    standard_match_id = #{record.standardMatchId,jdbcType=BIGINT},
+    category_sell_status = #{record.categorySellStatus,jdbcType=VARCHAR},
+    match_result_status = #{record.matchResultStatus,jdbcType=INTEGER},
+    support_odds = #{record.supportOdds,jdbcType=VARCHAR},
+    template_pc = #{record.templatePc,jdbcType=TINYINT},
+    template_h5 = #{record.templateH5,jdbcType=TINYINT},
+    status = #{record.status,jdbcType=TINYINT},
+    order_no = #{record.orderNo,jdbcType=INTEGER},
+    create_time = #{record.createTime,jdbcType=BIGINT},
+    modfiy_time = #{record.modfiyTime,jdbcType=BIGINT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+</mapper>

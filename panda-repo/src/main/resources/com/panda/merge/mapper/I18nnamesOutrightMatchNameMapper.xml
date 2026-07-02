@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.mapper.I18nnamesOutrightMatchNameMapper">
+  <resultMap id="BaseResultMap" type="com.panda.merge.model.I18nnamesOutrightMatchName">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="match_category_filed" jdbcType="BIGINT" property="matchCategoryFiled" />
+    <result column="type" jdbcType="TINYINT" property="type" />
+    <result column="data_source_code" jdbcType="VARCHAR" property="dataSourceCode" />
+    <result column="language_type" jdbcType="VARCHAR" property="languageType" />
+    <result column="text" jdbcType="VARCHAR" property="text" />
+    <result column="flag" jdbcType="TINYINT" property="flag" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="modfiy_time" jdbcType="BIGINT" property="modfiyTime" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, match_category_filed, type, data_source_code, language_type, text, flag, create_time, 
+    modfiy_time
+  </sql>
+  <select id="selectByExample" parameterType="com.panda.merge.model.I18nnamesOutrightMatchNameExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from i18nnames_outright_match_name
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from i18nnames_outright_match_name
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from i18nnames_outright_match_name
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.panda.merge.model.I18nnamesOutrightMatchNameExample">
+    delete from i18nnames_outright_match_name
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.panda.merge.model.I18nnamesOutrightMatchName">
+    insert into i18nnames_outright_match_name (id, match_category_filed, type, 
+      data_source_code, language_type, text, 
+      flag, create_time, modfiy_time
+      )
+    values (#{id,jdbcType=BIGINT}, #{matchCategoryFiled,jdbcType=BIGINT}, #{type,jdbcType=TINYINT}, 
+      #{dataSourceCode,jdbcType=VARCHAR}, #{languageType,jdbcType=VARCHAR}, #{text,jdbcType=VARCHAR}, 
+      #{flag,jdbcType=TINYINT}, #{createTime,jdbcType=BIGINT}, #{modfiyTime,jdbcType=BIGINT}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.panda.merge.model.I18nnamesOutrightMatchName">
+    insert into i18nnames_outright_match_name
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="matchCategoryFiled != null">
+        match_category_filed,
+      </if>
+      <if test="type != null">
+        type,
+      </if>
+      <if test="dataSourceCode != null">
+        data_source_code,
+      </if>
+      <if test="languageType != null">
+        language_type,
+      </if>
+      <if test="text != null">
+        text,
+      </if>
+      <if test="flag != null">
+        flag,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="modfiyTime != null">
+        modfiy_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="matchCategoryFiled != null">
+        #{matchCategoryFiled,jdbcType=BIGINT},
+      </if>
+      <if test="type != null">
+        #{type,jdbcType=TINYINT},
+      </if>
+      <if test="dataSourceCode != null">
+        #{dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="languageType != null">
+        #{languageType,jdbcType=VARCHAR},
+      </if>
+      <if test="text != null">
+        #{text,jdbcType=VARCHAR},
+      </if>
+      <if test="flag != null">
+        #{flag,jdbcType=TINYINT},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="modfiyTime != null">
+        #{modfiyTime,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.panda.merge.model.I18nnamesOutrightMatchNameExample" resultType="java.lang.Long">
+    select count(*) from i18nnames_outright_match_name
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update i18nnames_outright_match_name
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.matchCategoryFiled != null">
+        match_category_filed = #{record.matchCategoryFiled,jdbcType=BIGINT},
+      </if>
+      <if test="record.type != null">
+        type = #{record.type,jdbcType=TINYINT},
+      </if>
+      <if test="record.dataSourceCode != null">
+        data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.languageType != null">
+        language_type = #{record.languageType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.text != null">
+        text = #{record.text,jdbcType=VARCHAR},
+      </if>
+      <if test="record.flag != null">
+        flag = #{record.flag,jdbcType=TINYINT},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.modfiyTime != null">
+        modfiy_time = #{record.modfiyTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update i18nnames_outright_match_name
+    set id = #{record.id,jdbcType=BIGINT},
+      match_category_filed = #{record.matchCategoryFiled,jdbcType=BIGINT},
+      type = #{record.type,jdbcType=TINYINT},
+      data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+      language_type = #{record.languageType,jdbcType=VARCHAR},
+      text = #{record.text,jdbcType=VARCHAR},
+      flag = #{record.flag,jdbcType=TINYINT},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      modfiy_time = #{record.modfiyTime,jdbcType=BIGINT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.panda.merge.model.I18nnamesOutrightMatchName">
+    update i18nnames_outright_match_name
+    <set>
+      <if test="matchCategoryFiled != null">
+        match_category_filed = #{matchCategoryFiled,jdbcType=BIGINT},
+      </if>
+      <if test="type != null">
+        type = #{type,jdbcType=TINYINT},
+      </if>
+      <if test="dataSourceCode != null">
+        data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="languageType != null">
+        language_type = #{languageType,jdbcType=VARCHAR},
+      </if>
+      <if test="text != null">
+        text = #{text,jdbcType=VARCHAR},
+      </if>
+      <if test="flag != null">
+        flag = #{flag,jdbcType=TINYINT},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="modfiyTime != null">
+        modfiy_time = #{modfiyTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.panda.merge.model.I18nnamesOutrightMatchName">
+    update i18nnames_outright_match_name
+    set match_category_filed = #{matchCategoryFiled,jdbcType=BIGINT},
+      type = #{type,jdbcType=TINYINT},
+      data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
+      language_type = #{languageType,jdbcType=VARCHAR},
+      text = #{text,jdbcType=VARCHAR},
+      flag = #{flag,jdbcType=TINYINT},
+      create_time = #{createTime,jdbcType=BIGINT},
+      modfiy_time = #{modfiyTime,jdbcType=BIGINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

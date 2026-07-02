@@ -1,0 +1,1065 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.mapper.ThirdSportTeamRankingMapper">
+  <resultMap id="BaseResultMap" type="com.panda.merge.model.ThirdSportTeamRanking">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="third_tournament_source_id" jdbcType="VARCHAR" property="thirdTournamentSourceId" />
+    <result column="edit_status" jdbcType="BIT" property="editStatus" />
+    <result column="sport_id" jdbcType="BIGINT" property="sportId" />
+    <result column="third_source_season_id" jdbcType="VARCHAR" property="thirdSourceSeasonId" />
+    <result column="third_source_season_name" jdbcType="VARCHAR" property="thirdSourceSeasonName" />
+    <result column="third_source_season_begin_time" jdbcType="TIMESTAMP" property="thirdSourceSeasonBeginTime" />
+    <result column="third_source_season_end_time" jdbcType="TIMESTAMP" property="thirdSourceSeasonEndTime" />
+    <result column="ranking_id" jdbcType="VARCHAR" property="rankingId" />
+    <result column="ranking_cn_name" jdbcType="VARCHAR" property="rankingCnName" />
+    <result column="ranking_en_name" jdbcType="VARCHAR" property="rankingEnName" />
+    <result column="match_count" jdbcType="INTEGER" property="matchCount" />
+    <result column="third_team_source_id" jdbcType="VARCHAR" property="thirdTeamSourceId" />
+    <result column="team_cn_name" jdbcType="VARCHAR" property="teamCnName" />
+    <result column="team_en_name" jdbcType="VARCHAR" property="teamEnName" />
+    <result column="team_logo" jdbcType="VARCHAR" property="teamLogo" />
+    <result column="position_total" jdbcType="INTEGER" property="positionTotal" />
+    <result column="win_total" jdbcType="INTEGER" property="winTotal" />
+    <result column="draw_total" jdbcType="INTEGER" property="drawTotal" />
+    <result column="loss_total" jdbcType="INTEGER" property="lossTotal" />
+    <result column="points_total" jdbcType="INTEGER" property="pointsTotal" />
+    <result column="goals_for_total" jdbcType="INTEGER" property="goalsForTotal" />
+    <result column="goals_against_total" jdbcType="INTEGER" property="goalsAgainstTotal" />
+    <result column="modify_time" jdbcType="BIGINT" property="modifyTime" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="goal_diff_total" jdbcType="INTEGER" property="goalDiffTotal" />
+    <result column="group_id" jdbcType="VARCHAR" property="groupId" />
+    <result column="group_cn_name" jdbcType="VARCHAR" property="groupCnName" />
+    <result column="tournament_type" jdbcType="INTEGER" property="tournamentType" />
+    <result column="winner_market_oddsId" jdbcType="VARCHAR" property="winnerMarketOddsid" />
+    <result column="advance_market_oddsId" jdbcType="VARCHAR" property="advanceMarketOddsid" />
+    <result column="data_source_code" jdbcType="VARCHAR" property="dataSourceCode" />
+    <result column="invalid" jdbcType="INTEGER" property="invalid" />
+    <result column="total_matches" jdbcType="BIGINT" property="totalMatches" />
+    <result column="matches_completed" jdbcType="BIGINT" property="matchesCompleted" />
+    <result column="promotion_cn_name" jdbcType="VARCHAR" property="promotionCnName" />
+    <result column="promotion_en_name" jdbcType="VARCHAR" property="promotionEnName" />
+    <result column="promotion_id" jdbcType="VARCHAR" property="promotionId" />
+    <result column="home_matches_total" jdbcType="INTEGER" property="homeMatchesTotal" />
+    <result column="away_matches_total" jdbcType="INTEGER" property="awayMatchesTotal" />
+    <result column="win_last10" jdbcType="INTEGER" property="winLast10" />
+    <result column="loss_last10" jdbcType="INTEGER" property="lossLast10" />
+    <result column="streak" jdbcType="INTEGER" property="streak" />
+    <result column="win_pct_total" jdbcType="VARCHAR" property="winPctTotal" />
+    <result column="game_behind" jdbcType="VARCHAR" property="gameBehind" />
+    <result column="is_current_season" jdbcType="INTEGER" property="isCurrentSeason" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.panda.merge.model.ThirdSportTeamRanking">
+    <result column="record5" jdbcType="LONGVARCHAR" property="record5" />
+    <result column="star_players" jdbcType="LONGVARCHAR" property="starPlayers" />
+    <result column="team_names" jdbcType="LONGVARCHAR" property="teamNames" />
+    <result column="group_names" jdbcType="LONGVARCHAR" property="groupNames" />
+    <result column="coach_info" jdbcType="LONGVARCHAR" property="coachInfo" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, third_tournament_source_id, edit_status, sport_id, third_source_season_id, third_source_season_name,
+    third_source_season_begin_time, third_source_season_end_time, ranking_id, ranking_cn_name,
+    ranking_en_name, match_count, third_team_source_id, team_cn_name, team_en_name, team_logo,
+    position_total, win_total, draw_total, loss_total, points_total, goals_for_total,
+    goals_against_total, modify_time, create_time, goal_diff_total, group_id, group_cn_name,
+    tournament_type, winner_market_oddsId, advance_market_oddsId, data_source_code, invalid,
+    total_matches, matches_completed, promotion_cn_name, promotion_en_name, promotion_id,
+    home_matches_total, away_matches_total, win_last10, loss_last10, streak, win_pct_total,
+    game_behind, is_current_season
+  </sql>
+  <sql id="Blob_Column_List">
+    record5, star_players, team_names, group_names, coach_info
+  </sql>
+  <select id="selectByExampleWithBLOBs" parameterType="com.panda.merge.model.ThirdSportTeamRankingExample" resultMap="ResultMapWithBLOBs">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from third_sport_team_ranking
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" parameterType="com.panda.merge.model.ThirdSportTeamRankingExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from third_sport_team_ranking
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
+    select
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from third_sport_team_ranking
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from third_sport_team_ranking
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.panda.merge.model.ThirdSportTeamRankingExample">
+    delete from third_sport_team_ranking
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.panda.merge.model.ThirdSportTeamRanking">
+    insert into third_sport_team_ranking (id, third_tournament_source_id, edit_status,
+      sport_id, third_source_season_id, third_source_season_name,
+      third_source_season_begin_time, third_source_season_end_time,
+      ranking_id, ranking_cn_name, ranking_en_name,
+      match_count, third_team_source_id, team_cn_name,
+      team_en_name, team_logo, position_total,
+      win_total, draw_total, loss_total,
+      points_total, goals_for_total, goals_against_total,
+      modify_time, create_time, goal_diff_total,
+      group_id, group_cn_name, tournament_type,
+      winner_market_oddsId, advance_market_oddsId,
+      data_source_code, invalid, total_matches,
+      matches_completed, promotion_cn_name, promotion_en_name,
+      promotion_id, home_matches_total, away_matches_total,
+      win_last10, loss_last10, streak,
+      win_pct_total, game_behind, is_current_season,
+      record5, star_players, team_names,
+      group_names, coach_info)
+    values (#{id,jdbcType=VARCHAR}, #{thirdTournamentSourceId,jdbcType=VARCHAR}, #{editStatus,jdbcType=BIT},
+      #{sportId,jdbcType=BIGINT}, #{thirdSourceSeasonId,jdbcType=VARCHAR}, #{thirdSourceSeasonName,jdbcType=VARCHAR},
+      #{thirdSourceSeasonBeginTime,jdbcType=TIMESTAMP}, #{thirdSourceSeasonEndTime,jdbcType=TIMESTAMP},
+      #{rankingId,jdbcType=VARCHAR}, #{rankingCnName,jdbcType=VARCHAR}, #{rankingEnName,jdbcType=VARCHAR},
+      #{matchCount,jdbcType=INTEGER}, #{thirdTeamSourceId,jdbcType=VARCHAR}, #{teamCnName,jdbcType=VARCHAR},
+      #{teamEnName,jdbcType=VARCHAR}, #{teamLogo,jdbcType=VARCHAR}, #{positionTotal,jdbcType=INTEGER},
+      #{winTotal,jdbcType=INTEGER}, #{drawTotal,jdbcType=INTEGER}, #{lossTotal,jdbcType=INTEGER},
+      #{pointsTotal,jdbcType=INTEGER}, #{goalsForTotal,jdbcType=INTEGER}, #{goalsAgainstTotal,jdbcType=INTEGER},
+      #{modifyTime,jdbcType=BIGINT}, #{createTime,jdbcType=BIGINT}, #{goalDiffTotal,jdbcType=INTEGER},
+      #{groupId,jdbcType=VARCHAR}, #{groupCnName,jdbcType=VARCHAR}, #{tournamentType,jdbcType=INTEGER},
+      #{winnerMarketOddsid,jdbcType=VARCHAR}, #{advanceMarketOddsid,jdbcType=VARCHAR},
+      #{dataSourceCode,jdbcType=VARCHAR}, #{invalid,jdbcType=INTEGER}, #{totalMatches,jdbcType=BIGINT},
+      #{matchesCompleted,jdbcType=BIGINT}, #{promotionCnName,jdbcType=VARCHAR}, #{promotionEnName,jdbcType=VARCHAR},
+      #{promotionId,jdbcType=VARCHAR}, #{homeMatchesTotal,jdbcType=INTEGER}, #{awayMatchesTotal,jdbcType=INTEGER},
+      #{winLast10,jdbcType=INTEGER}, #{lossLast10,jdbcType=INTEGER}, #{streak,jdbcType=INTEGER},
+      #{winPctTotal,jdbcType=VARCHAR}, #{gameBehind,jdbcType=VARCHAR}, #{isCurrentSeason,jdbcType=INTEGER},
+      #{record5,jdbcType=LONGVARCHAR}, #{starPlayers,jdbcType=LONGVARCHAR}, #{teamNames,jdbcType=LONGVARCHAR},
+      #{groupNames,jdbcType=LONGVARCHAR}, #{coachInfo,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.panda.merge.model.ThirdSportTeamRanking">
+    insert into third_sport_team_ranking
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="thirdTournamentSourceId != null">
+        third_tournament_source_id,
+      </if>
+      <if test="editStatus != null">
+        edit_status,
+      </if>
+      <if test="sportId != null">
+        sport_id,
+      </if>
+      <if test="thirdSourceSeasonId != null">
+        third_source_season_id,
+      </if>
+      <if test="thirdSourceSeasonName != null">
+        third_source_season_name,
+      </if>
+      <if test="thirdSourceSeasonBeginTime != null">
+        third_source_season_begin_time,
+      </if>
+      <if test="thirdSourceSeasonEndTime != null">
+        third_source_season_end_time,
+      </if>
+      <if test="rankingId != null">
+        ranking_id,
+      </if>
+      <if test="rankingCnName != null">
+        ranking_cn_name,
+      </if>
+      <if test="rankingEnName != null">
+        ranking_en_name,
+      </if>
+      <if test="matchCount != null">
+        match_count,
+      </if>
+      <if test="thirdTeamSourceId != null">
+        third_team_source_id,
+      </if>
+      <if test="teamCnName != null">
+        team_cn_name,
+      </if>
+      <if test="teamEnName != null">
+        team_en_name,
+      </if>
+      <if test="teamLogo != null">
+        team_logo,
+      </if>
+      <if test="positionTotal != null">
+        position_total,
+      </if>
+      <if test="winTotal != null">
+        win_total,
+      </if>
+      <if test="drawTotal != null">
+        draw_total,
+      </if>
+      <if test="lossTotal != null">
+        loss_total,
+      </if>
+      <if test="pointsTotal != null">
+        points_total,
+      </if>
+      <if test="goalsForTotal != null">
+        goals_for_total,
+      </if>
+      <if test="goalsAgainstTotal != null">
+        goals_against_total,
+      </if>
+      <if test="modifyTime != null">
+        modify_time,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="goalDiffTotal != null">
+        goal_diff_total,
+      </if>
+      <if test="groupId != null">
+        group_id,
+      </if>
+      <if test="groupCnName != null">
+        group_cn_name,
+      </if>
+      <if test="tournamentType != null">
+        tournament_type,
+      </if>
+      <if test="winnerMarketOddsid != null">
+        winner_market_oddsId,
+      </if>
+      <if test="advanceMarketOddsid != null">
+        advance_market_oddsId,
+      </if>
+      <if test="dataSourceCode != null">
+        data_source_code,
+      </if>
+      <if test="invalid != null">
+        invalid,
+      </if>
+      <if test="totalMatches != null">
+        total_matches,
+      </if>
+      <if test="matchesCompleted != null">
+        matches_completed,
+      </if>
+      <if test="promotionCnName != null">
+        promotion_cn_name,
+      </if>
+      <if test="promotionEnName != null">
+        promotion_en_name,
+      </if>
+      <if test="promotionId != null">
+        promotion_id,
+      </if>
+      <if test="homeMatchesTotal != null">
+        home_matches_total,
+      </if>
+      <if test="awayMatchesTotal != null">
+        away_matches_total,
+      </if>
+      <if test="winLast10 != null">
+        win_last10,
+      </if>
+      <if test="lossLast10 != null">
+        loss_last10,
+      </if>
+      <if test="streak != null">
+        streak,
+      </if>
+      <if test="winPctTotal != null">
+        win_pct_total,
+      </if>
+      <if test="gameBehind != null">
+        game_behind,
+      </if>
+      <if test="isCurrentSeason != null">
+        is_current_season,
+      </if>
+      <if test="record5 != null">
+        record5,
+      </if>
+      <if test="starPlayers != null">
+        star_players,
+      </if>
+      <if test="teamNames != null">
+        team_names,
+      </if>
+      <if test="groupNames != null">
+        group_names,
+      </if>
+      <if test="coachInfo != null">
+        coach_info,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdTournamentSourceId != null">
+        #{thirdTournamentSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="editStatus != null">
+        #{editStatus,jdbcType=BIT},
+      </if>
+      <if test="sportId != null">
+        #{sportId,jdbcType=BIGINT},
+      </if>
+      <if test="thirdSourceSeasonId != null">
+        #{thirdSourceSeasonId,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdSourceSeasonName != null">
+        #{thirdSourceSeasonName,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdSourceSeasonBeginTime != null">
+        #{thirdSourceSeasonBeginTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="thirdSourceSeasonEndTime != null">
+        #{thirdSourceSeasonEndTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="rankingId != null">
+        #{rankingId,jdbcType=VARCHAR},
+      </if>
+      <if test="rankingCnName != null">
+        #{rankingCnName,jdbcType=VARCHAR},
+      </if>
+      <if test="rankingEnName != null">
+        #{rankingEnName,jdbcType=VARCHAR},
+      </if>
+      <if test="matchCount != null">
+        #{matchCount,jdbcType=INTEGER},
+      </if>
+      <if test="thirdTeamSourceId != null">
+        #{thirdTeamSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="teamCnName != null">
+        #{teamCnName,jdbcType=VARCHAR},
+      </if>
+      <if test="teamEnName != null">
+        #{teamEnName,jdbcType=VARCHAR},
+      </if>
+      <if test="teamLogo != null">
+        #{teamLogo,jdbcType=VARCHAR},
+      </if>
+      <if test="positionTotal != null">
+        #{positionTotal,jdbcType=INTEGER},
+      </if>
+      <if test="winTotal != null">
+        #{winTotal,jdbcType=INTEGER},
+      </if>
+      <if test="drawTotal != null">
+        #{drawTotal,jdbcType=INTEGER},
+      </if>
+      <if test="lossTotal != null">
+        #{lossTotal,jdbcType=INTEGER},
+      </if>
+      <if test="pointsTotal != null">
+        #{pointsTotal,jdbcType=INTEGER},
+      </if>
+      <if test="goalsForTotal != null">
+        #{goalsForTotal,jdbcType=INTEGER},
+      </if>
+      <if test="goalsAgainstTotal != null">
+        #{goalsAgainstTotal,jdbcType=INTEGER},
+      </if>
+      <if test="modifyTime != null">
+        #{modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="goalDiffTotal != null">
+        #{goalDiffTotal,jdbcType=INTEGER},
+      </if>
+      <if test="groupId != null">
+        #{groupId,jdbcType=VARCHAR},
+      </if>
+      <if test="groupCnName != null">
+        #{groupCnName,jdbcType=VARCHAR},
+      </if>
+      <if test="tournamentType != null">
+        #{tournamentType,jdbcType=INTEGER},
+      </if>
+      <if test="winnerMarketOddsid != null">
+        #{winnerMarketOddsid,jdbcType=VARCHAR},
+      </if>
+      <if test="advanceMarketOddsid != null">
+        #{advanceMarketOddsid,jdbcType=VARCHAR},
+      </if>
+      <if test="dataSourceCode != null">
+        #{dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="invalid != null">
+        #{invalid,jdbcType=INTEGER},
+      </if>
+      <if test="totalMatches != null">
+        #{totalMatches,jdbcType=BIGINT},
+      </if>
+      <if test="matchesCompleted != null">
+        #{matchesCompleted,jdbcType=BIGINT},
+      </if>
+      <if test="promotionCnName != null">
+        #{promotionCnName,jdbcType=VARCHAR},
+      </if>
+      <if test="promotionEnName != null">
+        #{promotionEnName,jdbcType=VARCHAR},
+      </if>
+      <if test="promotionId != null">
+        #{promotionId,jdbcType=VARCHAR},
+      </if>
+      <if test="homeMatchesTotal != null">
+        #{homeMatchesTotal,jdbcType=INTEGER},
+      </if>
+      <if test="awayMatchesTotal != null">
+        #{awayMatchesTotal,jdbcType=INTEGER},
+      </if>
+      <if test="winLast10 != null">
+        #{winLast10,jdbcType=INTEGER},
+      </if>
+      <if test="lossLast10 != null">
+        #{lossLast10,jdbcType=INTEGER},
+      </if>
+      <if test="streak != null">
+        #{streak,jdbcType=INTEGER},
+      </if>
+      <if test="winPctTotal != null">
+        #{winPctTotal,jdbcType=VARCHAR},
+      </if>
+      <if test="gameBehind != null">
+        #{gameBehind,jdbcType=VARCHAR},
+      </if>
+      <if test="isCurrentSeason != null">
+        #{isCurrentSeason,jdbcType=INTEGER},
+      </if>
+      <if test="record5 != null">
+        #{record5,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="starPlayers != null">
+        #{starPlayers,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="teamNames != null">
+        #{teamNames,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="groupNames != null">
+        #{groupNames,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="coachInfo != null">
+        #{coachInfo,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.panda.merge.model.ThirdSportTeamRankingExample" resultType="java.lang.Long">
+    select count(*) from third_sport_team_ranking
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update third_sport_team_ranking
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
+      </if>
+      <if test="record.thirdTournamentSourceId != null">
+        third_tournament_source_id = #{record.thirdTournamentSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.editStatus != null">
+        edit_status = #{record.editStatus,jdbcType=BIT},
+      </if>
+      <if test="record.sportId != null">
+        sport_id = #{record.sportId,jdbcType=BIGINT},
+      </if>
+      <if test="record.thirdSourceSeasonId != null">
+        third_source_season_id = #{record.thirdSourceSeasonId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.thirdSourceSeasonName != null">
+        third_source_season_name = #{record.thirdSourceSeasonName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.thirdSourceSeasonBeginTime != null">
+        third_source_season_begin_time = #{record.thirdSourceSeasonBeginTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.thirdSourceSeasonEndTime != null">
+        third_source_season_end_time = #{record.thirdSourceSeasonEndTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.rankingId != null">
+        ranking_id = #{record.rankingId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.rankingCnName != null">
+        ranking_cn_name = #{record.rankingCnName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.rankingEnName != null">
+        ranking_en_name = #{record.rankingEnName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.matchCount != null">
+        match_count = #{record.matchCount,jdbcType=INTEGER},
+      </if>
+      <if test="record.thirdTeamSourceId != null">
+        third_team_source_id = #{record.thirdTeamSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.teamCnName != null">
+        team_cn_name = #{record.teamCnName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.teamEnName != null">
+        team_en_name = #{record.teamEnName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.teamLogo != null">
+        team_logo = #{record.teamLogo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.positionTotal != null">
+        position_total = #{record.positionTotal,jdbcType=INTEGER},
+      </if>
+      <if test="record.winTotal != null">
+        win_total = #{record.winTotal,jdbcType=INTEGER},
+      </if>
+      <if test="record.drawTotal != null">
+        draw_total = #{record.drawTotal,jdbcType=INTEGER},
+      </if>
+      <if test="record.lossTotal != null">
+        loss_total = #{record.lossTotal,jdbcType=INTEGER},
+      </if>
+      <if test="record.pointsTotal != null">
+        points_total = #{record.pointsTotal,jdbcType=INTEGER},
+      </if>
+      <if test="record.goalsForTotal != null">
+        goals_for_total = #{record.goalsForTotal,jdbcType=INTEGER},
+      </if>
+      <if test="record.goalsAgainstTotal != null">
+        goals_against_total = #{record.goalsAgainstTotal,jdbcType=INTEGER},
+      </if>
+      <if test="record.modifyTime != null">
+        modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.goalDiffTotal != null">
+        goal_diff_total = #{record.goalDiffTotal,jdbcType=INTEGER},
+      </if>
+      <if test="record.groupId != null">
+        group_id = #{record.groupId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.groupCnName != null">
+        group_cn_name = #{record.groupCnName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.tournamentType != null">
+        tournament_type = #{record.tournamentType,jdbcType=INTEGER},
+      </if>
+      <if test="record.winnerMarketOddsid != null">
+        winner_market_oddsId = #{record.winnerMarketOddsid,jdbcType=VARCHAR},
+      </if>
+      <if test="record.advanceMarketOddsid != null">
+        advance_market_oddsId = #{record.advanceMarketOddsid,jdbcType=VARCHAR},
+      </if>
+      <if test="record.dataSourceCode != null">
+        data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.invalid != null">
+        invalid = #{record.invalid,jdbcType=INTEGER},
+      </if>
+      <if test="record.totalMatches != null">
+        total_matches = #{record.totalMatches,jdbcType=BIGINT},
+      </if>
+      <if test="record.matchesCompleted != null">
+        matches_completed = #{record.matchesCompleted,jdbcType=BIGINT},
+      </if>
+      <if test="record.promotionCnName != null">
+        promotion_cn_name = #{record.promotionCnName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.promotionEnName != null">
+        promotion_en_name = #{record.promotionEnName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.promotionId != null">
+        promotion_id = #{record.promotionId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.homeMatchesTotal != null">
+        home_matches_total = #{record.homeMatchesTotal,jdbcType=INTEGER},
+      </if>
+      <if test="record.awayMatchesTotal != null">
+        away_matches_total = #{record.awayMatchesTotal,jdbcType=INTEGER},
+      </if>
+      <if test="record.winLast10 != null">
+        win_last10 = #{record.winLast10,jdbcType=INTEGER},
+      </if>
+      <if test="record.lossLast10 != null">
+        loss_last10 = #{record.lossLast10,jdbcType=INTEGER},
+      </if>
+      <if test="record.streak != null">
+        streak = #{record.streak,jdbcType=INTEGER},
+      </if>
+      <if test="record.winPctTotal != null">
+        win_pct_total = #{record.winPctTotal,jdbcType=VARCHAR},
+      </if>
+      <if test="record.gameBehind != null">
+        game_behind = #{record.gameBehind,jdbcType=VARCHAR},
+      </if>
+      <if test="record.isCurrentSeason != null">
+        is_current_season = #{record.isCurrentSeason,jdbcType=INTEGER},
+      </if>
+      <if test="record.record5 != null">
+        record5 = #{record.record5,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.starPlayers != null">
+        star_players = #{record.starPlayers,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.teamNames != null">
+        team_names = #{record.teamNames,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.groupNames != null">
+        group_names = #{record.groupNames,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.coachInfo != null">
+        coach_info = #{record.coachInfo,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map">
+    update third_sport_team_ranking
+    set id = #{record.id,jdbcType=VARCHAR},
+      third_tournament_source_id = #{record.thirdTournamentSourceId,jdbcType=VARCHAR},
+      edit_status = #{record.editStatus,jdbcType=BIT},
+      sport_id = #{record.sportId,jdbcType=BIGINT},
+      third_source_season_id = #{record.thirdSourceSeasonId,jdbcType=VARCHAR},
+      third_source_season_name = #{record.thirdSourceSeasonName,jdbcType=VARCHAR},
+      third_source_season_begin_time = #{record.thirdSourceSeasonBeginTime,jdbcType=TIMESTAMP},
+      third_source_season_end_time = #{record.thirdSourceSeasonEndTime,jdbcType=TIMESTAMP},
+      ranking_id = #{record.rankingId,jdbcType=VARCHAR},
+      ranking_cn_name = #{record.rankingCnName,jdbcType=VARCHAR},
+      ranking_en_name = #{record.rankingEnName,jdbcType=VARCHAR},
+      match_count = #{record.matchCount,jdbcType=INTEGER},
+      third_team_source_id = #{record.thirdTeamSourceId,jdbcType=VARCHAR},
+      team_cn_name = #{record.teamCnName,jdbcType=VARCHAR},
+      team_en_name = #{record.teamEnName,jdbcType=VARCHAR},
+      team_logo = #{record.teamLogo,jdbcType=VARCHAR},
+      position_total = #{record.positionTotal,jdbcType=INTEGER},
+      win_total = #{record.winTotal,jdbcType=INTEGER},
+      draw_total = #{record.drawTotal,jdbcType=INTEGER},
+      loss_total = #{record.lossTotal,jdbcType=INTEGER},
+      points_total = #{record.pointsTotal,jdbcType=INTEGER},
+      goals_for_total = #{record.goalsForTotal,jdbcType=INTEGER},
+      goals_against_total = #{record.goalsAgainstTotal,jdbcType=INTEGER},
+      modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      goal_diff_total = #{record.goalDiffTotal,jdbcType=INTEGER},
+      group_id = #{record.groupId,jdbcType=VARCHAR},
+      group_cn_name = #{record.groupCnName,jdbcType=VARCHAR},
+      tournament_type = #{record.tournamentType,jdbcType=INTEGER},
+      winner_market_oddsId = #{record.winnerMarketOddsid,jdbcType=VARCHAR},
+      advance_market_oddsId = #{record.advanceMarketOddsid,jdbcType=VARCHAR},
+      data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+      invalid = #{record.invalid,jdbcType=INTEGER},
+      total_matches = #{record.totalMatches,jdbcType=BIGINT},
+      matches_completed = #{record.matchesCompleted,jdbcType=BIGINT},
+      promotion_cn_name = #{record.promotionCnName,jdbcType=VARCHAR},
+      promotion_en_name = #{record.promotionEnName,jdbcType=VARCHAR},
+      promotion_id = #{record.promotionId,jdbcType=VARCHAR},
+      home_matches_total = #{record.homeMatchesTotal,jdbcType=INTEGER},
+      away_matches_total = #{record.awayMatchesTotal,jdbcType=INTEGER},
+      win_last10 = #{record.winLast10,jdbcType=INTEGER},
+      loss_last10 = #{record.lossLast10,jdbcType=INTEGER},
+      streak = #{record.streak,jdbcType=INTEGER},
+      win_pct_total = #{record.winPctTotal,jdbcType=VARCHAR},
+      game_behind = #{record.gameBehind,jdbcType=VARCHAR},
+      is_current_season = #{record.isCurrentSeason,jdbcType=INTEGER},
+      record5 = #{record.record5,jdbcType=LONGVARCHAR},
+      star_players = #{record.starPlayers,jdbcType=LONGVARCHAR},
+      team_names = #{record.teamNames,jdbcType=LONGVARCHAR},
+      group_names = #{record.groupNames,jdbcType=LONGVARCHAR},
+      coach_info = #{record.coachInfo,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update third_sport_team_ranking
+    set id = #{record.id,jdbcType=VARCHAR},
+      third_tournament_source_id = #{record.thirdTournamentSourceId,jdbcType=VARCHAR},
+      edit_status = #{record.editStatus,jdbcType=BIT},
+      sport_id = #{record.sportId,jdbcType=BIGINT},
+      third_source_season_id = #{record.thirdSourceSeasonId,jdbcType=VARCHAR},
+      third_source_season_name = #{record.thirdSourceSeasonName,jdbcType=VARCHAR},
+      third_source_season_begin_time = #{record.thirdSourceSeasonBeginTime,jdbcType=TIMESTAMP},
+      third_source_season_end_time = #{record.thirdSourceSeasonEndTime,jdbcType=TIMESTAMP},
+      ranking_id = #{record.rankingId,jdbcType=VARCHAR},
+      ranking_cn_name = #{record.rankingCnName,jdbcType=VARCHAR},
+      ranking_en_name = #{record.rankingEnName,jdbcType=VARCHAR},
+      match_count = #{record.matchCount,jdbcType=INTEGER},
+      third_team_source_id = #{record.thirdTeamSourceId,jdbcType=VARCHAR},
+      team_cn_name = #{record.teamCnName,jdbcType=VARCHAR},
+      team_en_name = #{record.teamEnName,jdbcType=VARCHAR},
+      team_logo = #{record.teamLogo,jdbcType=VARCHAR},
+      position_total = #{record.positionTotal,jdbcType=INTEGER},
+      win_total = #{record.winTotal,jdbcType=INTEGER},
+      draw_total = #{record.drawTotal,jdbcType=INTEGER},
+      loss_total = #{record.lossTotal,jdbcType=INTEGER},
+      points_total = #{record.pointsTotal,jdbcType=INTEGER},
+      goals_for_total = #{record.goalsForTotal,jdbcType=INTEGER},
+      goals_against_total = #{record.goalsAgainstTotal,jdbcType=INTEGER},
+      modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      goal_diff_total = #{record.goalDiffTotal,jdbcType=INTEGER},
+      group_id = #{record.groupId,jdbcType=VARCHAR},
+      group_cn_name = #{record.groupCnName,jdbcType=VARCHAR},
+      tournament_type = #{record.tournamentType,jdbcType=INTEGER},
+      winner_market_oddsId = #{record.winnerMarketOddsid,jdbcType=VARCHAR},
+      advance_market_oddsId = #{record.advanceMarketOddsid,jdbcType=VARCHAR},
+      data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+      invalid = #{record.invalid,jdbcType=INTEGER},
+      total_matches = #{record.totalMatches,jdbcType=BIGINT},
+      matches_completed = #{record.matchesCompleted,jdbcType=BIGINT},
+      promotion_cn_name = #{record.promotionCnName,jdbcType=VARCHAR},
+      promotion_en_name = #{record.promotionEnName,jdbcType=VARCHAR},
+      promotion_id = #{record.promotionId,jdbcType=VARCHAR},
+      home_matches_total = #{record.homeMatchesTotal,jdbcType=INTEGER},
+      away_matches_total = #{record.awayMatchesTotal,jdbcType=INTEGER},
+      win_last10 = #{record.winLast10,jdbcType=INTEGER},
+      loss_last10 = #{record.lossLast10,jdbcType=INTEGER},
+      streak = #{record.streak,jdbcType=INTEGER},
+      win_pct_total = #{record.winPctTotal,jdbcType=VARCHAR},
+      game_behind = #{record.gameBehind,jdbcType=VARCHAR},
+      is_current_season = #{record.isCurrentSeason,jdbcType=INTEGER}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.panda.merge.model.ThirdSportTeamRanking">
+    update third_sport_team_ranking
+    <set>
+      <if test="thirdTournamentSourceId != null">
+        third_tournament_source_id = #{thirdTournamentSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="editStatus != null">
+        edit_status = #{editStatus,jdbcType=BIT},
+      </if>
+      <if test="sportId != null">
+        sport_id = #{sportId,jdbcType=BIGINT},
+      </if>
+      <if test="thirdSourceSeasonId != null">
+        third_source_season_id = #{thirdSourceSeasonId,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdSourceSeasonName != null">
+        third_source_season_name = #{thirdSourceSeasonName,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdSourceSeasonBeginTime != null">
+        third_source_season_begin_time = #{thirdSourceSeasonBeginTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="thirdSourceSeasonEndTime != null">
+        third_source_season_end_time = #{thirdSourceSeasonEndTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="rankingId != null">
+        ranking_id = #{rankingId,jdbcType=VARCHAR},
+      </if>
+      <if test="rankingCnName != null">
+        ranking_cn_name = #{rankingCnName,jdbcType=VARCHAR},
+      </if>
+      <if test="rankingEnName != null">
+        ranking_en_name = #{rankingEnName,jdbcType=VARCHAR},
+      </if>
+      <if test="matchCount != null">
+        match_count = #{matchCount,jdbcType=INTEGER},
+      </if>
+      <if test="thirdTeamSourceId != null">
+        third_team_source_id = #{thirdTeamSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="teamCnName != null">
+        team_cn_name = #{teamCnName,jdbcType=VARCHAR},
+      </if>
+      <if test="teamEnName != null">
+        team_en_name = #{teamEnName,jdbcType=VARCHAR},
+      </if>
+      <if test="teamLogo != null">
+        team_logo = #{teamLogo,jdbcType=VARCHAR},
+      </if>
+      <if test="positionTotal != null">
+        position_total = #{positionTotal,jdbcType=INTEGER},
+      </if>
+      <if test="winTotal != null">
+        win_total = #{winTotal,jdbcType=INTEGER},
+      </if>
+      <if test="drawTotal != null">
+        draw_total = #{drawTotal,jdbcType=INTEGER},
+      </if>
+      <if test="lossTotal != null">
+        loss_total = #{lossTotal,jdbcType=INTEGER},
+      </if>
+      <if test="pointsTotal != null">
+        points_total = #{pointsTotal,jdbcType=INTEGER},
+      </if>
+      <if test="goalsForTotal != null">
+        goals_for_total = #{goalsForTotal,jdbcType=INTEGER},
+      </if>
+      <if test="goalsAgainstTotal != null">
+        goals_against_total = #{goalsAgainstTotal,jdbcType=INTEGER},
+      </if>
+      <if test="modifyTime != null">
+        modify_time = #{modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="goalDiffTotal != null">
+        goal_diff_total = #{goalDiffTotal,jdbcType=INTEGER},
+      </if>
+      <if test="groupId != null">
+        group_id = #{groupId,jdbcType=VARCHAR},
+      </if>
+      <if test="groupCnName != null">
+        group_cn_name = #{groupCnName,jdbcType=VARCHAR},
+      </if>
+      <if test="tournamentType != null">
+        tournament_type = #{tournamentType,jdbcType=INTEGER},
+      </if>
+      <if test="winnerMarketOddsid != null">
+        winner_market_oddsId = #{winnerMarketOddsid,jdbcType=VARCHAR},
+      </if>
+      <if test="advanceMarketOddsid != null">
+        advance_market_oddsId = #{advanceMarketOddsid,jdbcType=VARCHAR},
+      </if>
+      <if test="dataSourceCode != null">
+        data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="invalid != null">
+        invalid = #{invalid,jdbcType=INTEGER},
+      </if>
+      <if test="totalMatches != null">
+        total_matches = #{totalMatches,jdbcType=BIGINT},
+      </if>
+      <if test="matchesCompleted != null">
+        matches_completed = #{matchesCompleted,jdbcType=BIGINT},
+      </if>
+      <if test="promotionCnName != null">
+        promotion_cn_name = #{promotionCnName,jdbcType=VARCHAR},
+      </if>
+      <if test="promotionEnName != null">
+        promotion_en_name = #{promotionEnName,jdbcType=VARCHAR},
+      </if>
+      <if test="promotionId != null">
+        promotion_id = #{promotionId,jdbcType=VARCHAR},
+      </if>
+      <if test="homeMatchesTotal != null">
+        home_matches_total = #{homeMatchesTotal,jdbcType=INTEGER},
+      </if>
+      <if test="awayMatchesTotal != null">
+        away_matches_total = #{awayMatchesTotal,jdbcType=INTEGER},
+      </if>
+      <if test="winLast10 != null">
+        win_last10 = #{winLast10,jdbcType=INTEGER},
+      </if>
+      <if test="lossLast10 != null">
+        loss_last10 = #{lossLast10,jdbcType=INTEGER},
+      </if>
+      <if test="streak != null">
+        streak = #{streak,jdbcType=INTEGER},
+      </if>
+      <if test="winPctTotal != null">
+        win_pct_total = #{winPctTotal,jdbcType=VARCHAR},
+      </if>
+      <if test="gameBehind != null">
+        game_behind = #{gameBehind,jdbcType=VARCHAR},
+      </if>
+      <if test="isCurrentSeason != null">
+        is_current_season = #{isCurrentSeason,jdbcType=INTEGER},
+      </if>
+      <if test="record5 != null">
+        record5 = #{record5,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="starPlayers != null">
+        star_players = #{starPlayers,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="teamNames != null">
+        team_names = #{teamNames,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="groupNames != null">
+        group_names = #{groupNames,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="coachInfo != null">
+        coach_info = #{coachInfo,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.panda.merge.model.ThirdSportTeamRanking">
+    update third_sport_team_ranking
+    set third_tournament_source_id = #{thirdTournamentSourceId,jdbcType=VARCHAR},
+      edit_status = #{editStatus,jdbcType=BIT},
+      sport_id = #{sportId,jdbcType=BIGINT},
+      third_source_season_id = #{thirdSourceSeasonId,jdbcType=VARCHAR},
+      third_source_season_name = #{thirdSourceSeasonName,jdbcType=VARCHAR},
+      third_source_season_begin_time = #{thirdSourceSeasonBeginTime,jdbcType=TIMESTAMP},
+      third_source_season_end_time = #{thirdSourceSeasonEndTime,jdbcType=TIMESTAMP},
+      ranking_id = #{rankingId,jdbcType=VARCHAR},
+      ranking_cn_name = #{rankingCnName,jdbcType=VARCHAR},
+      ranking_en_name = #{rankingEnName,jdbcType=VARCHAR},
+      match_count = #{matchCount,jdbcType=INTEGER},
+      third_team_source_id = #{thirdTeamSourceId,jdbcType=VARCHAR},
+      team_cn_name = #{teamCnName,jdbcType=VARCHAR},
+      team_en_name = #{teamEnName,jdbcType=VARCHAR},
+      team_logo = #{teamLogo,jdbcType=VARCHAR},
+      position_total = #{positionTotal,jdbcType=INTEGER},
+      win_total = #{winTotal,jdbcType=INTEGER},
+      draw_total = #{drawTotal,jdbcType=INTEGER},
+      loss_total = #{lossTotal,jdbcType=INTEGER},
+      points_total = #{pointsTotal,jdbcType=INTEGER},
+      goals_for_total = #{goalsForTotal,jdbcType=INTEGER},
+      goals_against_total = #{goalsAgainstTotal,jdbcType=INTEGER},
+      modify_time = #{modifyTime,jdbcType=BIGINT},
+      create_time = #{createTime,jdbcType=BIGINT},
+      goal_diff_total = #{goalDiffTotal,jdbcType=INTEGER},
+      group_id = #{groupId,jdbcType=VARCHAR},
+      group_cn_name = #{groupCnName,jdbcType=VARCHAR},
+      tournament_type = #{tournamentType,jdbcType=INTEGER},
+      winner_market_oddsId = #{winnerMarketOddsid,jdbcType=VARCHAR},
+      advance_market_oddsId = #{advanceMarketOddsid,jdbcType=VARCHAR},
+      data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
+      invalid = #{invalid,jdbcType=INTEGER},
+      total_matches = #{totalMatches,jdbcType=BIGINT},
+      matches_completed = #{matchesCompleted,jdbcType=BIGINT},
+      promotion_cn_name = #{promotionCnName,jdbcType=VARCHAR},
+      promotion_en_name = #{promotionEnName,jdbcType=VARCHAR},
+      promotion_id = #{promotionId,jdbcType=VARCHAR},
+      home_matches_total = #{homeMatchesTotal,jdbcType=INTEGER},
+      away_matches_total = #{awayMatchesTotal,jdbcType=INTEGER},
+      win_last10 = #{winLast10,jdbcType=INTEGER},
+      loss_last10 = #{lossLast10,jdbcType=INTEGER},
+      streak = #{streak,jdbcType=INTEGER},
+      win_pct_total = #{winPctTotal,jdbcType=VARCHAR},
+      game_behind = #{gameBehind,jdbcType=VARCHAR},
+      is_current_season = #{isCurrentSeason,jdbcType=INTEGER},
+      record5 = #{record5,jdbcType=LONGVARCHAR},
+      star_players = #{starPlayers,jdbcType=LONGVARCHAR},
+      team_names = #{teamNames,jdbcType=LONGVARCHAR},
+      group_names = #{groupNames,jdbcType=LONGVARCHAR},
+      coach_info = #{coachInfo,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.panda.merge.model.ThirdSportTeamRanking">
+    update third_sport_team_ranking
+    set third_tournament_source_id = #{thirdTournamentSourceId,jdbcType=VARCHAR},
+      edit_status = #{editStatus,jdbcType=BIT},
+      sport_id = #{sportId,jdbcType=BIGINT},
+      third_source_season_id = #{thirdSourceSeasonId,jdbcType=VARCHAR},
+      third_source_season_name = #{thirdSourceSeasonName,jdbcType=VARCHAR},
+      third_source_season_begin_time = #{thirdSourceSeasonBeginTime,jdbcType=TIMESTAMP},
+      third_source_season_end_time = #{thirdSourceSeasonEndTime,jdbcType=TIMESTAMP},
+      ranking_id = #{rankingId,jdbcType=VARCHAR},
+      ranking_cn_name = #{rankingCnName,jdbcType=VARCHAR},
+      ranking_en_name = #{rankingEnName,jdbcType=VARCHAR},
+      match_count = #{matchCount,jdbcType=INTEGER},
+      third_team_source_id = #{thirdTeamSourceId,jdbcType=VARCHAR},
+      team_cn_name = #{teamCnName,jdbcType=VARCHAR},
+      team_en_name = #{teamEnName,jdbcType=VARCHAR},
+      team_logo = #{teamLogo,jdbcType=VARCHAR},
+      position_total = #{positionTotal,jdbcType=INTEGER},
+      win_total = #{winTotal,jdbcType=INTEGER},
+      draw_total = #{drawTotal,jdbcType=INTEGER},
+      loss_total = #{lossTotal,jdbcType=INTEGER},
+      points_total = #{pointsTotal,jdbcType=INTEGER},
+      goals_for_total = #{goalsForTotal,jdbcType=INTEGER},
+      goals_against_total = #{goalsAgainstTotal,jdbcType=INTEGER},
+      modify_time = #{modifyTime,jdbcType=BIGINT},
+      create_time = #{createTime,jdbcType=BIGINT},
+      goal_diff_total = #{goalDiffTotal,jdbcType=INTEGER},
+      group_id = #{groupId,jdbcType=VARCHAR},
+      group_cn_name = #{groupCnName,jdbcType=VARCHAR},
+      tournament_type = #{tournamentType,jdbcType=INTEGER},
+      winner_market_oddsId = #{winnerMarketOddsid,jdbcType=VARCHAR},
+      advance_market_oddsId = #{advanceMarketOddsid,jdbcType=VARCHAR},
+      data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
+      invalid = #{invalid,jdbcType=INTEGER},
+      total_matches = #{totalMatches,jdbcType=BIGINT},
+      matches_completed = #{matchesCompleted,jdbcType=BIGINT},
+      promotion_cn_name = #{promotionCnName,jdbcType=VARCHAR},
+      promotion_en_name = #{promotionEnName,jdbcType=VARCHAR},
+      promotion_id = #{promotionId,jdbcType=VARCHAR},
+      home_matches_total = #{homeMatchesTotal,jdbcType=INTEGER},
+      away_matches_total = #{awayMatchesTotal,jdbcType=INTEGER},
+      win_last10 = #{winLast10,jdbcType=INTEGER},
+      loss_last10 = #{lossLast10,jdbcType=INTEGER},
+      streak = #{streak,jdbcType=INTEGER},
+      win_pct_total = #{winPctTotal,jdbcType=VARCHAR},
+      game_behind = #{gameBehind,jdbcType=VARCHAR},
+      is_current_season = #{isCurrentSeason,jdbcType=INTEGER}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>

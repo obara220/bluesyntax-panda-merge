@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.mapper.OutrightMatchLogMapper">
+  <resultMap id="BaseResultMap" type="com.panda.merge.model.OutrightMatchLog">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="operate_target_id" jdbcType="BIGINT" property="operateTargetId" />
+    <result column="operator_id" jdbcType="BIGINT" property="operatorId" />
+    <result column="operator_name" jdbcType="VARCHAR" property="operatorName" />
+    <result column="operator_modle" jdbcType="VARCHAR" property="operatorModle" />
+    <result column="operator_number" jdbcType="VARCHAR" property="operatorNumber" />
+    <result column="operator_text" jdbcType="VARCHAR" property="operatorText" />
+    <result column="operator_time" jdbcType="BIGINT" property="operatorTime" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, operate_target_id, operator_id, operator_name, operator_modle, operator_number, 
+    operator_text, operator_time
+  </sql>
+  <select id="selectByExample" parameterType="com.panda.merge.model.OutrightMatchLogExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from outright_match_log
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from outright_match_log
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from outright_match_log
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.panda.merge.model.OutrightMatchLogExample">
+    delete from outright_match_log
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.panda.merge.model.OutrightMatchLog">
+    insert into outright_match_log (id, operate_target_id, operator_id, 
+      operator_name, operator_modle, operator_number, 
+      operator_text, operator_time)
+    values (#{id,jdbcType=INTEGER}, #{operateTargetId,jdbcType=BIGINT}, #{operatorId,jdbcType=BIGINT}, 
+      #{operatorName,jdbcType=VARCHAR}, #{operatorModle,jdbcType=VARCHAR}, #{operatorNumber,jdbcType=VARCHAR}, 
+      #{operatorText,jdbcType=VARCHAR}, #{operatorTime,jdbcType=BIGINT})
+  </insert>
+  <insert id="insertSelective" parameterType="com.panda.merge.model.OutrightMatchLog">
+    insert into outright_match_log
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="operateTargetId != null">
+        operate_target_id,
+      </if>
+      <if test="operatorId != null">
+        operator_id,
+      </if>
+      <if test="operatorName != null">
+        operator_name,
+      </if>
+      <if test="operatorModle != null">
+        operator_modle,
+      </if>
+      <if test="operatorNumber != null">
+        operator_number,
+      </if>
+      <if test="operatorText != null">
+        operator_text,
+      </if>
+      <if test="operatorTime != null">
+        operator_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="operateTargetId != null">
+        #{operateTargetId,jdbcType=BIGINT},
+      </if>
+      <if test="operatorId != null">
+        #{operatorId,jdbcType=BIGINT},
+      </if>
+      <if test="operatorName != null">
+        #{operatorName,jdbcType=VARCHAR},
+      </if>
+      <if test="operatorModle != null">
+        #{operatorModle,jdbcType=VARCHAR},
+      </if>
+      <if test="operatorNumber != null">
+        #{operatorNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="operatorText != null">
+        #{operatorText,jdbcType=VARCHAR},
+      </if>
+      <if test="operatorTime != null">
+        #{operatorTime,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.panda.merge.model.OutrightMatchLogExample" resultType="java.lang.Long">
+    select count(*) from outright_match_log
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update outright_match_log
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.operateTargetId != null">
+        operate_target_id = #{record.operateTargetId,jdbcType=BIGINT},
+      </if>
+      <if test="record.operatorId != null">
+        operator_id = #{record.operatorId,jdbcType=BIGINT},
+      </if>
+      <if test="record.operatorName != null">
+        operator_name = #{record.operatorName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.operatorModle != null">
+        operator_modle = #{record.operatorModle,jdbcType=VARCHAR},
+      </if>
+      <if test="record.operatorNumber != null">
+        operator_number = #{record.operatorNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="record.operatorText != null">
+        operator_text = #{record.operatorText,jdbcType=VARCHAR},
+      </if>
+      <if test="record.operatorTime != null">
+        operator_time = #{record.operatorTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update outright_match_log
+    set id = #{record.id,jdbcType=INTEGER},
+      operate_target_id = #{record.operateTargetId,jdbcType=BIGINT},
+      operator_id = #{record.operatorId,jdbcType=BIGINT},
+      operator_name = #{record.operatorName,jdbcType=VARCHAR},
+      operator_modle = #{record.operatorModle,jdbcType=VARCHAR},
+      operator_number = #{record.operatorNumber,jdbcType=VARCHAR},
+      operator_text = #{record.operatorText,jdbcType=VARCHAR},
+      operator_time = #{record.operatorTime,jdbcType=BIGINT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.panda.merge.model.OutrightMatchLog">
+    update outright_match_log
+    <set>
+      <if test="operateTargetId != null">
+        operate_target_id = #{operateTargetId,jdbcType=BIGINT},
+      </if>
+      <if test="operatorId != null">
+        operator_id = #{operatorId,jdbcType=BIGINT},
+      </if>
+      <if test="operatorName != null">
+        operator_name = #{operatorName,jdbcType=VARCHAR},
+      </if>
+      <if test="operatorModle != null">
+        operator_modle = #{operatorModle,jdbcType=VARCHAR},
+      </if>
+      <if test="operatorNumber != null">
+        operator_number = #{operatorNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="operatorText != null">
+        operator_text = #{operatorText,jdbcType=VARCHAR},
+      </if>
+      <if test="operatorTime != null">
+        operator_time = #{operatorTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.panda.merge.model.OutrightMatchLog">
+    update outright_match_log
+    set operate_target_id = #{operateTargetId,jdbcType=BIGINT},
+      operator_id = #{operatorId,jdbcType=BIGINT},
+      operator_name = #{operatorName,jdbcType=VARCHAR},
+      operator_modle = #{operatorModle,jdbcType=VARCHAR},
+      operator_number = #{operatorNumber,jdbcType=VARCHAR},
+      operator_text = #{operatorText,jdbcType=VARCHAR},
+      operator_time = #{operatorTime,jdbcType=BIGINT}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

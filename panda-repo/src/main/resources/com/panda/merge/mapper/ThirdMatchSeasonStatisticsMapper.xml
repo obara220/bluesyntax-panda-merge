@@ -1,0 +1,386 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.mapper.ThirdMatchSeasonStatisticsMapper">
+  <resultMap id="BaseResultMap" type="com.panda.merge.model.ThirdMatchSeasonStatistics">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="data_source_code" jdbcType="VARCHAR" property="dataSourceCode" />
+    <result column="third_source_season_id" jdbcType="VARCHAR" property="thirdSourceSeasonId" />
+    <result column="third_source_season_name" jdbcType="VARCHAR" property="thirdSourceSeasonName" />
+    <result column="third_tournament_source_id" jdbcType="VARCHAR" property="thirdTournamentSourceId" />
+    <result column="tournament_type" jdbcType="INTEGER" property="tournamentType" />
+    <result column="edit_status" jdbcType="INTEGER" property="editStatus" />
+    <result column="sport_id" jdbcType="BIGINT" property="sportId" />
+    <result column="percent_than_one" jdbcType="DECIMAL" property="percentThanOne" />
+    <result column="percent_than_two" jdbcType="DECIMAL" property="percentThanTwo" />
+    <result column="percent_than_three" jdbcType="DECIMAL" property="percentThanThree" />
+    <result column="average_goal" jdbcType="DECIMAL" property="averageGoal" />
+    <result column="average_card" jdbcType="DECIMAL" property="averageCard" />
+    <result column="average_corner" jdbcType="DECIMAL" property="averageCorner" />
+    <result column="modify_time" jdbcType="BIGINT" property="modifyTime" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, data_source_code, third_source_season_id, third_source_season_name, third_tournament_source_id, 
+    tournament_type, edit_status, sport_id, percent_than_one, percent_than_two, percent_than_three, 
+    average_goal, average_card, average_corner, modify_time, create_time
+  </sql>
+  <select id="selectByExample" parameterType="com.panda.merge.model.ThirdMatchSeasonStatisticsExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from third_match_season_statistics
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from third_match_season_statistics
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from third_match_season_statistics
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.panda.merge.model.ThirdMatchSeasonStatisticsExample">
+    delete from third_match_season_statistics
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.panda.merge.model.ThirdMatchSeasonStatistics">
+    insert into third_match_season_statistics (id, data_source_code, third_source_season_id, 
+      third_source_season_name, third_tournament_source_id, 
+      tournament_type, edit_status, sport_id, 
+      percent_than_one, percent_than_two, percent_than_three, 
+      average_goal, average_card, average_corner, 
+      modify_time, create_time)
+    values (#{id,jdbcType=VARCHAR}, #{dataSourceCode,jdbcType=VARCHAR}, #{thirdSourceSeasonId,jdbcType=VARCHAR}, 
+      #{thirdSourceSeasonName,jdbcType=VARCHAR}, #{thirdTournamentSourceId,jdbcType=VARCHAR}, 
+      #{tournamentType,jdbcType=INTEGER}, #{editStatus,jdbcType=INTEGER}, #{sportId,jdbcType=BIGINT}, 
+      #{percentThanOne,jdbcType=DECIMAL}, #{percentThanTwo,jdbcType=DECIMAL}, #{percentThanThree,jdbcType=DECIMAL}, 
+      #{averageGoal,jdbcType=DECIMAL}, #{averageCard,jdbcType=DECIMAL}, #{averageCorner,jdbcType=DECIMAL}, 
+      #{modifyTime,jdbcType=BIGINT}, #{createTime,jdbcType=BIGINT})
+  </insert>
+  <insert id="insertSelective" parameterType="com.panda.merge.model.ThirdMatchSeasonStatistics">
+    insert into third_match_season_statistics
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="dataSourceCode != null">
+        data_source_code,
+      </if>
+      <if test="thirdSourceSeasonId != null">
+        third_source_season_id,
+      </if>
+      <if test="thirdSourceSeasonName != null">
+        third_source_season_name,
+      </if>
+      <if test="thirdTournamentSourceId != null">
+        third_tournament_source_id,
+      </if>
+      <if test="tournamentType != null">
+        tournament_type,
+      </if>
+      <if test="editStatus != null">
+        edit_status,
+      </if>
+      <if test="sportId != null">
+        sport_id,
+      </if>
+      <if test="percentThanOne != null">
+        percent_than_one,
+      </if>
+      <if test="percentThanTwo != null">
+        percent_than_two,
+      </if>
+      <if test="percentThanThree != null">
+        percent_than_three,
+      </if>
+      <if test="averageGoal != null">
+        average_goal,
+      </if>
+      <if test="averageCard != null">
+        average_card,
+      </if>
+      <if test="averageCorner != null">
+        average_corner,
+      </if>
+      <if test="modifyTime != null">
+        modify_time,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="dataSourceCode != null">
+        #{dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdSourceSeasonId != null">
+        #{thirdSourceSeasonId,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdSourceSeasonName != null">
+        #{thirdSourceSeasonName,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdTournamentSourceId != null">
+        #{thirdTournamentSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="tournamentType != null">
+        #{tournamentType,jdbcType=INTEGER},
+      </if>
+      <if test="editStatus != null">
+        #{editStatus,jdbcType=INTEGER},
+      </if>
+      <if test="sportId != null">
+        #{sportId,jdbcType=BIGINT},
+      </if>
+      <if test="percentThanOne != null">
+        #{percentThanOne,jdbcType=DECIMAL},
+      </if>
+      <if test="percentThanTwo != null">
+        #{percentThanTwo,jdbcType=DECIMAL},
+      </if>
+      <if test="percentThanThree != null">
+        #{percentThanThree,jdbcType=DECIMAL},
+      </if>
+      <if test="averageGoal != null">
+        #{averageGoal,jdbcType=DECIMAL},
+      </if>
+      <if test="averageCard != null">
+        #{averageCard,jdbcType=DECIMAL},
+      </if>
+      <if test="averageCorner != null">
+        #{averageCorner,jdbcType=DECIMAL},
+      </if>
+      <if test="modifyTime != null">
+        #{modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.panda.merge.model.ThirdMatchSeasonStatisticsExample" resultType="java.lang.Long">
+    select count(*) from third_match_season_statistics
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update third_match_season_statistics
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
+      </if>
+      <if test="record.dataSourceCode != null">
+        data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.thirdSourceSeasonId != null">
+        third_source_season_id = #{record.thirdSourceSeasonId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.thirdSourceSeasonName != null">
+        third_source_season_name = #{record.thirdSourceSeasonName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.thirdTournamentSourceId != null">
+        third_tournament_source_id = #{record.thirdTournamentSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.tournamentType != null">
+        tournament_type = #{record.tournamentType,jdbcType=INTEGER},
+      </if>
+      <if test="record.editStatus != null">
+        edit_status = #{record.editStatus,jdbcType=INTEGER},
+      </if>
+      <if test="record.sportId != null">
+        sport_id = #{record.sportId,jdbcType=BIGINT},
+      </if>
+      <if test="record.percentThanOne != null">
+        percent_than_one = #{record.percentThanOne,jdbcType=DECIMAL},
+      </if>
+      <if test="record.percentThanTwo != null">
+        percent_than_two = #{record.percentThanTwo,jdbcType=DECIMAL},
+      </if>
+      <if test="record.percentThanThree != null">
+        percent_than_three = #{record.percentThanThree,jdbcType=DECIMAL},
+      </if>
+      <if test="record.averageGoal != null">
+        average_goal = #{record.averageGoal,jdbcType=DECIMAL},
+      </if>
+      <if test="record.averageCard != null">
+        average_card = #{record.averageCard,jdbcType=DECIMAL},
+      </if>
+      <if test="record.averageCorner != null">
+        average_corner = #{record.averageCorner,jdbcType=DECIMAL},
+      </if>
+      <if test="record.modifyTime != null">
+        modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update third_match_season_statistics
+    set id = #{record.id,jdbcType=VARCHAR},
+      data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+      third_source_season_id = #{record.thirdSourceSeasonId,jdbcType=VARCHAR},
+      third_source_season_name = #{record.thirdSourceSeasonName,jdbcType=VARCHAR},
+      third_tournament_source_id = #{record.thirdTournamentSourceId,jdbcType=VARCHAR},
+      tournament_type = #{record.tournamentType,jdbcType=INTEGER},
+      edit_status = #{record.editStatus,jdbcType=INTEGER},
+      sport_id = #{record.sportId,jdbcType=BIGINT},
+      percent_than_one = #{record.percentThanOne,jdbcType=DECIMAL},
+      percent_than_two = #{record.percentThanTwo,jdbcType=DECIMAL},
+      percent_than_three = #{record.percentThanThree,jdbcType=DECIMAL},
+      average_goal = #{record.averageGoal,jdbcType=DECIMAL},
+      average_card = #{record.averageCard,jdbcType=DECIMAL},
+      average_corner = #{record.averageCorner,jdbcType=DECIMAL},
+      modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      create_time = #{record.createTime,jdbcType=BIGINT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.panda.merge.model.ThirdMatchSeasonStatistics">
+    update third_match_season_statistics
+    <set>
+      <if test="dataSourceCode != null">
+        data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdSourceSeasonId != null">
+        third_source_season_id = #{thirdSourceSeasonId,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdSourceSeasonName != null">
+        third_source_season_name = #{thirdSourceSeasonName,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdTournamentSourceId != null">
+        third_tournament_source_id = #{thirdTournamentSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="tournamentType != null">
+        tournament_type = #{tournamentType,jdbcType=INTEGER},
+      </if>
+      <if test="editStatus != null">
+        edit_status = #{editStatus,jdbcType=INTEGER},
+      </if>
+      <if test="sportId != null">
+        sport_id = #{sportId,jdbcType=BIGINT},
+      </if>
+      <if test="percentThanOne != null">
+        percent_than_one = #{percentThanOne,jdbcType=DECIMAL},
+      </if>
+      <if test="percentThanTwo != null">
+        percent_than_two = #{percentThanTwo,jdbcType=DECIMAL},
+      </if>
+      <if test="percentThanThree != null">
+        percent_than_three = #{percentThanThree,jdbcType=DECIMAL},
+      </if>
+      <if test="averageGoal != null">
+        average_goal = #{averageGoal,jdbcType=DECIMAL},
+      </if>
+      <if test="averageCard != null">
+        average_card = #{averageCard,jdbcType=DECIMAL},
+      </if>
+      <if test="averageCorner != null">
+        average_corner = #{averageCorner,jdbcType=DECIMAL},
+      </if>
+      <if test="modifyTime != null">
+        modify_time = #{modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.panda.merge.model.ThirdMatchSeasonStatistics">
+    update third_match_season_statistics
+    set data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
+      third_source_season_id = #{thirdSourceSeasonId,jdbcType=VARCHAR},
+      third_source_season_name = #{thirdSourceSeasonName,jdbcType=VARCHAR},
+      third_tournament_source_id = #{thirdTournamentSourceId,jdbcType=VARCHAR},
+      tournament_type = #{tournamentType,jdbcType=INTEGER},
+      edit_status = #{editStatus,jdbcType=INTEGER},
+      sport_id = #{sportId,jdbcType=BIGINT},
+      percent_than_one = #{percentThanOne,jdbcType=DECIMAL},
+      percent_than_two = #{percentThanTwo,jdbcType=DECIMAL},
+      percent_than_three = #{percentThanThree,jdbcType=DECIMAL},
+      average_goal = #{averageGoal,jdbcType=DECIMAL},
+      average_card = #{averageCard,jdbcType=DECIMAL},
+      average_corner = #{averageCorner,jdbcType=DECIMAL},
+      modify_time = #{modifyTime,jdbcType=BIGINT},
+      create_time = #{createTime,jdbcType=BIGINT}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>

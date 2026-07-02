@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.dao.ThirdMarketCategoryFieldDao">
+
+    <insert id="saveBatch" parameterType="com.panda.merge.model.ThirdMarketCategoryField">
+        insert into third_market_category_field (
+            id, market_category_id, name_code,third_source_id, order_no,data_source_code, create_time, modify_time
+        )values
+        <foreach collection="thirdMarketCategoryFieldList" item="item" index="index" separator=",">
+        (
+            #{item.id,jdbcType=BIGINT}, #{item.marketCategoryId,jdbcType=BIGINT}, #{item.nameCode,jdbcType=BIGINT},
+            #{item.thirdSourceId,jdbcType=VARCHAR},#{item.orderNo,jdbcType=INTEGER},#{item.dataSourceCode,jdbcType=VARCHAR},
+            #{item.createTime,jdbcType=BIGINT},#{item.modifyTime,jdbcType=BIGINT}
+        )
+        </foreach>
+    </insert>
+
+    <update id="updateBatchById" parameterType="com.panda.merge.model.ThirdMarketCategoryField">
+        <foreach collection="thirdMarketCategoryFieldList" item="item" index="index" open="" close="" separator=";">
+            UPDATE third_market_category_field
+            <trim prefix="SET" suffixOverrides=",">
+                <if test="item.marketCategoryId != null">
+                    market_category_id = #{item.marketCategoryId,jdbcType=BIGINT},
+                </if>
+                <if test="item.nameCode != null">
+                    name_code = #{item.nameCode,jdbcType=BIGINT},
+                </if>
+                <if test="item.thirdSourceId != null">
+                    third_source_id = #{item.thirdSourceId,jdbcType=VARCHAR},
+                </if>
+                <if test="item.referenceId != null">
+                    reference_id = #{item.referenceId,jdbcType=BIGINT},
+                </if>
+                <if test="item.orderNo != null">
+                    order_no = #{item.orderNo,jdbcType=INTEGER},
+                </if>
+                <if test="item.dataSourceCode != null">
+                    data_source_code = #{item.dataSourceCode,jdbcType=VARCHAR},
+                </if>
+                <if test="item.createTime != null">
+                    create_time = #{item.createTime,jdbcType=BIGINT},
+                </if>
+                <if test="item.modifyTime != null">
+                    modify_time = #{item.modifyTime,jdbcType=BIGINT},
+                </if>
+            </trim>
+            WHERE id = #{item.id,jdbcType=BIGINT}
+        </foreach>
+    </update>
+
+    <select id="queryThirdMarketCategoryFieldDetail" resultType="com.panda.merge.dto.ThirdMarketCategoryFieldDetail">
+        SELECT
+            LOWER(i18n_t.text) oddsName,
+            t_field.third_source_id thirdSourceId,
+            t_field.reference_id referenceId
+        FROM
+            standard_market_category_field s_field
+            INNER JOIN third_market_category_field t_field ON s_field.id = t_field.reference_id
+            INNER JOIN third_sport_market_category sport_t ON sport_t.market_category_id = t_field.market_category_id
+            INNER JOIN i18n_market_category i18n_t ON i18n_t.name_code = t_field.name_code AND i18n_t.language_type = 'en'
+        WHERE sport_t.sport_id = 1
+            AND s_field.market_category_id = #{marketCategoryId,jdbcType=BIGINT}
+            AND t_field.data_source_code =  #{dataSourceCode,jdbcType=VARCHAR}
+    </select>
+</mapper>

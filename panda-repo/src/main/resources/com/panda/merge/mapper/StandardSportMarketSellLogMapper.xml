@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.mapper.StandardSportMarketSellLogMapper">
+  <resultMap id="BaseResultMap" type="com.panda.merge.model.StandardSportMarketSellLog">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="standard_sport_market_sell_id" jdbcType="BIGINT" property="standardSportMarketSellId" />
+    <result column="standard_match_id" jdbcType="BIGINT" property="standardMatchId" />
+    <result column="log" jdbcType="VARCHAR" property="log" />
+    <result column="log_en" jdbcType="VARCHAR" property="logEn" />
+    <result column="operate_id" jdbcType="VARCHAR" property="operateId" />
+    <result column="operate_name" jdbcType="VARCHAR" property="operateName" />
+    <result column="operate_type" jdbcType="VARCHAR" property="operateType" />
+    <result column="operate_time" jdbcType="BIGINT" property="operateTime" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, standard_sport_market_sell_id, standard_match_id, log,log_en, operate_id, operate_name,
+    operate_type, operate_time
+  </sql>
+  <select id="selectByExample" parameterType="com.panda.merge.model.StandardSportMarketSellLogExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from standard_sport_market_sell_log
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from standard_sport_market_sell_log
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from standard_sport_market_sell_log
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.panda.merge.model.StandardSportMarketSellLogExample">
+    delete from standard_sport_market_sell_log
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.panda.merge.model.StandardSportMarketSellLog">
+    insert into standard_sport_market_sell_log (id, standard_sport_market_sell_id, standard_match_id, 
+      log,log_en, operate_id, operate_name,
+      operate_type, operate_time)
+    values (#{id,jdbcType=INTEGER}, #{standardSportMarketSellId,jdbcType=BIGINT}, #{standardMatchId,jdbcType=BIGINT}, 
+      #{log,jdbcType=VARCHAR}, #{logEn,jdbcType=VARCHAR}, #{operateId,jdbcType=VARCHAR}, #{operateName,jdbcType=VARCHAR},
+      #{operateType,jdbcType=VARCHAR}, #{operateTime,jdbcType=BIGINT})
+  </insert>
+  <insert id="insertSelective" parameterType="com.panda.merge.model.StandardSportMarketSellLog">
+    insert into standard_sport_market_sell_log
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="standardSportMarketSellId != null">
+        standard_sport_market_sell_id,
+      </if>
+      <if test="standardMatchId != null">
+        standard_match_id,
+      </if>
+      <if test="log != null">
+        log,
+      </if>
+      <if test="logEn != null">
+        log_en,
+      </if>
+      <if test="operateId != null">
+        operate_id,
+      </if>
+      <if test="operateName != null">
+        operate_name,
+      </if>
+      <if test="operateType != null">
+        operate_type,
+      </if>
+      <if test="operateTime != null">
+        operate_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="standardSportMarketSellId != null">
+        #{standardSportMarketSellId,jdbcType=BIGINT},
+      </if>
+      <if test="standardMatchId != null">
+        #{standardMatchId,jdbcType=BIGINT},
+      </if>
+      <if test="log != null">
+        #{log,jdbcType=VARCHAR},
+      </if>
+      <if test="logEn != null">
+        #{logEn,jdbcType=VARCHAR},
+      </if>
+      <if test="operateId != null">
+        #{operateId,jdbcType=VARCHAR},
+      </if>
+      <if test="operateName != null">
+        #{operateName,jdbcType=VARCHAR},
+      </if>
+      <if test="operateType != null">
+        #{operateType,jdbcType=VARCHAR},
+      </if>
+      <if test="operateTime != null">
+        #{operateTime,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.panda.merge.model.StandardSportMarketSellLogExample" resultType="java.lang.Long">
+    select count(*) from standard_sport_market_sell_log
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update standard_sport_market_sell_log
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.standardSportMarketSellId != null">
+        standard_sport_market_sell_id = #{record.standardSportMarketSellId,jdbcType=BIGINT},
+      </if>
+      <if test="record.standardMatchId != null">
+        standard_match_id = #{record.standardMatchId,jdbcType=BIGINT},
+      </if>
+      <if test="record.log != null">
+        log = #{record.log,jdbcType=VARCHAR},
+      </if>
+      <if test="record.logEn != null">
+        log_en = #{record.logEn,jdbcType=VARCHAR},
+      </if>
+      <if test="record.operateId != null">
+        operate_id = #{record.operateId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.operateName != null">
+        operate_name = #{record.operateName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.operateType != null">
+        operate_type = #{record.operateType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.operateTime != null">
+        operate_time = #{record.operateTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update standard_sport_market_sell_log
+    set id = #{record.id,jdbcType=INTEGER},
+      standard_sport_market_sell_id = #{record.standardSportMarketSellId,jdbcType=BIGINT},
+      standard_match_id = #{record.standardMatchId,jdbcType=BIGINT},
+      log = #{record.log,jdbcType=VARCHAR},
+      log_en = #{record.logEn,jdbcType=VARCHAR},
+      operate_id = #{record.operateId,jdbcType=VARCHAR},
+      operate_name = #{record.operateName,jdbcType=VARCHAR},
+      operate_type = #{record.operateType,jdbcType=VARCHAR},
+      operate_time = #{record.operateTime,jdbcType=BIGINT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.panda.merge.model.StandardSportMarketSellLog">
+    update standard_sport_market_sell_log
+    <set>
+      <if test="standardSportMarketSellId != null">
+        standard_sport_market_sell_id = #{standardSportMarketSellId,jdbcType=BIGINT},
+      </if>
+      <if test="standardMatchId != null">
+        standard_match_id = #{standardMatchId,jdbcType=BIGINT},
+      </if>
+      <if test="log != null">
+        log = #{log,jdbcType=VARCHAR},
+      </if>
+      <if test="logEn != null">
+        log_en = #{logEn,jdbcType=VARCHAR},
+      </if>
+      <if test="operateId != null">
+        operate_id = #{operateId,jdbcType=VARCHAR},
+      </if>
+      <if test="operateName != null">
+        operate_name = #{operateName,jdbcType=VARCHAR},
+      </if>
+      <if test="operateType != null">
+        operate_type = #{operateType,jdbcType=VARCHAR},
+      </if>
+      <if test="operateTime != null">
+        operate_time = #{operateTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.panda.merge.model.StandardSportMarketSellLog">
+    update standard_sport_market_sell_log
+    set standard_sport_market_sell_id = #{standardSportMarketSellId,jdbcType=BIGINT},
+      standard_match_id = #{standardMatchId,jdbcType=BIGINT},
+      log = #{log,jdbcType=VARCHAR},
+      log_en = #{logEn,jdbcType=VARCHAR},
+      operate_id = #{operateId,jdbcType=VARCHAR},
+      operate_name = #{operateName,jdbcType=VARCHAR},
+      operate_type = #{operateType,jdbcType=VARCHAR},
+      operate_time = #{operateTime,jdbcType=BIGINT}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

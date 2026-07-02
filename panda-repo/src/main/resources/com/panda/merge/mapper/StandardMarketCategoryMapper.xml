@@ -1,0 +1,450 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.mapper.StandardMarketCategoryMapper">
+  <resultMap id="BaseResultMap" type="com.panda.merge.model.StandardMarketCategory">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="name_code" jdbcType="BIGINT" property="nameCode" />
+    <result column="fields_num" jdbcType="INTEGER" property="fieldsNum" />
+    <result column="multi_market" jdbcType="TINYINT" property="multiMarket" />
+    <result column="support_odds" jdbcType="VARCHAR" property="supportOdds" />
+    <result column="template_pc" jdbcType="TINYINT" property="templatePc" />
+    <result column="template_h5" jdbcType="TINYINT" property="templateH5" />
+    <result column="status" jdbcType="TINYINT" property="status" />
+    <result column="merchant_status" jdbcType="TINYINT" property="merchantStatus" />
+    <result column="merchant_api_code_list" jdbcType="LONGVARCHAR" property="merchantApiCodeList" />
+    <result column="order_no" jdbcType="INTEGER" property="orderNo" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="modify_time" jdbcType="BIGINT" property="modifyTime" />
+    <result column="template_pc_client" jdbcType="TINYINT" property="templatePcClient" />
+    <result column="template_h5_client" jdbcType="TINYINT" property="templateH5Client" />
+    <result column="ao_status" jdbcType="TINYINT" property="aoStatus" />
+  </resultMap>
+
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.panda.merge.model.StandardMarketCategory">
+    <result column="merchant_api_code_list" jdbcType="LONGVARCHAR" property="merchantApiCodeList" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, name_code, fields_num, multi_market, support_odds, template_pc, template_h5, 
+    status, merchant_status, order_no, create_time, modify_time, template_pc_client, 
+    template_h5_client, ao_status
+  </sql>
+  <sql id="Blob_Column_List">
+    merchant_api_code_list
+  </sql>
+  <select id="selectByExampleWithBLOBs" parameterType="com.panda.merge.model.StandardMarketCategoryExample" resultMap="ResultMapWithBLOBs">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from standard_market_category
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" parameterType="com.panda.merge.model.StandardMarketCategoryExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from standard_market_category
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from standard_market_category
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from standard_market_category
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.panda.merge.model.StandardMarketCategoryExample">
+    delete from standard_market_category
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.panda.merge.model.StandardMarketCategory">
+    insert into standard_market_category (id, name_code, fields_num, 
+      multi_market, support_odds, template_pc, 
+      template_h5, status, merchant_status, 
+      order_no, create_time, modify_time, 
+      template_pc_client, template_h5_client, ao_status, 
+      merchant_api_code_list)
+    values (#{id,jdbcType=BIGINT}, #{nameCode,jdbcType=BIGINT}, #{fieldsNum,jdbcType=INTEGER}, 
+      #{multiMarket,jdbcType=TINYINT}, #{supportOdds,jdbcType=VARCHAR}, #{templatePc,jdbcType=TINYINT}, 
+      #{templateH5,jdbcType=TINYINT}, #{status,jdbcType=TINYINT}, #{merchantStatus,jdbcType=TINYINT}, 
+      #{orderNo,jdbcType=INTEGER}, #{createTime,jdbcType=BIGINT}, #{modifyTime,jdbcType=BIGINT}, 
+      #{templatePcClient,jdbcType=TINYINT}, #{templateH5Client,jdbcType=TINYINT}, #{aoStatus,jdbcType=TINYINT}, 
+      #{merchantApiCodeList,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.panda.merge.model.StandardMarketCategory">
+    insert into standard_market_category
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="nameCode != null">
+        name_code,
+      </if>
+      <if test="fieldsNum != null">
+        fields_num,
+      </if>
+      <if test="multiMarket != null">
+        multi_market,
+      </if>
+      <if test="supportOdds != null">
+        support_odds,
+      </if>
+      <if test="templatePc != null">
+        template_pc,
+      </if>
+      <if test="templateH5 != null">
+        template_h5,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="merchantStatus != null">
+        merchant_status,
+      </if>
+      <if test="orderNo != null">
+        order_no,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="modifyTime != null">
+        modify_time,
+      </if>
+      <if test="templatePcClient != null">
+        template_pc_client,
+      </if>
+      <if test="templateH5Client != null">
+        template_h5_client,
+      </if>
+      <if test="aoStatus != null">
+        ao_status,
+      </if>
+      <if test="merchantApiCodeList != null">
+        merchant_api_code_list,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="nameCode != null">
+        #{nameCode,jdbcType=BIGINT},
+      </if>
+      <if test="fieldsNum != null">
+        #{fieldsNum,jdbcType=INTEGER},
+      </if>
+      <if test="multiMarket != null">
+        #{multiMarket,jdbcType=TINYINT},
+      </if>
+      <if test="supportOdds != null">
+        #{supportOdds,jdbcType=VARCHAR},
+      </if>
+      <if test="templatePc != null">
+        #{templatePc,jdbcType=TINYINT},
+      </if>
+      <if test="templateH5 != null">
+        #{templateH5,jdbcType=TINYINT},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=TINYINT},
+      </if>
+      <if test="merchantStatus != null">
+        #{merchantStatus,jdbcType=TINYINT},
+      </if>
+      <if test="orderNo != null">
+        #{orderNo,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null">
+        #{modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="templatePcClient != null">
+        #{templatePcClient,jdbcType=TINYINT},
+      </if>
+      <if test="templateH5Client != null">
+        #{templateH5Client,jdbcType=TINYINT},
+      </if>
+      <if test="aoStatus != null">
+        #{aoStatus,jdbcType=TINYINT},
+      </if>
+      <if test="merchantApiCodeList != null">
+        #{merchantApiCodeList,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.panda.merge.model.StandardMarketCategoryExample" resultType="java.lang.Long">
+    select count(*) from standard_market_category
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update standard_market_category
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.nameCode != null">
+        name_code = #{record.nameCode,jdbcType=BIGINT},
+      </if>
+      <if test="record.fieldsNum != null">
+        fields_num = #{record.fieldsNum,jdbcType=INTEGER},
+      </if>
+      <if test="record.multiMarket != null">
+        multi_market = #{record.multiMarket,jdbcType=TINYINT},
+      </if>
+      <if test="record.supportOdds != null">
+        support_odds = #{record.supportOdds,jdbcType=VARCHAR},
+      </if>
+      <if test="record.templatePc != null">
+        template_pc = #{record.templatePc,jdbcType=TINYINT},
+      </if>
+      <if test="record.templateH5 != null">
+        template_h5 = #{record.templateH5,jdbcType=TINYINT},
+      </if>
+      <if test="record.status != null">
+        status = #{record.status,jdbcType=TINYINT},
+      </if>
+      <if test="record.merchantStatus != null">
+        merchant_status = #{record.merchantStatus,jdbcType=TINYINT},
+      </if>
+      <if test="record.orderNo != null">
+        order_no = #{record.orderNo,jdbcType=INTEGER},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.modifyTime != null">
+        modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.templatePcClient != null">
+        template_pc_client = #{record.templatePcClient,jdbcType=TINYINT},
+      </if>
+      <if test="record.templateH5Client != null">
+        template_h5_client = #{record.templateH5Client,jdbcType=TINYINT},
+      </if>
+      <if test="record.aoStatus != null">
+        ao_status = #{record.aoStatus,jdbcType=TINYINT},
+      </if>
+      <if test="record.merchantApiCodeList != null">
+        merchant_api_code_list = #{record.merchantApiCodeList,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map">
+    update standard_market_category
+    set id = #{record.id,jdbcType=BIGINT},
+      name_code = #{record.nameCode,jdbcType=BIGINT},
+      fields_num = #{record.fieldsNum,jdbcType=INTEGER},
+      multi_market = #{record.multiMarket,jdbcType=TINYINT},
+      support_odds = #{record.supportOdds,jdbcType=VARCHAR},
+      template_pc = #{record.templatePc,jdbcType=TINYINT},
+      template_h5 = #{record.templateH5,jdbcType=TINYINT},
+      status = #{record.status,jdbcType=TINYINT},
+      merchant_status = #{record.merchantStatus,jdbcType=TINYINT},
+      order_no = #{record.orderNo,jdbcType=INTEGER},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      template_pc_client = #{record.templatePcClient,jdbcType=TINYINT},
+      template_h5_client = #{record.templateH5Client,jdbcType=TINYINT},
+      ao_status = #{record.aoStatus,jdbcType=TINYINT},
+      merchant_api_code_list = #{record.merchantApiCodeList,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update standard_market_category
+    set id = #{record.id,jdbcType=BIGINT},
+      name_code = #{record.nameCode,jdbcType=BIGINT},
+      fields_num = #{record.fieldsNum,jdbcType=INTEGER},
+      multi_market = #{record.multiMarket,jdbcType=TINYINT},
+      support_odds = #{record.supportOdds,jdbcType=VARCHAR},
+      template_pc = #{record.templatePc,jdbcType=TINYINT},
+      template_h5 = #{record.templateH5,jdbcType=TINYINT},
+      status = #{record.status,jdbcType=TINYINT},
+      merchant_status = #{record.merchantStatus,jdbcType=TINYINT},
+      order_no = #{record.orderNo,jdbcType=INTEGER},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      template_pc_client = #{record.templatePcClient,jdbcType=TINYINT},
+      template_h5_client = #{record.templateH5Client,jdbcType=TINYINT},
+      ao_status = #{record.aoStatus,jdbcType=TINYINT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.panda.merge.model.StandardMarketCategory">
+    update standard_market_category
+    <set>
+      <if test="nameCode != null">
+        name_code = #{nameCode,jdbcType=BIGINT},
+      </if>
+      <if test="fieldsNum != null">
+        fields_num = #{fieldsNum,jdbcType=INTEGER},
+      </if>
+      <if test="multiMarket != null">
+        multi_market = #{multiMarket,jdbcType=TINYINT},
+      </if>
+      <if test="supportOdds != null">
+        support_odds = #{supportOdds,jdbcType=VARCHAR},
+      </if>
+      <if test="templatePc != null">
+        template_pc = #{templatePc,jdbcType=TINYINT},
+      </if>
+      <if test="templateH5 != null">
+        template_h5 = #{templateH5,jdbcType=TINYINT},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=TINYINT},
+      </if>
+      <if test="merchantStatus != null">
+        merchant_status = #{merchantStatus,jdbcType=TINYINT},
+      </if>
+      <if test="orderNo != null">
+        order_no = #{orderNo,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null">
+        modify_time = #{modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="templatePcClient != null">
+        template_pc_client = #{templatePcClient,jdbcType=TINYINT},
+      </if>
+      <if test="templateH5Client != null">
+        template_h5_client = #{templateH5Client,jdbcType=TINYINT},
+      </if>
+      <if test="aoStatus != null">
+        ao_status = #{aoStatus,jdbcType=TINYINT},
+      </if>
+      <if test="merchantApiCodeList != null">
+        merchant_api_code_list = #{merchantApiCodeList,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.panda.merge.model.StandardMarketCategory">
+    update standard_market_category
+    set name_code = #{nameCode,jdbcType=BIGINT},
+      fields_num = #{fieldsNum,jdbcType=INTEGER},
+      multi_market = #{multiMarket,jdbcType=TINYINT},
+      support_odds = #{supportOdds,jdbcType=VARCHAR},
+      template_pc = #{templatePc,jdbcType=TINYINT},
+      template_h5 = #{templateH5,jdbcType=TINYINT},
+      status = #{status,jdbcType=TINYINT},
+      merchant_status = #{merchantStatus,jdbcType=TINYINT},
+      order_no = #{orderNo,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=BIGINT},
+      modify_time = #{modifyTime,jdbcType=BIGINT},
+      template_pc_client = #{templatePcClient,jdbcType=TINYINT},
+      template_h5_client = #{templateH5Client,jdbcType=TINYINT},
+      ao_status = #{aoStatus,jdbcType=TINYINT},
+      merchant_api_code_list = #{merchantApiCodeList,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.panda.merge.model.StandardMarketCategory">
+    update standard_market_category
+    set name_code = #{nameCode,jdbcType=BIGINT},
+      fields_num = #{fieldsNum,jdbcType=INTEGER},
+      multi_market = #{multiMarket,jdbcType=TINYINT},
+      support_odds = #{supportOdds,jdbcType=VARCHAR},
+      template_pc = #{templatePc,jdbcType=TINYINT},
+      template_h5 = #{templateH5,jdbcType=TINYINT},
+      status = #{status,jdbcType=TINYINT},
+      merchant_status = #{merchantStatus,jdbcType=TINYINT},
+      order_no = #{orderNo,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=BIGINT},
+      modify_time = #{modifyTime,jdbcType=BIGINT},
+      template_pc_client = #{templatePcClient,jdbcType=TINYINT},
+      template_h5_client = #{templateH5Client,jdbcType=TINYINT},
+      ao_status = #{aoStatus,jdbcType=TINYINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

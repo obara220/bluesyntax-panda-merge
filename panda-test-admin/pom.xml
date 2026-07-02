@@ -1,0 +1,185 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.panda.merge</groupId>
+    <artifactId>panda-test-admin</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>panda-test-admin</name>
+    <description>panda-test-admin project for odds</description>
+
+    <parent>
+        <groupId>com.panda.merge</groupId>
+        <artifactId>panda-merge</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+
+    <dependencies>
+        <dependency>
+            <groupId>com.panda.merge</groupId>
+            <artifactId>panda-service</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.arronlong</groupId>
+            <artifactId>httpclientutil</artifactId>
+            <version>1.0.4</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/javax.websocket/javax.websocket-api -->
+        <dependency>
+            <groupId>javax.websocket</groupId>
+            <artifactId>javax.websocket-api</artifactId>
+            <version>1.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.java-websocket/Java-WebSocket -->
+        <dependency>
+            <groupId>org.java-websocket</groupId>
+            <artifactId>Java-WebSocket</artifactId>
+            <version>1.3.0</version>
+        </dependency>
+
+
+        <!--获取SkyWalking的全局唯一标识 trace-id 记录到日志中-->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>apm-toolkit-logback-1.x</artifactId>
+            <version>6.5.0</version>
+        </dependency>
+        <!-- 日志文件发送到logstash  -->
+        <dependency>
+            <groupId>net.logstash.logback</groupId>
+            <artifactId>logstash-logback-encoder</artifactId>
+        </dependency>
+        <!-- 实现对 RocketMQ 的自动化配置 -->
+        <dependency>
+            <groupId>org.apache.rocketmq</groupId>
+            <artifactId>rocketmq-spring-boot-starter</artifactId>
+            <version>2.1.1</version>
+        </dependency>
+
+        <!--dubbo需要的依赖 -->
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-framework</artifactId>
+            <version>4.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-recipes</artifactId>
+            <version>4.2.0</version>
+        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.apache.dubbo</groupId>-->
+<!--            <artifactId>dubbo-spring-boot-starter</artifactId>-->
+<!--            <version>2.7.7</version>-->
+<!--        </dependency>-->
+
+        <dependency>
+            <groupId>com.github.sgroschupf</groupId>
+            <artifactId>zkclient</artifactId>
+            <version>0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.zookeeper</groupId>
+            <artifactId>zookeeper</artifactId>
+            <version>3.4.14</version>
+        </dependency>
+        <!--redis连接池 -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-pool2</artifactId>
+        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.panda.sports.auth</groupId>-->
+<!--            <artifactId>panda-auth-sso</artifactId>-->
+<!--            <version>1.0.1-SNAPSHOT</version>-->
+<!--        </dependency>-->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.junit.vintage</groupId>
+                    <artifactId>junit-vintage-engine</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.shardingsphere</groupId>
+            <artifactId>sharding-jdbc-spring-boot-starter</artifactId>
+            <version>4.0.0-RC2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid</artifactId>
+            <version>1.1.22</version>
+        </dependency>
+
+
+
+
+        <!-- nacos 配置 -->
+        <dependency>
+            <groupId>com.alibaba.boot</groupId>
+            <artifactId>nacos-config-spring-boot-starter</artifactId>
+            <version>0.2.3</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>spring-context-support</artifactId>
+                    <groupId>com.alibaba.spring</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <!--<plugin>-->
+            <!--<groupId>com.spotify</groupId>-->
+            <!--<artifactId>docker-maven-plugin</artifactId>-->
+            <!--<version>${docker.maven.plugin.version}</version>-->
+            <!--<executions>-->
+            <!--<execution>-->
+            <!--<id>build-image</id>-->
+            <!--<phase>package</phase>-->
+            <!--<goals>-->
+            <!--<goal>build</goal>-->
+            <!--</goals>-->
+            <!--</execution>-->
+            <!--</executions>-->
+            <!--<configuration>-->
+            <!--<imageName>odds/${project.artifactId}:${project.version}</imageName>-->
+            <!--<dockerHost>${docker.host}</dockerHost>-->
+            <!--<baseImage>java:8</baseImage>-->
+            <!--<entryPoint>["java", "-jar", "-Dspring.profiles.active=prod","/${project.build.finalName}.jar"]-->
+            <!--</entryPoint>-->
+            <!--<resources>-->
+            <!--<resource>-->
+            <!--<targetPath>/</targetPath>-->
+            <!--<directory>${project.build.directory}</directory>-->
+            <!--<include>${project.build.finalName}.jar</include>-->
+            <!--</resource>-->
+            <!--</resources>-->
+            <!--</configuration>-->
+            <!--</plugin>-->
+        </plugins>
+    </build>
+</project>

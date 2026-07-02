@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.mapper.ThirdMatchTeamRelationMapper">
+  <resultMap id="BaseResultMap" type="com.panda.merge.model.ThirdMatchTeamRelation">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="team_id" jdbcType="BIGINT" property="teamId" />
+    <result column="match_id" jdbcType="BIGINT" property="matchId" />
+    <result column="match_position" jdbcType="VARCHAR" property="matchPosition" />
+    <result column="team_name_record" jdbcType="VARCHAR" property="teamNameRecord" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="modify_time" jdbcType="BIGINT" property="modifyTime" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, team_id, match_id, match_position, team_name_record, remark, create_time, modify_time
+  </sql>
+  <select id="selectByExample" parameterType="com.panda.merge.model.ThirdMatchTeamRelationExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from third_match_team_relation
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from third_match_team_relation
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from third_match_team_relation
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.panda.merge.model.ThirdMatchTeamRelationExample">
+    delete from third_match_team_relation
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.panda.merge.model.ThirdMatchTeamRelation">
+    insert into third_match_team_relation (id, team_id, match_id, 
+      match_position, team_name_record, remark, 
+      create_time, modify_time)
+    values (#{id,jdbcType=BIGINT}, #{teamId,jdbcType=BIGINT}, #{matchId,jdbcType=BIGINT}, 
+      #{matchPosition,jdbcType=VARCHAR}, #{teamNameRecord,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=BIGINT}, #{modifyTime,jdbcType=BIGINT})
+  </insert>
+  <insert id="insertSelective" parameterType="com.panda.merge.model.ThirdMatchTeamRelation">
+    insert into third_match_team_relation
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="teamId != null">
+        team_id,
+      </if>
+      <if test="matchId != null">
+        match_id,
+      </if>
+      <if test="matchPosition != null">
+        match_position,
+      </if>
+      <if test="teamNameRecord != null">
+        team_name_record,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="modifyTime != null">
+        modify_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="teamId != null">
+        #{teamId,jdbcType=BIGINT},
+      </if>
+      <if test="matchId != null">
+        #{matchId,jdbcType=BIGINT},
+      </if>
+      <if test="matchPosition != null">
+        #{matchPosition,jdbcType=VARCHAR},
+      </if>
+      <if test="teamNameRecord != null">
+        #{teamNameRecord,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null">
+        #{modifyTime,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.panda.merge.model.ThirdMatchTeamRelationExample" resultType="java.lang.Long">
+    select count(*) from third_match_team_relation
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update third_match_team_relation
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.teamId != null">
+        team_id = #{record.teamId,jdbcType=BIGINT},
+      </if>
+      <if test="record.matchId != null">
+        match_id = #{record.matchId,jdbcType=BIGINT},
+      </if>
+      <if test="record.matchPosition != null">
+        match_position = #{record.matchPosition,jdbcType=VARCHAR},
+      </if>
+      <if test="record.teamNameRecord != null">
+        team_name_record = #{record.teamNameRecord,jdbcType=VARCHAR},
+      </if>
+      <if test="record.remark != null">
+        remark = #{record.remark,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.modifyTime != null">
+        modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update third_match_team_relation
+    set id = #{record.id,jdbcType=BIGINT},
+      team_id = #{record.teamId,jdbcType=BIGINT},
+      match_id = #{record.matchId,jdbcType=BIGINT},
+      match_position = #{record.matchPosition,jdbcType=VARCHAR},
+      team_name_record = #{record.teamNameRecord,jdbcType=VARCHAR},
+      remark = #{record.remark,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      modify_time = #{record.modifyTime,jdbcType=BIGINT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.panda.merge.model.ThirdMatchTeamRelation">
+    update third_match_team_relation
+    <set>
+      <if test="teamId != null">
+        team_id = #{teamId,jdbcType=BIGINT},
+      </if>
+      <if test="matchId != null">
+        match_id = #{matchId,jdbcType=BIGINT},
+      </if>
+      <if test="matchPosition != null">
+        match_position = #{matchPosition,jdbcType=VARCHAR},
+      </if>
+      <if test="teamNameRecord != null">
+        team_name_record = #{teamNameRecord,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null">
+        modify_time = #{modifyTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.panda.merge.model.ThirdMatchTeamRelation">
+    update third_match_team_relation
+    set team_id = #{teamId,jdbcType=BIGINT},
+      match_id = #{matchId,jdbcType=BIGINT},
+      match_position = #{matchPosition,jdbcType=VARCHAR},
+      team_name_record = #{teamNameRecord,jdbcType=VARCHAR},
+      remark = #{remark,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      modify_time = #{modifyTime,jdbcType=BIGINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

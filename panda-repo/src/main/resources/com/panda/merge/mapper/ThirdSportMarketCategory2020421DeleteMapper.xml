@@ -1,0 +1,466 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.mapper.ThirdSportMarketCategory2020421DeleteMapper">
+  <resultMap id="BaseResultMap" type="com.panda.merge.model.ThirdSportMarketCategory2020421Delete">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="sport_id" jdbcType="BIGINT" property="sportId" />
+    <result column="third_market_category_source_id" jdbcType="VARCHAR" property="thirdMarketCategorySourceId" />
+    <result column="type" jdbcType="VARCHAR" property="type" />
+    <result column="type_identify" jdbcType="VARCHAR" property="typeIdentify" />
+    <result column="reference_id" jdbcType="BIGINT" property="referenceId" />
+    <result column="name_code" jdbcType="BIGINT" property="nameCode" />
+    <result column="active" jdbcType="TINYINT" property="active" />
+    <result column="data_source_code" jdbcType="VARCHAR" property="dataSourceCode" />
+    <result column="fields_num" jdbcType="INTEGER" property="fieldsNum" />
+    <result column="scope_id" jdbcType="VARCHAR" property="scopeId" />
+    <result column="addition1" jdbcType="VARCHAR" property="addition1" />
+    <result column="addition2" jdbcType="VARCHAR" property="addition2" />
+    <result column="addition3" jdbcType="VARCHAR" property="addition3" />
+    <result column="addition4" jdbcType="VARCHAR" property="addition4" />
+    <result column="addition5" jdbcType="VARCHAR" property="addition5" />
+    <result column="data_formate" jdbcType="VARCHAR" property="dataFormate" />
+    <result column="description" jdbcType="VARCHAR" property="description" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="modify_time" jdbcType="BIGINT" property="modifyTime" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, sport_id, third_market_category_source_id, type, type_identify, reference_id, 
+    name_code, active, data_source_code, fields_num, scope_id, addition1, addition2, 
+    addition3, addition4, addition5, data_formate, description, remark, create_time, 
+    modify_time
+  </sql>
+  <select id="selectByExample" parameterType="com.panda.merge.model.ThirdSportMarketCategory2020421DeleteExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from third_sport_market_category_2020421_delete
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from third_sport_market_category_2020421_delete
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from third_sport_market_category_2020421_delete
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.panda.merge.model.ThirdSportMarketCategory2020421DeleteExample">
+    delete from third_sport_market_category_2020421_delete
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.panda.merge.model.ThirdSportMarketCategory2020421Delete">
+    insert into third_sport_market_category_2020421_delete (id, sport_id, third_market_category_source_id, 
+      type, type_identify, reference_id, 
+      name_code, active, data_source_code, 
+      fields_num, scope_id, addition1, 
+      addition2, addition3, addition4, 
+      addition5, data_formate, description, 
+      remark, create_time, modify_time
+      )
+    values (#{id,jdbcType=BIGINT}, #{sportId,jdbcType=BIGINT}, #{thirdMarketCategorySourceId,jdbcType=VARCHAR}, 
+      #{type,jdbcType=VARCHAR}, #{typeIdentify,jdbcType=VARCHAR}, #{referenceId,jdbcType=BIGINT}, 
+      #{nameCode,jdbcType=BIGINT}, #{active,jdbcType=TINYINT}, #{dataSourceCode,jdbcType=VARCHAR}, 
+      #{fieldsNum,jdbcType=INTEGER}, #{scopeId,jdbcType=VARCHAR}, #{addition1,jdbcType=VARCHAR}, 
+      #{addition2,jdbcType=VARCHAR}, #{addition3,jdbcType=VARCHAR}, #{addition4,jdbcType=VARCHAR}, 
+      #{addition5,jdbcType=VARCHAR}, #{dataFormate,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, 
+      #{remark,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{modifyTime,jdbcType=BIGINT}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.panda.merge.model.ThirdSportMarketCategory2020421Delete">
+    insert into third_sport_market_category_2020421_delete
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="sportId != null">
+        sport_id,
+      </if>
+      <if test="thirdMarketCategorySourceId != null">
+        third_market_category_source_id,
+      </if>
+      <if test="type != null">
+        type,
+      </if>
+      <if test="typeIdentify != null">
+        type_identify,
+      </if>
+      <if test="referenceId != null">
+        reference_id,
+      </if>
+      <if test="nameCode != null">
+        name_code,
+      </if>
+      <if test="active != null">
+        active,
+      </if>
+      <if test="dataSourceCode != null">
+        data_source_code,
+      </if>
+      <if test="fieldsNum != null">
+        fields_num,
+      </if>
+      <if test="scopeId != null">
+        scope_id,
+      </if>
+      <if test="addition1 != null">
+        addition1,
+      </if>
+      <if test="addition2 != null">
+        addition2,
+      </if>
+      <if test="addition3 != null">
+        addition3,
+      </if>
+      <if test="addition4 != null">
+        addition4,
+      </if>
+      <if test="addition5 != null">
+        addition5,
+      </if>
+      <if test="dataFormate != null">
+        data_formate,
+      </if>
+      <if test="description != null">
+        description,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="modifyTime != null">
+        modify_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="sportId != null">
+        #{sportId,jdbcType=BIGINT},
+      </if>
+      <if test="thirdMarketCategorySourceId != null">
+        #{thirdMarketCategorySourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null">
+        #{type,jdbcType=VARCHAR},
+      </if>
+      <if test="typeIdentify != null">
+        #{typeIdentify,jdbcType=VARCHAR},
+      </if>
+      <if test="referenceId != null">
+        #{referenceId,jdbcType=BIGINT},
+      </if>
+      <if test="nameCode != null">
+        #{nameCode,jdbcType=BIGINT},
+      </if>
+      <if test="active != null">
+        #{active,jdbcType=TINYINT},
+      </if>
+      <if test="dataSourceCode != null">
+        #{dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="fieldsNum != null">
+        #{fieldsNum,jdbcType=INTEGER},
+      </if>
+      <if test="scopeId != null">
+        #{scopeId,jdbcType=VARCHAR},
+      </if>
+      <if test="addition1 != null">
+        #{addition1,jdbcType=VARCHAR},
+      </if>
+      <if test="addition2 != null">
+        #{addition2,jdbcType=VARCHAR},
+      </if>
+      <if test="addition3 != null">
+        #{addition3,jdbcType=VARCHAR},
+      </if>
+      <if test="addition4 != null">
+        #{addition4,jdbcType=VARCHAR},
+      </if>
+      <if test="addition5 != null">
+        #{addition5,jdbcType=VARCHAR},
+      </if>
+      <if test="dataFormate != null">
+        #{dataFormate,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null">
+        #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null">
+        #{modifyTime,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.panda.merge.model.ThirdSportMarketCategory2020421DeleteExample" resultType="java.lang.Long">
+    select count(*) from third_sport_market_category_2020421_delete
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update third_sport_market_category_2020421_delete
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.sportId != null">
+        sport_id = #{record.sportId,jdbcType=BIGINT},
+      </if>
+      <if test="record.thirdMarketCategorySourceId != null">
+        third_market_category_source_id = #{record.thirdMarketCategorySourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.type != null">
+        type = #{record.type,jdbcType=VARCHAR},
+      </if>
+      <if test="record.typeIdentify != null">
+        type_identify = #{record.typeIdentify,jdbcType=VARCHAR},
+      </if>
+      <if test="record.referenceId != null">
+        reference_id = #{record.referenceId,jdbcType=BIGINT},
+      </if>
+      <if test="record.nameCode != null">
+        name_code = #{record.nameCode,jdbcType=BIGINT},
+      </if>
+      <if test="record.active != null">
+        active = #{record.active,jdbcType=TINYINT},
+      </if>
+      <if test="record.dataSourceCode != null">
+        data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.fieldsNum != null">
+        fields_num = #{record.fieldsNum,jdbcType=INTEGER},
+      </if>
+      <if test="record.scopeId != null">
+        scope_id = #{record.scopeId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.addition1 != null">
+        addition1 = #{record.addition1,jdbcType=VARCHAR},
+      </if>
+      <if test="record.addition2 != null">
+        addition2 = #{record.addition2,jdbcType=VARCHAR},
+      </if>
+      <if test="record.addition3 != null">
+        addition3 = #{record.addition3,jdbcType=VARCHAR},
+      </if>
+      <if test="record.addition4 != null">
+        addition4 = #{record.addition4,jdbcType=VARCHAR},
+      </if>
+      <if test="record.addition5 != null">
+        addition5 = #{record.addition5,jdbcType=VARCHAR},
+      </if>
+      <if test="record.dataFormate != null">
+        data_formate = #{record.dataFormate,jdbcType=VARCHAR},
+      </if>
+      <if test="record.description != null">
+        description = #{record.description,jdbcType=VARCHAR},
+      </if>
+      <if test="record.remark != null">
+        remark = #{record.remark,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.modifyTime != null">
+        modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update third_sport_market_category_2020421_delete
+    set id = #{record.id,jdbcType=BIGINT},
+      sport_id = #{record.sportId,jdbcType=BIGINT},
+      third_market_category_source_id = #{record.thirdMarketCategorySourceId,jdbcType=VARCHAR},
+      type = #{record.type,jdbcType=VARCHAR},
+      type_identify = #{record.typeIdentify,jdbcType=VARCHAR},
+      reference_id = #{record.referenceId,jdbcType=BIGINT},
+      name_code = #{record.nameCode,jdbcType=BIGINT},
+      active = #{record.active,jdbcType=TINYINT},
+      data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+      fields_num = #{record.fieldsNum,jdbcType=INTEGER},
+      scope_id = #{record.scopeId,jdbcType=VARCHAR},
+      addition1 = #{record.addition1,jdbcType=VARCHAR},
+      addition2 = #{record.addition2,jdbcType=VARCHAR},
+      addition3 = #{record.addition3,jdbcType=VARCHAR},
+      addition4 = #{record.addition4,jdbcType=VARCHAR},
+      addition5 = #{record.addition5,jdbcType=VARCHAR},
+      data_formate = #{record.dataFormate,jdbcType=VARCHAR},
+      description = #{record.description,jdbcType=VARCHAR},
+      remark = #{record.remark,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      modify_time = #{record.modifyTime,jdbcType=BIGINT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.panda.merge.model.ThirdSportMarketCategory2020421Delete">
+    update third_sport_market_category_2020421_delete
+    <set>
+      <if test="sportId != null">
+        sport_id = #{sportId,jdbcType=BIGINT},
+      </if>
+      <if test="thirdMarketCategorySourceId != null">
+        third_market_category_source_id = #{thirdMarketCategorySourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null">
+        type = #{type,jdbcType=VARCHAR},
+      </if>
+      <if test="typeIdentify != null">
+        type_identify = #{typeIdentify,jdbcType=VARCHAR},
+      </if>
+      <if test="referenceId != null">
+        reference_id = #{referenceId,jdbcType=BIGINT},
+      </if>
+      <if test="nameCode != null">
+        name_code = #{nameCode,jdbcType=BIGINT},
+      </if>
+      <if test="active != null">
+        active = #{active,jdbcType=TINYINT},
+      </if>
+      <if test="dataSourceCode != null">
+        data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="fieldsNum != null">
+        fields_num = #{fieldsNum,jdbcType=INTEGER},
+      </if>
+      <if test="scopeId != null">
+        scope_id = #{scopeId,jdbcType=VARCHAR},
+      </if>
+      <if test="addition1 != null">
+        addition1 = #{addition1,jdbcType=VARCHAR},
+      </if>
+      <if test="addition2 != null">
+        addition2 = #{addition2,jdbcType=VARCHAR},
+      </if>
+      <if test="addition3 != null">
+        addition3 = #{addition3,jdbcType=VARCHAR},
+      </if>
+      <if test="addition4 != null">
+        addition4 = #{addition4,jdbcType=VARCHAR},
+      </if>
+      <if test="addition5 != null">
+        addition5 = #{addition5,jdbcType=VARCHAR},
+      </if>
+      <if test="dataFormate != null">
+        data_formate = #{dataFormate,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null">
+        description = #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null">
+        modify_time = #{modifyTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.panda.merge.model.ThirdSportMarketCategory2020421Delete">
+    update third_sport_market_category_2020421_delete
+    set sport_id = #{sportId,jdbcType=BIGINT},
+      third_market_category_source_id = #{thirdMarketCategorySourceId,jdbcType=VARCHAR},
+      type = #{type,jdbcType=VARCHAR},
+      type_identify = #{typeIdentify,jdbcType=VARCHAR},
+      reference_id = #{referenceId,jdbcType=BIGINT},
+      name_code = #{nameCode,jdbcType=BIGINT},
+      active = #{active,jdbcType=TINYINT},
+      data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
+      fields_num = #{fieldsNum,jdbcType=INTEGER},
+      scope_id = #{scopeId,jdbcType=VARCHAR},
+      addition1 = #{addition1,jdbcType=VARCHAR},
+      addition2 = #{addition2,jdbcType=VARCHAR},
+      addition3 = #{addition3,jdbcType=VARCHAR},
+      addition4 = #{addition4,jdbcType=VARCHAR},
+      addition5 = #{addition5,jdbcType=VARCHAR},
+      data_formate = #{dataFormate,jdbcType=VARCHAR},
+      description = #{description,jdbcType=VARCHAR},
+      remark = #{remark,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      modify_time = #{modifyTime,jdbcType=BIGINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

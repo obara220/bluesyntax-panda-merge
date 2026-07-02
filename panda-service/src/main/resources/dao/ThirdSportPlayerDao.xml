@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.dao.ThirdSportPlayerDao">
+
+    <resultMap id="childResultMap" type="com.panda.merge.dto.ThirdSportPlayerDetail" extends="com.panda.merge.mapper.ThirdSportPlayerMapper.ResultMapWithBLOBs">
+        <association property="teamPlayerRelation" resultMap="com.panda.merge.mapper.ThirdTeamPlayerRelationMapper.BaseResultMap" columnPrefix="relation_"/>
+    </resultMap>
+
+    <select id="getItemsByTeamId" parameterType="com.panda.merge.model.ThirdSportTeam" resultMap="childResultMap">
+        select t3.* ,
+               t2.id relation_id,t2.team_id relation_team_id,t2.player_id relation_player_id,
+               t2.jersey_number relation_jersey_number,t2.position relation_position
+        from   third_sport_team t1,third_team_player_relation t2,third_sport_player t3
+        where  t1.id = #{team.id}
+        <if test="team.dataSourceCode != null">
+            and   t1.data_source_code = #{team.dataSourceCode}
+        </if>
+        <if test="team.sportId != null">
+            and   t1.sport_id = #{team.sportId}
+        </if>
+        and    t1.id = t2.team_id
+        and    t2.player_id = t3.id
+    </select>
+
+    <insert id="insertList" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO third_sport_player(
+            id,data_source_code,sport_id,third_source_player_id,
+            name,name_spell,nick_name,name_code,region_id,country_id,personal_feature,
+            all_language_name,picture_url,weight,height,gender,birthday,
+            remark, create_time, modify_time
+        ) VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+        (
+             #{item.id},#{item.dataSourceCode}, #{item.sportId}, #{item.thirdSourcePlayerId},
+             #{item.name},#{item.nameSpell},#{item.nickName},#{item.nameCode},#{item.regionId},#{item.countryId},#{item.personalFeature},
+             #{item.allLanguageName}, #{item.pictureUrl}, #{item.weight},#{item.height},#{item.gender},#{item.birthday},
+             #{item.remark}, REPLACE(unix_timestamp(current_timestamp(3)),'.',''), REPLACE(unix_timestamp(current_timestamp(3)),'.','')
+        )
+        </foreach>
+    </insert>
+
+    <update id="updateList" parameterType="java.util.List">
+        <foreach collection="list" item="item" separator=";">
+            UPDATE third_sport_player
+            <set>
+                <if test="item.name != null">
+                    name = #{item.name},
+                </if>
+                <if test="item.nameSpell != null">
+                    name_spell = #{item.nameSpell},
+                </if>
+                <if test="item.nickName != null">
+                    nick_name = #{item.nickName},
+                </if>
+                <if test="item.regionId != null">
+                    region_id = #{item.regionId},
+                </if>
+                <if test="item.countryId != null">
+                    country_id = #{item.countryId},
+                </if>
+                <if test="item.pictureUrl != null">
+                    picture_url = #{item.pictureUrl},
+                </if>
+                <if test="item.weight != null">
+                    weight = #{item.weight},
+                </if>
+                <if test="item.height != null">
+                    height = #{item.height},
+                </if>
+                <if test="item.gender != null">
+                    gender = #{item.gender},
+                </if>
+                <if test="item.birthday != null">
+                    birthday = #{item.birthday},
+                </if>
+                <if test="item.personalFeature != null">
+                    personal_feature = #{item.personalFeature},
+                </if>
+                <if test="item.allLanguageName != null">
+                    all_language_name = #{item.allLanguageName},
+                </if>
+                <if test="item.remark != null">
+                    remark = #{item.remark},
+                </if>
+                modify_time = REPLACE(unix_timestamp(current_timestamp(3)),'.','')
+            </set>
+            WHERE id = #{item.id}
+        </foreach>
+    </update>
+</mapper>

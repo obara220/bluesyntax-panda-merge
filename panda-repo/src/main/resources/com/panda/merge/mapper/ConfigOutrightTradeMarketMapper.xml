@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.mapper.ConfigOutrightTradeMarketMapper">
+  <resultMap id="BaseResultMap" type="com.panda.merge.model.ConfigOutrightTradeMarket">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="standard_match_id" jdbcType="BIGINT" property="standardMatchId" />
+    <result column="standard_market_id" jdbcType="BIGINT" property="standardMarketId" />
+    <result column="market_status" jdbcType="INTEGER" property="marketStatus" />
+    <result column="link_id" jdbcType="VARCHAR" property="linkId" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="modify_time" jdbcType="BIGINT" property="modifyTime" />
+    <result column="operater_id" jdbcType="BIGINT" property="operaterId" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, standard_match_id, standard_market_id, market_status, link_id, create_time, modify_time, 
+    operater_id
+  </sql>
+  <select id="selectByExample" parameterType="com.panda.merge.model.ConfigOutrightTradeMarketExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from config_outright_trade_market
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from config_outright_trade_market
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from config_outright_trade_market
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.panda.merge.model.ConfigOutrightTradeMarketExample">
+    delete from config_outright_trade_market
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.panda.merge.model.ConfigOutrightTradeMarket">
+    insert into config_outright_trade_market (id, standard_match_id, standard_market_id, 
+      market_status, link_id, create_time, 
+      modify_time, operater_id)
+    values (#{id,jdbcType=BIGINT}, #{standardMatchId,jdbcType=BIGINT}, #{standardMarketId,jdbcType=BIGINT}, 
+      #{marketStatus,jdbcType=INTEGER}, #{linkId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
+      #{modifyTime,jdbcType=BIGINT}, #{operaterId,jdbcType=BIGINT})
+  </insert>
+  <insert id="insertSelective" parameterType="com.panda.merge.model.ConfigOutrightTradeMarket">
+    insert into config_outright_trade_market
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="standardMatchId != null">
+        standard_match_id,
+      </if>
+      <if test="standardMarketId != null">
+        standard_market_id,
+      </if>
+      <if test="marketStatus != null">
+        market_status,
+      </if>
+      <if test="linkId != null">
+        link_id,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="modifyTime != null">
+        modify_time,
+      </if>
+      <if test="operaterId != null">
+        operater_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="standardMatchId != null">
+        #{standardMatchId,jdbcType=BIGINT},
+      </if>
+      <if test="standardMarketId != null">
+        #{standardMarketId,jdbcType=BIGINT},
+      </if>
+      <if test="marketStatus != null">
+        #{marketStatus,jdbcType=INTEGER},
+      </if>
+      <if test="linkId != null">
+        #{linkId,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null">
+        #{modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="operaterId != null">
+        #{operaterId,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.panda.merge.model.ConfigOutrightTradeMarketExample" resultType="java.lang.Long">
+    select count(*) from config_outright_trade_market
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update config_outright_trade_market
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.standardMatchId != null">
+        standard_match_id = #{record.standardMatchId,jdbcType=BIGINT},
+      </if>
+      <if test="record.standardMarketId != null">
+        standard_market_id = #{record.standardMarketId,jdbcType=BIGINT},
+      </if>
+      <if test="record.marketStatus != null">
+        market_status = #{record.marketStatus,jdbcType=INTEGER},
+      </if>
+      <if test="record.linkId != null">
+        link_id = #{record.linkId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.modifyTime != null">
+        modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.operaterId != null">
+        operater_id = #{record.operaterId,jdbcType=BIGINT},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update config_outright_trade_market
+    set id = #{record.id,jdbcType=BIGINT},
+      standard_match_id = #{record.standardMatchId,jdbcType=BIGINT},
+      standard_market_id = #{record.standardMarketId,jdbcType=BIGINT},
+      market_status = #{record.marketStatus,jdbcType=INTEGER},
+      link_id = #{record.linkId,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      operater_id = #{record.operaterId,jdbcType=BIGINT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.panda.merge.model.ConfigOutrightTradeMarket">
+    update config_outright_trade_market
+    <set>
+      <if test="standardMatchId != null">
+        standard_match_id = #{standardMatchId,jdbcType=BIGINT},
+      </if>
+      <if test="standardMarketId != null">
+        standard_market_id = #{standardMarketId,jdbcType=BIGINT},
+      </if>
+      <if test="marketStatus != null">
+        market_status = #{marketStatus,jdbcType=INTEGER},
+      </if>
+      <if test="linkId != null">
+        link_id = #{linkId,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null">
+        modify_time = #{modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="operaterId != null">
+        operater_id = #{operaterId,jdbcType=BIGINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.panda.merge.model.ConfigOutrightTradeMarket">
+    update config_outright_trade_market
+    set standard_match_id = #{standardMatchId,jdbcType=BIGINT},
+      standard_market_id = #{standardMarketId,jdbcType=BIGINT},
+      market_status = #{marketStatus,jdbcType=INTEGER},
+      link_id = #{linkId,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      modify_time = #{modifyTime,jdbcType=BIGINT},
+      operater_id = #{operaterId,jdbcType=BIGINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

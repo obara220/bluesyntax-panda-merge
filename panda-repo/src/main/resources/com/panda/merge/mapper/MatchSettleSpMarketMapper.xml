@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.mapper.MatchSettleSpMarketMapper">
+  <resultMap id="BaseResultMap" type="com.panda.merge.model.MatchSettleSpMarket">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="standard_match_id" jdbcType="BIGINT" property="standardMatchId" />
+    <result column="data_source_code" jdbcType="VARCHAR" property="dataSourceCode" />
+    <result column="sport_id" jdbcType="BIGINT" property="sportId" />
+    <result column="market_category_id" jdbcType="BIGINT" property="marketCategoryId" />
+    <result column="child_market_category_id" jdbcType="BIGINT" property="childMarketCategoryId" />
+    <result column="category_name_en" jdbcType="VARCHAR" property="categoryNameEn" />
+    <result column="category_name_cn" jdbcType="VARCHAR" property="categoryNameCn" />
+    <result column="check_type" jdbcType="INTEGER" property="checkType" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="modify_time" jdbcType="BIGINT" property="modifyTime" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, standard_match_id, data_source_code, sport_id, market_category_id, child_market_category_id, 
+    category_name_en, category_name_cn, check_type, create_time, modify_time
+  </sql>
+  <select id="selectByExample" parameterType="com.panda.merge.model.MatchSettleSpMarketExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from match_settle_sp_market
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from match_settle_sp_market
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from match_settle_sp_market
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.panda.merge.model.MatchSettleSpMarketExample">
+    delete from match_settle_sp_market
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.panda.merge.model.MatchSettleSpMarket">
+    insert into match_settle_sp_market (id, standard_match_id, data_source_code, 
+      sport_id, market_category_id, child_market_category_id, 
+      category_name_en, category_name_cn, check_type, 
+      create_time, modify_time)
+    values (#{id,jdbcType=BIGINT}, #{standardMatchId,jdbcType=BIGINT}, #{dataSourceCode,jdbcType=VARCHAR}, 
+      #{sportId,jdbcType=BIGINT}, #{marketCategoryId,jdbcType=BIGINT}, #{childMarketCategoryId,jdbcType=BIGINT}, 
+      #{categoryNameEn,jdbcType=VARCHAR}, #{categoryNameCn,jdbcType=VARCHAR}, #{checkType,jdbcType=INTEGER}, 
+      #{createTime,jdbcType=BIGINT}, #{modifyTime,jdbcType=BIGINT})
+  </insert>
+  <insert id="insertSelective" parameterType="com.panda.merge.model.MatchSettleSpMarket">
+    insert into match_settle_sp_market
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="standardMatchId != null">
+        standard_match_id,
+      </if>
+      <if test="dataSourceCode != null">
+        data_source_code,
+      </if>
+      <if test="sportId != null">
+        sport_id,
+      </if>
+      <if test="marketCategoryId != null">
+        market_category_id,
+      </if>
+      <if test="childMarketCategoryId != null">
+        child_market_category_id,
+      </if>
+      <if test="categoryNameEn != null">
+        category_name_en,
+      </if>
+      <if test="categoryNameCn != null">
+        category_name_cn,
+      </if>
+      <if test="checkType != null">
+        check_type,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="modifyTime != null">
+        modify_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="standardMatchId != null">
+        #{standardMatchId,jdbcType=BIGINT},
+      </if>
+      <if test="dataSourceCode != null">
+        #{dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="sportId != null">
+        #{sportId,jdbcType=BIGINT},
+      </if>
+      <if test="marketCategoryId != null">
+        #{marketCategoryId,jdbcType=BIGINT},
+      </if>
+      <if test="childMarketCategoryId != null">
+        #{childMarketCategoryId,jdbcType=BIGINT},
+      </if>
+      <if test="categoryNameEn != null">
+        #{categoryNameEn,jdbcType=VARCHAR},
+      </if>
+      <if test="categoryNameCn != null">
+        #{categoryNameCn,jdbcType=VARCHAR},
+      </if>
+      <if test="checkType != null">
+        #{checkType,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null">
+        #{modifyTime,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.panda.merge.model.MatchSettleSpMarketExample" resultType="java.lang.Long">
+    select count(*) from match_settle_sp_market
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update match_settle_sp_market
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.standardMatchId != null">
+        standard_match_id = #{record.standardMatchId,jdbcType=BIGINT},
+      </if>
+      <if test="record.dataSourceCode != null">
+        data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.sportId != null">
+        sport_id = #{record.sportId,jdbcType=BIGINT},
+      </if>
+      <if test="record.marketCategoryId != null">
+        market_category_id = #{record.marketCategoryId,jdbcType=BIGINT},
+      </if>
+      <if test="record.childMarketCategoryId != null">
+        child_market_category_id = #{record.childMarketCategoryId,jdbcType=BIGINT},
+      </if>
+      <if test="record.categoryNameEn != null">
+        category_name_en = #{record.categoryNameEn,jdbcType=VARCHAR},
+      </if>
+      <if test="record.categoryNameCn != null">
+        category_name_cn = #{record.categoryNameCn,jdbcType=VARCHAR},
+      </if>
+      <if test="record.checkType != null">
+        check_type = #{record.checkType,jdbcType=INTEGER},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.modifyTime != null">
+        modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update match_settle_sp_market
+    set id = #{record.id,jdbcType=BIGINT},
+      standard_match_id = #{record.standardMatchId,jdbcType=BIGINT},
+      data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+      sport_id = #{record.sportId,jdbcType=BIGINT},
+      market_category_id = #{record.marketCategoryId,jdbcType=BIGINT},
+      child_market_category_id = #{record.childMarketCategoryId,jdbcType=BIGINT},
+      category_name_en = #{record.categoryNameEn,jdbcType=VARCHAR},
+      category_name_cn = #{record.categoryNameCn,jdbcType=VARCHAR},
+      check_type = #{record.checkType,jdbcType=INTEGER},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      modify_time = #{record.modifyTime,jdbcType=BIGINT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.panda.merge.model.MatchSettleSpMarket">
+    update match_settle_sp_market
+    <set>
+      <if test="standardMatchId != null">
+        standard_match_id = #{standardMatchId,jdbcType=BIGINT},
+      </if>
+      <if test="dataSourceCode != null">
+        data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="sportId != null">
+        sport_id = #{sportId,jdbcType=BIGINT},
+      </if>
+      <if test="marketCategoryId != null">
+        market_category_id = #{marketCategoryId,jdbcType=BIGINT},
+      </if>
+      <if test="childMarketCategoryId != null">
+        child_market_category_id = #{childMarketCategoryId,jdbcType=BIGINT},
+      </if>
+      <if test="categoryNameEn != null">
+        category_name_en = #{categoryNameEn,jdbcType=VARCHAR},
+      </if>
+      <if test="categoryNameCn != null">
+        category_name_cn = #{categoryNameCn,jdbcType=VARCHAR},
+      </if>
+      <if test="checkType != null">
+        check_type = #{checkType,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null">
+        modify_time = #{modifyTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.panda.merge.model.MatchSettleSpMarket">
+    update match_settle_sp_market
+    set standard_match_id = #{standardMatchId,jdbcType=BIGINT},
+      data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
+      sport_id = #{sportId,jdbcType=BIGINT},
+      market_category_id = #{marketCategoryId,jdbcType=BIGINT},
+      child_market_category_id = #{childMarketCategoryId,jdbcType=BIGINT},
+      category_name_en = #{categoryNameEn,jdbcType=VARCHAR},
+      category_name_cn = #{categoryNameCn,jdbcType=VARCHAR},
+      check_type = #{checkType,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=BIGINT},
+      modify_time = #{modifyTime,jdbcType=BIGINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

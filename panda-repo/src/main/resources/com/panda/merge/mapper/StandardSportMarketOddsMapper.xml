@@ -1,0 +1,639 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.mapper.StandardSportMarketOddsMapper">
+  <resultMap id="BaseResultMap" type="com.panda.merge.model.StandardSportMarketOdds">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="relation_market_odds_id" jdbcType="BIGINT" property="relationMarketOddsId" />
+    <result column="market_id" jdbcType="BIGINT" property="marketId" />
+    <result column="relation_market_id" jdbcType="BIGINT" property="relationMarketId" />
+    <result column="odds_fields_template_id" jdbcType="BIGINT" property="oddsFieldsTemplateId" />
+    <result column="third_template_source_id" jdbcType="VARCHAR" property="thirdTemplateSourceId" />
+    <result column="active" jdbcType="TINYINT" property="active" />
+    <result column="settlement_result_text" jdbcType="VARCHAR" property="settlementResultText" />
+    <result column="settlement_result" jdbcType="VARCHAR" property="settlementResult" />
+    <result column="bet_settlement_certainty" jdbcType="VARCHAR" property="betSettlementCertainty" />
+    <result column="odds_type" jdbcType="VARCHAR" property="oddsType" />
+    <result column="addition1" jdbcType="VARCHAR" property="addition1" />
+    <result column="addition2" jdbcType="VARCHAR" property="addition2" />
+    <result column="addition3" jdbcType="VARCHAR" property="addition3" />
+    <result column="addition4" jdbcType="VARCHAR" property="addition4" />
+    <result column="addition5" jdbcType="VARCHAR" property="addition5" />
+    <result column="name_code" jdbcType="BIGINT" property="nameCode" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="name_expression_value" jdbcType="VARCHAR" property="nameExpressionValue" />
+    <result column="malay_odds_value" jdbcType="DOUBLE" property="malayOddsValue" />
+    <result column="odds_value" jdbcType="INTEGER" property="oddsValue" />
+    <result column="pa_odds_value" jdbcType="INTEGER" property="paOddsValue" />
+    <result column="original_odds_value" jdbcType="INTEGER" property="originalOddsValue" />
+    <result column="target_side" jdbcType="VARCHAR" property="targetSide" />
+    <result column="order_odds" jdbcType="INTEGER" property="orderOdds" />
+    <result column="data_source_code" jdbcType="VARCHAR" property="dataSourceCode" />
+    <result column="third_odds_field_source_id" jdbcType="VARCHAR" property="thirdOddsFieldSourceId" />
+    <result column="extra_info" jdbcType="VARCHAR" property="extraInfo" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="modify_time" jdbcType="BIGINT" property="modifyTime" />
+    <result column="standard_match_id" jdbcType="BIGINT" property="standardMatchId" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, relation_market_odds_id, market_id, relation_market_id, odds_fields_template_id, 
+    third_template_source_id, active, settlement_result_text, settlement_result, bet_settlement_certainty, 
+    odds_type, addition1, addition2, addition3, addition4, addition5, name_code, name, 
+    name_expression_value, malay_odds_value, odds_value, pa_odds_value, original_odds_value, 
+    target_side, order_odds, data_source_code, third_odds_field_source_id, extra_info, 
+    remark, create_time, modify_time, standard_match_id
+  </sql>
+  <select id="selectByExample" parameterType="com.panda.merge.model.StandardSportMarketOddsExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from standard_sport_market_odds
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from standard_sport_market_odds
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from standard_sport_market_odds
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.panda.merge.model.StandardSportMarketOddsExample">
+    delete from standard_sport_market_odds
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.panda.merge.model.StandardSportMarketOdds">
+    insert into standard_sport_market_odds (id, relation_market_odds_id, market_id, 
+      relation_market_id, odds_fields_template_id, third_template_source_id, 
+      active, settlement_result_text, settlement_result, 
+      bet_settlement_certainty, odds_type, addition1, 
+      addition2, addition3, addition4, 
+      addition5, name_code, name, 
+      name_expression_value, malay_odds_value, odds_value, 
+      pa_odds_value, original_odds_value, target_side, 
+      order_odds, data_source_code, third_odds_field_source_id, 
+      extra_info, remark, create_time, 
+      modify_time, standard_match_id)
+    values (#{id,jdbcType=BIGINT}, #{relationMarketOddsId,jdbcType=BIGINT}, #{marketId,jdbcType=BIGINT}, 
+      #{relationMarketId,jdbcType=BIGINT}, #{oddsFieldsTemplateId,jdbcType=BIGINT}, #{thirdTemplateSourceId,jdbcType=VARCHAR}, 
+      #{active,jdbcType=TINYINT}, #{settlementResultText,jdbcType=VARCHAR}, #{settlementResult,jdbcType=VARCHAR}, 
+      #{betSettlementCertainty,jdbcType=VARCHAR}, #{oddsType,jdbcType=VARCHAR}, #{addition1,jdbcType=VARCHAR}, 
+      #{addition2,jdbcType=VARCHAR}, #{addition3,jdbcType=VARCHAR}, #{addition4,jdbcType=VARCHAR}, 
+      #{addition5,jdbcType=VARCHAR}, #{nameCode,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, 
+      #{nameExpressionValue,jdbcType=VARCHAR}, #{malayOddsValue,jdbcType=DOUBLE}, #{oddsValue,jdbcType=INTEGER}, 
+      #{paOddsValue,jdbcType=INTEGER}, #{originalOddsValue,jdbcType=INTEGER}, #{targetSide,jdbcType=VARCHAR}, 
+      #{orderOdds,jdbcType=INTEGER}, #{dataSourceCode,jdbcType=VARCHAR}, #{thirdOddsFieldSourceId,jdbcType=VARCHAR}, 
+      #{extraInfo,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
+      #{modifyTime,jdbcType=BIGINT}, #{standardMatchId,jdbcType=BIGINT})
+  </insert>
+  <insert id="insertSelective" parameterType="com.panda.merge.model.StandardSportMarketOdds">
+    insert into standard_sport_market_odds
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="relationMarketOddsId != null">
+        relation_market_odds_id,
+      </if>
+      <if test="marketId != null">
+        market_id,
+      </if>
+      <if test="relationMarketId != null">
+        relation_market_id,
+      </if>
+      <if test="oddsFieldsTemplateId != null">
+        odds_fields_template_id,
+      </if>
+      <if test="thirdTemplateSourceId != null">
+        third_template_source_id,
+      </if>
+      <if test="active != null">
+        active,
+      </if>
+      <if test="settlementResultText != null">
+        settlement_result_text,
+      </if>
+      <if test="settlementResult != null">
+        settlement_result,
+      </if>
+      <if test="betSettlementCertainty != null">
+        bet_settlement_certainty,
+      </if>
+      <if test="oddsType != null">
+        odds_type,
+      </if>
+      <if test="addition1 != null">
+        addition1,
+      </if>
+      <if test="addition2 != null">
+        addition2,
+      </if>
+      <if test="addition3 != null">
+        addition3,
+      </if>
+      <if test="addition4 != null">
+        addition4,
+      </if>
+      <if test="addition5 != null">
+        addition5,
+      </if>
+      <if test="nameCode != null">
+        name_code,
+      </if>
+      <if test="name != null">
+        name,
+      </if>
+      <if test="nameExpressionValue != null">
+        name_expression_value,
+      </if>
+      <if test="malayOddsValue != null">
+        malay_odds_value,
+      </if>
+      <if test="oddsValue != null">
+        odds_value,
+      </if>
+      <if test="paOddsValue != null">
+        pa_odds_value,
+      </if>
+      <if test="originalOddsValue != null">
+        original_odds_value,
+      </if>
+      <if test="targetSide != null">
+        target_side,
+      </if>
+      <if test="orderOdds != null">
+        order_odds,
+      </if>
+      <if test="dataSourceCode != null">
+        data_source_code,
+      </if>
+      <if test="thirdOddsFieldSourceId != null">
+        third_odds_field_source_id,
+      </if>
+      <if test="extraInfo != null">
+        extra_info,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="modifyTime != null">
+        modify_time,
+      </if>
+      <if test="standardMatchId != null">
+        standard_match_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="relationMarketOddsId != null">
+        #{relationMarketOddsId,jdbcType=BIGINT},
+      </if>
+      <if test="marketId != null">
+        #{marketId,jdbcType=BIGINT},
+      </if>
+      <if test="relationMarketId != null">
+        #{relationMarketId,jdbcType=BIGINT},
+      </if>
+      <if test="oddsFieldsTemplateId != null">
+        #{oddsFieldsTemplateId,jdbcType=BIGINT},
+      </if>
+      <if test="thirdTemplateSourceId != null">
+        #{thirdTemplateSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="active != null">
+        #{active,jdbcType=TINYINT},
+      </if>
+      <if test="settlementResultText != null">
+        #{settlementResultText,jdbcType=VARCHAR},
+      </if>
+      <if test="settlementResult != null">
+        #{settlementResult,jdbcType=VARCHAR},
+      </if>
+      <if test="betSettlementCertainty != null">
+        #{betSettlementCertainty,jdbcType=VARCHAR},
+      </if>
+      <if test="oddsType != null">
+        #{oddsType,jdbcType=VARCHAR},
+      </if>
+      <if test="addition1 != null">
+        #{addition1,jdbcType=VARCHAR},
+      </if>
+      <if test="addition2 != null">
+        #{addition2,jdbcType=VARCHAR},
+      </if>
+      <if test="addition3 != null">
+        #{addition3,jdbcType=VARCHAR},
+      </if>
+      <if test="addition4 != null">
+        #{addition4,jdbcType=VARCHAR},
+      </if>
+      <if test="addition5 != null">
+        #{addition5,jdbcType=VARCHAR},
+      </if>
+      <if test="nameCode != null">
+        #{nameCode,jdbcType=BIGINT},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="nameExpressionValue != null">
+        #{nameExpressionValue,jdbcType=VARCHAR},
+      </if>
+      <if test="malayOddsValue != null">
+        #{malayOddsValue,jdbcType=DOUBLE},
+      </if>
+      <if test="oddsValue != null">
+        #{oddsValue,jdbcType=INTEGER},
+      </if>
+      <if test="paOddsValue != null">
+        #{paOddsValue,jdbcType=INTEGER},
+      </if>
+      <if test="originalOddsValue != null">
+        #{originalOddsValue,jdbcType=INTEGER},
+      </if>
+      <if test="targetSide != null">
+        #{targetSide,jdbcType=VARCHAR},
+      </if>
+      <if test="orderOdds != null">
+        #{orderOdds,jdbcType=INTEGER},
+      </if>
+      <if test="dataSourceCode != null">
+        #{dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdOddsFieldSourceId != null">
+        #{thirdOddsFieldSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="extraInfo != null">
+        #{extraInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null">
+        #{modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="standardMatchId != null">
+        #{standardMatchId,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.panda.merge.model.StandardSportMarketOddsExample" resultType="java.lang.Long">
+    select count(*) from standard_sport_market_odds
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update standard_sport_market_odds
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.relationMarketOddsId != null">
+        relation_market_odds_id = #{record.relationMarketOddsId,jdbcType=BIGINT},
+      </if>
+      <if test="record.marketId != null">
+        market_id = #{record.marketId,jdbcType=BIGINT},
+      </if>
+      <if test="record.relationMarketId != null">
+        relation_market_id = #{record.relationMarketId,jdbcType=BIGINT},
+      </if>
+      <if test="record.oddsFieldsTemplateId != null">
+        odds_fields_template_id = #{record.oddsFieldsTemplateId,jdbcType=BIGINT},
+      </if>
+      <if test="record.thirdTemplateSourceId != null">
+        third_template_source_id = #{record.thirdTemplateSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.active != null">
+        active = #{record.active,jdbcType=TINYINT},
+      </if>
+      <if test="record.settlementResultText != null">
+        settlement_result_text = #{record.settlementResultText,jdbcType=VARCHAR},
+      </if>
+      <if test="record.settlementResult != null">
+        settlement_result = #{record.settlementResult,jdbcType=VARCHAR},
+      </if>
+      <if test="record.betSettlementCertainty != null">
+        bet_settlement_certainty = #{record.betSettlementCertainty,jdbcType=VARCHAR},
+      </if>
+      <if test="record.oddsType != null">
+        odds_type = #{record.oddsType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.addition1 != null">
+        addition1 = #{record.addition1,jdbcType=VARCHAR},
+      </if>
+      <if test="record.addition2 != null">
+        addition2 = #{record.addition2,jdbcType=VARCHAR},
+      </if>
+      <if test="record.addition3 != null">
+        addition3 = #{record.addition3,jdbcType=VARCHAR},
+      </if>
+      <if test="record.addition4 != null">
+        addition4 = #{record.addition4,jdbcType=VARCHAR},
+      </if>
+      <if test="record.addition5 != null">
+        addition5 = #{record.addition5,jdbcType=VARCHAR},
+      </if>
+      <if test="record.nameCode != null">
+        name_code = #{record.nameCode,jdbcType=BIGINT},
+      </if>
+      <if test="record.name != null">
+        name = #{record.name,jdbcType=VARCHAR},
+      </if>
+      <if test="record.nameExpressionValue != null">
+        name_expression_value = #{record.nameExpressionValue,jdbcType=VARCHAR},
+      </if>
+      <if test="record.malayOddsValue != null">
+        malay_odds_value = #{record.malayOddsValue,jdbcType=DOUBLE},
+      </if>
+      <if test="record.oddsValue != null">
+        odds_value = #{record.oddsValue,jdbcType=INTEGER},
+      </if>
+      <if test="record.paOddsValue != null">
+        pa_odds_value = #{record.paOddsValue,jdbcType=INTEGER},
+      </if>
+      <if test="record.originalOddsValue != null">
+        original_odds_value = #{record.originalOddsValue,jdbcType=INTEGER},
+      </if>
+      <if test="record.targetSide != null">
+        target_side = #{record.targetSide,jdbcType=VARCHAR},
+      </if>
+      <if test="record.orderOdds != null">
+        order_odds = #{record.orderOdds,jdbcType=INTEGER},
+      </if>
+      <if test="record.dataSourceCode != null">
+        data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.thirdOddsFieldSourceId != null">
+        third_odds_field_source_id = #{record.thirdOddsFieldSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.extraInfo != null">
+        extra_info = #{record.extraInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.remark != null">
+        remark = #{record.remark,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.modifyTime != null">
+        modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.standardMatchId != null">
+        standard_match_id = #{record.standardMatchId,jdbcType=BIGINT},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update standard_sport_market_odds
+    set id = #{record.id,jdbcType=BIGINT},
+      relation_market_odds_id = #{record.relationMarketOddsId,jdbcType=BIGINT},
+      market_id = #{record.marketId,jdbcType=BIGINT},
+      relation_market_id = #{record.relationMarketId,jdbcType=BIGINT},
+      odds_fields_template_id = #{record.oddsFieldsTemplateId,jdbcType=BIGINT},
+      third_template_source_id = #{record.thirdTemplateSourceId,jdbcType=VARCHAR},
+      active = #{record.active,jdbcType=TINYINT},
+      settlement_result_text = #{record.settlementResultText,jdbcType=VARCHAR},
+      settlement_result = #{record.settlementResult,jdbcType=VARCHAR},
+      bet_settlement_certainty = #{record.betSettlementCertainty,jdbcType=VARCHAR},
+      odds_type = #{record.oddsType,jdbcType=VARCHAR},
+      addition1 = #{record.addition1,jdbcType=VARCHAR},
+      addition2 = #{record.addition2,jdbcType=VARCHAR},
+      addition3 = #{record.addition3,jdbcType=VARCHAR},
+      addition4 = #{record.addition4,jdbcType=VARCHAR},
+      addition5 = #{record.addition5,jdbcType=VARCHAR},
+      name_code = #{record.nameCode,jdbcType=BIGINT},
+      name = #{record.name,jdbcType=VARCHAR},
+      name_expression_value = #{record.nameExpressionValue,jdbcType=VARCHAR},
+      malay_odds_value = #{record.malayOddsValue,jdbcType=DOUBLE},
+      odds_value = #{record.oddsValue,jdbcType=INTEGER},
+      pa_odds_value = #{record.paOddsValue,jdbcType=INTEGER},
+      original_odds_value = #{record.originalOddsValue,jdbcType=INTEGER},
+      target_side = #{record.targetSide,jdbcType=VARCHAR},
+      order_odds = #{record.orderOdds,jdbcType=INTEGER},
+      data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+      third_odds_field_source_id = #{record.thirdOddsFieldSourceId,jdbcType=VARCHAR},
+      extra_info = #{record.extraInfo,jdbcType=VARCHAR},
+      remark = #{record.remark,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      standard_match_id = #{record.standardMatchId,jdbcType=BIGINT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.panda.merge.model.StandardSportMarketOdds">
+    update standard_sport_market_odds
+    <set>
+      <if test="relationMarketOddsId != null">
+        relation_market_odds_id = #{relationMarketOddsId,jdbcType=BIGINT},
+      </if>
+      <if test="marketId != null">
+        market_id = #{marketId,jdbcType=BIGINT},
+      </if>
+      <if test="relationMarketId != null">
+        relation_market_id = #{relationMarketId,jdbcType=BIGINT},
+      </if>
+      <if test="oddsFieldsTemplateId != null">
+        odds_fields_template_id = #{oddsFieldsTemplateId,jdbcType=BIGINT},
+      </if>
+      <if test="thirdTemplateSourceId != null">
+        third_template_source_id = #{thirdTemplateSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="active != null">
+        active = #{active,jdbcType=TINYINT},
+      </if>
+      <if test="settlementResultText != null">
+        settlement_result_text = #{settlementResultText,jdbcType=VARCHAR},
+      </if>
+      <if test="settlementResult != null">
+        settlement_result = #{settlementResult,jdbcType=VARCHAR},
+      </if>
+      <if test="betSettlementCertainty != null">
+        bet_settlement_certainty = #{betSettlementCertainty,jdbcType=VARCHAR},
+      </if>
+      <if test="oddsType != null">
+        odds_type = #{oddsType,jdbcType=VARCHAR},
+      </if>
+      <if test="addition1 != null">
+        addition1 = #{addition1,jdbcType=VARCHAR},
+      </if>
+      <if test="addition2 != null">
+        addition2 = #{addition2,jdbcType=VARCHAR},
+      </if>
+      <if test="addition3 != null">
+        addition3 = #{addition3,jdbcType=VARCHAR},
+      </if>
+      <if test="addition4 != null">
+        addition4 = #{addition4,jdbcType=VARCHAR},
+      </if>
+      <if test="addition5 != null">
+        addition5 = #{addition5,jdbcType=VARCHAR},
+      </if>
+      <if test="nameCode != null">
+        name_code = #{nameCode,jdbcType=BIGINT},
+      </if>
+      <if test="name != null">
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="nameExpressionValue != null">
+        name_expression_value = #{nameExpressionValue,jdbcType=VARCHAR},
+      </if>
+      <if test="malayOddsValue != null">
+        malay_odds_value = #{malayOddsValue,jdbcType=DOUBLE},
+      </if>
+      <if test="oddsValue != null">
+        odds_value = #{oddsValue,jdbcType=INTEGER},
+      </if>
+      <if test="paOddsValue != null">
+        pa_odds_value = #{paOddsValue,jdbcType=INTEGER},
+      </if>
+      <if test="originalOddsValue != null">
+        original_odds_value = #{originalOddsValue,jdbcType=INTEGER},
+      </if>
+      <if test="targetSide != null">
+        target_side = #{targetSide,jdbcType=VARCHAR},
+      </if>
+      <if test="orderOdds != null">
+        order_odds = #{orderOdds,jdbcType=INTEGER},
+      </if>
+      <if test="dataSourceCode != null">
+        data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdOddsFieldSourceId != null">
+        third_odds_field_source_id = #{thirdOddsFieldSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="extraInfo != null">
+        extra_info = #{extraInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null">
+        modify_time = #{modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="standardMatchId != null">
+        standard_match_id = #{standardMatchId,jdbcType=BIGINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.panda.merge.model.StandardSportMarketOdds">
+    update standard_sport_market_odds
+    set relation_market_odds_id = #{relationMarketOddsId,jdbcType=BIGINT},
+      market_id = #{marketId,jdbcType=BIGINT},
+      relation_market_id = #{relationMarketId,jdbcType=BIGINT},
+      odds_fields_template_id = #{oddsFieldsTemplateId,jdbcType=BIGINT},
+      third_template_source_id = #{thirdTemplateSourceId,jdbcType=VARCHAR},
+      active = #{active,jdbcType=TINYINT},
+      settlement_result_text = #{settlementResultText,jdbcType=VARCHAR},
+      settlement_result = #{settlementResult,jdbcType=VARCHAR},
+      bet_settlement_certainty = #{betSettlementCertainty,jdbcType=VARCHAR},
+      odds_type = #{oddsType,jdbcType=VARCHAR},
+      addition1 = #{addition1,jdbcType=VARCHAR},
+      addition2 = #{addition2,jdbcType=VARCHAR},
+      addition3 = #{addition3,jdbcType=VARCHAR},
+      addition4 = #{addition4,jdbcType=VARCHAR},
+      addition5 = #{addition5,jdbcType=VARCHAR},
+      name_code = #{nameCode,jdbcType=BIGINT},
+      name = #{name,jdbcType=VARCHAR},
+      name_expression_value = #{nameExpressionValue,jdbcType=VARCHAR},
+      malay_odds_value = #{malayOddsValue,jdbcType=DOUBLE},
+      odds_value = #{oddsValue,jdbcType=INTEGER},
+      pa_odds_value = #{paOddsValue,jdbcType=INTEGER},
+      original_odds_value = #{originalOddsValue,jdbcType=INTEGER},
+      target_side = #{targetSide,jdbcType=VARCHAR},
+      order_odds = #{orderOdds,jdbcType=INTEGER},
+      data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
+      third_odds_field_source_id = #{thirdOddsFieldSourceId,jdbcType=VARCHAR},
+      extra_info = #{extraInfo,jdbcType=VARCHAR},
+      remark = #{remark,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      modify_time = #{modifyTime,jdbcType=BIGINT},
+      standard_match_id = #{standardMatchId,jdbcType=BIGINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

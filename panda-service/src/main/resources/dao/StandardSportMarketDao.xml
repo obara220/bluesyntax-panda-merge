@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.dao.StandardSportMarketDao">
+
+    <select id="getItemByThirdMarketSourceIdsAndDataSourceCode"
+            resultMap="com.panda.merge.mapper.StandardSportMarketMapper.BaseResultMap">
+        SELECT
+        <include refid="com.panda.merge.mapper.StandardSportMarketMapper.Base_Column_List"></include>
+        FROM standard_sport_market
+        WHERE third_market_source_id in
+        <foreach collection="strList" item="id" open="(" separator="," close=")">
+            #{id,jdbcType=VARCHAR}
+        </foreach>
+        AND data_source_code = #{dataSourceCode,jdbcType=VARCHAR}
+        AND standard_match_info_id = #{standardMatchId,jdbcType=BIGINT}
+    </select>
+
+    <select id="getMarketByMatchIdList"  resultMap="com.panda.merge.mapper.StandardSportMarketMapper.BaseResultMap">
+        SELECT
+        <include refid="com.panda.merge.mapper.StandardSportMarketMapper.Base_Column_List"></include>
+        FROM standard_sport_market
+        WHERE standard_match_info_id in
+        <foreach collection="standardMatchIdList" item="matchId" open="(" separator="," close=")">
+            #{matchId}
+        </foreach>
+    </select>
+
+    <select id="getMarketByRelationId" parameterType="java.lang.Long" resultType="com.panda.merge.model.StandardSportMarket">
+        SELECT
+        <include refid="com.panda.merge.mapper.StandardSportMarketMapper.Base_Column_List"></include>
+        FROM standard_sport_market
+        WHERE relation_market_id = #{relationMarketId,jdbcType=BIGINT}
+    </select>
+
+</mapper>

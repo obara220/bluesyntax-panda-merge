@@ -1,0 +1,236 @@
+Index: panda-api/src/main/java/com/panda/merge/dto/A99SystemConfigParam.java
+===================================================================
+diff --git a/panda-api/src/main/java/com/panda/merge/dto/A99SystemConfigParam.java b/panda-api/src/main/java/com/panda/merge/dto/A99SystemConfigParam.java
+deleted file mode 100644
+--- a/panda-api/src/main/java/com/panda/merge/dto/A99SystemConfigParam.java	(revision 59c0d1367bc299bf2d01a84a8a59205f1b3971c1)
++++ /dev/null	(revision 59c0d1367bc299bf2d01a84a8a59205f1b3971c1)
+@@ -1,30 +0,0 @@
+-package com.panda.merge.dto;
+-
+-import lombok.Data;
+-
+-import java.io.Serializable;
+-
+-@Data
+-public class A99SystemConfigParam implements Serializable {
+-
+-    /**
+-     * 球种id
+-     */
+-    private Long sportId;
+-
+-    /**
+-     * 0:早盘, 1:滚球
+-     */
+-    private Integer matchType;
+-
+-    /**
+-     * 执行间隔
+-     */
+-    private Integer interval;
+-
+-    /**
+-     * 0:关, 1:开
+-     */
+-    private Integer enable;
+-
+-}
+Index: panda-api/src/main/java/com/panda/merge/dto/A99MatchSwitchDTO.java
+===================================================================
+diff --git a/panda-api/src/main/java/com/panda/merge/dto/A99MatchSwitchDTO.java b/panda-api/src/main/java/com/panda/merge/dto/A99MatchSwitchDTO.java
+deleted file mode 100644
+--- a/panda-api/src/main/java/com/panda/merge/dto/A99MatchSwitchDTO.java	(revision 59c0d1367bc299bf2d01a84a8a59205f1b3971c1)
++++ /dev/null	(revision 59c0d1367bc299bf2d01a84a8a59205f1b3971c1)
+@@ -1,35 +0,0 @@
+-package com.panda.merge.dto;
+-
+-import lombok.Data;
+-
+-import java.io.Serializable;
+-
+-@Data
+-public class A99MatchSwitchDTO implements Serializable {
+-
+-    /**
+-     * 球种ID
+-     */
+-    private Long sportId;
+-
+-    /**
+-     * 赛事ID
+-     */
+-    private Long matchId;
+-
+-    /**
+-     * 1早 0滚
+-     */
+-    private int matchType;
+-
+-    /**
+-     * 0关 1开
+-     */
+-    private int status;
+-
+-    /**
+-     * 玩法集id
+-     */
+-    private String categorySetId;
+-
+-}
+Index: panda-api/src/main/java/com/panda/merge/dto/A99MatchOddsDiffenceDTO.java
+===================================================================
+diff --git a/panda-api/src/main/java/com/panda/merge/dto/A99MatchOddsDiffenceDTO.java b/panda-api/src/main/java/com/panda/merge/dto/A99MatchOddsDiffenceDTO.java
+deleted file mode 100644
+--- a/panda-api/src/main/java/com/panda/merge/dto/A99MatchOddsDiffenceDTO.java	(revision 59c0d1367bc299bf2d01a84a8a59205f1b3971c1)
++++ /dev/null	(revision 59c0d1367bc299bf2d01a84a8a59205f1b3971c1)
+@@ -1,30 +0,0 @@
+-package com.panda.merge.dto;
+-
+-import lombok.Data;
+-
+-import java.io.Serializable;
+-
+-@Data
+-public class A99MatchOddsDiffenceDTO implements Serializable {
+-
+-    /**
+-     * 赛事id
+-     */
+-    private Long matchId;
+-
+-    /**
+-     * 玩法集id
+-     */
+-    private String categorySetId;
+-
+-    /**
+-     * 赛事类型 0:滚球 1:早盘
+-     */
+-    private Integer matchType;
+-
+-    /**
+-     * 赔率变化差值
+-     */
+-    private Double diffValue;
+-
+-}
+Index: panda-api/src/main/java/com/panda/merge/dto/A99DataSourceWeightDTO.java
+===================================================================
+diff --git a/panda-api/src/main/java/com/panda/merge/dto/A99DataSourceWeightDTO.java b/panda-api/src/main/java/com/panda/merge/dto/A99DataSourceWeightDTO.java
+deleted file mode 100644
+--- a/panda-api/src/main/java/com/panda/merge/dto/A99DataSourceWeightDTO.java	(revision 59c0d1367bc299bf2d01a84a8a59205f1b3971c1)
++++ /dev/null	(revision 59c0d1367bc299bf2d01a84a8a59205f1b3971c1)
+@@ -1,62 +0,0 @@
+-package com.panda.merge.dto;
+-
+-import lombok.Data;
+-
+-import java.io.Serializable;
+-import java.util.List;
+-import java.util.Map;
+-
+-@Data
+-public class A99DataSourceWeightDTO implements Serializable {
+-    /**
+-     * {
+-     *   "matchId": 123456,
+-     *   "templateId": 9958,
+-     *   "matchType": 0,
+-     *   "sportId": 1,
+-     *   "a99Configs": [
+-     *     {
+-     *       "10001": [
+-     *         {"name": "AO", "status": 1, "value": 70},
+-     *         {"name": "LS-1XBet", "status": 0, "value": 0}
+-     *       ],
+-     *       "cautionValue": 3,
+-     *       "oddsChangeThreshold": 0.04,
+-     *       "waterLimitUpper": 50,
+-     *       "closeMarketReject": 0,
+-     *       "a99Switch": 1
+-     *     },
+-     *     {
+-     *       "10002": [
+-     *         {"name": "AO", "status": 1, "value": 80}
+-     *       ],
+-     *       "cautionValue": 5,
+-     *       "oddsChangeThreshold": 0.05,
+-     *       "waterLimitUpper": 60,
+-     *       "closeMarketReject": 0,
+-     *       "a99Switch": 1
+-     *     }
+-     *   ],
+-     *   "linkId": "linkId值",
+-     *   "updateTime": 1700000000000,
+-     *   "operatorId": 1001
+-     * }
+-     */
+-
+-    private String linkId;
+-
+-    private Long updateTime;
+-
+-    private Long operatorId;
+-
+-    private Long matchId;
+-
+-    private Long templateId;
+-
+-    private int matchType;
+-
+-    private Long sportId;
+-
+-    private String a99ConfigValue;
+-
+-}
+Index: panda-api/src/main/java/com/panda/merge/dto/odds/A99OddsStatusDTO.java
+===================================================================
+diff --git a/panda-api/src/main/java/com/panda/merge/dto/odds/A99OddsStatusDTO.java b/panda-api/src/main/java/com/panda/merge/dto/odds/A99OddsStatusDTO.java
+deleted file mode 100644
+--- a/panda-api/src/main/java/com/panda/merge/dto/odds/A99OddsStatusDTO.java	(revision 59c0d1367bc299bf2d01a84a8a59205f1b3971c1)
++++ /dev/null	(revision 59c0d1367bc299bf2d01a84a8a59205f1b3971c1)
+@@ -1,22 +0,0 @@
+-package com.panda.merge.dto.odds;
+-
+-import lombok.Data;
+-
+-import java.io.Serializable;
+-import java.util.List;
+-
+-@Data
+-public class A99OddsStatusDTO implements Serializable {
+-
+-
+-    public Long matchId;
+-
+-    /**
+-     * 状态 0-关，1-开
+-     */
+-    public Integer status;
+-
+-
+-    public List<Long> categoryIds;
+-
+-}
+Index: panda-api/src/main/java/com/panda/merge/dto/message/StandardMatchA99MarketMessage.java
+===================================================================
+diff --git a/panda-api/src/main/java/com/panda/merge/dto/message/StandardMatchA99MarketMessage.java b/panda-api/src/main/java/com/panda/merge/dto/message/StandardMatchA99MarketMessage.java
+deleted file mode 100644
+--- a/panda-api/src/main/java/com/panda/merge/dto/message/StandardMatchA99MarketMessage.java	(revision 59c0d1367bc299bf2d01a84a8a59205f1b3971c1)
++++ /dev/null	(revision 59c0d1367bc299bf2d01a84a8a59205f1b3971c1)
+@@ -1,15 +0,0 @@
+-package com.panda.merge.dto.message;
+-
+-import lombok.Data;
+-
+-import java.io.Serializable;
+-import java.util.List;
+-
+-@Data
+-public class StandardMatchA99MarketMessage implements Serializable {
+-
+-    private List<String> requestType;
+-
+-    private Long standardMatchId;
+-
+-}

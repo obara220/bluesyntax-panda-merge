@@ -1,0 +1,513 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.mapper.StandardSportTeamMapper">
+  <resultMap id="BaseResultMap" type="com.panda.merge.model.StandardSportTeam">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="sport_id" jdbcType="BIGINT" property="sportId" />
+    <result column="third_team_id" jdbcType="BIGINT" property="thirdTeamId" />
+    <result column="region_id" jdbcType="BIGINT" property="regionId" />
+    <result column="country_id" jdbcType="BIGINT" property="countryId" />
+    <result column="related_data_source_coder_num" jdbcType="INTEGER" property="relatedDataSourceCoderNum" />
+    <result column="related_data_source_coder_list" jdbcType="VARCHAR" property="relatedDataSourceCoderList" />
+    <result column="logo_url" jdbcType="VARCHAR" property="logoUrl" />
+    <result column="logo_url2" jdbcType="VARCHAR" property="logoUrl2" />
+    <result column="logo_url_thumb" jdbcType="VARCHAR" property="logoUrlThumb" />
+    <result column="logo_url_thumb2" jdbcType="VARCHAR" property="logoUrlThumb2" />
+    <result column="team_manage_id" jdbcType="VARCHAR" property="teamManageId" />
+    <result column="name_code" jdbcType="BIGINT" property="nameCode" />
+    <result column="type" jdbcType="INTEGER" property="type" />
+    <result column="coach" jdbcType="VARCHAR" property="coach" />
+    <result column="statium" jdbcType="VARCHAR" property="statium" />
+    <result column="introduction" jdbcType="VARCHAR" property="introduction" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+    <result column="bet_radar_id" jdbcType="INTEGER" property="betRadarId" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="modify_time" jdbcType="BIGINT" property="modifyTime" />
+    <result column="name_spell" jdbcType="VARCHAR" property="nameSpell" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="data_source_code" jdbcType="VARCHAR" property="dataSourceCode" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, sport_id, third_team_id, region_id, country_id, related_data_source_coder_num, 
+    related_data_source_coder_list, logo_url, logo_url2, logo_url_thumb, logo_url_thumb2, 
+    team_manage_id, name_code, type, coach, statium, introduction, remark, bet_radar_id, 
+    create_time, modify_time, name_spell, name, data_source_code
+  </sql>
+  <select id="selectByExample" parameterType="com.panda.merge.model.StandardSportTeamExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from standard_sport_team
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from standard_sport_team
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from standard_sport_team
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.panda.merge.model.StandardSportTeamExample">
+    delete from standard_sport_team
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.panda.merge.model.StandardSportTeam">
+    insert into standard_sport_team (id, sport_id, third_team_id, 
+      region_id, country_id, related_data_source_coder_num, 
+      related_data_source_coder_list, logo_url, logo_url2, 
+      logo_url_thumb, logo_url_thumb2, team_manage_id, 
+      name_code, type, coach, 
+      statium, introduction, remark, 
+      bet_radar_id, create_time, modify_time, 
+      name_spell, name, data_source_code
+      )
+    values (#{id,jdbcType=BIGINT}, #{sportId,jdbcType=BIGINT}, #{thirdTeamId,jdbcType=BIGINT}, 
+      #{regionId,jdbcType=BIGINT}, #{countryId,jdbcType=BIGINT}, #{relatedDataSourceCoderNum,jdbcType=INTEGER}, 
+      #{relatedDataSourceCoderList,jdbcType=VARCHAR}, #{logoUrl,jdbcType=VARCHAR}, #{logoUrl2,jdbcType=VARCHAR}, 
+      #{logoUrlThumb,jdbcType=VARCHAR}, #{logoUrlThumb2,jdbcType=VARCHAR}, #{teamManageId,jdbcType=VARCHAR}, 
+      #{nameCode,jdbcType=BIGINT}, #{type,jdbcType=INTEGER}, #{coach,jdbcType=VARCHAR}, 
+      #{statium,jdbcType=VARCHAR}, #{introduction,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, 
+      #{betRadarId,jdbcType=INTEGER}, #{createTime,jdbcType=BIGINT}, #{modifyTime,jdbcType=BIGINT}, 
+      #{nameSpell,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{dataSourceCode,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.panda.merge.model.StandardSportTeam">
+    insert into standard_sport_team
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="sportId != null">
+        sport_id,
+      </if>
+      <if test="thirdTeamId != null">
+        third_team_id,
+      </if>
+      <if test="regionId != null">
+        region_id,
+      </if>
+      <if test="countryId != null">
+        country_id,
+      </if>
+      <if test="relatedDataSourceCoderNum != null">
+        related_data_source_coder_num,
+      </if>
+      <if test="relatedDataSourceCoderList != null">
+        related_data_source_coder_list,
+      </if>
+      <if test="logoUrl != null">
+        logo_url,
+      </if>
+      <if test="logoUrl2 != null">
+        logo_url2,
+      </if>
+      <if test="logoUrlThumb != null">
+        logo_url_thumb,
+      </if>
+      <if test="logoUrlThumb2 != null">
+        logo_url_thumb2,
+      </if>
+      <if test="teamManageId != null">
+        team_manage_id,
+      </if>
+      <if test="nameCode != null">
+        name_code,
+      </if>
+      <if test="type != null">
+        type,
+      </if>
+      <if test="coach != null">
+        coach,
+      </if>
+      <if test="statium != null">
+        statium,
+      </if>
+      <if test="introduction != null">
+        introduction,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+      <if test="betRadarId != null">
+        bet_radar_id,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="modifyTime != null">
+        modify_time,
+      </if>
+      <if test="nameSpell != null">
+        name_spell,
+      </if>
+      <if test="name != null">
+        name,
+      </if>
+      <if test="dataSourceCode != null">
+        data_source_code,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="sportId != null">
+        #{sportId,jdbcType=BIGINT},
+      </if>
+      <if test="thirdTeamId != null">
+        #{thirdTeamId,jdbcType=BIGINT},
+      </if>
+      <if test="regionId != null">
+        #{regionId,jdbcType=BIGINT},
+      </if>
+      <if test="countryId != null">
+        #{countryId,jdbcType=BIGINT},
+      </if>
+      <if test="relatedDataSourceCoderNum != null">
+        #{relatedDataSourceCoderNum,jdbcType=INTEGER},
+      </if>
+      <if test="relatedDataSourceCoderList != null">
+        #{relatedDataSourceCoderList,jdbcType=VARCHAR},
+      </if>
+      <if test="logoUrl != null">
+        #{logoUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="logoUrl2 != null">
+        #{logoUrl2,jdbcType=VARCHAR},
+      </if>
+      <if test="logoUrlThumb != null">
+        #{logoUrlThumb,jdbcType=VARCHAR},
+      </if>
+      <if test="logoUrlThumb2 != null">
+        #{logoUrlThumb2,jdbcType=VARCHAR},
+      </if>
+      <if test="teamManageId != null">
+        #{teamManageId,jdbcType=VARCHAR},
+      </if>
+      <if test="nameCode != null">
+        #{nameCode,jdbcType=BIGINT},
+      </if>
+      <if test="type != null">
+        #{type,jdbcType=INTEGER},
+      </if>
+      <if test="coach != null">
+        #{coach,jdbcType=VARCHAR},
+      </if>
+      <if test="statium != null">
+        #{statium,jdbcType=VARCHAR},
+      </if>
+      <if test="introduction != null">
+        #{introduction,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="betRadarId != null">
+        #{betRadarId,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null">
+        #{modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="nameSpell != null">
+        #{nameSpell,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="dataSourceCode != null">
+        #{dataSourceCode,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.panda.merge.model.StandardSportTeamExample" resultType="java.lang.Long">
+    select count(*) from standard_sport_team
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update standard_sport_team
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.sportId != null">
+        sport_id = #{record.sportId,jdbcType=BIGINT},
+      </if>
+      <if test="record.thirdTeamId != null">
+        third_team_id = #{record.thirdTeamId,jdbcType=BIGINT},
+      </if>
+      <if test="record.regionId != null">
+        region_id = #{record.regionId,jdbcType=BIGINT},
+      </if>
+      <if test="record.countryId != null">
+        country_id = #{record.countryId,jdbcType=BIGINT},
+      </if>
+      <if test="record.relatedDataSourceCoderNum != null">
+        related_data_source_coder_num = #{record.relatedDataSourceCoderNum,jdbcType=INTEGER},
+      </if>
+      <if test="record.relatedDataSourceCoderList != null">
+        related_data_source_coder_list = #{record.relatedDataSourceCoderList,jdbcType=VARCHAR},
+      </if>
+      <if test="record.logoUrl != null">
+        logo_url = #{record.logoUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.logoUrl2 != null">
+        logo_url2 = #{record.logoUrl2,jdbcType=VARCHAR},
+      </if>
+      <if test="record.logoUrlThumb != null">
+        logo_url_thumb = #{record.logoUrlThumb,jdbcType=VARCHAR},
+      </if>
+      <if test="record.logoUrlThumb2 != null">
+        logo_url_thumb2 = #{record.logoUrlThumb2,jdbcType=VARCHAR},
+      </if>
+      <if test="record.teamManageId != null">
+        team_manage_id = #{record.teamManageId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.nameCode != null">
+        name_code = #{record.nameCode,jdbcType=BIGINT},
+      </if>
+      <if test="record.type != null">
+        type = #{record.type,jdbcType=INTEGER},
+      </if>
+      <if test="record.coach != null">
+        coach = #{record.coach,jdbcType=VARCHAR},
+      </if>
+      <if test="record.statium != null">
+        statium = #{record.statium,jdbcType=VARCHAR},
+      </if>
+      <if test="record.introduction != null">
+        introduction = #{record.introduction,jdbcType=VARCHAR},
+      </if>
+      <if test="record.remark != null">
+        remark = #{record.remark,jdbcType=VARCHAR},
+      </if>
+      <if test="record.betRadarId != null">
+        bet_radar_id = #{record.betRadarId,jdbcType=INTEGER},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.modifyTime != null">
+        modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.nameSpell != null">
+        name_spell = #{record.nameSpell,jdbcType=VARCHAR},
+      </if>
+      <if test="record.name != null">
+        name = #{record.name,jdbcType=VARCHAR},
+      </if>
+      <if test="record.dataSourceCode != null">
+        data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update standard_sport_team
+    set id = #{record.id,jdbcType=BIGINT},
+      sport_id = #{record.sportId,jdbcType=BIGINT},
+      third_team_id = #{record.thirdTeamId,jdbcType=BIGINT},
+      region_id = #{record.regionId,jdbcType=BIGINT},
+      country_id = #{record.countryId,jdbcType=BIGINT},
+      related_data_source_coder_num = #{record.relatedDataSourceCoderNum,jdbcType=INTEGER},
+      related_data_source_coder_list = #{record.relatedDataSourceCoderList,jdbcType=VARCHAR},
+      logo_url = #{record.logoUrl,jdbcType=VARCHAR},
+      logo_url2 = #{record.logoUrl2,jdbcType=VARCHAR},
+      logo_url_thumb = #{record.logoUrlThumb,jdbcType=VARCHAR},
+      logo_url_thumb2 = #{record.logoUrlThumb2,jdbcType=VARCHAR},
+      team_manage_id = #{record.teamManageId,jdbcType=VARCHAR},
+      name_code = #{record.nameCode,jdbcType=BIGINT},
+      type = #{record.type,jdbcType=INTEGER},
+      coach = #{record.coach,jdbcType=VARCHAR},
+      statium = #{record.statium,jdbcType=VARCHAR},
+      introduction = #{record.introduction,jdbcType=VARCHAR},
+      remark = #{record.remark,jdbcType=VARCHAR},
+      bet_radar_id = #{record.betRadarId,jdbcType=INTEGER},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      name_spell = #{record.nameSpell,jdbcType=VARCHAR},
+      name = #{record.name,jdbcType=VARCHAR},
+      data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.panda.merge.model.StandardSportTeam">
+    update standard_sport_team
+    <set>
+      <if test="sportId != null">
+        sport_id = #{sportId,jdbcType=BIGINT},
+      </if>
+      <if test="thirdTeamId != null">
+        third_team_id = #{thirdTeamId,jdbcType=BIGINT},
+      </if>
+      <if test="regionId != null">
+        region_id = #{regionId,jdbcType=BIGINT},
+      </if>
+      <if test="countryId != null">
+        country_id = #{countryId,jdbcType=BIGINT},
+      </if>
+      <if test="relatedDataSourceCoderNum != null">
+        related_data_source_coder_num = #{relatedDataSourceCoderNum,jdbcType=INTEGER},
+      </if>
+      <if test="relatedDataSourceCoderList != null">
+        related_data_source_coder_list = #{relatedDataSourceCoderList,jdbcType=VARCHAR},
+      </if>
+      <if test="logoUrl != null">
+        logo_url = #{logoUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="logoUrl2 != null">
+        logo_url2 = #{logoUrl2,jdbcType=VARCHAR},
+      </if>
+      <if test="logoUrlThumb != null">
+        logo_url_thumb = #{logoUrlThumb,jdbcType=VARCHAR},
+      </if>
+      <if test="logoUrlThumb2 != null">
+        logo_url_thumb2 = #{logoUrlThumb2,jdbcType=VARCHAR},
+      </if>
+      <if test="teamManageId != null">
+        team_manage_id = #{teamManageId,jdbcType=VARCHAR},
+      </if>
+      <if test="nameCode != null">
+        name_code = #{nameCode,jdbcType=BIGINT},
+      </if>
+      <if test="type != null">
+        type = #{type,jdbcType=INTEGER},
+      </if>
+      <if test="coach != null">
+        coach = #{coach,jdbcType=VARCHAR},
+      </if>
+      <if test="statium != null">
+        statium = #{statium,jdbcType=VARCHAR},
+      </if>
+      <if test="introduction != null">
+        introduction = #{introduction,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="betRadarId != null">
+        bet_radar_id = #{betRadarId,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null">
+        modify_time = #{modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="nameSpell != null">
+        name_spell = #{nameSpell,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="dataSourceCode != null">
+        data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.panda.merge.model.StandardSportTeam">
+    update standard_sport_team
+    set sport_id = #{sportId,jdbcType=BIGINT},
+      third_team_id = #{thirdTeamId,jdbcType=BIGINT},
+      region_id = #{regionId,jdbcType=BIGINT},
+      country_id = #{countryId,jdbcType=BIGINT},
+      related_data_source_coder_num = #{relatedDataSourceCoderNum,jdbcType=INTEGER},
+      related_data_source_coder_list = #{relatedDataSourceCoderList,jdbcType=VARCHAR},
+      logo_url = #{logoUrl,jdbcType=VARCHAR},
+      logo_url2 = #{logoUrl2,jdbcType=VARCHAR},
+      logo_url_thumb = #{logoUrlThumb,jdbcType=VARCHAR},
+      logo_url_thumb2 = #{logoUrlThumb2,jdbcType=VARCHAR},
+      team_manage_id = #{teamManageId,jdbcType=VARCHAR},
+      name_code = #{nameCode,jdbcType=BIGINT},
+      type = #{type,jdbcType=INTEGER},
+      coach = #{coach,jdbcType=VARCHAR},
+      statium = #{statium,jdbcType=VARCHAR},
+      introduction = #{introduction,jdbcType=VARCHAR},
+      remark = #{remark,jdbcType=VARCHAR},
+      bet_radar_id = #{betRadarId,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=BIGINT},
+      modify_time = #{modifyTime,jdbcType=BIGINT},
+      name_spell = #{nameSpell,jdbcType=VARCHAR},
+      name = #{name,jdbcType=VARCHAR},
+      data_source_code = #{dataSourceCode,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

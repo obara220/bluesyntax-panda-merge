@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.mapper.MatchScoresSearchMapper">
+
+  <resultMap id="BaseResultMap" type="com.panda.merge.dto.scores.MatchScoresBetterDto">
+    <result column="match_id" jdbcType="BIGINT" property="matchId" />
+    <result column="match_status" jdbcType="VARCHAR" property="matchStatus" />
+    <result column="data_source_code" jdbcType="VARCHAR" property="dataSourceCode" />
+    <result column="period" jdbcType="BIGINT" property="periodNow" />
+    <result column="remaining_time" jdbcType="BIGINT" property="remainingTime" />
+    <result column="second_from_start" jdbcType="BIGINT" property="secondsMatchStart" />
+    <result column="is_time_go" jdbcType="INTEGER" property="isTimeGo" />
+    <result column="match_length" jdbcType="INTEGER" property="matchLength" />
+    <result column="event_time" jdbcType="BIGINT" property="eventTime" />
+    <result column="third_match_id" jdbcType="BIGINT" property="thirdMatchId" />
+
+    <result column="current_set" jdbcType="INTEGER" property="currentSet" />
+    <result column="current_round" jdbcType="INTEGER" property="currentRound" />
+
+    <result column="scores_json" jdbcType="VARCHAR" property="scoresJson" />
+    <result column="scores_json_type" jdbcType="VARCHAR" property="scoresJsonType" />
+    <result column="scores_json_extra" jdbcType="VARCHAR" property="scoresJsonExtra" />
+    <result column="t1" jdbcType="INTEGER" property="t1" />
+    <result column="t2" jdbcType="INTEGER" property="t2" />
+    <result column="sport_id" jdbcType="INTEGER" property="sportId" />
+    <result column="period_t1" jdbcType="INTEGER" property="periodT1" />
+    <result column="period_t2" jdbcType="INTEGER" property="periodT2" />
+    <result column="data_source_type" jdbcType="VARCHAR" property="dataSourceType" />
+    <result column="home_away_opposite" jdbcType="INTEGER" property="homeAwayOpposite" />
+  </resultMap>
+
+  <resultMap id="MatchStatusMap" type="com.panda.merge.dto.scores.MatchScoresStatusDto">
+    <result column="match_id" jdbcType="BIGINT" property="matchId" />
+    <result column="match_status" jdbcType="INTEGER" property="matchStatus" />
+  </resultMap>
+
+  <select id="searchScoresByStandardId" resultMap="BaseResultMap" >
+    SELECT
+      th.reference_id match_id,
+      th.home_away_opposite,
+      m.sport_id,
+      m.data_source_code,
+      m.scores_json,
+      m.scores_json_extra,
+      m.t1,
+      m.t2,
+      m.period_t1,
+      m.period_t2,
+      m.data_source_type,
+      m.period period,
+      ti.time_go is_time_go,
+      ti.second_from_start,
+      m.match_length,
+      ti.event_time,
+      ti.remaining_time,
+      ti.current_set,
+      ti.current_round,
+      th.match_status
+    FROM
+      match_scores_info m
+    LEFT JOIN match_time_info ti ON m.third_match_id = ti.third_match_id
+      AND m.data_source_type = ti.data_source_type
+    LEFT JOIN third_match_info th ON th.id = m.third_match_id
+    INNER JOIN match_scores_source_type ma ON ma.id = th.id
+      AND ma.source_type = m.data_source_type
+    WHERE
+      m.third_match_id IN (
+        SELECT
+          t.id
+        FROM
+          standard_sport_market_sell s
+        LEFT JOIN third_match_info t ON s.match_info_id = t.reference_id
+          AND t.data_source_code = s.business_event
+        WHERE
+          t.reference_id IN
+          <foreach collection="standardIds" index="index" item="item" open="(" separator="," close=")">
+          #{item}
+          </foreach>
+      )
+  </select>
+
+  <select id="searchScoresByStandardIdAndPd" resultMap="BaseResultMap" >
+    SELECT
+    th.reference_id match_id,
+    th.home_away_opposite,
+    m.sport_id,
+    m.data_source_code,
+    m.scores_json,
+    m.t1,
+    m.t2,
+    m.period_t1,
+    m.period_t2,
+    m.data_source_type,
+    m.period period,
+    ti.time_go is_time_go,
+    ti.second_from_start,
+    m.match_length,
+    ti.event_time,
+    ti.remaining_time,
+    ti.current_set,
+    ti.current_round,
+    th.match_status
+    FROM
+    match_scores_info m
+    LEFT JOIN match_time_info ti ON m.third_match_id = ti.third_match_id
+    AND m.data_source_type = ti.data_source_type
+    LEFT JOIN third_match_info th ON th.id = m.third_match_id
+    INNER JOIN match_scores_source_type ma ON ma.id = th.id
+    AND ma.source_type = m.data_source_type
+    WHERE
+    m.third_match_id IN (
+    SELECT
+    t.id
+    FROM
+    standard_sport_market_sell s
+    LEFT JOIN third_match_info t ON s.match_info_id = t.reference_id
+    AND IF(s.reporter is null and s.reporter2 is null, t.data_source_code = s.business_event, t.data_source_code="PD")
+    WHERE
+    t.reference_id IN
+    <foreach collection="standardIds" index="index" item="item" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+    )
+  </select>
+
+  <select id="selectScoresByStandardId" resultMap="BaseResultMap" >
+    SELECT
+    th.reference_id match_id,
+    th.home_away_opposite,
+    m.sport_id,
+    m.data_source_code,
+    m.scores_json,
+    m.t1,
+    m.t2,
+    m.period_t1,
+    m.period_t2,
+    m.data_source_type,
+    m.period period,
+    ti.time_go is_time_go,
+    ti.second_from_start,
+    m.match_length,
+    ti.event_time,
+    ti.remaining_time,
+    ti.current_set,
+    ti.current_round,
+    th.match_status
+    FROM
+    match_scores_info m
+    LEFT JOIN match_time_info ti ON m.third_match_id = ti.third_match_id
+    AND m.data_source_type = ti.data_source_type
+    LEFT JOIN third_match_info th ON th.id = m.third_match_id
+    INNER JOIN match_scores_source_type ma ON ma.id = th.id
+    AND ma.source_type = m.data_source_type
+    WHERE
+    m.third_match_id IN (
+    SELECT
+    t.id
+    FROM
+    standard_sport_market_sell s
+    LEFT JOIN third_match_info t ON s.match_info_id = t.reference_id
+    AND t.data_source_code = "PD2"
+    WHERE
+    t.reference_id=#{matchId,jdbcType=BIGINT}
+    )
+  </select>
+
+  <select id="selectScoresByMatchIdPDList" resultMap="BaseResultMap">
+    SELECT
+    th.reference_id match_id,
+    th.home_away_opposite,
+    m.sport_id,
+    m.data_source_code,
+    m.scores_json,
+    m.t1,
+    m.t2,
+    m.period_t1,
+    m.period_t2,
+    m.data_source_type,
+    m.period period,
+    ti.time_go is_time_go,
+    ti.second_from_start,
+    m.match_length,
+    ti.event_time,
+    m.third_match_id,
+    ti.remaining_time,
+    ti.current_set,
+    ti.current_round,
+    th.match_status
+    FROM
+    match_scores_info m
+    LEFT JOIN match_time_info ti ON m.third_match_id = ti.third_match_id
+    AND m.data_source_type = ti.data_source_type
+    LEFT JOIN third_match_info th ON th.id = m.third_match_id
+    INNER JOIN match_scores_source_type ma ON ma.id = th.id
+    AND ma.source_type = m.data_source_type
+    WHERE
+    m.third_match_id IN (
+    SELECT
+    t.id
+    FROM
+    standard_sport_market_sell s
+    LEFT JOIN third_match_info t ON s.match_info_id = t.reference_id
+    AND t.data_source_code = "PD"
+    WHERE
+    t.reference_id IN
+    <foreach collection="matchIdList" index="index" item="item" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+    )
+  </select>
+
+  <select id="selectScoresByMatchIdPD2List" resultMap="BaseResultMap">
+    SELECT
+      th.reference_id match_id,
+      th.home_away_opposite,
+      m.sport_id,
+      m.data_source_code,
+      m.scores_json,
+      m.t1,
+      m.t2,
+      m.period_t1,
+      m.period_t2,
+      m.data_source_type,
+      m.period period,
+      ti.time_go is_time_go,
+      ti.second_from_start,
+      m.match_length,
+      ti.event_time,
+      m.third_match_id,
+      ti.remaining_time,
+      ti.current_set,
+      ti.current_round,
+      th.match_status
+    FROM
+      match_scores_info m
+        LEFT JOIN match_time_info ti ON m.third_match_id = ti.third_match_id
+        AND m.data_source_type = ti.data_source_type
+        LEFT JOIN third_match_info th ON th.id = m.third_match_id
+        INNER JOIN match_scores_source_type ma ON ma.id = th.id
+        AND ma.source_type = m.data_source_type
+    WHERE
+        m.third_match_id IN (
+        SELECT
+          t.id
+        FROM
+          standard_sport_market_sell s
+            LEFT JOIN third_match_info t ON s.match_info_id = t.reference_id
+            AND t.data_source_code = "PD2"
+        WHERE
+          t.reference_id IN
+          <foreach collection="matchIdList" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+          </foreach>
+      )
+  </select>
+
+<!--  <select id="searchMatchStatusByStandardId" resultMap="MatchStatusMap" >-->
+<!--    SELECT th.reference_id match_id,th.match_status-->
+<!--    from third_match_info th inner JOIN standard_sport_market_sell s on s.match_info_id=th.reference_id  and th.data_source_code =s.match_status_source_code-->
+<!--    where th.reference_id in-->
+<!--    <foreach collection="standardIds" index="index" item="item" open="(" separator="," close=")">-->
+<!--      #{item}-->
+<!--    </foreach>-->
+
+<!--  </select>-->
+  <select id="searchMatchStatusByStandardId" resultMap="MatchStatusMap" >
+    SELECT
+        th.id match_id,th.match_status
+    from
+        standard_match_info th
+    where
+        th.id in
+    <foreach collection="standardIds" index="index" item="item" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+
+  </select>
+  <!--  <select id="searchMatchStatusByStandardId" resultMap="MatchStatusMap" >-->
+  <!--    SELECT th.id match_id,th.match_status-->
+  <!--    from standard_match_info th-->
+  <!--    where th.id in-->
+  <!--    <foreach collection="standardIds" index="index" item="item" open="(" separator="," close=")">-->
+  <!--      #{item}-->
+  <!--    </foreach>-->
+
+  <!--  </select>-->
+
+  <select id="searchMatchStatusByThirdId" resultMap="MatchStatusMap" >
+    SELECT th.id match_id,th.match_status
+    from third_match_info th LEFT JOIN standard_sport_market_sell s on s.match_info_id=th.reference_id and th.data_source_code =s.match_status_source_code
+    where th.id in
+    <foreach collection="thirdIds" index="index" item="item" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+
+  </select>
+
+  <select id="searchScoresByThirdId" resultMap="BaseResultMap" >
+    SELECT m.third_match_id match_id,m.sport_id,m.data_source_code,m.scores_json,m.scores_json_extra,m.t1,m.t2,m.period_t1,m.period_t2,m.data_source_type,
+    m.period  period,ti.time_go is_time_go,ti.second_from_start,m.match_length,ti.event_time,m.third_match_id,ti.remaining_time,th.match_status
+    from match_scores_info m LEFT JOIN match_time_info ti on m.third_match_id = ti.third_match_id and m.data_source_type=ti.data_source_type LEFT JOIN third_match_info th on th.id =m.third_match_id
+    inner JOIN match_scores_source_type ma on ma.id=m.third_match_id and ma.source_type=m.data_source_type
+    where m.third_match_id in
+    <foreach collection="thirdIds" index="index" item="item" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+  </select>
+
+  <select id="searchThirdScoresByStandardId" resultMap="BaseResultMap" >
+    SELECT st.id match_id,th.home_away_opposite,m.sport_id,m.data_source_code,m.scores_json,m.scores_json_extra,m.t1,m.t2,m.period_t1,m.period_t2,ti.data_source_type,
+    m.period period,ti.time_go is_time_go,ti.second_from_start,m.match_length,ti.event_time,ti.remaining_time,st.match_status
+    from match_scores_info m LEFT JOIN    match_time_info ti on m.third_match_id = ti.third_match_id and m.data_source_type=ti.data_source_type LEFT JOIN third_match_info th on th.id =m.third_match_id LEFT  JOIN standard_match_info st on st.third_match_id =m.third_match_id inner JOIN match_scores_source_type ma on ma.id=m.third_match_id and ma.source_type=m.data_source_type
+    where st.id in
+    <foreach collection="standardIds" index="index" item="item" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+  </select>
+
+</mapper>

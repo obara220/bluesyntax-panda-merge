@@ -1,0 +1,143 @@
+package com.panda.merge.utils;
+
+import com.panda.merge.model.MatchSettleEvent;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class FootballPenaltySettleEventUtils {
+    public static List<MatchSettleEvent> createInitMatchSettleEvent(Long standardMatchId){
+        List<MatchSettleEvent> list=new ArrayList<>();
+        //新增 点球大战 主客队谁先踢球
+        MatchSettleEvent matchSettleScore0 =initPenaltySettleEvent(standardMatchId);
+        matchSettleScore0.setEventCode("goal");
+        matchSettleScore0.setSettleNum("-1030");
+        matchSettleScore0.setPeriodId(50l);
+        matchSettleScore0.setFirstNum(0);
+        matchSettleScore0.setEventOrder(0);
+        matchSettleScore0.setHomeAway("none");
+        list.add(matchSettleScore0);
+
+        MatchSettleEvent matchSettleScore1 =initPenaltySettleEvent(standardMatchId);
+        matchSettleScore1.setEventCode("goal");
+        matchSettleScore1.setSettleNum("1030");
+        matchSettleScore1.setPeriodId(50l);
+        matchSettleScore1.setFirstNum(1);
+        matchSettleScore1.setEventOrder(2);
+        matchSettleScore1.setHomeAway("home");
+        list.add(matchSettleScore1);
+        MatchSettleEvent matchSettleScore2 =initPenaltySettleEvent(standardMatchId);
+        matchSettleScore2.setEventCode("goal");
+        matchSettleScore2.setSettleNum("1030");
+        matchSettleScore2.setPeriodId(50l);
+        matchSettleScore2.setFirstNum(1);
+        matchSettleScore2.setEventOrder(2);
+        matchSettleScore2.setHomeAway("away");
+        list.add(matchSettleScore2);
+        MatchSettleEvent matchSettleScore3 =initPenaltySettleEvent(standardMatchId);
+        matchSettleScore3.setEventCode("goal");
+        matchSettleScore3.setSettleNum("1030");
+        matchSettleScore3.setPeriodId(50l);
+        matchSettleScore3.setFirstNum(2);
+        matchSettleScore3.setHomeAway("home");
+        matchSettleScore3.setEventOrder(3);
+        list.add(matchSettleScore3);
+        MatchSettleEvent matchSettleScore4 =initPenaltySettleEvent(standardMatchId);
+        matchSettleScore4.setEventCode("goal");
+        matchSettleScore4.setSettleNum("1030");
+        matchSettleScore4.setPeriodId(50l);
+        matchSettleScore4.setFirstNum(2);
+        matchSettleScore4.setHomeAway("away");
+        matchSettleScore4.setEventOrder(4);
+        list.add(matchSettleScore4);
+        MatchSettleEvent matchSettleScore5 =initPenaltySettleEvent(standardMatchId);
+        matchSettleScore5.setEventCode("goal");
+        matchSettleScore5.setSettleNum("1030");
+        matchSettleScore5.setPeriodId(50l);
+        matchSettleScore5.setFirstNum(3);
+        matchSettleScore5.setHomeAway("home");
+        matchSettleScore5.setEventOrder(5);
+        list.add(matchSettleScore5);
+        MatchSettleEvent matchSettleScore6 =initPenaltySettleEvent(standardMatchId);
+        matchSettleScore6.setEventCode("goal");
+        matchSettleScore6.setSettleNum("1030");
+        matchSettleScore6.setPeriodId(50l);
+        matchSettleScore6.setFirstNum(3);
+        matchSettleScore6.setEventOrder(6);
+        matchSettleScore6.setHomeAway("away");
+        list.add(matchSettleScore6);
+        MatchSettleEvent matchSettleScore7 =initPenaltySettleEvent(standardMatchId);
+        matchSettleScore7.setEventCode("goal");
+        matchSettleScore7.setSettleNum("1030");
+        matchSettleScore7.setPeriodId(50l);
+        matchSettleScore7.setFirstNum(4);
+        matchSettleScore7.setHomeAway("home");
+        matchSettleScore7.setEventOrder(7);
+        list.add(matchSettleScore7);
+        MatchSettleEvent matchSettleScore8 =initPenaltySettleEvent(standardMatchId);
+        matchSettleScore8.setEventCode("goal");
+        matchSettleScore8.setSettleNum("1030");
+        matchSettleScore8.setPeriodId(50l);
+        matchSettleScore8.setFirstNum(4);
+        matchSettleScore8.setHomeAway("away");
+        matchSettleScore8.setEventOrder(8);
+        list.add(matchSettleScore8);
+        MatchSettleEvent matchSettleScore9 =initPenaltySettleEvent(standardMatchId);
+        matchSettleScore9.setEventCode("goal");
+        matchSettleScore9.setSettleNum("1030");
+        matchSettleScore9.setPeriodId(50l);
+        matchSettleScore9.setFirstNum(5);
+        matchSettleScore9.setHomeAway("home");
+        matchSettleScore9.setEventOrder(9);
+        list.add(matchSettleScore9);
+        MatchSettleEvent matchSettleScore10 =initPenaltySettleEvent(standardMatchId);
+        matchSettleScore10.setEventCode("goal");
+        matchSettleScore10.setSettleNum("1030");
+        matchSettleScore10.setPeriodId(50l);
+        matchSettleScore10.setFirstNum(5);
+        matchSettleScore10.setHomeAway("away");
+        matchSettleScore10.setEventOrder(10);
+        list.add(matchSettleScore10);
+        MatchSettleEvent matchSettleScore11 =initPenaltySettleEvent(standardMatchId);
+        matchSettleScore11.setEventCode("goal");
+        matchSettleScore11.setSettleNum("1029");
+        matchSettleScore11.setPeriodId(50l);
+        matchSettleScore11.setFirstNum(5);
+        list.add(matchSettleScore11);
+        MatchSettleEvent matchSettleScore12 =initPenaltySettleEvent(standardMatchId);
+        matchSettleScore12.setEventCode("goal");
+        matchSettleScore12.setSettleNum("1028");
+        matchSettleScore12.setPeriodId(120l);
+        list.add(matchSettleScore12);
+        //新增走水 1054
+        MatchSettleEvent matchSettleScore13 =initPenaltySettleEvent(standardMatchId);
+        matchSettleScore13.setEventCode("goal");
+        matchSettleScore13.setSettleNum("1054");
+        matchSettleScore13.setPeriodId(120l);
+        matchSettleScore13.setEventName("点球大战走水");
+        list.add(matchSettleScore13);
+        return  list;
+    }
+
+    public static MatchSettleEvent initPenaltySettleEvent(Long standardMatchId){
+        MatchSettleEvent matchSettleScore =new MatchSettleEvent();
+        matchSettleScore.setModifyTime(System.currentTimeMillis());
+        matchSettleScore.setCreateTime(System.currentTimeMillis());
+        matchSettleScore.setStatus(0);
+        matchSettleScore.setId(IdGenerator.nextId());
+        matchSettleScore.setDataSourceCode("PA");
+        matchSettleScore.setT1(null);
+        matchSettleScore.setSecondT1(0);
+        matchSettleScore.setT2(null);
+        matchSettleScore.setSecondT2(0);
+        matchSettleScore.setEventType(1);
+        matchSettleScore.setFirstT1(0);
+        matchSettleScore.setFirstT2(0);
+        matchSettleScore.setSettleTimes(0);
+        matchSettleScore.setSettleCount(0);
+        matchSettleScore.setStandardMatchId(standardMatchId);
+        matchSettleScore.setSportId(1l);
+        matchSettleScore.setCheckNumber(1);
+        return  matchSettleScore;
+    }
+}

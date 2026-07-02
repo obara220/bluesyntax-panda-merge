@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.mapper.ConfigurationMatchDataSourceMapper">
+  <resultMap id="BaseResultMap" type="com.panda.merge.model.ConfigurationMatchDataSource">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="standard_match_id" jdbcType="BIGINT" property="standardMatchId" />
+    <result column="market_type" jdbcType="TINYINT" property="marketType" />
+    <result column="sr_weight" jdbcType="TINYINT" property="srWeight" />
+    <result column="bc_weight" jdbcType="TINYINT" property="bcWeight" />
+    <result column="bg_weight" jdbcType="TINYINT" property="bgWeight" />
+    <result column="score_source" jdbcType="TINYINT" property="scoreSource" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="modify_time" jdbcType="BIGINT" property="modifyTime" />
+    <result column="tx_weight" jdbcType="TINYINT" property="txWeight" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, standard_match_id, market_type, sr_weight, bc_weight, bg_weight, score_source, 
+    create_time, modify_time, tx_weight
+  </sql>
+  <select id="selectByExample" parameterType="com.panda.merge.model.ConfigurationMatchDataSourceExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from configuration_match_data_source
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from configuration_match_data_source
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from configuration_match_data_source
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.panda.merge.model.ConfigurationMatchDataSourceExample">
+    delete from configuration_match_data_source
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.panda.merge.model.ConfigurationMatchDataSource">
+    insert into configuration_match_data_source (id, standard_match_id, market_type, 
+      sr_weight, bc_weight, bg_weight, 
+      score_source, create_time, modify_time, 
+      tx_weight)
+    values (#{id,jdbcType=BIGINT}, #{standardMatchId,jdbcType=BIGINT}, #{marketType,jdbcType=TINYINT}, 
+      #{srWeight,jdbcType=TINYINT}, #{bcWeight,jdbcType=TINYINT}, #{bgWeight,jdbcType=TINYINT}, 
+      #{scoreSource,jdbcType=TINYINT}, #{createTime,jdbcType=BIGINT}, #{modifyTime,jdbcType=BIGINT}, 
+      #{txWeight,jdbcType=TINYINT})
+  </insert>
+  <insert id="insertSelective" parameterType="com.panda.merge.model.ConfigurationMatchDataSource">
+    insert into configuration_match_data_source
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="standardMatchId != null">
+        standard_match_id,
+      </if>
+      <if test="marketType != null">
+        market_type,
+      </if>
+      <if test="srWeight != null">
+        sr_weight,
+      </if>
+      <if test="bcWeight != null">
+        bc_weight,
+      </if>
+      <if test="bgWeight != null">
+        bg_weight,
+      </if>
+      <if test="scoreSource != null">
+        score_source,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="modifyTime != null">
+        modify_time,
+      </if>
+      <if test="txWeight != null">
+        tx_weight,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="standardMatchId != null">
+        #{standardMatchId,jdbcType=BIGINT},
+      </if>
+      <if test="marketType != null">
+        #{marketType,jdbcType=TINYINT},
+      </if>
+      <if test="srWeight != null">
+        #{srWeight,jdbcType=TINYINT},
+      </if>
+      <if test="bcWeight != null">
+        #{bcWeight,jdbcType=TINYINT},
+      </if>
+      <if test="bgWeight != null">
+        #{bgWeight,jdbcType=TINYINT},
+      </if>
+      <if test="scoreSource != null">
+        #{scoreSource,jdbcType=TINYINT},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null">
+        #{modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="txWeight != null">
+        #{txWeight,jdbcType=TINYINT},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.panda.merge.model.ConfigurationMatchDataSourceExample" resultType="java.lang.Long">
+    select count(*) from configuration_match_data_source
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update configuration_match_data_source
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.standardMatchId != null">
+        standard_match_id = #{record.standardMatchId,jdbcType=BIGINT},
+      </if>
+      <if test="record.marketType != null">
+        market_type = #{record.marketType,jdbcType=TINYINT},
+      </if>
+      <if test="record.srWeight != null">
+        sr_weight = #{record.srWeight,jdbcType=TINYINT},
+      </if>
+      <if test="record.bcWeight != null">
+        bc_weight = #{record.bcWeight,jdbcType=TINYINT},
+      </if>
+      <if test="record.bgWeight != null">
+        bg_weight = #{record.bgWeight,jdbcType=TINYINT},
+      </if>
+      <if test="record.scoreSource != null">
+        score_source = #{record.scoreSource,jdbcType=TINYINT},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.modifyTime != null">
+        modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.txWeight != null">
+        tx_weight = #{record.txWeight,jdbcType=TINYINT},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update configuration_match_data_source
+    set id = #{record.id,jdbcType=BIGINT},
+      standard_match_id = #{record.standardMatchId,jdbcType=BIGINT},
+      market_type = #{record.marketType,jdbcType=TINYINT},
+      sr_weight = #{record.srWeight,jdbcType=TINYINT},
+      bc_weight = #{record.bcWeight,jdbcType=TINYINT},
+      bg_weight = #{record.bgWeight,jdbcType=TINYINT},
+      score_source = #{record.scoreSource,jdbcType=TINYINT},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      tx_weight = #{record.txWeight,jdbcType=TINYINT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.panda.merge.model.ConfigurationMatchDataSource">
+    update configuration_match_data_source
+    <set>
+      <if test="standardMatchId != null">
+        standard_match_id = #{standardMatchId,jdbcType=BIGINT},
+      </if>
+      <if test="marketType != null">
+        market_type = #{marketType,jdbcType=TINYINT},
+      </if>
+      <if test="srWeight != null">
+        sr_weight = #{srWeight,jdbcType=TINYINT},
+      </if>
+      <if test="bcWeight != null">
+        bc_weight = #{bcWeight,jdbcType=TINYINT},
+      </if>
+      <if test="bgWeight != null">
+        bg_weight = #{bgWeight,jdbcType=TINYINT},
+      </if>
+      <if test="scoreSource != null">
+        score_source = #{scoreSource,jdbcType=TINYINT},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null">
+        modify_time = #{modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="txWeight != null">
+        tx_weight = #{txWeight,jdbcType=TINYINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.panda.merge.model.ConfigurationMatchDataSource">
+    update configuration_match_data_source
+    set standard_match_id = #{standardMatchId,jdbcType=BIGINT},
+      market_type = #{marketType,jdbcType=TINYINT},
+      sr_weight = #{srWeight,jdbcType=TINYINT},
+      bc_weight = #{bcWeight,jdbcType=TINYINT},
+      bg_weight = #{bgWeight,jdbcType=TINYINT},
+      score_source = #{scoreSource,jdbcType=TINYINT},
+      create_time = #{createTime,jdbcType=BIGINT},
+      modify_time = #{modifyTime,jdbcType=BIGINT},
+      tx_weight = #{txWeight,jdbcType=TINYINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

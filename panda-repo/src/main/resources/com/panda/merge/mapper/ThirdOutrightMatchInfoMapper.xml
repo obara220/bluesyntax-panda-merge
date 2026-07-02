@@ -1,0 +1,421 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.mapper.ThirdOutrightMatchInfoMapper">
+  <resultMap id="BaseResultMap" type="com.panda.merge.model.ThirdOutrightMatchInfo">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="sport_id" jdbcType="BIGINT" property="sportId" />
+    <result column="region_id" jdbcType="BIGINT" property="regionId" />
+    <result column="tournament_id" jdbcType="BIGINT" property="tournamentId" />
+    <result column="third_match_name_en" jdbcType="VARCHAR" property="thirdMatchNameEn" />
+    <result column="third_match_name_cn" jdbcType="VARCHAR" property="thirdMatchNameCn" />
+    <result column="data_source_code" jdbcType="VARCHAR" property="dataSourceCode" />
+    <result column="third_outright_begin_time" jdbcType="BIGINT" property="thirdOutrightBeginTime" />
+    <result column="third_outright_end_time" jdbcType="BIGINT" property="thirdOutrightEndTime" />
+    <result column="third_outright_source_id" jdbcType="VARCHAR" property="thirdOutrightSourceId" />
+    <result column="standard_outright_manager_id" jdbcType="VARCHAR" property="standardOutrightManagerId" />
+    <result column="reference_id" jdbcType="BIGINT" property="referenceId" />
+    <result column="season_id" jdbcType="VARCHAR" property="seasonId" />
+    <result column="third_outright_year" jdbcType="VARCHAR" property="thirdOutrightYear" />
+    <result column="booked" jdbcType="INTEGER" property="booked" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+    <result column="modify_time" jdbcType="BIGINT" property="modifyTime" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, sport_id, region_id, tournament_id, third_match_name_en, third_match_name_cn, 
+    data_source_code, third_outright_begin_time, third_outright_end_time, third_outright_source_id, 
+    standard_outright_manager_id, reference_id, season_id, third_outright_year, booked, 
+    remark, modify_time, create_time
+  </sql>
+  <select id="selectByExample" parameterType="com.panda.merge.model.ThirdOutrightMatchInfoExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from third_outright_match_info
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from third_outright_match_info
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from third_outright_match_info
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.panda.merge.model.ThirdOutrightMatchInfoExample">
+    delete from third_outright_match_info
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.panda.merge.model.ThirdOutrightMatchInfo">
+    insert into third_outright_match_info (id, sport_id, region_id, 
+      tournament_id, third_match_name_en, third_match_name_cn, 
+      data_source_code, third_outright_begin_time, 
+      third_outright_end_time, third_outright_source_id, 
+      standard_outright_manager_id, reference_id, 
+      season_id, third_outright_year, booked, 
+      remark, modify_time, create_time
+      )
+    values (#{id,jdbcType=BIGINT}, #{sportId,jdbcType=BIGINT}, #{regionId,jdbcType=BIGINT}, 
+      #{tournamentId,jdbcType=BIGINT}, #{thirdMatchNameEn,jdbcType=VARCHAR}, #{thirdMatchNameCn,jdbcType=VARCHAR}, 
+      #{dataSourceCode,jdbcType=VARCHAR}, #{thirdOutrightBeginTime,jdbcType=BIGINT}, 
+      #{thirdOutrightEndTime,jdbcType=BIGINT}, #{thirdOutrightSourceId,jdbcType=VARCHAR}, 
+      #{standardOutrightManagerId,jdbcType=VARCHAR}, #{referenceId,jdbcType=BIGINT}, 
+      #{seasonId,jdbcType=VARCHAR}, #{thirdOutrightYear,jdbcType=VARCHAR}, #{booked,jdbcType=INTEGER}, 
+      #{remark,jdbcType=VARCHAR}, #{modifyTime,jdbcType=BIGINT}, #{createTime,jdbcType=BIGINT}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.panda.merge.model.ThirdOutrightMatchInfo">
+    insert into third_outright_match_info
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="sportId != null">
+        sport_id,
+      </if>
+      <if test="regionId != null">
+        region_id,
+      </if>
+      <if test="tournamentId != null">
+        tournament_id,
+      </if>
+      <if test="thirdMatchNameEn != null">
+        third_match_name_en,
+      </if>
+      <if test="thirdMatchNameCn != null">
+        third_match_name_cn,
+      </if>
+      <if test="dataSourceCode != null">
+        data_source_code,
+      </if>
+      <if test="thirdOutrightBeginTime != null">
+        third_outright_begin_time,
+      </if>
+      <if test="thirdOutrightEndTime != null">
+        third_outright_end_time,
+      </if>
+      <if test="thirdOutrightSourceId != null">
+        third_outright_source_id,
+      </if>
+      <if test="standardOutrightManagerId != null">
+        standard_outright_manager_id,
+      </if>
+      <if test="referenceId != null">
+        reference_id,
+      </if>
+      <if test="seasonId != null">
+        season_id,
+      </if>
+      <if test="thirdOutrightYear != null">
+        third_outright_year,
+      </if>
+      <if test="booked != null">
+        booked,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+      <if test="modifyTime != null">
+        modify_time,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="sportId != null">
+        #{sportId,jdbcType=BIGINT},
+      </if>
+      <if test="regionId != null">
+        #{regionId,jdbcType=BIGINT},
+      </if>
+      <if test="tournamentId != null">
+        #{tournamentId,jdbcType=BIGINT},
+      </if>
+      <if test="thirdMatchNameEn != null">
+        #{thirdMatchNameEn,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdMatchNameCn != null">
+        #{thirdMatchNameCn,jdbcType=VARCHAR},
+      </if>
+      <if test="dataSourceCode != null">
+        #{dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdOutrightBeginTime != null">
+        #{thirdOutrightBeginTime,jdbcType=BIGINT},
+      </if>
+      <if test="thirdOutrightEndTime != null">
+        #{thirdOutrightEndTime,jdbcType=BIGINT},
+      </if>
+      <if test="thirdOutrightSourceId != null">
+        #{thirdOutrightSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="standardOutrightManagerId != null">
+        #{standardOutrightManagerId,jdbcType=VARCHAR},
+      </if>
+      <if test="referenceId != null">
+        #{referenceId,jdbcType=BIGINT},
+      </if>
+      <if test="seasonId != null">
+        #{seasonId,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdOutrightYear != null">
+        #{thirdOutrightYear,jdbcType=VARCHAR},
+      </if>
+      <if test="booked != null">
+        #{booked,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null">
+        #{modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.panda.merge.model.ThirdOutrightMatchInfoExample" resultType="java.lang.Long">
+    select count(*) from third_outright_match_info
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update third_outright_match_info
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.sportId != null">
+        sport_id = #{record.sportId,jdbcType=BIGINT},
+      </if>
+      <if test="record.regionId != null">
+        region_id = #{record.regionId,jdbcType=BIGINT},
+      </if>
+      <if test="record.tournamentId != null">
+        tournament_id = #{record.tournamentId,jdbcType=BIGINT},
+      </if>
+      <if test="record.thirdMatchNameEn != null">
+        third_match_name_en = #{record.thirdMatchNameEn,jdbcType=VARCHAR},
+      </if>
+      <if test="record.thirdMatchNameCn != null">
+        third_match_name_cn = #{record.thirdMatchNameCn,jdbcType=VARCHAR},
+      </if>
+      <if test="record.dataSourceCode != null">
+        data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.thirdOutrightBeginTime != null">
+        third_outright_begin_time = #{record.thirdOutrightBeginTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.thirdOutrightEndTime != null">
+        third_outright_end_time = #{record.thirdOutrightEndTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.thirdOutrightSourceId != null">
+        third_outright_source_id = #{record.thirdOutrightSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.standardOutrightManagerId != null">
+        standard_outright_manager_id = #{record.standardOutrightManagerId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.referenceId != null">
+        reference_id = #{record.referenceId,jdbcType=BIGINT},
+      </if>
+      <if test="record.seasonId != null">
+        season_id = #{record.seasonId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.thirdOutrightYear != null">
+        third_outright_year = #{record.thirdOutrightYear,jdbcType=VARCHAR},
+      </if>
+      <if test="record.booked != null">
+        booked = #{record.booked,jdbcType=INTEGER},
+      </if>
+      <if test="record.remark != null">
+        remark = #{record.remark,jdbcType=VARCHAR},
+      </if>
+      <if test="record.modifyTime != null">
+        modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update third_outright_match_info
+    set id = #{record.id,jdbcType=BIGINT},
+      sport_id = #{record.sportId,jdbcType=BIGINT},
+      region_id = #{record.regionId,jdbcType=BIGINT},
+      tournament_id = #{record.tournamentId,jdbcType=BIGINT},
+      third_match_name_en = #{record.thirdMatchNameEn,jdbcType=VARCHAR},
+      third_match_name_cn = #{record.thirdMatchNameCn,jdbcType=VARCHAR},
+      data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+      third_outright_begin_time = #{record.thirdOutrightBeginTime,jdbcType=BIGINT},
+      third_outright_end_time = #{record.thirdOutrightEndTime,jdbcType=BIGINT},
+      third_outright_source_id = #{record.thirdOutrightSourceId,jdbcType=VARCHAR},
+      standard_outright_manager_id = #{record.standardOutrightManagerId,jdbcType=VARCHAR},
+      reference_id = #{record.referenceId,jdbcType=BIGINT},
+      season_id = #{record.seasonId,jdbcType=VARCHAR},
+      third_outright_year = #{record.thirdOutrightYear,jdbcType=VARCHAR},
+      booked = #{record.booked,jdbcType=INTEGER},
+      remark = #{record.remark,jdbcType=VARCHAR},
+      modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      create_time = #{record.createTime,jdbcType=BIGINT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.panda.merge.model.ThirdOutrightMatchInfo">
+    update third_outright_match_info
+    <set>
+      <if test="sportId != null">
+        sport_id = #{sportId,jdbcType=BIGINT},
+      </if>
+      <if test="regionId != null">
+        region_id = #{regionId,jdbcType=BIGINT},
+      </if>
+      <if test="tournamentId != null">
+        tournament_id = #{tournamentId,jdbcType=BIGINT},
+      </if>
+      <if test="thirdMatchNameEn != null">
+        third_match_name_en = #{thirdMatchNameEn,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdMatchNameCn != null">
+        third_match_name_cn = #{thirdMatchNameCn,jdbcType=VARCHAR},
+      </if>
+      <if test="dataSourceCode != null">
+        data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdOutrightBeginTime != null">
+        third_outright_begin_time = #{thirdOutrightBeginTime,jdbcType=BIGINT},
+      </if>
+      <if test="thirdOutrightEndTime != null">
+        third_outright_end_time = #{thirdOutrightEndTime,jdbcType=BIGINT},
+      </if>
+      <if test="thirdOutrightSourceId != null">
+        third_outright_source_id = #{thirdOutrightSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="standardOutrightManagerId != null">
+        standard_outright_manager_id = #{standardOutrightManagerId,jdbcType=VARCHAR},
+      </if>
+      <if test="referenceId != null">
+        reference_id = #{referenceId,jdbcType=BIGINT},
+      </if>
+      <if test="seasonId != null">
+        season_id = #{seasonId,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdOutrightYear != null">
+        third_outright_year = #{thirdOutrightYear,jdbcType=VARCHAR},
+      </if>
+      <if test="booked != null">
+        booked = #{booked,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null">
+        modify_time = #{modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.panda.merge.model.ThirdOutrightMatchInfo">
+    update third_outright_match_info
+    set sport_id = #{sportId,jdbcType=BIGINT},
+      region_id = #{regionId,jdbcType=BIGINT},
+      tournament_id = #{tournamentId,jdbcType=BIGINT},
+      third_match_name_en = #{thirdMatchNameEn,jdbcType=VARCHAR},
+      third_match_name_cn = #{thirdMatchNameCn,jdbcType=VARCHAR},
+      data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
+      third_outright_begin_time = #{thirdOutrightBeginTime,jdbcType=BIGINT},
+      third_outright_end_time = #{thirdOutrightEndTime,jdbcType=BIGINT},
+      third_outright_source_id = #{thirdOutrightSourceId,jdbcType=VARCHAR},
+      standard_outright_manager_id = #{standardOutrightManagerId,jdbcType=VARCHAR},
+      reference_id = #{referenceId,jdbcType=BIGINT},
+      season_id = #{seasonId,jdbcType=VARCHAR},
+      third_outright_year = #{thirdOutrightYear,jdbcType=VARCHAR},
+      booked = #{booked,jdbcType=INTEGER},
+      remark = #{remark,jdbcType=VARCHAR},
+      modify_time = #{modifyTime,jdbcType=BIGINT},
+      create_time = #{createTime,jdbcType=BIGINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

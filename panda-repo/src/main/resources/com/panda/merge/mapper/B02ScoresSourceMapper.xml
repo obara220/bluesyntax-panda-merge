@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.mapper.B02ScoresSourceMapper">
+
+  <resultMap id="BaseResultMap" type="com.panda.merge.model.B02ScoresSource" >
+    <result column="id" property="id" />
+    <result column="sport_id" property="sportId" />
+    <result column="match_manage_id" property="matchManageId" />
+    <result column="data_source_id" property="dataSourceId" />
+    <result column="data_source_code" property="dataSourceCode" />
+    <result column="data_source_type" property="dataSourceType" />
+    <result column="operate_id" property="operateId" />
+    <result column="operate_name" property="operateName" />
+    <result column="data_type" property="dataType" />
+    <result column="create_time" property="createTime" />
+    <result column="update_time" property="updateTime" />
+  </resultMap>
+
+
+  <update id="update" parameterType="com.panda.merge.dto.scores.B02ScoresSourceDTO">
+    UPDATE B02_scores_source
+    set
+      update_time = #{query.updateTime},
+      data_source_type = #{query.dataSourceType}
+      <if test="null != query.operateId ">,operate_id = #{query.operateId}</if>
+      <if test="null != query.operateName and '' != query.operateName">,operate_name = #{query.operateName}</if>
+    WHERE sport_id = #{query.sportId} and data_type = 0
+  </update>
+
+  <select id="pageList" resultMap="BaseResultMap" parameterType="com.panda.merge.dto.scores.B02ScoresSourceDTO">
+    SELECT id,
+           sport_id,
+           match_manage_id,
+           data_source_id,
+           data_source_code,
+           data_source_type,
+           operate_id,
+           operate_name,
+           data_type,
+           create_time,
+           update_time
+    FROM B02_scores_source
+      WHERE data_type = 0
+      <if test="null!= query.sportId ">
+        AND sport_id = #{query.sportId}
+      </if>
+    order by update_time desc
+  </select>
+
+  <select id="pageListCount" resultType="java.lang.Integer" parameterType="com.panda.merge.dto.scores.B02ScoresSourceDTO">
+        SELECT count(1) FROM B02_scores_source
+    where 1=1
+      <if test="null!= query.sportId ">
+          AND sport_id = #{query.sportId}
+      </if>
+      <if test="null!= query.dataType ">
+          AND data_type = #{query.dataType}
+      </if>
+  </select>
+
+    <insert id="insert" parameterType="com.panda.merge.model.B02ScoresSource">
+      INSERT INTO b02_scores_source
+      <trim prefix="(" suffix=")" suffixOverrides=",">
+        <if test="null != sportId ">
+          sport_id,
+        </if>
+        <if test="null != matchManageId ">
+            match_manage_id,
+        </if>
+        <if test="null != dataSourceId ">
+          data_source_id,
+        </if>
+        <if test="null != dataSourceCode and '' != dataSourceCode">
+          data_source_code,
+        </if>
+        <if test="null != dataSourceType ">
+          data_source_type,
+        </if>
+        <if test="null != operateId ">
+          operate_id,
+        </if>
+        <if test="null != operateName and '' != operateName">
+          operate_name,
+        </if>
+        <if test="null != dataType ">
+          data_type,
+        </if>
+        <if test="null != createTime ">
+          create_time,
+        </if>
+        <if test="null != updateTime ">
+          update_time
+        </if>
+      </trim>
+      <trim prefix="values (" suffix=")" suffixOverrides=",">
+        <if test="null != sportId ">
+          #{sportId},
+        </if>
+        <if test="null != matchManageId ">
+          #{matchManageId},
+        </if>
+        <if test="null != dataSourceId ">
+          #{dataSourceId},
+        </if>
+        <if test="null != dataSourceCode and '' != dataSourceCode">
+          #{dataSourceCode},
+        </if>
+        <if test="null != dataSourceType ">
+          #{dataSourceType},
+        </if>
+        <if test="null != operateId ">
+          #{operateId},
+        </if>
+        <if test="null != operateName and '' != operateName">
+          #{operateName},
+        </if>
+        <if test="null != dataType ">
+          #{dataType},
+        </if>
+        <if test="null != createTime ">
+          #{createTime},
+        </if>
+        <if test="null != updateTime ">
+          #{updateTime}
+        </if>
+      </trim>
+    </insert>
+
+  <select id="queryBySportId" resultMap="BaseResultMap" >
+    SELECT id,
+    sport_id,
+    match_manage_id,
+    data_source_id,
+    data_source_code,
+    data_source_type,
+    operate_id,
+    operate_name,
+    data_type,
+    create_time,
+    update_time
+    FROM B02_scores_source
+    WHERE data_type = 0 AND sport_id = #{sportId}
+    order by update_time desc
+  </select>
+
+  <delete id="delete" parameterType="com.panda.merge.dto.scores.B02ScoresSourceDTO">
+    DELETE FROM B02_scores_source
+    WHERE data_type = 1 and create_time &lt; #{obj.createTime}
+
+  </delete>
+</mapper>

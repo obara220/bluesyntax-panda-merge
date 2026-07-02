@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="30 seconds">
+    <!--环境变量-->
+    <springProperty scope="context" name="env" source="spring.profiles.active"/>
+    <!--项目名称-->
+    <springProperty scope="context" name="app" source="spring.application.name"/>
+    <!--定义日志文件 输出位置-->
+    <property name="log_dir" value="/opt/logs/panda-data-service-group/panda-settle-scores-admin"/>
+    <!-- 日志最大的历史 10天 -->
+    <property name="maxHistory" value="3"/>
+    <!--配置控制台打印的log-->
+    <appender name="consoleLog" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+        <encoder charset="UTF-8" class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <pattern>
+                    <pattern>
+                        {
+                        "date": "%d{yyyy-MM-dd HH:mm:ss.SSS}"
+                        ,"app": "${app}"
+                        ,"env": "${env}"
+                        <!--日志级别-->
+                        ,"logLevel": "%level"
+                        <!--线程名称-->
+                        ,"thread": "%thread"
+                        <!--进程ID-->
+                        ,"pid": "${PID:-}"
+                        <!--类名-->
+                        ,"class": "%logger{40}"
+                        <!--方法名-->
+                        ,"method": "%method"
+                        <!--当前行-->
+                        ,"line": "%line"
+                        <!--日志打印的信息-->
+                        ,"msg": "%message"
+                        <!--堆栈异常信息-->
+                        ,"statck_trace":"%exception"
+                        }
+                    </pattern>
+                </pattern>
+            </providers>
+        </encoder>
+    </appender>
+
+    <!--自定义配置-->
+    <appender name="fileInfoLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <!--定义日志输出的路径-->
+        <file>${log_dir}/panda-settle-scores-admin.log</file>
+        <encoder charset="UTF-8" class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <pattern>
+                    <pattern>
+                        {
+                        "date": "%d{yyyy-MM-dd HH:mm:ss.SSS}"
+                        ,"app": "${app}"
+                        ,"env": "${env}"
+                        <!--日志级别-->
+                        ,"logLevel": "%level"
+                        <!--线程名称-->
+                        ,"thread": "%thread"
+                        <!--进程ID-->
+                        ,"pid": "${PID:-}"
+                        <!--类名-->
+                        ,"class": "%logger{40}"
+                        <!--方法名-->
+                        ,"method": "%method"
+                        <!--当前行-->
+                        ,"line": "%line"
+                        <!--日志打印的信息-->
+                        ,"msg": "%message"
+                        <!--堆栈异常信息-->
+                        ,"statck_trace":"%exception"
+                        }
+                    </pattern>
+                </pattern>
+            </providers>
+        </encoder>
+        <!--滚动策略，按天输出日志-->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!--设置文件保存路径，timeBasedFileNamingAndTriggeringPolicy标签时，这里的%i要加上，不然会导致运行报错-->
+            <fileNamePattern>${log_dir}/info/%d{yyyy-MM-dd}/info.%d-%i.log</fileNamePattern>
+            <!-- 配置日志文件不能超过256MB，若超过256MB，日志文件会以索引0开始，命名日志文件，例如info.2020-06-27-0.log -->
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>256MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+            <!--日志文件保留天数-->
+            <maxHistory>${maxHistory}</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <appender name="fileErrorLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+        <encoder charset="UTF-8" class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <pattern>
+                    <pattern>
+                        {
+                        "date": "%d{yyyy-MM-dd HH:mm:ss.SSS}"
+                        ,"app": "${app}"
+                        ,"env": "${env}"
+                        <!--日志级别-->
+                        ,"logLevel": "%level"
+                        <!--线程名称-->
+                        ,"thread": "%thread"
+                        <!--进程ID-->
+                        ,"pid": "${PID:-}"
+                        <!--类名-->
+                        ,"class": "%logger{40}"
+                        <!--方法名-->
+                        ,"method": "%method"
+                        <!--当前行-->
+                        ,"line": "%line"
+                        <!--日志打印的信息-->
+                        ,"msg": "%message"
+                        <!--堆栈异常信息-->
+                        ,"statck_trace":"%exception"
+                        }
+                    </pattern>
+                </pattern>
+            </providers>
+        </encoder>
+        <!--滚动策略 按天生成日志-->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!--路径-->
+            <fileNamePattern>${log_dir}/error/error.%d.log</fileNamePattern>
+            <!--日志文件保留天数-->
+            <maxHistory>${maxHistory}</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+
+    <!--输出Sql-->
+    <!--<logger name="com.panda.merge.mapper" level="DEBUG"></logger>
+    <logger name="com.panda.merge.dao" level="DEBUG"></logger>-->
+
+    <root level="INFO">
+        <appender-ref ref="consoleLog" />
+        <appender-ref ref="fileInfoLog" />
+        <appender-ref ref="fileErrorLog" />
+    </root>
+
+</configuration>

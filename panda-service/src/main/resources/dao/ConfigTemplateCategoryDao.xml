@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.dao.ConfigTemplateCategoryDao">
+
+  <insert id = "insertList" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
+    insert into config_template_category (id, template_id, standard_category_id,
+      market_odds_type, match_period_id, match_progress_time,
+      injury_time, create_time, modify_time,
+      canceled)
+    values
+    <foreach collection="list" item="item" index="index" separator=",">
+     (#{item.id,jdbcType=BIGINT}, #{item.templateId,jdbcType=BIGINT}, #{item.standardCategoryId,jdbcType=BIGINT},
+      #{item.marketOddsType,jdbcType=VARCHAR}, #{item.matchPeriodId,jdbcType=BIGINT}, #{item.matchProgressTime,jdbcType=BIGINT},
+      #{item.injuryTime,jdbcType=BIGINT}, REPLACE(unix_timestamp(current_timestamp(3)),'.',''), REPLACE(unix_timestamp(current_timestamp(3)),'.',''),
+      0)
+    </foreach>
+  </insert>
+
+  <update id = "updateRecs">
+    update config_template_category set canceled = #{cancelFlag} where id in
+    <foreach collection="ids" item="id" open="(" separator="," close=")">
+        #{id}
+    </foreach>
+  </update>
+
+  <update id = "updateList" parameterType="java.util.List">
+    <foreach collection="list" item="item" separator=";">
+    update config_template_category
+    <set>
+      <if test="item.templateId != null">
+        template_id = #{item.templateId,jdbcType=BIGINT},
+      </if>
+      <if test="item.standardCategoryId != null">
+        standard_category_id = #{item.standardCategoryId,jdbcType=BIGINT},
+      </if>
+      <if test="item.marketOddsType != null">
+        market_odds_type = #{item.marketOddsType,jdbcType=VARCHAR},
+      </if>
+      <if test="item.matchPeriodId != null">
+        match_period_id = #{item.matchPeriodId,jdbcType=BIGINT},
+      </if>
+      <if test="item.matchProgressTime != null">
+        match_progress_time = #{item.matchProgressTime,jdbcType=BIGINT},
+      </if>
+      <if test="item.injuryTime != null">
+        injury_time = #{item.injuryTime,jdbcType=BIGINT},
+      </if>
+      <if test="item.modifyTime != null">
+        modify_time = #{item.modifyTime},
+      </if>
+      <if test="item.canceled != null">
+        canceled = #{item.canceled,jdbcType=TINYINT},
+      </if>
+    </set>
+    where id = #{item.id,jdbcType=BIGINT}
+    </foreach>
+    ;
+  </update>
+</mapper>

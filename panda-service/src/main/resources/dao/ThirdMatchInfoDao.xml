@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.dao.ThirdMatchInfoDao">
+
+    <resultMap id="childResultMap" type="com.panda.merge.dto.ThirdMatchInfoDetail" extends="com.panda.merge.mapper.ThirdMatchInfoMapper.ResultMapWithBLOBs">
+        <result column="tournamentName" jdbcType="VARCHAR" property="tournamentName" />
+        <result column="tournamentNameEn" jdbcType="VARCHAR" property="tournamentNameEn" />
+        <collection property="mtRelationList" resultMap="com.panda.merge.mapper.ThirdMatchTeamRelationMapper.BaseResultMap" columnPrefix="relation_"/>
+    </resultMap>
+
+    <select id="getItemPageByModifyTime" parameterType="com.panda.merge.dto.nonrealttime.query.ThirdMatchInfoDTO" resultMap="childResultMap">
+        select m.*,
+               t.name_spell tournamentNameEn,t.name tournamentName
+        from   third_match_info m LEFT JOIN third_sport_tournament t ON m.tournament_id = t.id
+        where  m.modify_time &gt;= #{beginTime}
+        <if test="endTime != null">
+            and    m.modify_time &lt;= #{endTime}
+        </if>
+        <if test="dataSourceCode != null">
+            and    m.data_source_code &lt;= #{dataSourceCode}
+        </if>
+        order by m.modify_time,m.id
+    </select>
+
+
+    <select id="getItemByThirdMatchSourceId" parameterType="com.panda.merge.dto.nonrealttime.query.ThirdMatchInfoDTO" resultMap="childResultMap">
+        select m.*,
+               mt.id relation_id,mt.match_id relation_match_id,mt.team_id relation_team_id,
+               mt.match_position relation_match_position,mt.team_name_record relation_team_name_record,mt.remark relation_remark
+        from   third_match_info m left join third_match_team_relation mt on m.id = mt.match_id
+        where  m.data_source_code = #{dataSourceCode}
+        and    m.third_match_source_id = #{thirdMatchSourceId}
+    </select>
+
+    <select id="getThirdRelationByNotInMatchId" parameterType="java.lang.Integer" resultMap="childResultMap">
+        select id from third_match_team_relation
+        where match_id not in( select id from third_match_info)
+        limit #{num}
+    </select>
+
+
+</mapper>

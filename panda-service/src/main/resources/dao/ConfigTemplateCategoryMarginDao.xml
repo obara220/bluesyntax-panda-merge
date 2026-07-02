@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.dao.ConfigTemplateCategoryMarginDao">
+
+  <insert id= "insertList" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
+    insert into config_template_category_margin (id,standard_category_id, time_frame,
+      margin, template_category_id, create_time,
+      modify_time, canceled)
+    values
+    <foreach collection="list" item="item" index="index" separator=",">
+    (#{item.id,jdbcType=BIGINT},#{item.standardCategoryId,jdbcType=BIGINT}, #{item.timeFrame,jdbcType=BIGINT},
+      #{item.margin,jdbcType=DOUBLE}, #{item.templateCategoryId,jdbcType=BIGINT}, REPLACE(unix_timestamp(current_timestamp(3)),'.',''),
+      REPLACE(unix_timestamp(current_timestamp(3)),'.',''), 0)
+    </foreach>
+  </insert>
+
+  <update id = "updateRecsByCategoryIds" >
+    update config_template_category_margin
+    set canceled = #{cancelFlag} where template_category_id in
+    <foreach close=")" collection="list" item="id" open="(" separator=",">
+      #{id}
+    </foreach>
+  </update>
+
+  <update id = "updateRecsByMarginIds" >
+    update config_template_category_margin
+    set canceled = #{cancelFlag} where id in
+    <foreach close=")" collection="list" item="id" open="(" separator=",">
+      #{id}
+    </foreach>
+  </update>
+  <update id = "updateList" >
+    <foreach collection="list" item="item" separator=";">
+      update config_template_category_margin
+      <set>
+        <if test="item.standardCategoryId != null">
+          standard_category_id = #{item.standardCategoryId,jdbcType=BIGINT},
+        </if>
+        <if test="item.timeFrame != null">
+          time_frame = #{item.timeFrame,jdbcType=BIGINT},
+        </if>
+        <if test="item.margin != null">
+          margin = #{item.margin,jdbcType=DOUBLE},
+        </if>
+        <if test="item.templateCategoryId != null">
+          template_category_id = #{item.templateCategoryId,jdbcType=BIGINT},
+        </if>
+        <if test="item.modifyTime != null">
+          modify_time = #{item.modifyTime},
+        </if>
+        <if test="item.canceled != null">
+          canceled = 0,
+        </if>
+      </set>
+      where id = #{item.id,jdbcType=BIGINT}
+    </foreach>
+    ;
+  </update>
+
+
+</mapper>

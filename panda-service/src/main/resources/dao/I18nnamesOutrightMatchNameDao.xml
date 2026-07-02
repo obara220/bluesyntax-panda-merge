@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.dao.I18nnamesOutrightMatchNameDao">
+
+    <insert id="insertList" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO i18nnames_outright_match_name (id, match_category_filed, flag, data_source_code, language_type, text, type, create_time, modfiy_time) VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.id}, #{item.matchCategoryFiled}, #{item.flag}, #{item.dataSourceCode}, #{item.languageType}, #{item.text}, #{item.type},
+            REPLACE(unix_timestamp(current_timestamp(3)),'.',''),
+            REPLACE(unix_timestamp(current_timestamp(3)),'.',''))
+        </foreach>
+    </insert>
+
+    <update id="updateList" parameterType="java.util.List">
+        <foreach collection="list" item="item" separator=";">
+            UPDATE language_internation
+            <set>
+                <if test="item.text != null">
+                    text = #{item.text},
+                </if>
+                <if test="item.type != null">
+                    type = #{item.type},
+                </if>
+                modfiy_time = REPLACE(unix_timestamp(current_timestamp(3)),'.','')
+            </set>
+            WHERE id = #{item.id}
+        </foreach>
+    </update>
+
+</mapper>

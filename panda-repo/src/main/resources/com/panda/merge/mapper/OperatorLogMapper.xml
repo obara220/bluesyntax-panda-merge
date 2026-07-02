@@ -1,0 +1,418 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.mapper.OperatorLogMapper">
+  <resultMap id="BaseResultMap" type="com.panda.merge.model.OperatorLog">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="login_log_id" jdbcType="VARCHAR" property="loginLogId" />
+    <result column="operation_id" jdbcType="VARCHAR" property="operationId" />
+    <result column="log_type" jdbcType="VARCHAR" property="logType" />
+    <result column="operator_name" jdbcType="VARCHAR" property="operatorName" />
+    <result column="login_time" jdbcType="BIGINT" property="loginTime" />
+    <result column="logout_time" jdbcType="BIGINT" property="logoutTime" />
+    <result column="status" jdbcType="VARCHAR" property="status" />
+    <result column="role" jdbcType="VARCHAR" property="role" />
+    <result column="source_ip" jdbcType="VARCHAR" property="sourceIp" />
+    <result column="login_duration" jdbcType="BIGINT" property="loginDuration" />
+    <result column="login_address" jdbcType="VARCHAR" property="loginAddress" />
+    <result column="operation_module" jdbcType="VARCHAR" property="operationModule" />
+    <result column="operation_time" jdbcType="BIGINT" property="operationTime" />
+    <result column="operation_type" jdbcType="VARCHAR" property="operationType" />
+    <result column="operation_content" jdbcType="VARCHAR" property="operationContent" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, login_log_id, operation_id, log_type, operator_name, login_time, logout_time, 
+    status, role, source_ip, login_duration, login_address, operation_module, operation_time, 
+    operation_type, operation_content, create_time, remark
+  </sql>
+  <select id="selectByExample" parameterType="com.panda.merge.model.OperatorLogExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from operator_log
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from operator_log
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from operator_log
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.panda.merge.model.OperatorLogExample">
+    delete from operator_log
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.panda.merge.model.OperatorLog">
+    insert into operator_log (id, login_log_id, operation_id, 
+      log_type, operator_name, login_time, 
+      logout_time, status, role, 
+      source_ip, login_duration, login_address, 
+      operation_module, operation_time, operation_type, 
+      operation_content, create_time, remark
+      )
+    values (#{id,jdbcType=BIGINT}, #{loginLogId,jdbcType=VARCHAR}, #{operationId,jdbcType=VARCHAR}, 
+      #{logType,jdbcType=VARCHAR}, #{operatorName,jdbcType=VARCHAR}, #{loginTime,jdbcType=BIGINT}, 
+      #{logoutTime,jdbcType=BIGINT}, #{status,jdbcType=VARCHAR}, #{role,jdbcType=VARCHAR}, 
+      #{sourceIp,jdbcType=VARCHAR}, #{loginDuration,jdbcType=BIGINT}, #{loginAddress,jdbcType=VARCHAR}, 
+      #{operationModule,jdbcType=VARCHAR}, #{operationTime,jdbcType=BIGINT}, #{operationType,jdbcType=VARCHAR}, 
+      #{operationContent,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{remark,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.panda.merge.model.OperatorLog">
+    insert into operator_log
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="loginLogId != null">
+        login_log_id,
+      </if>
+      <if test="operationId != null">
+        operation_id,
+      </if>
+      <if test="logType != null">
+        log_type,
+      </if>
+      <if test="operatorName != null">
+        operator_name,
+      </if>
+      <if test="loginTime != null">
+        login_time,
+      </if>
+      <if test="logoutTime != null">
+        logout_time,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="role != null">
+        role,
+      </if>
+      <if test="sourceIp != null">
+        source_ip,
+      </if>
+      <if test="loginDuration != null">
+        login_duration,
+      </if>
+      <if test="loginAddress != null">
+        login_address,
+      </if>
+      <if test="operationModule != null">
+        operation_module,
+      </if>
+      <if test="operationTime != null">
+        operation_time,
+      </if>
+      <if test="operationType != null">
+        operation_type,
+      </if>
+      <if test="operationContent != null">
+        operation_content,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="loginLogId != null">
+        #{loginLogId,jdbcType=VARCHAR},
+      </if>
+      <if test="operationId != null">
+        #{operationId,jdbcType=VARCHAR},
+      </if>
+      <if test="logType != null">
+        #{logType,jdbcType=VARCHAR},
+      </if>
+      <if test="operatorName != null">
+        #{operatorName,jdbcType=VARCHAR},
+      </if>
+      <if test="loginTime != null">
+        #{loginTime,jdbcType=BIGINT},
+      </if>
+      <if test="logoutTime != null">
+        #{logoutTime,jdbcType=BIGINT},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="role != null">
+        #{role,jdbcType=VARCHAR},
+      </if>
+      <if test="sourceIp != null">
+        #{sourceIp,jdbcType=VARCHAR},
+      </if>
+      <if test="loginDuration != null">
+        #{loginDuration,jdbcType=BIGINT},
+      </if>
+      <if test="loginAddress != null">
+        #{loginAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="operationModule != null">
+        #{operationModule,jdbcType=VARCHAR},
+      </if>
+      <if test="operationTime != null">
+        #{operationTime,jdbcType=BIGINT},
+      </if>
+      <if test="operationType != null">
+        #{operationType,jdbcType=VARCHAR},
+      </if>
+      <if test="operationContent != null">
+        #{operationContent,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.panda.merge.model.OperatorLogExample" resultType="java.lang.Long">
+    select count(*) from operator_log
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update operator_log
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.loginLogId != null">
+        login_log_id = #{record.loginLogId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.operationId != null">
+        operation_id = #{record.operationId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.logType != null">
+        log_type = #{record.logType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.operatorName != null">
+        operator_name = #{record.operatorName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.loginTime != null">
+        login_time = #{record.loginTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.logoutTime != null">
+        logout_time = #{record.logoutTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.status != null">
+        status = #{record.status,jdbcType=VARCHAR},
+      </if>
+      <if test="record.role != null">
+        role = #{record.role,jdbcType=VARCHAR},
+      </if>
+      <if test="record.sourceIp != null">
+        source_ip = #{record.sourceIp,jdbcType=VARCHAR},
+      </if>
+      <if test="record.loginDuration != null">
+        login_duration = #{record.loginDuration,jdbcType=BIGINT},
+      </if>
+      <if test="record.loginAddress != null">
+        login_address = #{record.loginAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="record.operationModule != null">
+        operation_module = #{record.operationModule,jdbcType=VARCHAR},
+      </if>
+      <if test="record.operationTime != null">
+        operation_time = #{record.operationTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.operationType != null">
+        operation_type = #{record.operationType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.operationContent != null">
+        operation_content = #{record.operationContent,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.remark != null">
+        remark = #{record.remark,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update operator_log
+    set id = #{record.id,jdbcType=BIGINT},
+      login_log_id = #{record.loginLogId,jdbcType=VARCHAR},
+      operation_id = #{record.operationId,jdbcType=VARCHAR},
+      log_type = #{record.logType,jdbcType=VARCHAR},
+      operator_name = #{record.operatorName,jdbcType=VARCHAR},
+      login_time = #{record.loginTime,jdbcType=BIGINT},
+      logout_time = #{record.logoutTime,jdbcType=BIGINT},
+      status = #{record.status,jdbcType=VARCHAR},
+      role = #{record.role,jdbcType=VARCHAR},
+      source_ip = #{record.sourceIp,jdbcType=VARCHAR},
+      login_duration = #{record.loginDuration,jdbcType=BIGINT},
+      login_address = #{record.loginAddress,jdbcType=VARCHAR},
+      operation_module = #{record.operationModule,jdbcType=VARCHAR},
+      operation_time = #{record.operationTime,jdbcType=BIGINT},
+      operation_type = #{record.operationType,jdbcType=VARCHAR},
+      operation_content = #{record.operationContent,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      remark = #{record.remark,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.panda.merge.model.OperatorLog">
+    update operator_log
+    <set>
+      <if test="loginLogId != null">
+        login_log_id = #{loginLogId,jdbcType=VARCHAR},
+      </if>
+      <if test="operationId != null">
+        operation_id = #{operationId,jdbcType=VARCHAR},
+      </if>
+      <if test="logType != null">
+        log_type = #{logType,jdbcType=VARCHAR},
+      </if>
+      <if test="operatorName != null">
+        operator_name = #{operatorName,jdbcType=VARCHAR},
+      </if>
+      <if test="loginTime != null">
+        login_time = #{loginTime,jdbcType=BIGINT},
+      </if>
+      <if test="logoutTime != null">
+        logout_time = #{logoutTime,jdbcType=BIGINT},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="role != null">
+        role = #{role,jdbcType=VARCHAR},
+      </if>
+      <if test="sourceIp != null">
+        source_ip = #{sourceIp,jdbcType=VARCHAR},
+      </if>
+      <if test="loginDuration != null">
+        login_duration = #{loginDuration,jdbcType=BIGINT},
+      </if>
+      <if test="loginAddress != null">
+        login_address = #{loginAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="operationModule != null">
+        operation_module = #{operationModule,jdbcType=VARCHAR},
+      </if>
+      <if test="operationTime != null">
+        operation_time = #{operationTime,jdbcType=BIGINT},
+      </if>
+      <if test="operationType != null">
+        operation_type = #{operationType,jdbcType=VARCHAR},
+      </if>
+      <if test="operationContent != null">
+        operation_content = #{operationContent,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.panda.merge.model.OperatorLog">
+    update operator_log
+    set login_log_id = #{loginLogId,jdbcType=VARCHAR},
+      operation_id = #{operationId,jdbcType=VARCHAR},
+      log_type = #{logType,jdbcType=VARCHAR},
+      operator_name = #{operatorName,jdbcType=VARCHAR},
+      login_time = #{loginTime,jdbcType=BIGINT},
+      logout_time = #{logoutTime,jdbcType=BIGINT},
+      status = #{status,jdbcType=VARCHAR},
+      role = #{role,jdbcType=VARCHAR},
+      source_ip = #{sourceIp,jdbcType=VARCHAR},
+      login_duration = #{loginDuration,jdbcType=BIGINT},
+      login_address = #{loginAddress,jdbcType=VARCHAR},
+      operation_module = #{operationModule,jdbcType=VARCHAR},
+      operation_time = #{operationTime,jdbcType=BIGINT},
+      operation_type = #{operationType,jdbcType=VARCHAR},
+      operation_content = #{operationContent,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      remark = #{remark,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

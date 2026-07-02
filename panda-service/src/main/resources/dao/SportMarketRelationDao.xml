@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.dao.SportMarketRelationDao">
+
+    <insert id="insertBatch">
+        insert into sport_market_relation (id, market_relation_key, relation_market_id,
+        create_time) values
+        <foreach collection="sportMarketRelation" item="item" index="index" separator=",">
+            (#{item.id,jdbcType=BIGINT}, #{item.marketRelationKey,jdbcType=VARCHAR},
+            #{item.relationMarketId,jdbcType=BIGINT},
+            #{item.createTime,jdbcType=BIGINT})
+        </foreach>
+        ON DUPLICATE KEY UPDATE relation_market_id = VALUES(relation_market_id),modify_time = (unix_timestamp( now()) * 1000)
+    </insert>
+
+    <delete id="delBatch">
+        DELETE FROM sport_market_relation WHERE market_relation_key in
+        <foreach collection="relationMarketKeys" item="key" open="(" separator="," close=")">
+            #{key}
+        </foreach>
+    </delete>
+
+</mapper>

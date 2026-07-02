@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.dao.ConfigMarketMarginGapDao">
+
+    <insert id="insertList" parameterType="java.util.List">
+        insert into config_market_margin_gap (id, match_id, market_category_id, place_num,
+        odds_type, linkage_mode, margin,
+        diff_value, probability, anchor,
+        operater_id, link_id, modify_time,
+        create_time,child_standard_category_id)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.id,jdbcType=BIGINT}, #{item.matchId,jdbcType=BIGINT}, #{item.marketCategoryId,jdbcType=BIGINT},
+            #{item.placeNum,jdbcType=INTEGER},
+            #{item.oddsType,jdbcType=VARCHAR}, #{item.linkageMode,jdbcType=TINYINT}, #{item.margin,jdbcType=DOUBLE},
+            #{item.diffValue,jdbcType=DOUBLE}, #{item.probability,jdbcType=DOUBLE}, #{item.anchor,jdbcType=TINYINT},
+            #{item.operaterId,jdbcType=BIGINT}, #{item.linkId,jdbcType=VARCHAR},
+            REPLACE(unix_timestamp(current_timestamp(3)),'.',''),
+            REPLACE(unix_timestamp(current_timestamp(3)),'.',''),
+            #{item.childStandardCategoryId,jdbcType=BIGINT})
+        </foreach>
+    </insert>
+
+    <update id="updateList" parameterType="java.util.List">
+        <foreach collection="list" item="record" index="index" open="" close="" separator=";">
+            update config_market_margin_gap
+            <set>
+                <if test="record.margin != null">
+                    margin = #{record.margin,jdbcType=DOUBLE},
+                </if>
+                <if test="record.diffValue != null">
+                    diff_value = #{record.diffValue,jdbcType=DOUBLE},
+                </if>
+                <if test="record.probability != null">
+                    probability = #{record.probability,jdbcType=DOUBLE},
+                </if>
+                <if test="record.anchor != null">
+                    anchor = #{record.anchor,jdbcType=BIGINT},
+                </if>
+                <if test="record.linkageMode != null">
+                    linkage_mode = #{record.linkageMode,jdbcType=BIGINT},
+                </if>
+                <if test="record.placeNum != null">
+                    place_num = #{record.placeNum,jdbcType=INTEGER},
+                </if>
+                <if test="record.operaterId != null">
+                    operater_id = #{record.operaterId,jdbcType=BIGINT},
+                </if>
+                <if test="record.childStandardCategoryId != null">
+                    child_standard_category_id = #{record.childStandardCategoryId,jdbcType=BIGINT},
+                </if>
+                link_id = #{record.linkId,jdbcType=VARCHAR},
+                modify_time = REPLACE(unix_timestamp(current_timestamp(3)),'.','')
+            </set>
+            where id = #{record.id,jdbcType=BIGINT}
+        </foreach>
+    </update>
+
+</mapper>

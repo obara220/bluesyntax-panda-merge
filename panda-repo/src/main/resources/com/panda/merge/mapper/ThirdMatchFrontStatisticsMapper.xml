@@ -1,0 +1,466 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.mapper.ThirdMatchFrontStatisticsMapper">
+  <resultMap id="BaseResultMap" type="com.panda.merge.model.ThirdMatchFrontStatistics">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="data_source_code" jdbcType="VARCHAR" property="dataSourceCode" />
+    <result column="third_match_source_id" jdbcType="VARCHAR" property="thirdMatchSourceId" />
+    <result column="home_team_id" jdbcType="VARCHAR" property="homeTeamId" />
+    <result column="away_team_id" jdbcType="VARCHAR" property="awayTeamId" />
+    <result column="home_team_name" jdbcType="VARCHAR" property="homeTeamName" />
+    <result column="away_team_name" jdbcType="VARCHAR" property="awayTeamName" />
+    <result column="sport_id" jdbcType="BIGINT" property="sportId" />
+    <result column="edit_status" jdbcType="INTEGER" property="editStatus" />
+    <result column="count_total" jdbcType="INTEGER" property="countTotal" />
+    <result column="home_win" jdbcType="INTEGER" property="homeWin" />
+    <result column="away_win" jdbcType="INTEGER" property="awayWin" />
+    <result column="dogfall_total" jdbcType="INTEGER" property="dogfallTotal" />
+    <result column="more_than_one" jdbcType="INTEGER" property="moreThanOne" />
+    <result column="more_than_two" jdbcType="INTEGER" property="moreThanTwo" />
+    <result column="more_than_three" jdbcType="INTEGER" property="moreThanThree" />
+    <result column="all_scores" jdbcType="INTEGER" property="allScores" />
+    <result column="home_not_lost" jdbcType="INTEGER" property="homeNotLost" />
+    <result column="away_not_lost" jdbcType="INTEGER" property="awayNotLost" />
+    <result column="modify_time" jdbcType="BIGINT" property="modifyTime" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, data_source_code, third_match_source_id, home_team_id, away_team_id, home_team_name, 
+    away_team_name, sport_id, edit_status, count_total, home_win, away_win, dogfall_total, 
+    more_than_one, more_than_two, more_than_three, all_scores, home_not_lost, away_not_lost, 
+    modify_time, create_time
+  </sql>
+  <select id="selectByExample" parameterType="com.panda.merge.model.ThirdMatchFrontStatisticsExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from third_match_front_statistics
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from third_match_front_statistics
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from third_match_front_statistics
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.panda.merge.model.ThirdMatchFrontStatisticsExample">
+    delete from third_match_front_statistics
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.panda.merge.model.ThirdMatchFrontStatistics">
+    insert into third_match_front_statistics (id, data_source_code, third_match_source_id, 
+      home_team_id, away_team_id, home_team_name, 
+      away_team_name, sport_id, edit_status, 
+      count_total, home_win, away_win, 
+      dogfall_total, more_than_one, more_than_two, 
+      more_than_three, all_scores, home_not_lost, 
+      away_not_lost, modify_time, create_time
+      )
+    values (#{id,jdbcType=VARCHAR}, #{dataSourceCode,jdbcType=VARCHAR}, #{thirdMatchSourceId,jdbcType=VARCHAR}, 
+      #{homeTeamId,jdbcType=VARCHAR}, #{awayTeamId,jdbcType=VARCHAR}, #{homeTeamName,jdbcType=VARCHAR}, 
+      #{awayTeamName,jdbcType=VARCHAR}, #{sportId,jdbcType=BIGINT}, #{editStatus,jdbcType=INTEGER}, 
+      #{countTotal,jdbcType=INTEGER}, #{homeWin,jdbcType=INTEGER}, #{awayWin,jdbcType=INTEGER}, 
+      #{dogfallTotal,jdbcType=INTEGER}, #{moreThanOne,jdbcType=INTEGER}, #{moreThanTwo,jdbcType=INTEGER}, 
+      #{moreThanThree,jdbcType=INTEGER}, #{allScores,jdbcType=INTEGER}, #{homeNotLost,jdbcType=INTEGER}, 
+      #{awayNotLost,jdbcType=INTEGER}, #{modifyTime,jdbcType=BIGINT}, #{createTime,jdbcType=BIGINT}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.panda.merge.model.ThirdMatchFrontStatistics">
+    insert into third_match_front_statistics
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="dataSourceCode != null">
+        data_source_code,
+      </if>
+      <if test="thirdMatchSourceId != null">
+        third_match_source_id,
+      </if>
+      <if test="homeTeamId != null">
+        home_team_id,
+      </if>
+      <if test="awayTeamId != null">
+        away_team_id,
+      </if>
+      <if test="homeTeamName != null">
+        home_team_name,
+      </if>
+      <if test="awayTeamName != null">
+        away_team_name,
+      </if>
+      <if test="sportId != null">
+        sport_id,
+      </if>
+      <if test="editStatus != null">
+        edit_status,
+      </if>
+      <if test="countTotal != null">
+        count_total,
+      </if>
+      <if test="homeWin != null">
+        home_win,
+      </if>
+      <if test="awayWin != null">
+        away_win,
+      </if>
+      <if test="dogfallTotal != null">
+        dogfall_total,
+      </if>
+      <if test="moreThanOne != null">
+        more_than_one,
+      </if>
+      <if test="moreThanTwo != null">
+        more_than_two,
+      </if>
+      <if test="moreThanThree != null">
+        more_than_three,
+      </if>
+      <if test="allScores != null">
+        all_scores,
+      </if>
+      <if test="homeNotLost != null">
+        home_not_lost,
+      </if>
+      <if test="awayNotLost != null">
+        away_not_lost,
+      </if>
+      <if test="modifyTime != null">
+        modify_time,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="dataSourceCode != null">
+        #{dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdMatchSourceId != null">
+        #{thirdMatchSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="homeTeamId != null">
+        #{homeTeamId,jdbcType=VARCHAR},
+      </if>
+      <if test="awayTeamId != null">
+        #{awayTeamId,jdbcType=VARCHAR},
+      </if>
+      <if test="homeTeamName != null">
+        #{homeTeamName,jdbcType=VARCHAR},
+      </if>
+      <if test="awayTeamName != null">
+        #{awayTeamName,jdbcType=VARCHAR},
+      </if>
+      <if test="sportId != null">
+        #{sportId,jdbcType=BIGINT},
+      </if>
+      <if test="editStatus != null">
+        #{editStatus,jdbcType=INTEGER},
+      </if>
+      <if test="countTotal != null">
+        #{countTotal,jdbcType=INTEGER},
+      </if>
+      <if test="homeWin != null">
+        #{homeWin,jdbcType=INTEGER},
+      </if>
+      <if test="awayWin != null">
+        #{awayWin,jdbcType=INTEGER},
+      </if>
+      <if test="dogfallTotal != null">
+        #{dogfallTotal,jdbcType=INTEGER},
+      </if>
+      <if test="moreThanOne != null">
+        #{moreThanOne,jdbcType=INTEGER},
+      </if>
+      <if test="moreThanTwo != null">
+        #{moreThanTwo,jdbcType=INTEGER},
+      </if>
+      <if test="moreThanThree != null">
+        #{moreThanThree,jdbcType=INTEGER},
+      </if>
+      <if test="allScores != null">
+        #{allScores,jdbcType=INTEGER},
+      </if>
+      <if test="homeNotLost != null">
+        #{homeNotLost,jdbcType=INTEGER},
+      </if>
+      <if test="awayNotLost != null">
+        #{awayNotLost,jdbcType=INTEGER},
+      </if>
+      <if test="modifyTime != null">
+        #{modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.panda.merge.model.ThirdMatchFrontStatisticsExample" resultType="java.lang.Long">
+    select count(*) from third_match_front_statistics
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update third_match_front_statistics
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
+      </if>
+      <if test="record.dataSourceCode != null">
+        data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.thirdMatchSourceId != null">
+        third_match_source_id = #{record.thirdMatchSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.homeTeamId != null">
+        home_team_id = #{record.homeTeamId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.awayTeamId != null">
+        away_team_id = #{record.awayTeamId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.homeTeamName != null">
+        home_team_name = #{record.homeTeamName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.awayTeamName != null">
+        away_team_name = #{record.awayTeamName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.sportId != null">
+        sport_id = #{record.sportId,jdbcType=BIGINT},
+      </if>
+      <if test="record.editStatus != null">
+        edit_status = #{record.editStatus,jdbcType=INTEGER},
+      </if>
+      <if test="record.countTotal != null">
+        count_total = #{record.countTotal,jdbcType=INTEGER},
+      </if>
+      <if test="record.homeWin != null">
+        home_win = #{record.homeWin,jdbcType=INTEGER},
+      </if>
+      <if test="record.awayWin != null">
+        away_win = #{record.awayWin,jdbcType=INTEGER},
+      </if>
+      <if test="record.dogfallTotal != null">
+        dogfall_total = #{record.dogfallTotal,jdbcType=INTEGER},
+      </if>
+      <if test="record.moreThanOne != null">
+        more_than_one = #{record.moreThanOne,jdbcType=INTEGER},
+      </if>
+      <if test="record.moreThanTwo != null">
+        more_than_two = #{record.moreThanTwo,jdbcType=INTEGER},
+      </if>
+      <if test="record.moreThanThree != null">
+        more_than_three = #{record.moreThanThree,jdbcType=INTEGER},
+      </if>
+      <if test="record.allScores != null">
+        all_scores = #{record.allScores,jdbcType=INTEGER},
+      </if>
+      <if test="record.homeNotLost != null">
+        home_not_lost = #{record.homeNotLost,jdbcType=INTEGER},
+      </if>
+      <if test="record.awayNotLost != null">
+        away_not_lost = #{record.awayNotLost,jdbcType=INTEGER},
+      </if>
+      <if test="record.modifyTime != null">
+        modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update third_match_front_statistics
+    set id = #{record.id,jdbcType=VARCHAR},
+      data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+      third_match_source_id = #{record.thirdMatchSourceId,jdbcType=VARCHAR},
+      home_team_id = #{record.homeTeamId,jdbcType=VARCHAR},
+      away_team_id = #{record.awayTeamId,jdbcType=VARCHAR},
+      home_team_name = #{record.homeTeamName,jdbcType=VARCHAR},
+      away_team_name = #{record.awayTeamName,jdbcType=VARCHAR},
+      sport_id = #{record.sportId,jdbcType=BIGINT},
+      edit_status = #{record.editStatus,jdbcType=INTEGER},
+      count_total = #{record.countTotal,jdbcType=INTEGER},
+      home_win = #{record.homeWin,jdbcType=INTEGER},
+      away_win = #{record.awayWin,jdbcType=INTEGER},
+      dogfall_total = #{record.dogfallTotal,jdbcType=INTEGER},
+      more_than_one = #{record.moreThanOne,jdbcType=INTEGER},
+      more_than_two = #{record.moreThanTwo,jdbcType=INTEGER},
+      more_than_three = #{record.moreThanThree,jdbcType=INTEGER},
+      all_scores = #{record.allScores,jdbcType=INTEGER},
+      home_not_lost = #{record.homeNotLost,jdbcType=INTEGER},
+      away_not_lost = #{record.awayNotLost,jdbcType=INTEGER},
+      modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      create_time = #{record.createTime,jdbcType=BIGINT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.panda.merge.model.ThirdMatchFrontStatistics">
+    update third_match_front_statistics
+    <set>
+      <if test="dataSourceCode != null">
+        data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdMatchSourceId != null">
+        third_match_source_id = #{thirdMatchSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="homeTeamId != null">
+        home_team_id = #{homeTeamId,jdbcType=VARCHAR},
+      </if>
+      <if test="awayTeamId != null">
+        away_team_id = #{awayTeamId,jdbcType=VARCHAR},
+      </if>
+      <if test="homeTeamName != null">
+        home_team_name = #{homeTeamName,jdbcType=VARCHAR},
+      </if>
+      <if test="awayTeamName != null">
+        away_team_name = #{awayTeamName,jdbcType=VARCHAR},
+      </if>
+      <if test="sportId != null">
+        sport_id = #{sportId,jdbcType=BIGINT},
+      </if>
+      <if test="editStatus != null">
+        edit_status = #{editStatus,jdbcType=INTEGER},
+      </if>
+      <if test="countTotal != null">
+        count_total = #{countTotal,jdbcType=INTEGER},
+      </if>
+      <if test="homeWin != null">
+        home_win = #{homeWin,jdbcType=INTEGER},
+      </if>
+      <if test="awayWin != null">
+        away_win = #{awayWin,jdbcType=INTEGER},
+      </if>
+      <if test="dogfallTotal != null">
+        dogfall_total = #{dogfallTotal,jdbcType=INTEGER},
+      </if>
+      <if test="moreThanOne != null">
+        more_than_one = #{moreThanOne,jdbcType=INTEGER},
+      </if>
+      <if test="moreThanTwo != null">
+        more_than_two = #{moreThanTwo,jdbcType=INTEGER},
+      </if>
+      <if test="moreThanThree != null">
+        more_than_three = #{moreThanThree,jdbcType=INTEGER},
+      </if>
+      <if test="allScores != null">
+        all_scores = #{allScores,jdbcType=INTEGER},
+      </if>
+      <if test="homeNotLost != null">
+        home_not_lost = #{homeNotLost,jdbcType=INTEGER},
+      </if>
+      <if test="awayNotLost != null">
+        away_not_lost = #{awayNotLost,jdbcType=INTEGER},
+      </if>
+      <if test="modifyTime != null">
+        modify_time = #{modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.panda.merge.model.ThirdMatchFrontStatistics">
+    update third_match_front_statistics
+    set data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
+      third_match_source_id = #{thirdMatchSourceId,jdbcType=VARCHAR},
+      home_team_id = #{homeTeamId,jdbcType=VARCHAR},
+      away_team_id = #{awayTeamId,jdbcType=VARCHAR},
+      home_team_name = #{homeTeamName,jdbcType=VARCHAR},
+      away_team_name = #{awayTeamName,jdbcType=VARCHAR},
+      sport_id = #{sportId,jdbcType=BIGINT},
+      edit_status = #{editStatus,jdbcType=INTEGER},
+      count_total = #{countTotal,jdbcType=INTEGER},
+      home_win = #{homeWin,jdbcType=INTEGER},
+      away_win = #{awayWin,jdbcType=INTEGER},
+      dogfall_total = #{dogfallTotal,jdbcType=INTEGER},
+      more_than_one = #{moreThanOne,jdbcType=INTEGER},
+      more_than_two = #{moreThanTwo,jdbcType=INTEGER},
+      more_than_three = #{moreThanThree,jdbcType=INTEGER},
+      all_scores = #{allScores,jdbcType=INTEGER},
+      home_not_lost = #{homeNotLost,jdbcType=INTEGER},
+      away_not_lost = #{awayNotLost,jdbcType=INTEGER},
+      modify_time = #{modifyTime,jdbcType=BIGINT},
+      create_time = #{createTime,jdbcType=BIGINT}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>

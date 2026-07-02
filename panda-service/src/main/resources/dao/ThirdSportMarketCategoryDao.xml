@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.dao.ThirdSportMarketCategoryDao">
+
+    <insert id="saveBatch">
+        insert into third_sport_market_category (id, sport_id, market_category_id, create_time, modify_time)
+        values
+        <foreach collection="thirdSportMarketCategories" item="item" index="index" separator=",">
+            (#{item.id,jdbcType=BIGINT}, #{item.sportId,jdbcType=BIGINT}, #{item.marketCategoryId,jdbcType=BIGINT},
+            #{item.createTime,jdbcType=BIGINT}, #{item.modifyTime,jdbcType=BIGINT})
+        </foreach>
+    </insert>
+</mapper>

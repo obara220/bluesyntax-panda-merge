@@ -1,0 +1,550 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.mapper.MatchScoresInfoMapper">
+  <resultMap id="BaseResultMap" type="com.panda.merge.model.MatchScoresInfo">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="third_match_id" jdbcType="BIGINT" property="thirdMatchId" />
+    <result column="third_match_source_id" jdbcType="VARCHAR" property="thirdMatchSourceId" />
+    <result column="sport_id" jdbcType="BIGINT" property="sportId" />
+    <result column="period" jdbcType="BIGINT" property="period" />
+    <result column="period_length" jdbcType="INTEGER" property="periodLength" />
+    <result column="match_length" jdbcType="INTEGER" property="matchLength" />
+    <result column="event_time" jdbcType="BIGINT" property="eventTime" />
+    <result column="remaining_time" jdbcType="BIGINT" property="remainingTime" />
+    <result column="seconds_match_start" jdbcType="BIGINT" property="secondsMatchStart" />
+    <result column="data_source_code" jdbcType="VARCHAR" property="dataSourceCode" />
+    <result column="scores_json" jdbcType="VARCHAR" property="scoresJson" />
+    <result column="scores_json_type" jdbcType="VARCHAR" property="scoresJsonType" />
+    <result column="t1" jdbcType="INTEGER" property="t1" />
+    <result column="t2" jdbcType="INTEGER" property="t2" />
+    <result column="period_t1" jdbcType="INTEGER" property="periodT1" />
+    <result column="period_t2" jdbcType="INTEGER" property="periodT2" />
+    <result column="data_source_type" jdbcType="VARCHAR" property="dataSourceType" />
+    <result column="modify_time" jdbcType="BIGINT" property="modifyTime" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="scores_json_extra" jdbcType="VARCHAR" property="scoresJsonExtra" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, third_match_id, third_match_source_id, sport_id, period, period_length, match_length, 
+    event_time, remaining_time, seconds_match_start, data_source_code, scores_json, scores_json_type, 
+    t1, t2, period_t1, period_t2, data_source_type, modify_time, create_time, scores_json_extra
+  </sql>
+  <select id="selectByExample" parameterType="com.panda.merge.model.MatchScoresInfoExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from match_scores_info
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from match_scores_info
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from match_scores_info
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.panda.merge.model.MatchScoresInfoExample">
+    delete from match_scores_info
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+
+  <insert id="batchUpdateByPrimaryKey" parameterType="java.util.List">
+    insert into match_scores_info (id, third_match_id, third_match_source_id,
+    sport_id, period, period_length,
+    match_length, event_time, remaining_time,
+    seconds_match_start, data_source_code, scores_json,
+    scores_json_type, t1, t2,
+    period_t1, period_t2, data_source_type,
+    modify_time, create_time, scores_json_extra
+    )
+    VALUES
+    <foreach collection="list" index="index" item="item" separator=",">
+      (#{item.id,jdbcType=BIGINT}, #{item.thirdMatchId,jdbcType=BIGINT}, #{item.thirdMatchSourceId,jdbcType=VARCHAR},
+      #{item.sportId,jdbcType=BIGINT}, #{item.period,jdbcType=BIGINT}, #{item.periodLength,jdbcType=INTEGER},
+      #{item.matchLength,jdbcType=INTEGER}, #{item.eventTime,jdbcType=BIGINT}, #{item.remainingTime,jdbcType=BIGINT},
+      #{item.secondsMatchStart,jdbcType=BIGINT}, #{item.dataSourceCode,jdbcType=VARCHAR},#{item.scoresJson,jdbcType=VARCHAR},
+      #{item.scoresJsonType,jdbcType=VARCHAR}, #{item.t1,jdbcType=INTEGER}, #{item.t2,jdbcType=INTEGER},
+      #{item.periodT1,jdbcType=INTEGER}, #{item.periodT2,jdbcType=INTEGER}, #{item.dataSourceType,jdbcType=VARCHAR},
+      #{item.modifyTime,jdbcType=BIGINT}, #{item.createTime,jdbcType=BIGINT}, #{item.scoresJsonExtra,jdbcType=VARCHAR}
+      )    </foreach>
+    ON DUPLICATE KEY UPDATE
+    id = VALUES(id),
+    third_match_id = VALUES(third_match_id),
+    third_match_source_id = VALUES(third_match_source_id),
+    sport_id = VALUES(sport_id),
+    `period` = VALUES(`period`),
+    period_length = VALUES(period_length),
+    match_length = VALUES(match_length),
+    event_time = VALUES(event_time),
+    remaining_time = VALUES(remaining_time),
+    seconds_match_start = VALUES(seconds_match_start),
+    data_source_code = VALUES(data_source_code),
+    scores_json = VALUES(scores_json),
+    scores_json_type = VALUES(scores_json_type),
+    match_length = VALUES(match_length),
+    t1 = VALUES(t1),
+    t2 = VALUES(t2),
+    period_t1 = VALUES(period_t1),
+    period_t2 = VALUES(period_t2),
+    data_source_type = VALUES(data_source_type),
+    modify_time = VALUES(modify_time),
+    create_time = VALUES(create_time),
+    scores_json_extra = VALUES(scores_json_extra)
+  </insert>
+
+  <insert id="insert" parameterType="com.panda.merge.model.MatchScoresInfo">
+    insert into match_scores_info (id, third_match_id, third_match_source_id, 
+      sport_id, period, period_length, 
+      match_length, event_time, remaining_time, 
+      seconds_match_start, data_source_code, scores_json, 
+      scores_json_type, t1, t2, 
+      period_t1, period_t2, data_source_type, 
+      modify_time, create_time, scores_json_extra
+      )
+    values (#{id,jdbcType=BIGINT}, #{thirdMatchId,jdbcType=BIGINT}, #{thirdMatchSourceId,jdbcType=VARCHAR}, 
+      #{sportId,jdbcType=BIGINT}, #{period,jdbcType=BIGINT}, #{periodLength,jdbcType=INTEGER}, 
+      #{matchLength,jdbcType=INTEGER}, #{eventTime,jdbcType=BIGINT}, #{remainingTime,jdbcType=BIGINT}, 
+      #{secondsMatchStart,jdbcType=BIGINT}, #{dataSourceCode,jdbcType=VARCHAR}, #{scoresJson,jdbcType=VARCHAR}, 
+      #{scoresJsonType,jdbcType=VARCHAR}, #{t1,jdbcType=INTEGER}, #{t2,jdbcType=INTEGER}, 
+      #{periodT1,jdbcType=INTEGER}, #{periodT2,jdbcType=INTEGER}, #{dataSourceType,jdbcType=VARCHAR}, 
+      #{modifyTime,jdbcType=BIGINT}, #{createTime,jdbcType=BIGINT}, #{scoresJsonExtra,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.panda.merge.model.MatchScoresInfo">
+    insert into match_scores_info
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="thirdMatchId != null">
+        third_match_id,
+      </if>
+      <if test="thirdMatchSourceId != null">
+        third_match_source_id,
+      </if>
+      <if test="sportId != null">
+        sport_id,
+      </if>
+      <if test="period != null">
+        period,
+      </if>
+      <if test="periodLength != null">
+        period_length,
+      </if>
+      <if test="matchLength != null">
+        match_length,
+      </if>
+      <if test="eventTime != null">
+        event_time,
+      </if>
+      <if test="remainingTime != null">
+        remaining_time,
+      </if>
+      <if test="secondsMatchStart != null">
+        seconds_match_start,
+      </if>
+      <if test="dataSourceCode != null">
+        data_source_code,
+      </if>
+      <if test="scoresJson != null">
+        scores_json,
+      </if>
+      <if test="scoresJsonType != null">
+        scores_json_type,
+      </if>
+      <if test="t1 != null">
+        t1,
+      </if>
+      <if test="t2 != null">
+        t2,
+      </if>
+      <if test="periodT1 != null">
+        period_t1,
+      </if>
+      <if test="periodT2 != null">
+        period_t2,
+      </if>
+      <if test="dataSourceType != null">
+        data_source_type,
+      </if>
+      <if test="modifyTime != null">
+        modify_time,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="scoresJsonExtra != null">
+        scores_json_extra,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="thirdMatchId != null">
+        #{thirdMatchId,jdbcType=BIGINT},
+      </if>
+      <if test="thirdMatchSourceId != null">
+        #{thirdMatchSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="sportId != null">
+        #{sportId,jdbcType=BIGINT},
+      </if>
+      <if test="period != null">
+        #{period,jdbcType=BIGINT},
+      </if>
+      <if test="periodLength != null">
+        #{periodLength,jdbcType=INTEGER},
+      </if>
+      <if test="matchLength != null">
+        #{matchLength,jdbcType=INTEGER},
+      </if>
+      <if test="eventTime != null">
+        #{eventTime,jdbcType=BIGINT},
+      </if>
+      <if test="remainingTime != null">
+        #{remainingTime,jdbcType=BIGINT},
+      </if>
+      <if test="secondsMatchStart != null">
+        #{secondsMatchStart,jdbcType=BIGINT},
+      </if>
+      <if test="dataSourceCode != null">
+        #{dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="scoresJson != null">
+        #{scoresJson,jdbcType=VARCHAR},
+      </if>
+      <if test="scoresJsonType != null">
+        #{scoresJsonType,jdbcType=VARCHAR},
+      </if>
+      <if test="t1 != null">
+        #{t1,jdbcType=INTEGER},
+      </if>
+      <if test="t2 != null">
+        #{t2,jdbcType=INTEGER},
+      </if>
+      <if test="periodT1 != null">
+        #{periodT1,jdbcType=INTEGER},
+      </if>
+      <if test="periodT2 != null">
+        #{periodT2,jdbcType=INTEGER},
+      </if>
+      <if test="dataSourceType != null">
+        #{dataSourceType,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null">
+        #{modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="scoresJsonExtra != null">
+        #{scoresJsonExtra,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.panda.merge.model.MatchScoresInfoExample" resultType="java.lang.Long">
+    select count(*) from match_scores_info
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update match_scores_info
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.thirdMatchId != null">
+        third_match_id = #{record.thirdMatchId,jdbcType=BIGINT},
+      </if>
+      <if test="record.thirdMatchSourceId != null">
+        third_match_source_id = #{record.thirdMatchSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.sportId != null">
+        sport_id = #{record.sportId,jdbcType=BIGINT},
+      </if>
+      <if test="record.period != null">
+        period = #{record.period,jdbcType=BIGINT},
+      </if>
+      <if test="record.periodLength != null">
+        period_length = #{record.periodLength,jdbcType=INTEGER},
+      </if>
+      <if test="record.matchLength != null">
+        match_length = #{record.matchLength,jdbcType=INTEGER},
+      </if>
+      <if test="record.eventTime != null">
+        event_time = #{record.eventTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.remainingTime != null">
+        remaining_time = #{record.remainingTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.secondsMatchStart != null">
+        seconds_match_start = #{record.secondsMatchStart,jdbcType=BIGINT},
+      </if>
+      <if test="record.dataSourceCode != null">
+        data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.scoresJson != null">
+        scores_json = #{record.scoresJson,jdbcType=VARCHAR},
+      </if>
+      <if test="record.scoresJsonType != null">
+        scores_json_type = #{record.scoresJsonType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.t1 != null">
+        t1 = #{record.t1,jdbcType=INTEGER},
+      </if>
+      <if test="record.t2 != null">
+        t2 = #{record.t2,jdbcType=INTEGER},
+      </if>
+      <if test="record.periodT1 != null">
+        period_t1 = #{record.periodT1,jdbcType=INTEGER},
+      </if>
+      <if test="record.periodT2 != null">
+        period_t2 = #{record.periodT2,jdbcType=INTEGER},
+      </if>
+      <if test="record.dataSourceType != null">
+        data_source_type = #{record.dataSourceType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.modifyTime != null">
+        modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.scoresJsonExtra != null">
+        scores_json_extra = #{record.scoresJsonExtra,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update match_scores_info
+    set id = #{record.id,jdbcType=BIGINT},
+      third_match_id = #{record.thirdMatchId,jdbcType=BIGINT},
+      third_match_source_id = #{record.thirdMatchSourceId,jdbcType=VARCHAR},
+      sport_id = #{record.sportId,jdbcType=BIGINT},
+      period = #{record.period,jdbcType=BIGINT},
+      period_length = #{record.periodLength,jdbcType=INTEGER},
+      match_length = #{record.matchLength,jdbcType=INTEGER},
+      event_time = #{record.eventTime,jdbcType=BIGINT},
+      remaining_time = #{record.remainingTime,jdbcType=BIGINT},
+      seconds_match_start = #{record.secondsMatchStart,jdbcType=BIGINT},
+      data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+      scores_json = #{record.scoresJson,jdbcType=VARCHAR},
+      scores_json_type = #{record.scoresJsonType,jdbcType=VARCHAR},
+      t1 = #{record.t1,jdbcType=INTEGER},
+      t2 = #{record.t2,jdbcType=INTEGER},
+      period_t1 = #{record.periodT1,jdbcType=INTEGER},
+      period_t2 = #{record.periodT2,jdbcType=INTEGER},
+      data_source_type = #{record.dataSourceType,jdbcType=VARCHAR},
+      modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      scores_json_extra = #{record.scoresJsonExtra,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.panda.merge.model.MatchScoresInfo">
+    update match_scores_info
+    <set>
+      <if test="thirdMatchId != null">
+        third_match_id = #{thirdMatchId,jdbcType=BIGINT},
+      </if>
+      <if test="thirdMatchSourceId != null">
+        third_match_source_id = #{thirdMatchSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="sportId != null">
+        sport_id = #{sportId,jdbcType=BIGINT},
+      </if>
+      <if test="period != null">
+        period = #{period,jdbcType=BIGINT},
+      </if>
+      <if test="periodLength != null">
+        period_length = #{periodLength,jdbcType=INTEGER},
+      </if>
+      <if test="matchLength != null">
+        match_length = #{matchLength,jdbcType=INTEGER},
+      </if>
+      <if test="eventTime != null">
+        event_time = #{eventTime,jdbcType=BIGINT},
+      </if>
+      <if test="remainingTime != null">
+        remaining_time = #{remainingTime,jdbcType=BIGINT},
+      </if>
+      <if test="secondsMatchStart != null">
+        seconds_match_start = #{secondsMatchStart,jdbcType=BIGINT},
+      </if>
+      <if test="dataSourceCode != null">
+        data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="scoresJson != null">
+        scores_json = #{scoresJson,jdbcType=VARCHAR},
+      </if>
+      <if test="scoresJsonType != null">
+        scores_json_type = #{scoresJsonType,jdbcType=VARCHAR},
+      </if>
+      <if test="t1 != null">
+        t1 = #{t1,jdbcType=INTEGER},
+      </if>
+      <if test="t2 != null">
+        t2 = #{t2,jdbcType=INTEGER},
+      </if>
+      <if test="periodT1 != null">
+        period_t1 = #{periodT1,jdbcType=INTEGER},
+      </if>
+      <if test="periodT2 != null">
+        period_t2 = #{periodT2,jdbcType=INTEGER},
+      </if>
+      <if test="dataSourceType != null">
+        data_source_type = #{dataSourceType,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null">
+        modify_time = #{modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="scoresJsonExtra != null">
+        scores_json_extra = #{scoresJsonExtra,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.panda.merge.model.MatchScoresInfo">
+    update match_scores_info
+    set third_match_id = #{thirdMatchId,jdbcType=BIGINT},
+      third_match_source_id = #{thirdMatchSourceId,jdbcType=VARCHAR},
+      sport_id = #{sportId,jdbcType=BIGINT},
+      period = #{period,jdbcType=BIGINT},
+      period_length = #{periodLength,jdbcType=INTEGER},
+      match_length = #{matchLength,jdbcType=INTEGER},
+      event_time = #{eventTime,jdbcType=BIGINT},
+      remaining_time = #{remainingTime,jdbcType=BIGINT},
+      seconds_match_start = #{secondsMatchStart,jdbcType=BIGINT},
+      data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
+      scores_json = #{scoresJson,jdbcType=VARCHAR},
+      scores_json_type = #{scoresJsonType,jdbcType=VARCHAR},
+      t1 = #{t1,jdbcType=INTEGER},
+      t2 = #{t2,jdbcType=INTEGER},
+      period_t1 = #{periodT1,jdbcType=INTEGER},
+      period_t2 = #{periodT2,jdbcType=INTEGER},
+      data_source_type = #{dataSourceType,jdbcType=VARCHAR},
+      modify_time = #{modifyTime,jdbcType=BIGINT},
+      create_time = #{createTime,jdbcType=BIGINT},
+      scores_json_extra = #{scoresJsonExtra,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <select id="queryScoreByStandardMatchId"  resultMap="BaseResultMap">
+    select * from match_scores_info where 1=1 AND
+    (third_match_id in (select id from third_match_info where reference_id =#{matchId})    and data_source_type = #{dataSourceType} )
+      OR
+    (data_source_code = 'PD' AND third_match_id in (select id from third_match_info where reference_id =#{matchId}))
+  </select>
+
+
+  <resultMap id="FootballScoreResultMap" type="com.panda.merge.dto.scores.MatchScoreDto">
+    <id column="match_info_id" jdbcType="BIGINT" property="matchInfoId" />
+    <result column="scores_json" jdbcType="VARCHAR" property="scoresJson" />
+    <result column="scores_json_extra" jdbcType="VARCHAR" property="scoresJsonExtra" />
+  </resultMap>
+
+  <select id="queryScoresListByMatchIds" resultMap="FootballScoreResultMap">
+    select
+      t.match_info_id,
+      s.scores_json,
+      s.scores_json_extra
+    from
+      match_scores_info s,
+      (
+        select
+          t.id as id,
+          business_event,
+          s.match_info_id
+        from
+          third_match_info t left join standard_sport_market_sell s on s.match_info_id = t.reference_id
+        where
+          s.match_info_id in
+          <foreach close=")" collection="list" item="listItem" open="(" separator=",">
+            #{listItem}
+          </foreach>
+          and t.data_source_code = s.business_event
+      ) t
+    where
+      s.third_match_id = t.id
+      and s.data_source_type = 1
+  </select>
+</mapper>

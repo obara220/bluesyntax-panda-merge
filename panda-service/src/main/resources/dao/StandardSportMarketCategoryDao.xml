@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.dao.StandardSportMarketCategoryDao">
+
+    <resultMap id="childResultMap" type="com.panda.merge.dto.StandardSportMarketCategoryDetail" extends="com.panda.merge.mapper.StandardSportMarketCategoryMapper.BaseResultMap">
+        <collection property="il8nNameList" resultMap="com.panda.merge.mapper.I18nMarketCategoryMapper.BaseResultMap" columnPrefix="il8n_"/>
+    </resultMap>
+
+    <select id="getItemsByMarketCategoryId" parameterType="java.lang.Long" resultMap="childResultMap">
+        select mc.*,
+               il.name_code il8n_name_code,il.flag il8n_flag,il.language_type il8n_language_type,il.text il8n_text,il.remark il8n_remark
+        from   standard_sport_market_category mc left join i18n_market_category il on il.name_code = mc.name_code
+        where  mc.market_category_id = #{marketCategoryId}
+    </select>
+
+    <select id="getItemsByMarketCategoryIds" parameterType="java.util.List" resultMap="childResultMap">
+        select mc.*,
+               il.name_code il8n_name_code,il.flag il8n_flag,il.language_type il8n_language_type,il.text il8n_text,il.remark il8n_remark
+        from   standard_sport_market_category mc left join i18n_market_category il on il.name_code = mc.name_code
+        where  mc.market_category_id IN
+        <foreach item="marketCategoryId" index="index" collection="marketCategoryIds" open="(" separator="," close=")">
+            #{marketCategoryId}
+        </foreach>
+    </select>
+
+
+</mapper>

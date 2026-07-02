@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.dao.ThirdMatchTeamRelationDao">
+
+    <insert id="insertList" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO third_match_team_relation(id, match_id, team_id, match_position, team_name_record, remark, create_time, modify_time) VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.id}, #{item.matchId}, #{item.teamId}, #{item.matchPosition}, #{item.teamNameRecord}, #{item.remark},
+            REPLACE(unix_timestamp(current_timestamp(3)),'.',''), REPLACE(unix_timestamp(current_timestamp(3)),'.',''))
+        </foreach>
+    </insert>
+
+    <update id="updateList" parameterType="java.util.List">
+        <foreach collection="list" item="item" separator=";">
+            UPDATE third_match_team_relation
+            <set>
+                <if test="item.teamId != null">
+                    team_id = #{item.teamId},
+                </if>
+                <if test="item.matchPosition != null">
+                    match_position = #{item.matchPosition},
+                </if>
+                <if test="item.teamNameRecord != null">
+                    team_name_record = #{item.teamNameRecord},
+                </if>
+                <if test="item.remark != null">
+                    remark = #{item.remark},
+                </if>
+                modify_time = REPLACE(unix_timestamp(current_timestamp(3)),'.','')
+            </set>
+            WHERE id = #{item.id}
+        </foreach>
+    </update>
+
+    <select id="getItemsByMatchId" parameterType="java.lang.Long" resultType="com.panda.merge.dto.ThirdMatchTeamRelationDetail">
+       SELECT
+            sp.third_source_player_id thirdSourcePlayerId,
+            tm.team_id teamId,
+            tm.match_id matchId,
+            tm.match_position matchPosition
+        FROM
+            third_match_team_relation tm
+            LEFT JOIN third_team_player_relation tp ON tm.team_id = tp.team_id
+            LEFT JOIN third_sport_player sp ON sp.id = tp.player_id
+        WHERE
+            tm.match_id = #{matchId}
+        ORDER BY sp.third_source_player_id,tp.modify_time DESC
+    </select>
+</mapper>

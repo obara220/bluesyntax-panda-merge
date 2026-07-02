@@ -1,0 +1,554 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.mapper.ThirdSportPlayerMapper">
+  <resultMap id="BaseResultMap" type="com.panda.merge.model.ThirdSportPlayer">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="sport_id" jdbcType="BIGINT" property="sportId" />
+    <result column="region_id" jdbcType="BIGINT" property="regionId" />
+    <result column="data_source_code" jdbcType="VARCHAR" property="dataSourceCode" />
+    <result column="reference_id" jdbcType="BIGINT" property="referenceId" />
+    <result column="third_source_player_id" jdbcType="VARCHAR" property="thirdSourcePlayerId" />
+    <result column="picture_url" jdbcType="VARCHAR" property="pictureUrl" />
+    <result column="name_code" jdbcType="BIGINT" property="nameCode" />
+    <result column="weight" jdbcType="INTEGER" property="weight" />
+    <result column="height" jdbcType="INTEGER" property="height" />
+    <result column="gender" jdbcType="INTEGER" property="gender" />
+    <result column="birthday" jdbcType="VARCHAR" property="birthday" />
+    <result column="name_spell" jdbcType="VARCHAR" property="nameSpell" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="country_id" jdbcType="BIGINT" property="countryId" />
+    <result column="personal_feature" jdbcType="VARCHAR" property="personalFeature" />
+    <result column="nick_name" jdbcType="VARCHAR" property="nickName" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="modify_time" jdbcType="BIGINT" property="modifyTime" />
+    <result column="match_type" jdbcType="TINYINT" property="matchType" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.panda.merge.model.ThirdSportPlayer">
+    <result column="all_language_name" jdbcType="LONGVARCHAR" property="allLanguageName" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, sport_id, region_id, data_source_code, reference_id, third_source_player_id, 
+    picture_url, name_code, weight, height, gender, birthday, name_spell, name, country_id, 
+    personal_feature, nick_name, remark, create_time, modify_time, match_type
+  </sql>
+  <sql id="Blob_Column_List">
+    all_language_name
+  </sql>
+  <select id="selectByExampleWithBLOBs" parameterType="com.panda.merge.model.ThirdSportPlayerExample" resultMap="ResultMapWithBLOBs">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from third_sport_player
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" parameterType="com.panda.merge.model.ThirdSportPlayerExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from third_sport_player
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from third_sport_player
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from third_sport_player
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.panda.merge.model.ThirdSportPlayerExample">
+    delete from third_sport_player
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.panda.merge.model.ThirdSportPlayer">
+    insert into third_sport_player (id, sport_id, region_id, 
+      data_source_code, reference_id, third_source_player_id, 
+      picture_url, name_code, weight, 
+      height, gender, birthday, 
+      name_spell, name, country_id, 
+      personal_feature, nick_name, remark, 
+      create_time, modify_time, match_type,
+      all_language_name)
+    values (#{id,jdbcType=BIGINT}, #{sportId,jdbcType=BIGINT}, #{regionId,jdbcType=BIGINT}, 
+      #{dataSourceCode,jdbcType=VARCHAR}, #{referenceId,jdbcType=BIGINT}, #{thirdSourcePlayerId,jdbcType=VARCHAR}, 
+      #{pictureUrl,jdbcType=VARCHAR}, #{nameCode,jdbcType=BIGINT}, #{weight,jdbcType=INTEGER}, 
+      #{height,jdbcType=INTEGER}, #{gender,jdbcType=INTEGER}, #{birthday,jdbcType=VARCHAR}, 
+      #{nameSpell,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{countryId,jdbcType=BIGINT}, 
+      #{personalFeature,jdbcType=VARCHAR}, #{nickName,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=BIGINT}, #{modifyTime,jdbcType=BIGINT}, #{matchType,jdbcType=TINYINT},
+      #{allLanguageName,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.panda.merge.model.ThirdSportPlayer">
+    insert into third_sport_player
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="sportId != null">
+        sport_id,
+      </if>
+      <if test="regionId != null">
+        region_id,
+      </if>
+      <if test="dataSourceCode != null">
+        data_source_code,
+      </if>
+      <if test="referenceId != null">
+        reference_id,
+      </if>
+      <if test="thirdSourcePlayerId != null">
+        third_source_player_id,
+      </if>
+      <if test="pictureUrl != null">
+        picture_url,
+      </if>
+      <if test="nameCode != null">
+        name_code,
+      </if>
+      <if test="weight != null">
+        weight,
+      </if>
+      <if test="height != null">
+        height,
+      </if>
+      <if test="gender != null">
+        gender,
+      </if>
+      <if test="birthday != null">
+        birthday,
+      </if>
+      <if test="nameSpell != null">
+        name_spell,
+      </if>
+      <if test="name != null">
+        name,
+      </if>
+      <if test="countryId != null">
+        country_id,
+      </if>
+      <if test="personalFeature != null">
+        personal_feature,
+      </if>
+      <if test="nickName != null">
+        nick_name,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="modifyTime != null">
+        modify_time,
+      </if>
+      <if test="matchType != null">
+        match_type,
+      </if>
+      <if test="allLanguageName != null">
+        all_language_name,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="sportId != null">
+        #{sportId,jdbcType=BIGINT},
+      </if>
+      <if test="regionId != null">
+        #{regionId,jdbcType=BIGINT},
+      </if>
+      <if test="dataSourceCode != null">
+        #{dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="referenceId != null">
+        #{referenceId,jdbcType=BIGINT},
+      </if>
+      <if test="thirdSourcePlayerId != null">
+        #{thirdSourcePlayerId,jdbcType=VARCHAR},
+      </if>
+      <if test="pictureUrl != null">
+        #{pictureUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="nameCode != null">
+        #{nameCode,jdbcType=BIGINT},
+      </if>
+      <if test="weight != null">
+        #{weight,jdbcType=INTEGER},
+      </if>
+      <if test="height != null">
+        #{height,jdbcType=INTEGER},
+      </if>
+      <if test="gender != null">
+        #{gender,jdbcType=INTEGER},
+      </if>
+      <if test="birthday != null">
+        #{birthday,jdbcType=VARCHAR},
+      </if>
+      <if test="nameSpell != null">
+        #{nameSpell,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="countryId != null">
+        #{countryId,jdbcType=BIGINT},
+      </if>
+      <if test="personalFeature != null">
+        #{personalFeature,jdbcType=VARCHAR},
+      </if>
+      <if test="nickName != null">
+        #{nickName,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null">
+        #{modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="matchType != null">
+        #{matchType,jdbcType=TINYINT},
+      </if>
+      <if test="allLanguageName != null">
+        #{allLanguageName,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.panda.merge.model.ThirdSportPlayerExample" resultType="java.lang.Long">
+    select count(*) from third_sport_player
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update third_sport_player
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.sportId != null">
+        sport_id = #{record.sportId,jdbcType=BIGINT},
+      </if>
+      <if test="record.regionId != null">
+        region_id = #{record.regionId,jdbcType=BIGINT},
+      </if>
+      <if test="record.dataSourceCode != null">
+        data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.referenceId != null">
+        reference_id = #{record.referenceId,jdbcType=BIGINT},
+      </if>
+      <if test="record.thirdSourcePlayerId != null">
+        third_source_player_id = #{record.thirdSourcePlayerId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.pictureUrl != null">
+        picture_url = #{record.pictureUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.nameCode != null">
+        name_code = #{record.nameCode,jdbcType=BIGINT},
+      </if>
+      <if test="record.weight != null">
+        weight = #{record.weight,jdbcType=INTEGER},
+      </if>
+      <if test="record.height != null">
+        height = #{record.height,jdbcType=INTEGER},
+      </if>
+      <if test="record.gender != null">
+        gender = #{record.gender,jdbcType=INTEGER},
+      </if>
+      <if test="record.birthday != null">
+        birthday = #{record.birthday,jdbcType=VARCHAR},
+      </if>
+      <if test="record.nameSpell != null">
+        name_spell = #{record.nameSpell,jdbcType=VARCHAR},
+      </if>
+      <if test="record.name != null">
+        name = #{record.name,jdbcType=VARCHAR},
+      </if>
+      <if test="record.countryId != null">
+        country_id = #{record.countryId,jdbcType=BIGINT},
+      </if>
+      <if test="record.personalFeature != null">
+        personal_feature = #{record.personalFeature,jdbcType=VARCHAR},
+      </if>
+      <if test="record.nickName != null">
+        nick_name = #{record.nickName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.remark != null">
+        remark = #{record.remark,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.modifyTime != null">
+        modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.matchType != null">
+        match_type = #{record.matchType,jdbcType=TINYINT},
+      </if>
+      <if test="record.allLanguageName != null">
+        all_language_name = #{record.allLanguageName,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map">
+    update third_sport_player
+    set id = #{record.id,jdbcType=BIGINT},
+      sport_id = #{record.sportId,jdbcType=BIGINT},
+      region_id = #{record.regionId,jdbcType=BIGINT},
+      data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+      reference_id = #{record.referenceId,jdbcType=BIGINT},
+      third_source_player_id = #{record.thirdSourcePlayerId,jdbcType=VARCHAR},
+      picture_url = #{record.pictureUrl,jdbcType=VARCHAR},
+      name_code = #{record.nameCode,jdbcType=BIGINT},
+      weight = #{record.weight,jdbcType=INTEGER},
+      height = #{record.height,jdbcType=INTEGER},
+      gender = #{record.gender,jdbcType=INTEGER},
+      birthday = #{record.birthday,jdbcType=VARCHAR},
+      name_spell = #{record.nameSpell,jdbcType=VARCHAR},
+      name = #{record.name,jdbcType=VARCHAR},
+      country_id = #{record.countryId,jdbcType=BIGINT},
+      personal_feature = #{record.personalFeature,jdbcType=VARCHAR},
+      nick_name = #{record.nickName,jdbcType=VARCHAR},
+      remark = #{record.remark,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      match_type = #{record.matchType,jdbcType=TINYINT},
+      all_language_name = #{record.allLanguageName,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update third_sport_player
+    set id = #{record.id,jdbcType=BIGINT},
+      sport_id = #{record.sportId,jdbcType=BIGINT},
+      region_id = #{record.regionId,jdbcType=BIGINT},
+      data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+      reference_id = #{record.referenceId,jdbcType=BIGINT},
+      third_source_player_id = #{record.thirdSourcePlayerId,jdbcType=VARCHAR},
+      picture_url = #{record.pictureUrl,jdbcType=VARCHAR},
+      name_code = #{record.nameCode,jdbcType=BIGINT},
+      weight = #{record.weight,jdbcType=INTEGER},
+      height = #{record.height,jdbcType=INTEGER},
+      gender = #{record.gender,jdbcType=INTEGER},
+      birthday = #{record.birthday,jdbcType=VARCHAR},
+      name_spell = #{record.nameSpell,jdbcType=VARCHAR},
+      name = #{record.name,jdbcType=VARCHAR},
+      country_id = #{record.countryId,jdbcType=BIGINT},
+      personal_feature = #{record.personalFeature,jdbcType=VARCHAR},
+      nick_name = #{record.nickName,jdbcType=VARCHAR},
+      remark = #{record.remark,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      match_type = #{record.matchType,jdbcType=TINYINT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.panda.merge.model.ThirdSportPlayer">
+    update third_sport_player
+    <set>
+      <if test="sportId != null">
+        sport_id = #{sportId,jdbcType=BIGINT},
+      </if>
+      <if test="regionId != null">
+        region_id = #{regionId,jdbcType=BIGINT},
+      </if>
+      <if test="dataSourceCode != null">
+        data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="referenceId != null">
+        reference_id = #{referenceId,jdbcType=BIGINT},
+      </if>
+      <if test="thirdSourcePlayerId != null">
+        third_source_player_id = #{thirdSourcePlayerId,jdbcType=VARCHAR},
+      </if>
+      <if test="pictureUrl != null">
+        picture_url = #{pictureUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="nameCode != null">
+        name_code = #{nameCode,jdbcType=BIGINT},
+      </if>
+      <if test="weight != null">
+        weight = #{weight,jdbcType=INTEGER},
+      </if>
+      <if test="height != null">
+        height = #{height,jdbcType=INTEGER},
+      </if>
+      <if test="gender != null">
+        gender = #{gender,jdbcType=INTEGER},
+      </if>
+      <if test="birthday != null">
+        birthday = #{birthday,jdbcType=VARCHAR},
+      </if>
+      <if test="nameSpell != null">
+        name_spell = #{nameSpell,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="countryId != null">
+        country_id = #{countryId,jdbcType=BIGINT},
+      </if>
+      <if test="personalFeature != null">
+        personal_feature = #{personalFeature,jdbcType=VARCHAR},
+      </if>
+      <if test="nickName != null">
+        nick_name = #{nickName,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null">
+        modify_time = #{modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="matchType != null">
+        match_type = #{matchType,jdbcType=TINYINT},
+      </if>
+      <if test="allLanguageName != null">
+        all_language_name = #{allLanguageName,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.panda.merge.model.ThirdSportPlayer">
+    update third_sport_player
+    set sport_id = #{sportId,jdbcType=BIGINT},
+      region_id = #{regionId,jdbcType=BIGINT},
+      data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
+      reference_id = #{referenceId,jdbcType=BIGINT},
+      third_source_player_id = #{thirdSourcePlayerId,jdbcType=VARCHAR},
+      picture_url = #{pictureUrl,jdbcType=VARCHAR},
+      name_code = #{nameCode,jdbcType=BIGINT},
+      weight = #{weight,jdbcType=INTEGER},
+      height = #{height,jdbcType=INTEGER},
+      gender = #{gender,jdbcType=INTEGER},
+      birthday = #{birthday,jdbcType=VARCHAR},
+      name_spell = #{nameSpell,jdbcType=VARCHAR},
+      name = #{name,jdbcType=VARCHAR},
+      country_id = #{countryId,jdbcType=BIGINT},
+      personal_feature = #{personalFeature,jdbcType=VARCHAR},
+      nick_name = #{nickName,jdbcType=VARCHAR},
+      remark = #{remark,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      modify_time = #{modifyTime,jdbcType=BIGINT},
+      match_type = #{matchType,jdbcType=TINYINT},
+      all_language_name = #{allLanguageName,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.panda.merge.model.ThirdSportPlayer">
+    update third_sport_player
+    set sport_id = #{sportId,jdbcType=BIGINT},
+      region_id = #{regionId,jdbcType=BIGINT},
+      data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
+      reference_id = #{referenceId,jdbcType=BIGINT},
+      third_source_player_id = #{thirdSourcePlayerId,jdbcType=VARCHAR},
+      picture_url = #{pictureUrl,jdbcType=VARCHAR},
+      name_code = #{nameCode,jdbcType=BIGINT},
+      weight = #{weight,jdbcType=INTEGER},
+      height = #{height,jdbcType=INTEGER},
+      gender = #{gender,jdbcType=INTEGER},
+      birthday = #{birthday,jdbcType=VARCHAR},
+      name_spell = #{nameSpell,jdbcType=VARCHAR},
+      name = #{name,jdbcType=VARCHAR},
+      country_id = #{countryId,jdbcType=BIGINT},
+      personal_feature = #{personalFeature,jdbcType=VARCHAR},
+      nick_name = #{nickName,jdbcType=VARCHAR},
+      remark = #{remark,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      modify_time = #{modifyTime,jdbcType=BIGINT},
+      match_type = #{matchType,jdbcType=TINYINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

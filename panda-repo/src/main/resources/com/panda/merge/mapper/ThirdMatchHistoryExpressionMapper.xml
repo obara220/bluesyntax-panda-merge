@@ -1,0 +1,576 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.mapper.ThirdMatchHistoryExpressionMapper">
+  <resultMap id="BaseResultMap" type="com.panda.merge.model.ThirdMatchHistoryExpression">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="third_tournament_source_id" jdbcType="VARCHAR" property="thirdTournamentSourceId" />
+    <result column="third_team_source_id" jdbcType="VARCHAR" property="thirdTeamSourceId" />
+    <result column="data_source_code" jdbcType="VARCHAR" property="dataSourceCode" />
+    <result column="team_cn_name" jdbcType="VARCHAR" property="teamCnName" />
+    <result column="team_en_name" jdbcType="VARCHAR" property="teamEnName" />
+    <result column="edit_status" jdbcType="INTEGER" property="editStatus" />
+    <result column="sport_id" jdbcType="BIGINT" property="sportId" />
+    <result column="expression_ranking" jdbcType="VARCHAR" property="expressionRanking" />
+    <result column="expressing_type" jdbcType="INTEGER" property="expressingType" />
+    <result column="first_status" jdbcType="INTEGER" property="firstStatus" />
+    <result column="second_status" jdbcType="INTEGER" property="secondStatus" />
+    <result column="third_status" jdbcType="INTEGER" property="thirdStatus" />
+    <result column="fourth_status" jdbcType="INTEGER" property="fourthStatus" />
+    <result column="fifth_status" jdbcType="INTEGER" property="fifthStatus" />
+    <result column="goals_for_total" jdbcType="INTEGER" property="goalsForTotal" />
+    <result column="average_goal" jdbcType="DECIMAL" property="averageGoal" />
+    <result column="win_percent" jdbcType="DECIMAL" property="winPercent" />
+    <result column="both_goal_percent" jdbcType="DECIMAL" property="bothGoalPercent" />
+    <result column="not_lost_percent" jdbcType="DECIMAL" property="notLostPercent" />
+    <result column="first_goal_percent" jdbcType="DECIMAL" property="firstGoalPercent" />
+    <result column="average_goal_percent" jdbcType="DECIMAL" property="averageGoalPercent" />
+    <result column="goal_percent" jdbcType="DECIMAL" property="goalPercent" />
+    <result column="lost_goal_percent" jdbcType="DECIMAL" property="lostGoalPercent" />
+    <result column="goal_xg" jdbcType="DECIMAL" property="goalXg" />
+    <result column="goal_xga" jdbcType="DECIMAL" property="goalXga" />
+    <result column="modify_time" jdbcType="BIGINT" property="modifyTime" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, third_tournament_source_id, third_team_source_id, data_source_code, team_cn_name, 
+    team_en_name, edit_status, sport_id, expression_ranking, expressing_type, first_status, 
+    second_status, third_status, fourth_status, fifth_status, goals_for_total, average_goal, 
+    win_percent, both_goal_percent, not_lost_percent, first_goal_percent, average_goal_percent, 
+    goal_percent, lost_goal_percent, goal_xg, goal_xga, modify_time, create_time
+  </sql>
+  <select id="selectByExample" parameterType="com.panda.merge.model.ThirdMatchHistoryExpressionExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from third_match_history_expression
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from third_match_history_expression
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from third_match_history_expression
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.panda.merge.model.ThirdMatchHistoryExpressionExample">
+    delete from third_match_history_expression
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.panda.merge.model.ThirdMatchHistoryExpression">
+    insert into third_match_history_expression (id, third_tournament_source_id, third_team_source_id, 
+      data_source_code, team_cn_name, team_en_name, 
+      edit_status, sport_id, expression_ranking, 
+      expressing_type, first_status, second_status, 
+      third_status, fourth_status, fifth_status, 
+      goals_for_total, average_goal, win_percent, 
+      both_goal_percent, not_lost_percent, first_goal_percent, 
+      average_goal_percent, goal_percent, lost_goal_percent, 
+      goal_xg, goal_xga, modify_time, 
+      create_time)
+    values (#{id,jdbcType=VARCHAR}, #{thirdTournamentSourceId,jdbcType=VARCHAR}, #{thirdTeamSourceId,jdbcType=VARCHAR}, 
+      #{dataSourceCode,jdbcType=VARCHAR}, #{teamCnName,jdbcType=VARCHAR}, #{teamEnName,jdbcType=VARCHAR}, 
+      #{editStatus,jdbcType=INTEGER}, #{sportId,jdbcType=BIGINT}, #{expressionRanking,jdbcType=VARCHAR}, 
+      #{expressingType,jdbcType=INTEGER}, #{firstStatus,jdbcType=INTEGER}, #{secondStatus,jdbcType=INTEGER}, 
+      #{thirdStatus,jdbcType=INTEGER}, #{fourthStatus,jdbcType=INTEGER}, #{fifthStatus,jdbcType=INTEGER}, 
+      #{goalsForTotal,jdbcType=INTEGER}, #{averageGoal,jdbcType=DECIMAL}, #{winPercent,jdbcType=DECIMAL}, 
+      #{bothGoalPercent,jdbcType=DECIMAL}, #{notLostPercent,jdbcType=DECIMAL}, #{firstGoalPercent,jdbcType=DECIMAL}, 
+      #{averageGoalPercent,jdbcType=DECIMAL}, #{goalPercent,jdbcType=DECIMAL}, #{lostGoalPercent,jdbcType=DECIMAL}, 
+      #{goalXg,jdbcType=DECIMAL}, #{goalXga,jdbcType=DECIMAL}, #{modifyTime,jdbcType=BIGINT}, 
+      #{createTime,jdbcType=BIGINT})
+  </insert>
+  <insert id="insertSelective" parameterType="com.panda.merge.model.ThirdMatchHistoryExpression">
+    insert into third_match_history_expression
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="thirdTournamentSourceId != null">
+        third_tournament_source_id,
+      </if>
+      <if test="thirdTeamSourceId != null">
+        third_team_source_id,
+      </if>
+      <if test="dataSourceCode != null">
+        data_source_code,
+      </if>
+      <if test="teamCnName != null">
+        team_cn_name,
+      </if>
+      <if test="teamEnName != null">
+        team_en_name,
+      </if>
+      <if test="editStatus != null">
+        edit_status,
+      </if>
+      <if test="sportId != null">
+        sport_id,
+      </if>
+      <if test="expressionRanking != null">
+        expression_ranking,
+      </if>
+      <if test="expressingType != null">
+        expressing_type,
+      </if>
+      <if test="firstStatus != null">
+        first_status,
+      </if>
+      <if test="secondStatus != null">
+        second_status,
+      </if>
+      <if test="thirdStatus != null">
+        third_status,
+      </if>
+      <if test="fourthStatus != null">
+        fourth_status,
+      </if>
+      <if test="fifthStatus != null">
+        fifth_status,
+      </if>
+      <if test="goalsForTotal != null">
+        goals_for_total,
+      </if>
+      <if test="averageGoal != null">
+        average_goal,
+      </if>
+      <if test="winPercent != null">
+        win_percent,
+      </if>
+      <if test="bothGoalPercent != null">
+        both_goal_percent,
+      </if>
+      <if test="notLostPercent != null">
+        not_lost_percent,
+      </if>
+      <if test="firstGoalPercent != null">
+        first_goal_percent,
+      </if>
+      <if test="averageGoalPercent != null">
+        average_goal_percent,
+      </if>
+      <if test="goalPercent != null">
+        goal_percent,
+      </if>
+      <if test="lostGoalPercent != null">
+        lost_goal_percent,
+      </if>
+      <if test="goalXg != null">
+        goal_xg,
+      </if>
+      <if test="goalXga != null">
+        goal_xga,
+      </if>
+      <if test="modifyTime != null">
+        modify_time,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdTournamentSourceId != null">
+        #{thirdTournamentSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdTeamSourceId != null">
+        #{thirdTeamSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="dataSourceCode != null">
+        #{dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="teamCnName != null">
+        #{teamCnName,jdbcType=VARCHAR},
+      </if>
+      <if test="teamEnName != null">
+        #{teamEnName,jdbcType=VARCHAR},
+      </if>
+      <if test="editStatus != null">
+        #{editStatus,jdbcType=INTEGER},
+      </if>
+      <if test="sportId != null">
+        #{sportId,jdbcType=BIGINT},
+      </if>
+      <if test="expressionRanking != null">
+        #{expressionRanking,jdbcType=VARCHAR},
+      </if>
+      <if test="expressingType != null">
+        #{expressingType,jdbcType=INTEGER},
+      </if>
+      <if test="firstStatus != null">
+        #{firstStatus,jdbcType=INTEGER},
+      </if>
+      <if test="secondStatus != null">
+        #{secondStatus,jdbcType=INTEGER},
+      </if>
+      <if test="thirdStatus != null">
+        #{thirdStatus,jdbcType=INTEGER},
+      </if>
+      <if test="fourthStatus != null">
+        #{fourthStatus,jdbcType=INTEGER},
+      </if>
+      <if test="fifthStatus != null">
+        #{fifthStatus,jdbcType=INTEGER},
+      </if>
+      <if test="goalsForTotal != null">
+        #{goalsForTotal,jdbcType=INTEGER},
+      </if>
+      <if test="averageGoal != null">
+        #{averageGoal,jdbcType=DECIMAL},
+      </if>
+      <if test="winPercent != null">
+        #{winPercent,jdbcType=DECIMAL},
+      </if>
+      <if test="bothGoalPercent != null">
+        #{bothGoalPercent,jdbcType=DECIMAL},
+      </if>
+      <if test="notLostPercent != null">
+        #{notLostPercent,jdbcType=DECIMAL},
+      </if>
+      <if test="firstGoalPercent != null">
+        #{firstGoalPercent,jdbcType=DECIMAL},
+      </if>
+      <if test="averageGoalPercent != null">
+        #{averageGoalPercent,jdbcType=DECIMAL},
+      </if>
+      <if test="goalPercent != null">
+        #{goalPercent,jdbcType=DECIMAL},
+      </if>
+      <if test="lostGoalPercent != null">
+        #{lostGoalPercent,jdbcType=DECIMAL},
+      </if>
+      <if test="goalXg != null">
+        #{goalXg,jdbcType=DECIMAL},
+      </if>
+      <if test="goalXga != null">
+        #{goalXga,jdbcType=DECIMAL},
+      </if>
+      <if test="modifyTime != null">
+        #{modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.panda.merge.model.ThirdMatchHistoryExpressionExample" resultType="java.lang.Long">
+    select count(*) from third_match_history_expression
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update third_match_history_expression
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
+      </if>
+      <if test="record.thirdTournamentSourceId != null">
+        third_tournament_source_id = #{record.thirdTournamentSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.thirdTeamSourceId != null">
+        third_team_source_id = #{record.thirdTeamSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.dataSourceCode != null">
+        data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.teamCnName != null">
+        team_cn_name = #{record.teamCnName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.teamEnName != null">
+        team_en_name = #{record.teamEnName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.editStatus != null">
+        edit_status = #{record.editStatus,jdbcType=INTEGER},
+      </if>
+      <if test="record.sportId != null">
+        sport_id = #{record.sportId,jdbcType=BIGINT},
+      </if>
+      <if test="record.expressionRanking != null">
+        expression_ranking = #{record.expressionRanking,jdbcType=VARCHAR},
+      </if>
+      <if test="record.expressingType != null">
+        expressing_type = #{record.expressingType,jdbcType=INTEGER},
+      </if>
+      <if test="record.firstStatus != null">
+        first_status = #{record.firstStatus,jdbcType=INTEGER},
+      </if>
+      <if test="record.secondStatus != null">
+        second_status = #{record.secondStatus,jdbcType=INTEGER},
+      </if>
+      <if test="record.thirdStatus != null">
+        third_status = #{record.thirdStatus,jdbcType=INTEGER},
+      </if>
+      <if test="record.fourthStatus != null">
+        fourth_status = #{record.fourthStatus,jdbcType=INTEGER},
+      </if>
+      <if test="record.fifthStatus != null">
+        fifth_status = #{record.fifthStatus,jdbcType=INTEGER},
+      </if>
+      <if test="record.goalsForTotal != null">
+        goals_for_total = #{record.goalsForTotal,jdbcType=INTEGER},
+      </if>
+      <if test="record.averageGoal != null">
+        average_goal = #{record.averageGoal,jdbcType=DECIMAL},
+      </if>
+      <if test="record.winPercent != null">
+        win_percent = #{record.winPercent,jdbcType=DECIMAL},
+      </if>
+      <if test="record.bothGoalPercent != null">
+        both_goal_percent = #{record.bothGoalPercent,jdbcType=DECIMAL},
+      </if>
+      <if test="record.notLostPercent != null">
+        not_lost_percent = #{record.notLostPercent,jdbcType=DECIMAL},
+      </if>
+      <if test="record.firstGoalPercent != null">
+        first_goal_percent = #{record.firstGoalPercent,jdbcType=DECIMAL},
+      </if>
+      <if test="record.averageGoalPercent != null">
+        average_goal_percent = #{record.averageGoalPercent,jdbcType=DECIMAL},
+      </if>
+      <if test="record.goalPercent != null">
+        goal_percent = #{record.goalPercent,jdbcType=DECIMAL},
+      </if>
+      <if test="record.lostGoalPercent != null">
+        lost_goal_percent = #{record.lostGoalPercent,jdbcType=DECIMAL},
+      </if>
+      <if test="record.goalXg != null">
+        goal_xg = #{record.goalXg,jdbcType=DECIMAL},
+      </if>
+      <if test="record.goalXga != null">
+        goal_xga = #{record.goalXga,jdbcType=DECIMAL},
+      </if>
+      <if test="record.modifyTime != null">
+        modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update third_match_history_expression
+    set id = #{record.id,jdbcType=VARCHAR},
+      third_tournament_source_id = #{record.thirdTournamentSourceId,jdbcType=VARCHAR},
+      third_team_source_id = #{record.thirdTeamSourceId,jdbcType=VARCHAR},
+      data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+      team_cn_name = #{record.teamCnName,jdbcType=VARCHAR},
+      team_en_name = #{record.teamEnName,jdbcType=VARCHAR},
+      edit_status = #{record.editStatus,jdbcType=INTEGER},
+      sport_id = #{record.sportId,jdbcType=BIGINT},
+      expression_ranking = #{record.expressionRanking,jdbcType=VARCHAR},
+      expressing_type = #{record.expressingType,jdbcType=INTEGER},
+      first_status = #{record.firstStatus,jdbcType=INTEGER},
+      second_status = #{record.secondStatus,jdbcType=INTEGER},
+      third_status = #{record.thirdStatus,jdbcType=INTEGER},
+      fourth_status = #{record.fourthStatus,jdbcType=INTEGER},
+      fifth_status = #{record.fifthStatus,jdbcType=INTEGER},
+      goals_for_total = #{record.goalsForTotal,jdbcType=INTEGER},
+      average_goal = #{record.averageGoal,jdbcType=DECIMAL},
+      win_percent = #{record.winPercent,jdbcType=DECIMAL},
+      both_goal_percent = #{record.bothGoalPercent,jdbcType=DECIMAL},
+      not_lost_percent = #{record.notLostPercent,jdbcType=DECIMAL},
+      first_goal_percent = #{record.firstGoalPercent,jdbcType=DECIMAL},
+      average_goal_percent = #{record.averageGoalPercent,jdbcType=DECIMAL},
+      goal_percent = #{record.goalPercent,jdbcType=DECIMAL},
+      lost_goal_percent = #{record.lostGoalPercent,jdbcType=DECIMAL},
+      goal_xg = #{record.goalXg,jdbcType=DECIMAL},
+      goal_xga = #{record.goalXga,jdbcType=DECIMAL},
+      modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      create_time = #{record.createTime,jdbcType=BIGINT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.panda.merge.model.ThirdMatchHistoryExpression">
+    update third_match_history_expression
+    <set>
+      <if test="thirdTournamentSourceId != null">
+        third_tournament_source_id = #{thirdTournamentSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdTeamSourceId != null">
+        third_team_source_id = #{thirdTeamSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="dataSourceCode != null">
+        data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="teamCnName != null">
+        team_cn_name = #{teamCnName,jdbcType=VARCHAR},
+      </if>
+      <if test="teamEnName != null">
+        team_en_name = #{teamEnName,jdbcType=VARCHAR},
+      </if>
+      <if test="editStatus != null">
+        edit_status = #{editStatus,jdbcType=INTEGER},
+      </if>
+      <if test="sportId != null">
+        sport_id = #{sportId,jdbcType=BIGINT},
+      </if>
+      <if test="expressionRanking != null">
+        expression_ranking = #{expressionRanking,jdbcType=VARCHAR},
+      </if>
+      <if test="expressingType != null">
+        expressing_type = #{expressingType,jdbcType=INTEGER},
+      </if>
+      <if test="firstStatus != null">
+        first_status = #{firstStatus,jdbcType=INTEGER},
+      </if>
+      <if test="secondStatus != null">
+        second_status = #{secondStatus,jdbcType=INTEGER},
+      </if>
+      <if test="thirdStatus != null">
+        third_status = #{thirdStatus,jdbcType=INTEGER},
+      </if>
+      <if test="fourthStatus != null">
+        fourth_status = #{fourthStatus,jdbcType=INTEGER},
+      </if>
+      <if test="fifthStatus != null">
+        fifth_status = #{fifthStatus,jdbcType=INTEGER},
+      </if>
+      <if test="goalsForTotal != null">
+        goals_for_total = #{goalsForTotal,jdbcType=INTEGER},
+      </if>
+      <if test="averageGoal != null">
+        average_goal = #{averageGoal,jdbcType=DECIMAL},
+      </if>
+      <if test="winPercent != null">
+        win_percent = #{winPercent,jdbcType=DECIMAL},
+      </if>
+      <if test="bothGoalPercent != null">
+        both_goal_percent = #{bothGoalPercent,jdbcType=DECIMAL},
+      </if>
+      <if test="notLostPercent != null">
+        not_lost_percent = #{notLostPercent,jdbcType=DECIMAL},
+      </if>
+      <if test="firstGoalPercent != null">
+        first_goal_percent = #{firstGoalPercent,jdbcType=DECIMAL},
+      </if>
+      <if test="averageGoalPercent != null">
+        average_goal_percent = #{averageGoalPercent,jdbcType=DECIMAL},
+      </if>
+      <if test="goalPercent != null">
+        goal_percent = #{goalPercent,jdbcType=DECIMAL},
+      </if>
+      <if test="lostGoalPercent != null">
+        lost_goal_percent = #{lostGoalPercent,jdbcType=DECIMAL},
+      </if>
+      <if test="goalXg != null">
+        goal_xg = #{goalXg,jdbcType=DECIMAL},
+      </if>
+      <if test="goalXga != null">
+        goal_xga = #{goalXga,jdbcType=DECIMAL},
+      </if>
+      <if test="modifyTime != null">
+        modify_time = #{modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.panda.merge.model.ThirdMatchHistoryExpression">
+    update third_match_history_expression
+    set third_tournament_source_id = #{thirdTournamentSourceId,jdbcType=VARCHAR},
+      third_team_source_id = #{thirdTeamSourceId,jdbcType=VARCHAR},
+      data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
+      team_cn_name = #{teamCnName,jdbcType=VARCHAR},
+      team_en_name = #{teamEnName,jdbcType=VARCHAR},
+      edit_status = #{editStatus,jdbcType=INTEGER},
+      sport_id = #{sportId,jdbcType=BIGINT},
+      expression_ranking = #{expressionRanking,jdbcType=VARCHAR},
+      expressing_type = #{expressingType,jdbcType=INTEGER},
+      first_status = #{firstStatus,jdbcType=INTEGER},
+      second_status = #{secondStatus,jdbcType=INTEGER},
+      third_status = #{thirdStatus,jdbcType=INTEGER},
+      fourth_status = #{fourthStatus,jdbcType=INTEGER},
+      fifth_status = #{fifthStatus,jdbcType=INTEGER},
+      goals_for_total = #{goalsForTotal,jdbcType=INTEGER},
+      average_goal = #{averageGoal,jdbcType=DECIMAL},
+      win_percent = #{winPercent,jdbcType=DECIMAL},
+      both_goal_percent = #{bothGoalPercent,jdbcType=DECIMAL},
+      not_lost_percent = #{notLostPercent,jdbcType=DECIMAL},
+      first_goal_percent = #{firstGoalPercent,jdbcType=DECIMAL},
+      average_goal_percent = #{averageGoalPercent,jdbcType=DECIMAL},
+      goal_percent = #{goalPercent,jdbcType=DECIMAL},
+      lost_goal_percent = #{lostGoalPercent,jdbcType=DECIMAL},
+      goal_xg = #{goalXg,jdbcType=DECIMAL},
+      goal_xga = #{goalXga,jdbcType=DECIMAL},
+      modify_time = #{modifyTime,jdbcType=BIGINT},
+      create_time = #{createTime,jdbcType=BIGINT}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>

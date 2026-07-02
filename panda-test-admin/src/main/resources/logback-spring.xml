@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="false">
+    <!-- logStash地址 -->
+    <springProperty scope="context" name="log.path" source="path.logStash"/>
+   <!--定义日志文件的存储地址 勿在 LogBack 的配置中使用相对路径-->
+    <property name="LOG_HOME" value="/opt/logs/panda-data-service-group/panda-test-admin"/>
+    <!-- 控制台输出 -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="org.apache.skywalking.apm.toolkit.log.logback.v1.x.TraceIdPatternLogbackLayout">
+                <Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%tid] [%X{tracelogId}] [%thread] %-5level %logger{36} #-# %msg%n</Pattern>
+            </layout>
+        </encoder>
+    </appender>
+   <!-- 按照每天生成日志文件 -->
+    <appender name="FILE_DEBUG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!--日志文件输出的文件名-->
+            <FileNamePattern>${LOG_HOME}/debug/panda-test-debug.%d{yyyy-MM-dd}.%i.log</FileNamePattern>
+            <!-- 日志文件最大尺寸 -->
+            <maxFileSize>256MB</maxFileSize>
+            <!--日志文件保留天数-->
+            <MaxHistory>3</MaxHistory>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="org.apache.skywalking.apm.toolkit.log.logback.v1.x.TraceIdPatternLogbackLayout">
+                <Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%tid] [%X{tracelogId}] [%thread] %-5level %logger{36} #-# %msg%n</Pattern>
+            </layout>
+        </encoder>
+    </appender>
+   <!-- 按照每天生成日志文件 -->
+    <appender name="FILE_INFO" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!--日志文件输出的文件名-->
+            <FileNamePattern>${LOG_HOME}/info/panda-test-info.%d{yyyy-MM-dd}.%i.log</FileNamePattern>
+            <!-- 日志文件最大尺寸 -->
+            <maxFileSize>256MB</maxFileSize>
+            <!--日志文件保留天数-->
+            <MaxHistory>3</MaxHistory>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="org.apache.skywalking.apm.toolkit.log.logback.v1.x.TraceIdPatternLogbackLayout">
+                <Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%tid] [%X{tracelogId}] [%thread] %-5level %logger{36} #-# %msg%n</Pattern>
+            </layout>
+        </encoder>
+    </appender>
+   <!-- 按照每天生成日志文件 -->
+    <appender name="FILE_WARN" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>WARN</level>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!--日志文件输出的文件名-->
+            <FileNamePattern>${LOG_HOME}/warn/panda-test-warn.%d{yyyy-MM-dd}.%i.log</FileNamePattern>
+            <!-- 日志文件最大尺寸 -->
+            <maxFileSize>256MB</maxFileSize>
+            <!--日志文件保留天数-->
+            <MaxHistory>3</MaxHistory>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="org.apache.skywalking.apm.toolkit.log.logback.v1.x.TraceIdPatternLogbackLayout">
+                <Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%tid] [%X{tracelogId}] [%thread] %-5level %logger{36} #-# %msg%n</Pattern>
+            </layout>
+        </encoder>
+    </appender>
+     
+    <appender name="FILE_ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!--日志文件输出的文件名-->
+            <FileNamePattern>${LOG_HOME}/error/panda-test-error.%d{yyyy-MM-dd}.%i.log</FileNamePattern>
+            <!-- 日志文件最大尺寸 -->
+            <maxFileSize>256MB</maxFileSize>
+            <!--日志文件保留天数-->
+            <MaxHistory>3</MaxHistory>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="org.apache.skywalking.apm.toolkit.log.logback.v1.x.TraceIdPatternLogbackLayout">
+                <Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%tid] [%X{tracelogId}] [%thread] %-5level %logger{36} #-# %msg%n</Pattern>
+            </layout>
+        </encoder>
+    </appender>
+    <!--数据商盘口处理相关日志输出-->  
+    <appender name="ThirdMatchMarketProcessor" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!--日志文件输出的文件名-->
+            <FileNamePattern>${LOG_HOME}/ThirdMatchMarketProcessor/ThirdMatchMarketProcessor.%d{yyyy-MM-dd}.%i.log</FileNamePattern>
+            <!-- 日志文件最大尺寸 -->
+            <maxFileSize>256MB</maxFileSize>
+            <!--日志文件保留天数-->
+            <MaxHistory>3</MaxHistory>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="org.apache.skywalking.apm.toolkit.log.logback.v1.x.TraceIdPatternLogbackLayout">
+                <Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%tid] [%X{tracelogId}] [%thread] %-5level %logger{36} #-# %msg%n</Pattern>
+            </layout>
+        </encoder>
+    </appender>
+    <!--操盘配置相关的日志输出-->
+    <appender name="TradeMarketConfigApiServiceImpl" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!--日志文件输出的文件名-->
+            <FileNamePattern>${LOG_HOME}/TradeMarketConfigApiServiceImpl/TradeMarketConfigApiServiceImpl.%d{yyyy-MM-dd}.%i.log</FileNamePattern>
+            <!-- 日志文件最大尺寸 -->
+            <maxFileSize>256MB</maxFileSize>
+            <!--日志文件保留天数-->
+            <MaxHistory>3</MaxHistory>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="org.apache.skywalking.apm.toolkit.log.logback.v1.x.TraceIdPatternLogbackLayout">
+                <Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%tid] [%X{tracelogId}] [%thread] %-5level %logger{36} #-# %msg%n</Pattern>
+            </layout>
+        </encoder>
+    </appender>
+
+    <!--手动盘口处理相关日志输出--> 
+    <appender name="TradeMarketOddsApiServiceImpl" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!--日志文件输出的文件名-->
+            <FileNamePattern>${LOG_HOME}/TradeMarketOddsApiServiceImpl/TradeMarketOddsApiServiceImpls.%d{yyyy-MM-dd}.%i.log</FileNamePattern>
+            <!-- 日志文件最大尺寸 -->
+            <maxFileSize>256MB</maxFileSize>
+            <!--日志文件保留天数-->
+            <MaxHistory>3</MaxHistory>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="org.apache.skywalking.apm.toolkit.log.logback.v1.x.TraceIdPatternLogbackLayout">
+                <Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%tid] [%X{tracelogId}] [%thread] %-5level %logger{36} #-# %msg%n</Pattern>
+            </layout>
+        </encoder>
+    </appender>
+
+    <!-- 日志输出至logstash 服务 -->
+    <appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+        <destination>${log.path}</destination>
+        <!-- 日志输出编码 -->
+        <encoder charset="UTF-8"
+                 class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <timestamp>
+                    <timeZone>UTC</timeZone>
+                </timestamp>
+                <pattern>
+                    <pattern>
+                        {
+                        "logLevel": "%level",
+                        "serviceName": "panda-test-admin",
+                        "pid": "${PID:-}",
+                        "thread": "%thread",
+                        "class": "%logger{40}",
+                        "message": "%message",
+                        "logger": "%logger",
+                        "stackTrace" : "%exception{10}"
+                        }
+                    </pattern>
+                </pattern>
+            </providers>
+        </encoder>
+    </appender>
+
+    <!--数据商盘口处理相关日志输出--> 
+    <logger name="com.panda.merge.rocketmq.processor.ThirdMatchMarketProcessor" level="INFO" additivity="false">
+        <appender-ref ref="ThirdMatchMarketProcessor" />
+        <appender-ref ref="LOGSTASH" />
+        <appender-ref ref="STDOUT"/>
+    </logger>
+    <!--操盘配置相关的日志输出-->
+    <logger name="com.panda.merge.dubbo.TradeMarketConfigApiServiceImpl" level="INFO" additivity="false">
+        <appender-ref ref="TradeMarketConfigApiServiceImpl" />
+        <appender-ref ref="LOGSTASH" />
+        <appender-ref ref="STDOUT"/>
+    </logger>
+    <!--手动盘口处理相关日志输出--> 
+    <logger name="com.panda.merge.dubbo.TradeMarketOddsApiServiceImpl" level="INFO" additivity="false">
+        <appender-ref ref="TradeMarketOddsApiServiceImpl" />
+        <appender-ref ref="LOGSTASH" />
+        <appender-ref ref="STDOUT"/>
+    </logger>
+<!--    &lt;!&ndash;生产环境需要隐藏下面2个配置&ndash;&gt; -->
+<!--    <logger name="com.panda.merge.mapper" level="INFO"></logger>       -->
+<!--    <logger name="com.panda.merge.dao" level="INFO"></logger>-->
+    <!-- 通用日志输出 -->
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="LOGSTASH" />
+        <appender-ref ref="FILE_DEBUG"/>
+        <appender-ref ref="FILE_INFO"/>
+        <appender-ref ref="FILE_WARN"/>
+        <appender-ref ref="FILE_ERROR"/>
+    </root>
+</configuration>

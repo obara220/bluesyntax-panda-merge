@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.dao.ConfigurationMatchDataSourceDao">
+
+
+    <update id="updateByMatchIdAndMarketType" parameterType="com.panda.merge.model.ConfigurationMatchDataSource">
+    update configuration_match_data_source
+    set
+      sr_weight = #{srWeight,jdbcType=TINYINT},
+      bc_weight = #{bcWeight,jdbcType=TINYINT},
+      bg_weight = #{bgWeight,jdbcType=TINYINT},
+      score_source = #{scoreSource,jdbcType=TINYINT},
+      modify_time = REPLACE(unix_timestamp(current_timestamp(3)),'.','')
+    where standard_match_id = #{standardMatchId,jdbcType=BIGINT} and market_type = #{marketType,jdbcType=TINYINT}
+  </update>
+</mapper>

@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.mapper.StandardMatchScoresMapper">
+
+  <resultMap id="BaseResultMap" type="com.panda.merge.model.StandardMatchScores" >
+    <result column="id" property="id" />
+    <result column="third_match_id" property="thirdMatchId" />
+    <result column="sport_id" property="sportId" />
+    <result column="match_id" property="matchId" />
+    <result column="data_source_code" property="dataSourceCode" />
+    <result column="match_manage_id" property="matchManageId" />
+    <result column="score_json" property="scoreJson" />
+    <result column="data_source_acco_switch" property="dataSourceAccoSwitch" />
+    <result column="show_status" property="showStatus" />
+    <result column="create_time" property="createTime" />
+    <result column="update_time" property="updateTime" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    id,
+                third_match_id,
+                sport_id,
+                match_id,
+                data_source_code,
+                match_manage_id,
+                score_json,
+                data_source_acco_switch,
+                show_status,
+                create_time,
+                update_time
+  </sql>
+
+  <insert id="insert" parameterType="com.panda.merge.model.StandardMatchScores">
+    INSERT INTO standard_match_scores
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="null != thirdMatchId ">
+        third_match_id,
+      </if>
+      <if test="null != sportId ">
+        sport_id,
+      </if>
+      <if test="null != matchId ">
+        match_id,
+      </if>
+      <if test="null != dataSourceCode and '' != dataSourceCode">
+        data_source_code,
+      </if>
+      <if test="null != matchManageId and '' != matchManageId">
+        match_manage_id,
+      </if>
+      <if test="null != scoreJson and '' != scoreJson">
+        score_json,
+      </if>
+      <if test="null != dataSourceAccoSwitch and '' != dataSourceAccoSwitch">
+        data_source_acco_switch,
+      </if>
+      <if test="null != showStatus ">
+        show_status,
+      </if>
+      <if test="null != createTime ">
+        create_time,
+      </if>
+      <if test="null != updateTime ">
+        update_time,
+      </if>
+      <if test="null != sendSettleCount ">
+        send_settle_count
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="null != thirdMatchId ">
+        #{thirdMatchId},
+      </if>
+      <if test="null != sportId ">
+        #{sportId},
+      </if>
+      <if test="null != matchId ">
+        #{matchId},
+      </if>
+      <if test="null != dataSourceCode and '' != dataSourceCode">
+        #{dataSourceCode},
+      </if>
+      <if test="null != matchManageId and '' != matchManageId">
+        #{matchManageId},
+      </if>
+      <if test="null != scoreJson and '' != scoreJson">
+        #{scoreJson},
+      </if>
+      <if test="null != dataSourceAccoSwitch and '' != dataSourceAccoSwitch">
+        #{dataSourceAccoSwitch},
+      </if>
+      <if test="null != showStatus ">
+        #{showStatus},
+      </if>
+      <if test="null != createTime ">
+        #{createTime},
+      </if>
+      <if test="null != updateTime ">
+        #{updateTime},
+      </if>
+      <if test="null != sendSettleCount ">
+        #{sendSettleCount}
+      </if>
+    </trim>
+  </insert>
+
+  <delete id="delete" >
+    DELETE FROM standard_match_scores
+    WHERE id = #{id}
+  </delete>
+
+  <update id="update" parameterType="com.panda.merge.model.StandardMatchScores">
+    UPDATE standard_match_scores
+    <set>
+      <if test="null != thirdMatchId ">third_match_id = #{thirdMatchId},</if>
+      <if test="null != sportId ">sport_id = #{sportId},</if>
+      <if test="null != matchId ">match_id = #{matchId},</if>
+      <if test="null != dataSourceCode and '' != dataSourceCode">data_source_code = #{dataSourceCode},</if>
+      <if test="null != matchManageId and '' != matchManageId">match_manage_id = #{matchManageId},</if>
+      <if test="null != scoreJson and '' != scoreJson">score_json = #{scoreJson},</if>
+      <if test="null != dataSourceAccoSwitch and '' != dataSourceAccoSwitch">data_source_acco_switch = #{dataSourceAccoSwitch},</if>
+      <if test="null != showStatus ">show_status = #{showStatus},</if>
+      <if test="null != createTime ">create_time = #{createTime},</if>
+      <if test="null != updateTime ">update_time = #{updateTime},</if>
+      <if test="null != sendSettleCount ">send_settle_count = #{sendSettleCount}</if>
+    </set>
+    WHERE id = #{id}
+  </update>
+
+
+  <select id="loadByMatchId" resultMap="BaseResultMap">
+    SELECT <include refid="Base_Column_List" />
+    FROM standard_match_scores
+    WHERE match_id = #{matchId}
+  </select>
+
+  <select id="pageList" resultMap="BaseResultMap">
+    SELECT <include refid="Base_Column_List" />
+    FROM standard_match_scores
+    LIMIT #{offset}, #{pageSize}
+  </select>
+
+  <select id="pageListCount" resultType="java.lang.Integer">
+    SELECT count(1)
+    FROM standard_match_scores
+  </select>
+
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <delete id="deleteByExample" parameterType="com.panda.merge.model.StandardMatchScoresExample">
+    delete from standard_match_scores
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+
+  <insert id="batchUpdateByPrimaryKey" parameterType="java.util.List">
+    insert into standard_match_scores (
+      id,third_match_id,sport_id,match_id,data_source_code,match_manage_id,
+      score_json,data_source_acco_switch,show_status,create_time,update_time,send_settle_count
+    )
+    VALUES
+    <foreach collection="list" index="index" item="item" separator=",">
+      (#{item.id,jdbcType=BIGINT},
+      #{item.thirdMatchId,jdbcType=BIGINT},
+      #{item.sportId,jdbcType=BIGINT},
+      #{item.matchId,jdbcType=BIGINT},
+      #{item.dataSourceCode,jdbcType=VARCHAR},
+      #{item.matchManageId,jdbcType=BIGINT},
+      #{item.scoreJson,jdbcType=VARCHAR},
+      #{item.dataSourceAccoSwitch,jdbcType=VARCHAR},
+      #{item.showStatus,jdbcType=BIGINT},
+      #{item.createTime,jdbcType=BIGINT},
+      #{item.updateTime,jdbcType=BIGINT},
+      #{item.sendSettleCount,jdbcType=BIGINT}
+      )
+    </foreach>
+    ON DUPLICATE KEY UPDATE
+    id = VALUES(id),
+    third_match_id = VALUES(third_match_id),
+    sport_id = VALUES(sport_id),
+    match_id = VALUES(match_id),
+    data_source_code = VALUES(data_source_code),
+    match_manage_id = VALUES(match_manage_id),
+    score_json = VALUES(score_json),
+    data_source_acco_switch = VALUES(data_source_acco_switch),
+    show_status = VALUES(show_status),
+    create_time = VALUES(create_time),
+    update_time = VALUES(update_time),
+    send_settle_count = VALUES(send_settle_count)
+  </insert>
+
+  <select id="queryScoresByMatchIds" resultMap="BaseResultMap">
+      SELECT * FROM standard_match_scores
+      WHERE match_id in (
+      <foreach collection="list" item="item" separator=",">
+        #{item}
+      </foreach>
+      )
+      or
+      match_manage_id in (
+      <foreach collection="list" item="item" separator=",">
+        #{item}
+      </foreach>
+      )
+  </select>
+</mapper>

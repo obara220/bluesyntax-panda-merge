@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.dao.ConfigTradeTypeDao">
+
+    <insert id="insertList" parameterType="java.util.List">
+        insert into config_trade_type (id, level, standard_match_id,standard_category_id,
+        trade_type, modify_time,create_time, operater_id)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            #{item.id,jdbcType=BIGINT},
+            #{item.level,jdbcType=TINYINT},
+            #{item.standardMatchId,jdbcType=VARCHAR},
+            #{item.standardCategoryId,jdbcType=VARCHAR},
+            #{item.tradeType,jdbcType=TINYINT},
+            #{item.modifyTime,jdbcType=BIGINT},
+            #{item.createTime,jdbcType=BIGINT},
+            #{item.operaterId,jdbcType=BIGINT}
+            )
+        </foreach>
+    </insert>
+</mapper>

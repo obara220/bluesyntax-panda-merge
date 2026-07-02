@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.mapper.IMatchSettleScoreEventMapper">
+  <resultMap id="BaseResultMap" type="com.panda.merge.model.MatchSettleScore">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="event_code" jdbcType="VARCHAR" property="eventCode" />
+    <result column="t1" jdbcType="INTEGER" property="t1" />
+    <result column="t2" jdbcType="INTEGER" property="t2" />
+    <result column="first_num" jdbcType="INTEGER" property="firstNum" />
+    <result column="second_num" jdbcType="INTEGER" property="secondNum" />
+    <result column="first_t1" jdbcType="INTEGER" property="firstT1" />
+    <result column="first_t2" jdbcType="INTEGER" property="firstT2" />
+    <result column="second_t1" jdbcType="INTEGER" property="secondT1" />
+    <result column="second_t2" jdbcType="INTEGER" property="secondT2" />
+    <result column="extry_info" jdbcType="VARCHAR" property="extryInfo" />
+    <result column="event_name" jdbcType="VARCHAR" property="eventName" />
+    <result column="operate_type" jdbcType="INTEGER" property="operateType" />
+    <result column="operater" jdbcType="VARCHAR" property="operater" />
+    <result column="userId" jdbcType="VARCHAR" property="userid" />
+    <result column="settle_times" jdbcType="INTEGER" property="settleTimes" />
+    <result column="settle_count" jdbcType="INTEGER" property="settleCount" />
+    <result column="settle_reason" jdbcType="INTEGER" property="settleReason" />
+    <result column="settle_reason_detail" jdbcType="VARCHAR" property="settleReasonDetail" />
+    <result column="settle_num" jdbcType="VARCHAR" property="settleNum" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="sport_id" jdbcType="BIGINT" property="sportId" />
+    <result column="data_source_code" jdbcType="VARCHAR" property="dataSourceCode" />
+    <result column="standard_match_id" jdbcType="BIGINT" property="standardMatchId" />
+    <result column="period_id" jdbcType="BIGINT" property="periodId" />
+    <result column="settle_freeze" jdbcType="INTEGER" property="settleFreeze" />
+    <result column="go_water_status" jdbcType="INTEGER" property="goWaterStatus" />
+    <result column="modify_time" jdbcType="BIGINT" property="modifyTime" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+  </resultMap>
+
+
+  <update id="updateScoreByList" parameterType="com.panda.merge.model.MatchSettleScore">
+
+    <foreach close="" collection="list" item="item" open="" separator=";">
+
+
+      update match_settle_score
+      <set>
+        <if test="item.eventCode != null">
+          event_code = #{item.eventCode,jdbcType=VARCHAR},
+        </if>
+        <if test="item.t1 != null">
+          t1 = #{item.t1,jdbcType=INTEGER},
+        </if>
+        <if test="item.t2 != null">
+          t2 = #{item.t2,jdbcType=INTEGER},
+        </if>
+        <if test="item.firstNum != null">
+          first_num = #{item.firstNum,jdbcType=INTEGER},
+        </if>
+        <if test="item.secondNum != null">
+          second_num = #{item.secondNum,jdbcType=INTEGER},
+        </if>
+        <if test="item.firstT1 != null">
+          first_t1 = #{item.firstT1,jdbcType=INTEGER},
+        </if>
+        <if test="item.firstT2 != null">
+          first_t2 = #{item.firstT2,jdbcType=INTEGER},
+        </if>
+        <if test="item.secondT1 != null">
+          second_t1 = #{item.secondT1,jdbcType=INTEGER},
+        </if>
+        <if test="item.secondT2 != null">
+          second_t2 = #{item.secondT2,jdbcType=INTEGER},
+        </if>
+        <if test="item.extryInfo != null">
+          extry_info = #{item.extryInfo,jdbcType=VARCHAR},
+        </if>
+        <if test="item.eventName != null">
+          event_name = #{item.eventName,jdbcType=VARCHAR},
+        </if>
+        <if test="item.operateType != null">
+          operate_type = #{item.operateType,jdbcType=INTEGER},
+        </if>
+        <if test="item.operater != null">
+          operater = #{item.operater,jdbcType=VARCHAR},
+        </if>
+        <if test="item.userid != null">
+          userId = #{item.userid,jdbcType=VARCHAR},
+        </if>
+        <if test="item.settleTimes != null">
+          settle_times = #{item.settleTimes,jdbcType=INTEGER},
+        </if>
+        <if test="item.settleCount != null">
+          settle_count = #{item.settleCount,jdbcType=INTEGER},
+        </if>
+        <if test="item.settleReason != null">
+          settle_reason = #{item.settleReason,jdbcType=INTEGER},
+        </if>
+        <if test="item.settleReasonDetail != null">
+          settle_reason_detail = #{item.settleReasonDetail,jdbcType=VARCHAR},
+        </if>
+        <if test="item.settleNum != null">
+          settle_num = #{item.settleNum,jdbcType=VARCHAR},
+        </if>
+        <if test="item.status != null">
+          status = #{item.status,jdbcType=INTEGER},
+        </if>
+        <if test="item.sportId != null">
+          sport_id = #{item.sportId,jdbcType=BIGINT},
+        </if>
+        <if test="item.dataSourceCode != null">
+          data_source_code = #{item.dataSourceCode,jdbcType=VARCHAR},
+        </if>
+        <if test="item.standardMatchId != null">
+          standard_match_id = #{item.standardMatchId,jdbcType=BIGINT},
+        </if>
+        <if test="item.periodId != null">
+          period_id = #{item.periodId,jdbcType=BIGINT},
+        </if>
+        <if test="item.settleFreeze != null">
+          settle_freeze = #{item.settleFreeze,jdbcType=INTEGER},
+        </if>
+        <if test="item.goWaterStatus != null">
+          go_water_status = #{item.goWaterStatus,jdbcType=INTEGER},
+        </if>
+        <if test="item.modifyTime != null">
+          modify_time = #{item.modifyTime,jdbcType=BIGINT},
+        </if>
+
+      </set>
+      where id = #{item.id,jdbcType=BIGINT}
+
+
+
+    </foreach>
+  </update>
+  <update id="updateEventByList"  parameterType="com.panda.merge.model.MatchSettleEvent">
+
+    <foreach close="" collection="list" item="item" open="" separator=";">
+      update match_settle_event
+      <set>
+        <if test="item.standardMatchId != null">
+          standard_match_id = #{item.standardMatchId,jdbcType=BIGINT},
+        </if>
+        <if test="item.periodId != null">
+          period_id = #{item.periodId,jdbcType=BIGINT},
+        </if>
+        <if test="item.thirdEventSourceId != null">
+          third_event_source_id = #{item.thirdEventSourceId,jdbcType=BIGINT},
+        </if>
+        <if test="item.eventType != null">
+          event_type = #{item.eventType,jdbcType=INTEGER},
+        </if>
+        <if test="item.eventCode != null">
+          event_code = #{item.eventCode,jdbcType=VARCHAR},
+        </if>
+        <if test="item.t1 != null">
+          t1 = #{item.t1,jdbcType=INTEGER},
+        </if>
+        <if test="item.t2 != null">
+          t2 = #{item.t2,jdbcType=INTEGER},
+        </if>
+        <if test="item.settleNum != null">
+          settle_num = #{item.settleNum,jdbcType=VARCHAR},
+        </if>
+        <if test="item.eventOrder != null">
+          event_order = #{item.eventOrder,jdbcType=INTEGER},
+        </if>
+        <if test="item.eventName != null">
+          event_name = #{item.eventName,jdbcType=VARCHAR},
+        </if>
+        <if test="item.status != null">
+          status = #{item.status,jdbcType=INTEGER},
+        </if>
+        <if test="item.homeAway != null">
+          home_away = #{item.homeAway,jdbcType=VARCHAR},
+        </if>
+        <if test="item.playerName != null">
+          player_name = #{item.playerName,jdbcType=VARCHAR},
+        </if>
+        <if test="item.playerNameCode != null">
+          player_name_code = #{item.playerNameCode,jdbcType=VARCHAR},
+        </if>
+        <if test="item.dataSourceCode != null">
+          data_source_code = #{item.dataSourceCode,jdbcType=VARCHAR},
+        </if>
+        <if test="item.sportId != null">
+          sport_id = #{item.sportId,jdbcType=BIGINT},
+        </if>
+        <if test="item.extryInfo != null">
+          extry_info = #{item.extryInfo,jdbcType=VARCHAR},
+        </if>
+        <if test="item.firstNum != null">
+          first_num = #{item.firstNum,jdbcType=INTEGER},
+        </if>
+        <if test="item.secondNum != null">
+          second_num = #{item.secondNum,jdbcType=INTEGER},
+        </if>
+        <if test="item.firstT1 != null">
+          first_t1 = #{item.firstT1,jdbcType=INTEGER},
+        </if>
+        <if test="item.firstT2 != null">
+          first_t2 = #{item.firstT2,jdbcType=INTEGER},
+        </if>
+        <if test="item.secondT1 != null">
+          second_t1 = #{item.secondT1,jdbcType=INTEGER},
+        </if>
+        <if test="item.secondT2 != null">
+          second_t2 = #{item.secondT2,jdbcType=INTEGER},
+        </if>
+        <if test="item.operateType != null">
+          operate_type = #{item.operateType,jdbcType=INTEGER},
+        </if>
+        <if test="item.operater != null">
+          operater = #{item.operater,jdbcType=VARCHAR},
+        </if>
+        <if test="item.userid != null">
+          userId = #{item.userid,jdbcType=VARCHAR},
+        </if>
+        <if test="item.settleTimes != null">
+          settle_times = #{item.settleTimes,jdbcType=INTEGER},
+        </if>
+        <if test="item.settleCount != null">
+          settle_count = #{item.settleCount,jdbcType=INTEGER},
+        </if>
+        <if test="item.settleReason != null">
+          settle_reason = #{item.settleReason,jdbcType=INTEGER},
+        </if>
+        <if test="item.settleReasonDetail != null">
+          settle_reason_detail = #{item.settleReasonDetail,jdbcType=VARCHAR},
+        </if>
+        <if test="item.settleFreeze != null">
+          settle_freeze = #{item.settleFreeze,jdbcType=INTEGER},
+        </if>
+        <if test="item.goWaterStatus != null">
+          go_water_status = #{item.goWaterStatus,jdbcType=INTEGER},
+        </if>
+        <if test="item.modifyTime != null">
+          modify_time = #{item.modifyTime,jdbcType=BIGINT},
+        </if>
+
+      </set>
+      where id = #{item.id,jdbcType=BIGINT}
+
+    </foreach>
+
+
+  </update>
+</mapper>

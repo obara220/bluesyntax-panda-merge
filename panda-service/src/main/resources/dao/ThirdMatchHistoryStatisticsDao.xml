@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.dao.ThirdMatchHistoryStatisticsDao">
+
+<!--    <resultMap id="childResultMap" type="com.panda.merge.dto.ThirdMatchHistoryStatisticsDetail" extends="com.panda.merge.mapper.ThirdMatchHistoryStatisticsMapper.BaseResultMap">-->
+<!--        <result column="third_match_id" jdbcType="BIGINT" property="thirdMatchId" />-->
+<!--        <result column="standard_match_id" jdbcType="BIGINT" property="standardMatchId" />-->
+<!--    </resultMap>-->
+
+<!--    <select id="getItemPageByModifyTime" parameterType="com.panda.merge.dto.StandardMatchInfoDTO" resultMap="childResultMap">-->
+<!--        SELECT t2.id third_match_id,t2.reference_id standard_match_id,t1.*-->
+<!--        FROM third_match_history_statistics t1 LEFT JOIN third_match_info t2 ON t1.third_match_source_id = t2.third_match_source_id-->
+<!--        WHERE  t1.modify_time &gt;= #{beginTime}-->
+<!--        <if test="endTime != null">-->
+<!--            and  t1.modify_time &lt;= #{endTime}-->
+<!--        </if>-->
+<!--        order by t1.modify_time, t1.id-->
+<!--    </select>-->
+
+    <select id="getItemPageByModifyTime" parameterType="com.panda.merge.dto.StandardMatchInfoDTO" resultMap="com.panda.merge.mapper.ThirdMatchHistoryStatisticsMapper.BaseResultMap">
+        SELECT t1.*
+        FROM third_match_history_statistics t1
+        WHERE  t1.modify_time &gt;= #{beginTime}
+        <if test="endTime != null">
+            and  t1.modify_time &lt;= #{endTime}
+        </if>
+        order by t1.modify_time, t1.id
+    </select>
+
+
+</mapper>

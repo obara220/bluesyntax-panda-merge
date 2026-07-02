@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.dao.ConfigMarketCategoryMarginDao">
+    <insert id="insertList">
+        insert into config_market_category_margin (id, standard_match_info_id, standard_category_id,
+        place_num, market_type, odds_type,time_frame, margin, link_id,create_time, modify_time,child_standard_category_id) VALUES
+        <foreach collection="list" separator="," item="item" index="index">
+            (#{item.id,jdbcType=BIGINT}, #{item.standardMatchInfoId,jdbcType=BIGINT}, #{item.standardCategoryId,jdbcType=BIGINT},
+            #{item.placeNum,jdbcType=INTEGER}, #{item.marketType,jdbcType=TINYINT}, #{item.oddsType,jdbcType=VARCHAR},
+            #{item.timeFrame,jdbcType=BIGINT}, #{item.margin,jdbcType=DOUBLE},#{item.linkId,jdbcType=VARCHAR},
+            #{item.createTime,jdbcType=BIGINT}, #{item.modifyTime,jdbcType=BIGINT}, #{item.childStandardCategoryId,jdbcType=BIGINT})
+        </foreach>
+    </insert>
+
+    <update id="updateList">
+        <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+            update config_market_category_margin
+            <set>
+                <if test="item.standardMatchInfoId != null">
+                    standard_match_info_id = #{item.standardMatchInfoId,jdbcType=BIGINT},
+                </if>
+                <if test="item.standardCategoryId != null">
+                    standard_category_id = #{item.standardCategoryId,jdbcType=BIGINT},
+                </if>
+                <if test="item.placeNum != null">
+                    place_num = #{item.placeNum,jdbcType=INTEGER},
+                </if>
+                <if test="item.marketType != null">
+                    market_type = #{item.marketType,jdbcType=TINYINT},
+                </if>
+                <if test="item.oddsType != null">
+                    odds_type = #{item.oddsType,jdbcType=VARCHAR},
+                </if>
+                <if test="item.timeFrame != null">
+                    time_frame = #{item.timeFrame,jdbcType=BIGINT},
+                </if>
+                <if test="item.margin != null">
+                    margin = #{item.margin,jdbcType=DOUBLE},
+                </if>
+                <if test="item.linkId != null">
+                    link_id = #{item.linkId,jdbcType=VARCHAR},
+                </if>
+                <if test="item.createTime != null">
+                    create_time = #{item.createTime,jdbcType=BIGINT},
+                </if>
+                <if test="item.modifyTime != null">
+                    modify_time = #{item.modifyTime,jdbcType=BIGINT},
+                </if>
+                <if test="item.childStandardCategoryId != null">
+                    child_standard_category_id = #{item.childStandardCategoryId,jdbcType=BIGINT},
+                </if>
+            </set>
+            where id = #{item.id,jdbcType=BIGINT}
+        </foreach>
+    </update>
+</mapper>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.dao.CategoryDataSourceCodeDao">
+    <insert id="insertList">
+        insert into category_datasourcecode_change (id, standard_match_id, standard_category_id,
+        market_type, sell_status, data_source_code,modify_time, create_time) VALUES
+        <foreach collection="list" separator="," item="item" index="index">
+            (#{item.id,jdbcType=BIGINT}, #{item.standardMatchId,jdbcType=BIGINT}, #{item.standardCategoryId,jdbcType=BIGINT},
+            #{item.marketType,jdbcType=INTEGER}, #{item.sellStatus,jdbcType=VARCHAR}, #{item.dataSourceCode,jdbcType=VARCHAR},
+            #{item.modifyTime,jdbcType=BIGINT}, #{item.createTime,jdbcType=BIGINT})
+        </foreach>
+    </insert>
+
+</mapper>

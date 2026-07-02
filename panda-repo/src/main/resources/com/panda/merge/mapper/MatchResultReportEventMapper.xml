@@ -1,0 +1,419 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.mapper.MatchResultReportEventMapper">
+  <resultMap id="BaseResultMap" type="com.panda.merge.model.MatchResultReportEvent">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="standard_event_id" jdbcType="BIGINT" property="standardEventId" />
+    <result column="standard_match_id" jdbcType="BIGINT" property="standardMatchId" />
+    <result column="third_match_id" jdbcType="BIGINT" property="thirdMatchId" />
+    <result column="sport_id" jdbcType="INTEGER" property="sportId" />
+    <result column="tournament_sport_id" jdbcType="BIGINT" property="tournamentSportId" />
+    <result column="tournament_level" jdbcType="INTEGER" property="tournamentLevel" />
+    <result column="edit_times" jdbcType="INTEGER" property="editTimes" />
+    <result column="confirm_user_id" jdbcType="VARCHAR" property="confirmUserId" />
+    <result column="confirm_user" jdbcType="VARCHAR" property="confirmUser" />
+    <result column="confirm_take_time" jdbcType="BIGINT" property="confirmTakeTime" />
+    <result column="confirm_time" jdbcType="BIGINT" property="confirmTime" />
+    <result column="match_data_source_code_list" jdbcType="VARCHAR" property="matchDataSourceCodeList" />
+    <result column="is_add_event" jdbcType="BIT" property="isAddEvent" />
+    <result column="match_start_time" jdbcType="BIGINT" property="matchStartTime" />
+    <result column="event_time" jdbcType="BIGINT" property="eventTime" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="modify_time" jdbcType="BIGINT" property="modifyTime" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, standard_event_id, standard_match_id, third_match_id, sport_id, tournament_sport_id, 
+    tournament_level, edit_times, confirm_user_id, confirm_user, confirm_take_time, confirm_time, 
+    match_data_source_code_list, is_add_event, match_start_time, event_time, create_time, 
+    modify_time
+  </sql>
+  <select id="selectByExample" parameterType="com.panda.merge.model.MatchResultReportEventExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from match_result_report_event
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from match_result_report_event
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from match_result_report_event
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.panda.merge.model.MatchResultReportEventExample">
+    delete from match_result_report_event
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.panda.merge.model.MatchResultReportEvent">
+    insert into match_result_report_event (id, standard_event_id, standard_match_id, 
+      third_match_id, sport_id, tournament_sport_id, 
+      tournament_level, edit_times, confirm_user_id, 
+      confirm_user, confirm_take_time, confirm_time, 
+      match_data_source_code_list, is_add_event, match_start_time, 
+      event_time, create_time, modify_time
+      )
+    values (#{id,jdbcType=BIGINT}, #{standardEventId,jdbcType=BIGINT}, #{standardMatchId,jdbcType=BIGINT}, 
+      #{thirdMatchId,jdbcType=BIGINT}, #{sportId,jdbcType=INTEGER}, #{tournamentSportId,jdbcType=BIGINT}, 
+      #{tournamentLevel,jdbcType=INTEGER}, #{editTimes,jdbcType=INTEGER}, #{confirmUserId,jdbcType=VARCHAR}, 
+      #{confirmUser,jdbcType=VARCHAR}, #{confirmTakeTime,jdbcType=BIGINT}, #{confirmTime,jdbcType=BIGINT}, 
+      #{matchDataSourceCodeList,jdbcType=VARCHAR}, #{isAddEvent,jdbcType=BIT}, #{matchStartTime,jdbcType=BIGINT}, 
+      #{eventTime,jdbcType=BIGINT}, #{createTime,jdbcType=BIGINT}, #{modifyTime,jdbcType=BIGINT}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.panda.merge.model.MatchResultReportEvent">
+    insert into match_result_report_event
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="standardEventId != null">
+        standard_event_id,
+      </if>
+      <if test="standardMatchId != null">
+        standard_match_id,
+      </if>
+      <if test="thirdMatchId != null">
+        third_match_id,
+      </if>
+      <if test="sportId != null">
+        sport_id,
+      </if>
+      <if test="tournamentSportId != null">
+        tournament_sport_id,
+      </if>
+      <if test="tournamentLevel != null">
+        tournament_level,
+      </if>
+      <if test="editTimes != null">
+        edit_times,
+      </if>
+      <if test="confirmUserId != null">
+        confirm_user_id,
+      </if>
+      <if test="confirmUser != null">
+        confirm_user,
+      </if>
+      <if test="confirmTakeTime != null">
+        confirm_take_time,
+      </if>
+      <if test="confirmTime != null">
+        confirm_time,
+      </if>
+      <if test="matchDataSourceCodeList != null">
+        match_data_source_code_list,
+      </if>
+      <if test="isAddEvent != null">
+        is_add_event,
+      </if>
+      <if test="matchStartTime != null">
+        match_start_time,
+      </if>
+      <if test="eventTime != null">
+        event_time,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="modifyTime != null">
+        modify_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="standardEventId != null">
+        #{standardEventId,jdbcType=BIGINT},
+      </if>
+      <if test="standardMatchId != null">
+        #{standardMatchId,jdbcType=BIGINT},
+      </if>
+      <if test="thirdMatchId != null">
+        #{thirdMatchId,jdbcType=BIGINT},
+      </if>
+      <if test="sportId != null">
+        #{sportId,jdbcType=INTEGER},
+      </if>
+      <if test="tournamentSportId != null">
+        #{tournamentSportId,jdbcType=BIGINT},
+      </if>
+      <if test="tournamentLevel != null">
+        #{tournamentLevel,jdbcType=INTEGER},
+      </if>
+      <if test="editTimes != null">
+        #{editTimes,jdbcType=INTEGER},
+      </if>
+      <if test="confirmUserId != null">
+        #{confirmUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="confirmUser != null">
+        #{confirmUser,jdbcType=VARCHAR},
+      </if>
+      <if test="confirmTakeTime != null">
+        #{confirmTakeTime,jdbcType=BIGINT},
+      </if>
+      <if test="confirmTime != null">
+        #{confirmTime,jdbcType=BIGINT},
+      </if>
+      <if test="matchDataSourceCodeList != null">
+        #{matchDataSourceCodeList,jdbcType=VARCHAR},
+      </if>
+      <if test="isAddEvent != null">
+        #{isAddEvent,jdbcType=BIT},
+      </if>
+      <if test="matchStartTime != null">
+        #{matchStartTime,jdbcType=BIGINT},
+      </if>
+      <if test="eventTime != null">
+        #{eventTime,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null">
+        #{modifyTime,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.panda.merge.model.MatchResultReportEventExample" resultType="java.lang.Long">
+    select count(*) from match_result_report_event
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update match_result_report_event
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.standardEventId != null">
+        standard_event_id = #{record.standardEventId,jdbcType=BIGINT},
+      </if>
+      <if test="record.standardMatchId != null">
+        standard_match_id = #{record.standardMatchId,jdbcType=BIGINT},
+      </if>
+      <if test="record.thirdMatchId != null">
+        third_match_id = #{record.thirdMatchId,jdbcType=BIGINT},
+      </if>
+      <if test="record.sportId != null">
+        sport_id = #{record.sportId,jdbcType=INTEGER},
+      </if>
+      <if test="record.tournamentSportId != null">
+        tournament_sport_id = #{record.tournamentSportId,jdbcType=BIGINT},
+      </if>
+      <if test="record.tournamentLevel != null">
+        tournament_level = #{record.tournamentLevel,jdbcType=INTEGER},
+      </if>
+      <if test="record.editTimes != null">
+        edit_times = #{record.editTimes,jdbcType=INTEGER},
+      </if>
+      <if test="record.confirmUserId != null">
+        confirm_user_id = #{record.confirmUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.confirmUser != null">
+        confirm_user = #{record.confirmUser,jdbcType=VARCHAR},
+      </if>
+      <if test="record.confirmTakeTime != null">
+        confirm_take_time = #{record.confirmTakeTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.confirmTime != null">
+        confirm_time = #{record.confirmTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.matchDataSourceCodeList != null">
+        match_data_source_code_list = #{record.matchDataSourceCodeList,jdbcType=VARCHAR},
+      </if>
+      <if test="record.isAddEvent != null">
+        is_add_event = #{record.isAddEvent,jdbcType=BIT},
+      </if>
+      <if test="record.matchStartTime != null">
+        match_start_time = #{record.matchStartTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.eventTime != null">
+        event_time = #{record.eventTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.modifyTime != null">
+        modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update match_result_report_event
+    set id = #{record.id,jdbcType=BIGINT},
+      standard_event_id = #{record.standardEventId,jdbcType=BIGINT},
+      standard_match_id = #{record.standardMatchId,jdbcType=BIGINT},
+      third_match_id = #{record.thirdMatchId,jdbcType=BIGINT},
+      sport_id = #{record.sportId,jdbcType=INTEGER},
+      tournament_sport_id = #{record.tournamentSportId,jdbcType=BIGINT},
+      tournament_level = #{record.tournamentLevel,jdbcType=INTEGER},
+      edit_times = #{record.editTimes,jdbcType=INTEGER},
+      confirm_user_id = #{record.confirmUserId,jdbcType=VARCHAR},
+      confirm_user = #{record.confirmUser,jdbcType=VARCHAR},
+      confirm_take_time = #{record.confirmTakeTime,jdbcType=BIGINT},
+      confirm_time = #{record.confirmTime,jdbcType=BIGINT},
+      match_data_source_code_list = #{record.matchDataSourceCodeList,jdbcType=VARCHAR},
+      is_add_event = #{record.isAddEvent,jdbcType=BIT},
+      match_start_time = #{record.matchStartTime,jdbcType=BIGINT},
+      event_time = #{record.eventTime,jdbcType=BIGINT},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      modify_time = #{record.modifyTime,jdbcType=BIGINT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.panda.merge.model.MatchResultReportEvent">
+    update match_result_report_event
+    <set>
+      <if test="standardEventId != null">
+        standard_event_id = #{standardEventId,jdbcType=BIGINT},
+      </if>
+      <if test="standardMatchId != null">
+        standard_match_id = #{standardMatchId,jdbcType=BIGINT},
+      </if>
+      <if test="thirdMatchId != null">
+        third_match_id = #{thirdMatchId,jdbcType=BIGINT},
+      </if>
+      <if test="sportId != null">
+        sport_id = #{sportId,jdbcType=INTEGER},
+      </if>
+      <if test="tournamentSportId != null">
+        tournament_sport_id = #{tournamentSportId,jdbcType=BIGINT},
+      </if>
+      <if test="tournamentLevel != null">
+        tournament_level = #{tournamentLevel,jdbcType=INTEGER},
+      </if>
+      <if test="editTimes != null">
+        edit_times = #{editTimes,jdbcType=INTEGER},
+      </if>
+      <if test="confirmUserId != null">
+        confirm_user_id = #{confirmUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="confirmUser != null">
+        confirm_user = #{confirmUser,jdbcType=VARCHAR},
+      </if>
+      <if test="confirmTakeTime != null">
+        confirm_take_time = #{confirmTakeTime,jdbcType=BIGINT},
+      </if>
+      <if test="confirmTime != null">
+        confirm_time = #{confirmTime,jdbcType=BIGINT},
+      </if>
+      <if test="matchDataSourceCodeList != null">
+        match_data_source_code_list = #{matchDataSourceCodeList,jdbcType=VARCHAR},
+      </if>
+      <if test="isAddEvent != null">
+        is_add_event = #{isAddEvent,jdbcType=BIT},
+      </if>
+      <if test="matchStartTime != null">
+        match_start_time = #{matchStartTime,jdbcType=BIGINT},
+      </if>
+      <if test="eventTime != null">
+        event_time = #{eventTime,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null">
+        modify_time = #{modifyTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.panda.merge.model.MatchResultReportEvent">
+    update match_result_report_event
+    set standard_event_id = #{standardEventId,jdbcType=BIGINT},
+      standard_match_id = #{standardMatchId,jdbcType=BIGINT},
+      third_match_id = #{thirdMatchId,jdbcType=BIGINT},
+      sport_id = #{sportId,jdbcType=INTEGER},
+      tournament_sport_id = #{tournamentSportId,jdbcType=BIGINT},
+      tournament_level = #{tournamentLevel,jdbcType=INTEGER},
+      edit_times = #{editTimes,jdbcType=INTEGER},
+      confirm_user_id = #{confirmUserId,jdbcType=VARCHAR},
+      confirm_user = #{confirmUser,jdbcType=VARCHAR},
+      confirm_take_time = #{confirmTakeTime,jdbcType=BIGINT},
+      confirm_time = #{confirmTime,jdbcType=BIGINT},
+      match_data_source_code_list = #{matchDataSourceCodeList,jdbcType=VARCHAR},
+      is_add_event = #{isAddEvent,jdbcType=BIT},
+      match_start_time = #{matchStartTime,jdbcType=BIGINT},
+      event_time = #{eventTime,jdbcType=BIGINT},
+      create_time = #{createTime,jdbcType=BIGINT},
+      modify_time = #{modifyTime,jdbcType=BIGINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

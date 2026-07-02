@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.mapper.MatchSettleDataSourceSwitchMapper">
+  <resultMap id="BaseResultMap" type="com.panda.merge.model.MatchSettleDataSourceSwitch">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="data_source_code" jdbcType="VARCHAR" property="dataSourceCode" />
+    <result column="goal" jdbcType="INTEGER" property="goal" />
+    <result column="corner" jdbcType="INTEGER" property="corner" />
+    <result column="booking" jdbcType="INTEGER" property="booking" />
+    <result column="gray" jdbcType="INTEGER" property="gray" />
+    <result column="top_weight" jdbcType="INTEGER" property="topWeight" />
+    <result column="sport_id" jdbcType="BIGINT" property="sportId" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="modify_time" jdbcType="BIGINT" property="modifyTime" />
+  </resultMap>
+
+
+  <sql id="Base_Column_List">
+    id, data_source_code, goal, corner, booking,gray,top_weight, sport_id, create_time, modify_time
+  </sql>
+
+  <select id="selectByExample" parameterType="com.panda.merge.model.MatchSettleDataSourceSwitchExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from match_settle_data_source_switch
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <update id="updateByPrimaryKey" parameterType="com.panda.merge.model.MatchSettleDataSourceSwitch">
+    update match_settle_data_source_switch
+    set data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
+        goal = #{goal,jdbcType=INTEGER},
+        corner = #{corner,jdbcType=INTEGER},
+        booking = #{booking,jdbcType=INTEGER},
+        gray = #{gray,jdbcType=INTEGER},
+        sport_id = #{sportId,jdbcType=BIGINT},
+        top_weight = #{topWeight,jdbcType=INTEGER},
+        modify_time = #{modifyTime,jdbcType=BIGINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <delete id="deleteByExample" parameterType="com.panda.merge.model.MatchSettleDataSourceSwitch">
+    delete from match_settle_data_source_switch
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.panda.merge.model.MatchSettleDataSourceSwitch">
+    insert into match_settle_data_source_switch (id,data_source_code, goal, corner,
+                                                 booking, gray, top_weight,create_time,sport_id,
+                                                 modify_time)
+    values (#{id,jdbcType=BIGINT}, #{dataSourceCode,jdbcType=VARCHAR}, #{goal,jdbcType=INTEGER},
+            #{corner,jdbcType=INTEGER}, #{booking,jdbcType=INTEGER},#{gray,jdbcType=INTEGER},
+            #{topWeight,jdbcType=INTEGER},#{createTime,jdbcType=BIGINT},#{sportId,jdbcType=BIGINT},
+            #{modifyTime,jdbcType=BIGINT})
+  </insert>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+</mapper>

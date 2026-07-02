@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.mapper.MatchDelaySettleInfoMapper">
+  <resultMap id="BaseResultMap" type="com.panda.merge.model.MatchDelaySettleInfo">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="check_info_id" jdbcType="BIGINT" property="checkInfoId" />
+    <result column="standard_match_id" jdbcType="BIGINT" property="standardMatchId" />
+    <result column="delay_time" jdbcType="BIGINT" property="delayTime" />
+    <result column="score_id" jdbcType="BIGINT" property="scoreId" />
+    <result column="data_source_Code" jdbcType="VARCHAR" property="dataSourceCode" />
+    <result column="delay_time_second" jdbcType="BIGINT" property="delayTimeSecond" />
+    <result column="delay_type" jdbcType="BIGINT" property="delayType" />
+    <result column="settle_status" jdbcType="BIGINT" property="settleStatus" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="modify_time" jdbcType="BIGINT" property="modifyTime" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id,  standard_match_id, delay_time, score_id,check_info_id,
+    data_source_code,delay_time_second,delay_type,settle_status,create_time,
+    modify_time
+  </sql>
+
+  <select id="selectByExample" parameterType="com.panda.merge.model.MatchDelaySettleInfoExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from match_delay_settle_info
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from match_delay_settle_info
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from match_delay_settle_info
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.panda.merge.model.MatchDelaySettleInfoExample">
+    delete from match_delay_settle_info
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.panda.merge.model.MatchDelaySettleInfo">
+    insert into match_delay_settle_info (id,  standard_match_id, delay_time, score_id,
+                                   check_info_id, delay_time_second,data_source_code,delay_type,settle_status,create_time,
+                                   modify_time)
+    values (#{id,jdbcType=BIGINT}, #{standardMatchId,jdbcType=BIGINT},
+      #{delayTime,jdbcType=BIGINT}, #{scoreId,jdbcType=BIGINT}, #{checkInfoId,jdbcType=BIGINT},
+      #{delayTimeSecond,jdbcType=BIGINT},#{dataSourceCode,jdbcType=VARCHAR}, #{delayType,jdbcType=BIGINT}, #{settleStatus,jdbcType=BIGINT},#{createTime,jdbcType=BIGINT}, #{modifyTime,jdbcType=BIGINT})
+  </insert>
+
+  <select id="countByExample" parameterType="com.panda.merge.model.MatchDelaySettleInfoExample" resultType="java.lang.Long">
+    select count(*) from match_delay_settle_info
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+
+  <update id="updateByExample" parameterType="map">
+    update match_delay_settle_info
+    set id = #{record.id,jdbcType=BIGINT},
+      standard_match_id = #{record.standardMatchId,jdbcType=BIGINT},
+      delay_time = #{record.delayTime,jdbcType=BIGINT},
+    score_id = #{record.scoreId,jdbcType=BIGINT},
+    check_info_id = #{record.checkInfoId,jdbcType=BIGINT},
+    data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+    delay_time_second = #{record.delayTimeSecond,jdbcType=BIGINT},
+    delay_type = #{record.delayType,jdbcType=BIGINT},
+    settle_status = #{record.settleStatus,jdbcType=BIGINT},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      modify_time = #{record.modifyTime,jdbcType=BIGINT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateSettleStatusByScoreId" parameterType="map">
+    update match_delay_settle_info
+    set
+    settle_status = #{settleStatus,jdbcType=BIGINT}
+    where score_id = #{scoreId,jdbcType=BIGINT}
+
+  </update>
+
+  <update id="updateSettleStatusByCheckInfoId" parameterType="map">
+    update match_delay_settle_info
+    set
+      settle_status = #{settleStatus,jdbcType=BIGINT}
+    where check_info_id = #{checkInfoId,jdbcType=BIGINT}
+
+  </update>
+
+  <update id="updateMatchDelaySettleInfoList" >
+    update match_delay_settle_info
+    set
+      settle_status = #{settleStatus,jdbcType=BIGINT}
+    where id in
+    <foreach collection="list" item="item" open=" (" close=")" separator=",">
+      #{item}
+    </foreach>
+
+  </update>
+
+
+</mapper>

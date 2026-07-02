@@ -1,0 +1,401 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.mapper.ConfigTradeMarketMapper">
+  <resultMap id="BaseResultMap" type="com.panda.merge.model.ConfigTradeMarket">
+    <id column="ID" jdbcType="BIGINT" property="id" />
+    <result column="CONFIG_ID" jdbcType="VARCHAR" property="configId" />
+    <result column="LEVEL" jdbcType="TINYINT" property="level" />
+    <result column="TARGET_ID" jdbcType="VARCHAR" property="targetId" />
+    <result column="MATCH_TYPE" jdbcType="VARCHAR" property="matchType" />
+    <result column="Trade_type" jdbcType="TINYINT" property="tradeType" />
+    <result column="MARKET_STATUS" jdbcType="TINYINT" property="marketStatus" />
+    <result column="SOURCE_SYSTEM" jdbcType="TINYINT" property="sourceSystem" />
+    <result column="ACTIVE" jdbcType="TINYINT" property="active" />
+    <result column="OPERATER_ID" jdbcType="BIGINT" property="operaterId" />
+    <result column="CONFIG_MODIFY_TIME" jdbcType="BIGINT" property="configModifyTime" />
+    <result column="addition1" jdbcType="VARCHAR" property="addition1" />
+    <result column="addition2" jdbcType="VARCHAR" property="addition2" />
+    <result column="addition3" jdbcType="VARCHAR" property="addition3" />
+    <result column="link_id" jdbcType="VARCHAR" property="linkId" />
+    <result column="CREATE_TIME" jdbcType="BIGINT" property="createTime" />
+    <result column="MODIFY_TIME" jdbcType="BIGINT" property="modifyTime" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    ID, CONFIG_ID, LEVEL, TARGET_ID, MATCH_TYPE, Trade_type, MARKET_STATUS, SOURCE_SYSTEM, 
+    ACTIVE, OPERATER_ID, CONFIG_MODIFY_TIME, addition1, addition2, addition3, link_id, 
+    CREATE_TIME, MODIFY_TIME
+  </sql>
+  <select id="selectByExample" parameterType="com.panda.merge.model.ConfigTradeMarketExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from config_trade_market
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from config_trade_market
+    where ID = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from config_trade_market
+    where ID = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.panda.merge.model.ConfigTradeMarketExample">
+    delete from config_trade_market
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.panda.merge.model.ConfigTradeMarket">
+    insert into config_trade_market (ID, CONFIG_ID, LEVEL, 
+      TARGET_ID, MATCH_TYPE, Trade_type, 
+      MARKET_STATUS, SOURCE_SYSTEM, ACTIVE, 
+      OPERATER_ID, CONFIG_MODIFY_TIME, addition1, 
+      addition2, addition3, link_id, 
+      CREATE_TIME, MODIFY_TIME)
+    values (#{id,jdbcType=BIGINT}, #{configId,jdbcType=VARCHAR}, #{level,jdbcType=TINYINT}, 
+      #{targetId,jdbcType=VARCHAR}, #{matchType,jdbcType=VARCHAR}, #{tradeType,jdbcType=TINYINT}, 
+      #{marketStatus,jdbcType=TINYINT}, #{sourceSystem,jdbcType=TINYINT}, #{active,jdbcType=TINYINT}, 
+      #{operaterId,jdbcType=BIGINT}, #{configModifyTime,jdbcType=BIGINT}, #{addition1,jdbcType=VARCHAR}, 
+      #{addition2,jdbcType=VARCHAR}, #{addition3,jdbcType=VARCHAR}, #{linkId,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=BIGINT}, #{modifyTime,jdbcType=BIGINT})
+  </insert>
+  <insert id="insertSelective" parameterType="com.panda.merge.model.ConfigTradeMarket">
+    insert into config_trade_market
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        ID,
+      </if>
+      <if test="configId != null">
+        CONFIG_ID,
+      </if>
+      <if test="level != null">
+        LEVEL,
+      </if>
+      <if test="targetId != null">
+        TARGET_ID,
+      </if>
+      <if test="matchType != null">
+        MATCH_TYPE,
+      </if>
+      <if test="tradeType != null">
+        Trade_type,
+      </if>
+      <if test="marketStatus != null">
+        MARKET_STATUS,
+      </if>
+      <if test="sourceSystem != null">
+        SOURCE_SYSTEM,
+      </if>
+      <if test="active != null">
+        ACTIVE,
+      </if>
+      <if test="operaterId != null">
+        OPERATER_ID,
+      </if>
+      <if test="configModifyTime != null">
+        CONFIG_MODIFY_TIME,
+      </if>
+      <if test="addition1 != null">
+        addition1,
+      </if>
+      <if test="addition2 != null">
+        addition2,
+      </if>
+      <if test="addition3 != null">
+        addition3,
+      </if>
+      <if test="linkId != null">
+        link_id,
+      </if>
+      <if test="createTime != null">
+        CREATE_TIME,
+      </if>
+      <if test="modifyTime != null">
+        MODIFY_TIME,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="configId != null">
+        #{configId,jdbcType=VARCHAR},
+      </if>
+      <if test="level != null">
+        #{level,jdbcType=TINYINT},
+      </if>
+      <if test="targetId != null">
+        #{targetId,jdbcType=VARCHAR},
+      </if>
+      <if test="matchType != null">
+        #{matchType,jdbcType=VARCHAR},
+      </if>
+      <if test="tradeType != null">
+        #{tradeType,jdbcType=TINYINT},
+      </if>
+      <if test="marketStatus != null">
+        #{marketStatus,jdbcType=TINYINT},
+      </if>
+      <if test="sourceSystem != null">
+        #{sourceSystem,jdbcType=TINYINT},
+      </if>
+      <if test="active != null">
+        #{active,jdbcType=TINYINT},
+      </if>
+      <if test="operaterId != null">
+        #{operaterId,jdbcType=BIGINT},
+      </if>
+      <if test="configModifyTime != null">
+        #{configModifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="addition1 != null">
+        #{addition1,jdbcType=VARCHAR},
+      </if>
+      <if test="addition2 != null">
+        #{addition2,jdbcType=VARCHAR},
+      </if>
+      <if test="addition3 != null">
+        #{addition3,jdbcType=VARCHAR},
+      </if>
+      <if test="linkId != null">
+        #{linkId,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null">
+        #{modifyTime,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.panda.merge.model.ConfigTradeMarketExample" resultType="java.lang.Long">
+    select count(*) from config_trade_market
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update config_trade_market
+    <set>
+      <if test="record.id != null">
+        ID = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.configId != null">
+        CONFIG_ID = #{record.configId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.level != null">
+        LEVEL = #{record.level,jdbcType=TINYINT},
+      </if>
+      <if test="record.targetId != null">
+        TARGET_ID = #{record.targetId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.matchType != null">
+        MATCH_TYPE = #{record.matchType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.tradeType != null">
+        Trade_type = #{record.tradeType,jdbcType=TINYINT},
+      </if>
+      <if test="record.marketStatus != null">
+        MARKET_STATUS = #{record.marketStatus,jdbcType=TINYINT},
+      </if>
+      <if test="record.sourceSystem != null">
+        SOURCE_SYSTEM = #{record.sourceSystem,jdbcType=TINYINT},
+      </if>
+      <if test="record.active != null">
+        ACTIVE = #{record.active,jdbcType=TINYINT},
+      </if>
+      <if test="record.operaterId != null">
+        OPERATER_ID = #{record.operaterId,jdbcType=BIGINT},
+      </if>
+      <if test="record.configModifyTime != null">
+        CONFIG_MODIFY_TIME = #{record.configModifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.addition1 != null">
+        addition1 = #{record.addition1,jdbcType=VARCHAR},
+      </if>
+      <if test="record.addition2 != null">
+        addition2 = #{record.addition2,jdbcType=VARCHAR},
+      </if>
+      <if test="record.addition3 != null">
+        addition3 = #{record.addition3,jdbcType=VARCHAR},
+      </if>
+      <if test="record.linkId != null">
+        link_id = #{record.linkId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null">
+        CREATE_TIME = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.modifyTime != null">
+        MODIFY_TIME = #{record.modifyTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update config_trade_market
+    set ID = #{record.id,jdbcType=BIGINT},
+      CONFIG_ID = #{record.configId,jdbcType=VARCHAR},
+      LEVEL = #{record.level,jdbcType=TINYINT},
+      TARGET_ID = #{record.targetId,jdbcType=VARCHAR},
+      MATCH_TYPE = #{record.matchType,jdbcType=VARCHAR},
+      Trade_type = #{record.tradeType,jdbcType=TINYINT},
+      MARKET_STATUS = #{record.marketStatus,jdbcType=TINYINT},
+      SOURCE_SYSTEM = #{record.sourceSystem,jdbcType=TINYINT},
+      ACTIVE = #{record.active,jdbcType=TINYINT},
+      OPERATER_ID = #{record.operaterId,jdbcType=BIGINT},
+      CONFIG_MODIFY_TIME = #{record.configModifyTime,jdbcType=BIGINT},
+      addition1 = #{record.addition1,jdbcType=VARCHAR},
+      addition2 = #{record.addition2,jdbcType=VARCHAR},
+      addition3 = #{record.addition3,jdbcType=VARCHAR},
+      link_id = #{record.linkId,jdbcType=VARCHAR},
+      CREATE_TIME = #{record.createTime,jdbcType=BIGINT},
+      MODIFY_TIME = #{record.modifyTime,jdbcType=BIGINT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.panda.merge.model.ConfigTradeMarket">
+    update config_trade_market
+    <set>
+      <if test="configId != null">
+        CONFIG_ID = #{configId,jdbcType=VARCHAR},
+      </if>
+      <if test="level != null">
+        LEVEL = #{level,jdbcType=TINYINT},
+      </if>
+      <if test="targetId != null">
+        TARGET_ID = #{targetId,jdbcType=VARCHAR},
+      </if>
+      <if test="matchType != null">
+        MATCH_TYPE = #{matchType,jdbcType=VARCHAR},
+      </if>
+      <if test="tradeType != null">
+        Trade_type = #{tradeType,jdbcType=TINYINT},
+      </if>
+      <if test="marketStatus != null">
+        MARKET_STATUS = #{marketStatus,jdbcType=TINYINT},
+      </if>
+      <if test="sourceSystem != null">
+        SOURCE_SYSTEM = #{sourceSystem,jdbcType=TINYINT},
+      </if>
+      <if test="active != null">
+        ACTIVE = #{active,jdbcType=TINYINT},
+      </if>
+      <if test="operaterId != null">
+        OPERATER_ID = #{operaterId,jdbcType=BIGINT},
+      </if>
+      <if test="configModifyTime != null">
+        CONFIG_MODIFY_TIME = #{configModifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="addition1 != null">
+        addition1 = #{addition1,jdbcType=VARCHAR},
+      </if>
+      <if test="addition2 != null">
+        addition2 = #{addition2,jdbcType=VARCHAR},
+      </if>
+      <if test="addition3 != null">
+        addition3 = #{addition3,jdbcType=VARCHAR},
+      </if>
+      <if test="linkId != null">
+        link_id = #{linkId,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        CREATE_TIME = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null">
+        MODIFY_TIME = #{modifyTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    where ID = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.panda.merge.model.ConfigTradeMarket">
+    update config_trade_market
+    set CONFIG_ID = #{configId,jdbcType=VARCHAR},
+      LEVEL = #{level,jdbcType=TINYINT},
+      TARGET_ID = #{targetId,jdbcType=VARCHAR},
+      MATCH_TYPE = #{matchType,jdbcType=VARCHAR},
+      Trade_type = #{tradeType,jdbcType=TINYINT},
+      MARKET_STATUS = #{marketStatus,jdbcType=TINYINT},
+      SOURCE_SYSTEM = #{sourceSystem,jdbcType=TINYINT},
+      ACTIVE = #{active,jdbcType=TINYINT},
+      OPERATER_ID = #{operaterId,jdbcType=BIGINT},
+      CONFIG_MODIFY_TIME = #{configModifyTime,jdbcType=BIGINT},
+      addition1 = #{addition1,jdbcType=VARCHAR},
+      addition2 = #{addition2,jdbcType=VARCHAR},
+      addition3 = #{addition3,jdbcType=VARCHAR},
+      link_id = #{linkId,jdbcType=VARCHAR},
+      CREATE_TIME = #{createTime,jdbcType=BIGINT},
+      MODIFY_TIME = #{modifyTime,jdbcType=BIGINT}
+    where ID = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

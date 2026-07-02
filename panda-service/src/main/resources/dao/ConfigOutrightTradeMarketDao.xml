@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.dao.ConfigOutrightTradeMarketDao">
+
+    <update id="updateBatchById">
+        <foreach collection="configOutrightTradeMarkets" item="item" index="index" open="" close="" separator=";">
+            UPDATE config_outright_trade_market set
+            <if test="item.marketStatus != null">
+                market_status = #{item.marketStatus},
+            </if>
+            <if test="item.linkId != null and item.linkId != ''  ">
+                link_id = #{item.linkId},
+            </if>
+            modify_time = REPLACE(unix_timestamp(current_timestamp(3)),'.','')
+            WHERE id = #{item.id,jdbcType=BIGINT}
+        </foreach>
+    </update>
+
+
+    <insert id="saveBatch">
+        insert ignore into config_outright_trade_market (
+        id, standard_match_id, standard_market_id, market_status, link_id, create_time, modify_time, operater_id
+        ) values
+        <foreach collection="configOutrightTradeMarketList" item="item" index="index" separator=",">
+            (
+            #{item.id}, #{item.standardMatchId}, #{item.standardMarketId}, #{item.marketStatus}, #{item.linkId}, #{item.createTime}, #{item.modifyTime}, #{item.operaterId}
+            )
+        </foreach>
+    </insert>
+
+</mapper>

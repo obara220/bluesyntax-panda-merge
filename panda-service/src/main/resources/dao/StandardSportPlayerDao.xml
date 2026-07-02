@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.dao.StandardSportPlayerDao">
+
+    <resultMap id="childResultMap" type="com.panda.merge.dto.StandardSportPlayerDetail" extends="com.panda.merge.mapper.StandardSportPlayerMapper.ResultMapWithBLOBs">
+
+    </resultMap>
+
+    <resultMap id="playerResultMap" type="com.panda.merge.model.StandardSportPlayerDo" >
+        <result column="name_code" jdbcType="BIGINT" property="nameCode" />
+        <result column="name" jdbcType="VARCHAR" property="name" />
+        <result column="name_spell" jdbcType="VARCHAR" property="nameSpell" />
+    </resultMap>
+
+    <select id="getPageItemGreaterThanOrModifyTime" parameterType="com.panda.merge.dto.StandardSportPlayerDTO" resultMap="childResultMap">
+        select sp.id,sp.sport_id,sp.region_id,sp.data_source_code,sp.player_manager_id,sp.third_player_id,sp.third_source_player_id,
+               sp.picture_url,sp.name_code,sp.weight,sp.height,sp.gender,sp.birthday,sp.name_spell,sp.country_id,
+               sp.personal_feature,sp.nick_name,sp.name,sp.related_data_source_coder_num,sp.related_data_source_coder_list,
+               sp.remark,sp.create_time,sp.modify_time
+        from   standard_sport_player sp
+        where  sp.modify_time >= #{modifyTime}
+        <if test="thirdSourcePlayerId != null">
+            and sp.third_source_player_id = #{thirdSourcePlayerId}
+        </if>
+        <if test="dataSourceCode != null">
+            and sp.data_source_code = #{dataSourceCode}
+        </if>
+        <if test="thirdSportId != null">
+            and sp.sport_id = #{thirdSportId}
+        </if>
+    </select>
+
+  <!--  <select id="selectPalyerMyMatchid" parameterType="java.lang.String"  resultType="com.panda.merge.model.StandardSportPlayer">-->
+  <!--  <select id="selectPalyerMyMatchid" parameterType="java.lang.String" resultMap="childResultMap">-->
+    <select id="selectPalyerMyMatchid"  parameterType="com.panda.merge.dto.StandardSportPlayerDTO" resultMap="playerResultMap">
+select ssp.name_code ,ssp.name , ssp.name_spell from
+  standard_sport_market_sell ssms inner join standard_Sport_Team sst
+on  sst.id in (ssms.team_home_id,ssms.team_away_id)
+INNER JOIN third_Team_Player_Relation as ttpr  on
+ttpr.team_id=sst.third_team_id  INNER JOIN standard_sport_player ssp
+on ssp.third_player_id =ttpr.player_id
+where ssms.match_info_id =#{matchId} and ssms.sport_id = #{thirdSportId}
+    </select>
+
+    <select id="getLanguageInternation"  resultType="com.panda.merge.model.LanguageInternation">
+
+select * from language_internation where 1=1
+<if test="nameCode != null and nameCode.size() > 0">
+    and language_type in('en','zs') and  name_code in
+    <foreach collection="nameCode" item ="code" separator="," open="(" close=")">
+        #{code}
+    </foreach>
+</if>
+
+    </select>
+
+</mapper>

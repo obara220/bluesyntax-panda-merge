@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.dao.MatchEventInfoDao">
+
+    <update id="updateBatch">
+        <foreach collection="matchEventInfoList" item="item" index="index" open="" close="" separator=";">
+--             UPDATE match_event_info
+            UPDATE ${item.tableName}
+            <trim prefix="SET" suffixOverrides=",">
+                <if test="item.sportId != null">
+                    sport_id = #{item.sportId,jdbcType=BIGINT},
+                </if>
+                <if test="item.canceled != null">
+                    canceled = #{item.canceled,jdbcType=TINYINT},
+                </if>
+                <if test="item.dataSourceCode != null">
+                    data_source_code = #{item.dataSourceCode,jdbcType=VARCHAR},
+                </if>
+                <if test="item.eventCode != null">
+                    event_code = #{item.eventCode,jdbcType=VARCHAR},
+                </if>
+                <if test="item.eventTime != null">
+                    event_time = #{item.eventTime,jdbcType=BIGINT},
+                </if>
+                <if test="item.extraInfo != null">
+                    extra_info = #{item.extraInfo,jdbcType=VARCHAR},
+                </if>
+                <if test="item.addition1 != null">
+                    addition1 = #{item.addition1,jdbcType=VARCHAR},
+                </if>
+                <if test="item.homeAway != null">
+                    home_away = #{item.homeAway,jdbcType=VARCHAR},
+                </if>
+                <if test="item.secondNum != null">
+                    second_num = #{item.secondNum,jdbcType=INTEGER},
+                </if>
+                <if test="item.firstT1 != null">
+                    first_t1 = #{item.firstT1,jdbcType=INTEGER},
+                </if>
+                <if test="item.firstT2 != null">
+                    first_t2 = #{item.firstT2,jdbcType=INTEGER},
+                </if>
+                <if test="item.secondT1 != null">
+                    second_t1 = #{item.secondT1,jdbcType=INTEGER},
+                </if>
+                <if test="item.secondT2 != null">
+                    second_t2 = #{item.secondT2,jdbcType=INTEGER},
+                </if>
+                <if test="item.firstNum != null">
+                    first_num = #{item.firstNum,jdbcType=INTEGER},
+                </if>
+                <if test="item.matchPeriodId != null">
+                    match_period_id = #{item.matchPeriodId,jdbcType=BIGINT},
+                </if>
+                <if test="item.player1Id != null">
+                    player1_id = #{item.player1Id,jdbcType=BIGINT},
+                </if>
+                <if test="item.player1Name != null">
+                    player1_name = #{item.player1Name,jdbcType=VARCHAR},
+                </if>
+                <if test="item.player2Id != null">
+                    player2_id = #{item.player2Id,jdbcType=BIGINT},
+                </if>
+                <if test="item.player2Name != null">
+                    player2_name = #{item.player2Name,jdbcType=VARCHAR},
+                </if>
+                <if test="item.secondsFromStart != null">
+                    seconds_from_start = #{item.secondsFromStart,jdbcType=BIGINT},
+                </if>
+                <if test="item.periodRemainingSeconds != null">
+                    period_remaining_seconds = #{item.periodRemainingSeconds,jdbcType=BIGINT},
+                </if>
+                <if test="item.standardMatchId != null">
+                    standard_match_id = #{item.standardMatchId,jdbcType=BIGINT},
+                </if>
+                <if test="item.standardTeamId != null">
+                    standard_team_id = #{item.standardTeamId,jdbcType=BIGINT},
+                </if>
+                <if test="item.t1 != null">
+                    t1 = #{item.t1,jdbcType=INTEGER},
+                </if>
+                <if test="item.t2 != null">
+                    t2 = #{item.t2,jdbcType=INTEGER},
+                </if>
+                <if test="item.thirdEventId != null">
+                    third_event_id = #{item.thirdEventId,jdbcType=VARCHAR},
+                </if>
+                <if test="item.thirdMatchId != null">
+                    third_match_id = #{item.thirdMatchId,jdbcType=BIGINT},
+                </if>
+                <if test="item.thirdMatchSourceId != null">
+                    third_match_source_id = #{item.thirdMatchSourceId,jdbcType=VARCHAR},
+                </if>
+                <if test="item.thirdTeamId != null">
+                    third_team_id = #{item.thirdTeamId,jdbcType=BIGINT},
+                </if>
+                <if test="item.sourceType != null">
+                    source_type = #{item.sourceType,jdbcType=TINYINT},
+                </if>
+                <if test="item.remark != null">
+                    remark = #{item.remark,jdbcType=VARCHAR},
+                </if>
+                <if test="item.createTime != null">
+                    create_time = #{item.createTime,jdbcType=BIGINT},
+                </if>
+                <if test="item.modifyTime != null">
+                    modify_time = #{item.modifyTime,jdbcType=BIGINT},
+                </if>
+                <if test="item.addition3 != null">
+                    addition3 = #{item.addition3,jdbcType=VARCHAR},
+                </if>
+                <if test="item.addition4 != null">
+                    addition4 = #{item.addition4,jdbcType=VARCHAR},
+                </if>
+                <if test="item.addition5 != null">
+                    addition5 = #{item.addition5,jdbcType=VARCHAR},
+                </if>
+                <if test="item.addition6 != null">
+                    addition6 = #{item.addition6,jdbcType=VARCHAR},
+                </if>
+                <if test="item.addition7 != null">
+                    addition7 = #{item.addition7,jdbcType=VARCHAR},
+                </if>
+                <if test="item.addition8 != null">
+                    addition8 = #{item.addition8,jdbcType=VARCHAR},
+                </if>
+                <if test="item.addition9 != null">
+                    addition9 = #{item.addition9,jdbcType=VARCHAR},
+                </if>
+                <if test="item.addition10 != null">
+                    addition10 = #{item.addition10,jdbcType=VARCHAR},
+                </if>
+                <if test="item.addition2 != null">
+                    addition2 = #{item.addition2,jdbcType=VARCHAR},
+                </if>
+                <if test="item.sendData != null">
+                    send_data = #{item.sendData,jdbcType=CHAR},
+                </if>
+                <if test="item.linkId != null">
+                    link_id = #{item.linkId,jdbcType=VARCHAR},
+                </if>
+            </trim>
+            WHERE id = #{item.id,jdbcType=BIGINT}
+        </foreach>
+    </update>
+
+
+    <insert id="saveBatch">
+--         insert into match_event_info
+        insert into ${matchEventInfoDetail.tableName}
+        (id, sport_id, canceled,
+        data_source_code, event_code, event_time,
+        extra_info, addition1, home_away,
+        second_num, first_t1, first_t2,
+        second_t1, second_t2, first_num,
+        match_period_id, player1_id, player1_name,
+        player2_id, player2_name, seconds_from_start,
+        period_remaining_seconds, standard_match_id,
+        standard_team_id, t1, t2,
+        third_event_id, third_match_id, third_match_source_id,
+        third_team_id, source_type, remark,
+        create_time, modify_time, addition3,
+        addition4, addition5, addition6,
+        addition7, addition8, addition9,
+        addition10, addition2, send_data,
+        link_id) values
+        <foreach collection="matchEventInfoDetail.data" item="item" index="index" separator=",">
+            (#{item.id,jdbcType=BIGINT}, #{item.sportId,jdbcType=BIGINT}, #{item.canceled,jdbcType=TINYINT},
+            #{item.dataSourceCode,jdbcType=VARCHAR}, #{item.eventCode,jdbcType=VARCHAR}, #{item.eventTime,jdbcType=BIGINT},
+            #{item.extraInfo,jdbcType=VARCHAR}, #{item.addition1,jdbcType=VARCHAR}, #{item.homeAway,jdbcType=VARCHAR},
+            #{item.secondNum,jdbcType=INTEGER}, #{item.firstT1,jdbcType=INTEGER}, #{item.firstT2,jdbcType=INTEGER},
+            #{item.secondT1,jdbcType=INTEGER}, #{item.secondT2,jdbcType=INTEGER}, #{item.firstNum,jdbcType=INTEGER},
+            #{item.matchPeriodId,jdbcType=BIGINT}, #{item.player1Id,jdbcType=BIGINT}, #{item.player1Name,jdbcType=VARCHAR},
+            #{item.player2Id,jdbcType=BIGINT}, #{item.player2Name,jdbcType=VARCHAR}, #{item.secondsFromStart,jdbcType=BIGINT},
+            #{item.periodRemainingSeconds,jdbcType=BIGINT}, #{item.standardMatchId,jdbcType=BIGINT},
+            #{item.standardTeamId,jdbcType=BIGINT}, #{item.t1,jdbcType=INTEGER}, #{item.t2,jdbcType=INTEGER},
+            #{item.thirdEventId,jdbcType=VARCHAR}, #{item.thirdMatchId,jdbcType=BIGINT}, #{item.thirdMatchSourceId,jdbcType=VARCHAR},
+            #{item.thirdTeamId,jdbcType=BIGINT}, #{item.sourceType,jdbcType=TINYINT}, #{item.remark,jdbcType=VARCHAR},
+            #{item.createTime,jdbcType=BIGINT}, #{item.modifyTime,jdbcType=BIGINT}, #{item.addition3,jdbcType=VARCHAR},
+            #{item.addition4,jdbcType=VARCHAR}, #{item.addition5,jdbcType=VARCHAR}, #{item.addition6,jdbcType=VARCHAR},
+            #{item.addition7,jdbcType=VARCHAR}, #{item.addition8,jdbcType=VARCHAR}, #{item.addition9,jdbcType=VARCHAR},
+            #{item.addition10,jdbcType=VARCHAR}, #{item.addition2,jdbcType=VARCHAR}, #{item.sendData,jdbcType=CHAR},
+            #{item.linkId,jdbcType=VARCHAR})
+        </foreach>
+    </insert>
+
+
+
+    <select id="getItemByStandardMatchIdAndDataSoureCode" resultMap="com.panda.merge.mapper.MatchEventInfoMapper.BaseResultMap">
+        SELECT event_t.*
+        FROM match_event_info event_t
+                 INNER JOIN third_match_info match_t ON event_t.third_match_id = match_t.id
+        WHERE 1 = 1
+          AND match_t.reference_id = #{standardMatchId}
+          AND match_t.data_source_code = #{dataSoureCode}
+          AND event_t.send_data != 'Y'
+        ORDER BY event_t.event_time
+    </select>
+
+    <!-- 重新传入时间戳最近7条事件数据 -->
+    <select id="getEventHistoryByEventTime" parameterType="com.panda.merge.dto.MatchEventInfoDetail" resultMap="com.panda.merge.mapper.MatchEventInfoMapper.BaseResultMap">
+        SELECT *
+        FROM match_event_info
+        WHERE standard_match_id = #{standardMatchId}
+          AND data_source_code = #{dataSourceCode}
+          AND third_match_source_id = #{thirdMatchSourceId}
+          AND event_time  &lt; #{eventTime}
+        ORDER BY event_time desc
+            LIMIT #{size}
+    </select>
+
+    <!-- 获取传入时间最近的多少条数据 -->
+    <select id="getMatchEvenIdsByDayDateTime" parameterType="com.panda.merge.dto.MatchEventInfoDetail" resultMap="com.panda.merge.mapper.MatchEventInfoMapper.BaseResultMap">
+        SELECT id
+        FROM match_event_info
+        WHERE data_source_code = #{dataSourceCode}
+          AND create_time  &lt; #{dayDateTime}
+    </select>
+
+    <delete id="deleteMatchEvenIdsByDayDateTime"  parameterType="com.panda.merge.dto.MatchEventInfoDetail">
+        DELETE FROM  ${tableName}
+        WHERE modify_time  &lt; #{dayDateTime}
+            ORDER BY event_time
+        LIMIT #{size}
+    </delete>
+
+    <!-- 三方事件关联到标准赛事下 -->
+    <update id="matchEvent2StandardMatch">
+        UPDATE ${tableName}
+        SET standard_match_id = #{standardMatchId}
+        ,modify_time = #{modifyTime}
+        WHERE third_match_id = #{thirdMatchId}
+        AND third_match_source_id = #{thirdMatchSourceId}
+        AND COALESCE(standard_match_id,0) = 0
+    </update>
+
+    <!-- 三方事件转换为标准事件 -->
+    <update id="matchEvent2StandardEvent">
+        UPDATE ${tableName}
+        SET standard_match_id = #{standardMatchId}
+            ,send_data = 'Y'
+            ,link_id = #{linkId}
+            ,modify_time = #{modifyTime}
+        WHERE third_match_id = #{thirdMatchId}
+        AND third_match_source_id = #{thirdMatchSourceId}
+        AND send_data = 'N'
+    </update>
+
+</mapper>

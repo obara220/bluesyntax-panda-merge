@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.dao.ConfigurationMatchTemplateEventDao">
+
+    <update id="batchUpdate" parameterType="java.util.List">
+        <foreach collection="updateConfigurations" item="item" separator=";">
+            update configuration_match_template_event
+            <set>
+                <if test="item.eventAuditTime != null">
+                    event_audit_time = #{item.eventAuditTime,jdbcType=INTEGER},
+                </if>
+                <if test="item.eventSettlementTime != null">
+                    event_settlement_time = #{item.eventSettlementTime,jdbcType=INTEGER},
+                </if>
+                <if test="item.modifyTime != null">
+                    modify_time = #{item.modifyTime},
+                </if>
+            </set>
+            where standard_match_id = #{item.standardMatchId,jdbcType=BIGINT} and event_code = #{item.eventCode,jdbcType=VARCHAR}
+        </foreach>
+        ;
+    </update>
+
+    <insert id = "insertBatch" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
+        insert into configuration_match_template_event (standard_match_id, event_code, event_audit_time,
+      event_settlement_time, create_time, modify_time,
+      canceled)
+    values
+        <foreach collection="eventConfigurations" item="item" index="index" separator=",">
+            (#{item.standardMatchId,jdbcType=BIGINT}, #{item.eventCode,jdbcType=VARCHAR}, #{item.eventAuditTime,jdbcType=INTEGER},
+            #{item.eventSettlementTime,jdbcType=INTEGER}, #{item.createTime,jdbcType=BIGINT}, #{item.modifyTime,jdbcType=BIGINT},
+            0)
+        </foreach>
+    </insert>
+
+
+
+</mapper>

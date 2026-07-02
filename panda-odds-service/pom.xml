@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.panda.merge</groupId>
+    <artifactId>panda-odds-service</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>panda-odds-service</name>
+    <description>Demo project for Spring Boot</description>
+
+    <parent>
+        <groupId>com.panda.merge</groupId>
+        <artifactId>panda-merge</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.panda.merge</groupId>
+            <artifactId>panda-service</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.panda.merge</groupId>
+            <artifactId>panda-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.panda.merge</groupId>
+            <artifactId>panda-repo</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.panda.merge</groupId>
+            <artifactId>panda-common</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.panda.aocollect</groupId>
+            <artifactId>ao-collect-api</artifactId>
+            <version>1.1-SNAPSHOT</version>
+        </dependency>
+        <!--sharding-jdbc-->
+        <dependency>
+            <groupId>org.apache.shardingsphere</groupId>
+            <artifactId>sharding-jdbc-spring-boot-starter</artifactId>
+            <version>4.0.0-RC2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.rocketmq</groupId>
+            <artifactId>rocketmq-spring-boot-starter</artifactId>
+            <version>2.1.1</version>
+        </dependency>
+
+    </dependencies>
+
+</project>

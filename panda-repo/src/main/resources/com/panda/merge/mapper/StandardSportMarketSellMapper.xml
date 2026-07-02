@@ -1,0 +1,879 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.mapper.StandardSportMarketSellMapper">
+  <resultMap id="BaseResultMap" type="com.panda.merge.model.StandardSportMarketSell">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="sport_id" jdbcType="BIGINT" property="sportId" />
+    <result column="match_info_id" jdbcType="BIGINT" property="matchInfoId" />
+    <result column="round_type" jdbcType="TINYINT" property="roundType" />
+    <result column="match_manage_id" jdbcType="VARCHAR" property="matchManageId" />
+    <result column="pre_risk_manager_code" jdbcType="VARCHAR" property="preRiskManagerCode" />
+    <result column="pre_match_data_provider_code" jdbcType="VARCHAR" property="preMatchDataProviderCode" />
+    <result column="live_risk_manager_code" jdbcType="VARCHAR" property="liveRiskManagerCode" />
+    <result column="live_match_data_provider_code" jdbcType="VARCHAR" property="liveMatchDataProviderCode" />
+    <result column="tournament_level" jdbcType="INTEGER" property="tournamentLevel" />
+    <result column="live_odd_business" jdbcType="TINYINT" property="liveOddBusiness" />
+    <result column="tournament_id" jdbcType="BIGINT" property="tournamentId" />
+    <result column="team_home_id" jdbcType="BIGINT" property="teamHomeId" />
+    <result column="team_away_id" jdbcType="BIGINT" property="teamAwayId" />
+    <result column="pre_match_time" jdbcType="BIGINT" property="preMatchTime" />
+    <result column="live_odd_time" jdbcType="BIGINT" property="liveOddTime" />
+    <result column="begin_time" jdbcType="BIGINT" property="beginTime" />
+    <result column="pre_trader_id" jdbcType="VARCHAR" property="preTraderId" />
+    <result column="pre_trader" jdbcType="VARCHAR" property="preTrader" />
+    <result column="pre_trader_department_id" jdbcType="VARCHAR" property="preTraderDepartmentId" />
+    <result column="pre_trader_status" jdbcType="VARCHAR" property="preTraderStatus" />
+    <result column="live_trader_id" jdbcType="VARCHAR" property="liveTraderId" />
+    <result column="live_trader" jdbcType="VARCHAR" property="liveTrader" />
+    <result column="live_trader_department_id" jdbcType="VARCHAR" property="liveTraderDepartmentId" />
+    <result column="live_trader_status" jdbcType="VARCHAR" property="liveTraderStatus" />
+    <result column="auditor_id" jdbcType="VARCHAR" property="auditorId" />
+    <result column="auditor" jdbcType="VARCHAR" property="auditor" />
+    <result column="auditor_department_id" jdbcType="VARCHAR" property="auditorDepartmentId" />
+    <result column="auditor_status" jdbcType="VARCHAR" property="auditorStatus" />
+    <result column="reporter" jdbcType="VARCHAR" property="reporter" />
+    <result column="reporter2" jdbcType="VARCHAR" property="reporter2" />
+    <result column="business_event" jdbcType="VARCHAR" property="businessEvent" />
+    <result column="pre_match_sell_status" jdbcType="VARCHAR" property="preMatchSellStatus" />
+    <result column="live_match_sell_status" jdbcType="VARCHAR" property="liveMatchSellStatus" />
+    <result column="neutral_ground" jdbcType="TINYINT" property="neutralGround" />
+    <result column="status" jdbcType="CHAR" property="status" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="modify_time" jdbcType="BIGINT" property="modifyTime" />
+    <result column="match_status_source_code" jdbcType="VARCHAR" property="matchStatusSourceCode" />
+    <result column="label" jdbcType="TINYINT" property="label" />
+    <result column="settlement_time" jdbcType="BIGINT" property="settlementTime" />
+    <result column="pre_used_odds_codes" jdbcType="VARCHAR" property="preUsedOddsCodes" />
+    <result column="live_used_odds_codes" jdbcType="VARCHAR" property="liveUsedOddsCodes" />
+    <result column="sell_begin_differ" jdbcType="BIGINT" property="sellBeginDiffer" />
+    <result column="video_code" jdbcType="VARCHAR" property="videoCode" />
+    <result column="animation_code" jdbcType="VARCHAR" property="animationCode" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, sport_id, match_info_id, round_type, match_manage_id, pre_risk_manager_code,
+    pre_match_data_provider_code, live_risk_manager_code, live_match_data_provider_code, 
+    tournament_level, live_odd_business, tournament_id, team_home_id, team_away_id, pre_match_time, 
+    live_odd_time, begin_time, pre_trader_id, pre_trader, pre_trader_department_id, pre_trader_status, 
+    live_trader_id, live_trader, live_trader_department_id, live_trader_status, auditor_id, 
+    auditor, auditor_department_id, auditor_status, reporter, reporter2, business_event, pre_match_sell_status,
+    live_match_sell_status, neutral_ground, status, create_time, modify_time, match_status_source_code, 
+    label, settlement_time, pre_used_odds_codes, live_used_odds_codes, sell_begin_differ, 
+    video_code, animation_code
+  </sql>
+  <select id="selectByExample" parameterType="com.panda.merge.model.StandardSportMarketSellExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from standard_sport_market_sell
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from standard_sport_market_sell
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from standard_sport_market_sell
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.panda.merge.model.StandardSportMarketSellExample">
+    delete from standard_sport_market_sell
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.panda.merge.model.StandardSportMarketSell">
+    insert into standard_sport_market_sell (id, sport_id, match_info_id, 
+      round_type, match_manage_id, pre_risk_manager_code, 
+      pre_match_data_provider_code, live_risk_manager_code, 
+      live_match_data_provider_code, tournament_level, 
+      live_odd_business, tournament_id, team_home_id, 
+      team_away_id, pre_match_time, live_odd_time, 
+      begin_time, pre_trader_id, pre_trader, 
+      pre_trader_department_id, pre_trader_status, 
+      live_trader_id, live_trader, live_trader_department_id, 
+      live_trader_status, auditor_id, auditor, 
+      auditor_department_id, auditor_status, reporter, 
+      business_event, pre_match_sell_status, live_match_sell_status, 
+      neutral_ground, status, create_time, 
+      modify_time, match_status_source_code, label, 
+      settlement_time, pre_used_odds_codes, live_used_odds_codes, 
+      sell_begin_differ, video_code, animation_code
+      )
+    values (#{id,jdbcType=BIGINT}, #{sportId,jdbcType=BIGINT}, #{matchInfoId,jdbcType=BIGINT}, 
+      #{roundType,jdbcType=TINYINT}, #{matchManageId,jdbcType=VARCHAR}, #{preRiskManagerCode,jdbcType=VARCHAR}, 
+      #{preMatchDataProviderCode,jdbcType=VARCHAR}, #{liveRiskManagerCode,jdbcType=VARCHAR}, 
+      #{liveMatchDataProviderCode,jdbcType=VARCHAR}, #{tournamentLevel,jdbcType=INTEGER}, 
+      #{liveOddBusiness,jdbcType=TINYINT}, #{tournamentId,jdbcType=BIGINT}, #{teamHomeId,jdbcType=BIGINT}, 
+      #{teamAwayId,jdbcType=BIGINT}, #{preMatchTime,jdbcType=BIGINT}, #{liveOddTime,jdbcType=BIGINT}, 
+      #{beginTime,jdbcType=BIGINT}, #{preTraderId,jdbcType=VARCHAR}, #{preTrader,jdbcType=VARCHAR}, 
+      #{preTraderDepartmentId,jdbcType=VARCHAR}, #{preTraderStatus,jdbcType=VARCHAR}, 
+      #{liveTraderId,jdbcType=VARCHAR}, #{liveTrader,jdbcType=VARCHAR}, #{liveTraderDepartmentId,jdbcType=VARCHAR}, 
+      #{liveTraderStatus,jdbcType=VARCHAR}, #{auditorId,jdbcType=VARCHAR}, #{auditor,jdbcType=VARCHAR}, 
+      #{auditorDepartmentId,jdbcType=VARCHAR}, #{auditorStatus,jdbcType=VARCHAR}, #{reporter,jdbcType=VARCHAR}, 
+      #{businessEvent,jdbcType=VARCHAR}, #{preMatchSellStatus,jdbcType=VARCHAR}, #{liveMatchSellStatus,jdbcType=VARCHAR}, 
+      #{neutralGround,jdbcType=TINYINT}, #{status,jdbcType=CHAR}, #{createTime,jdbcType=BIGINT}, 
+      #{modifyTime,jdbcType=BIGINT}, #{matchStatusSourceCode,jdbcType=VARCHAR}, #{label,jdbcType=TINYINT}, 
+      #{settlementTime,jdbcType=BIGINT}, #{preUsedOddsCodes,jdbcType=VARCHAR}, #{liveUsedOddsCodes,jdbcType=VARCHAR}, 
+      #{sellBeginDiffer,jdbcType=BIGINT}, #{videoCode,jdbcType=VARCHAR}, #{animationCode,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.panda.merge.model.StandardSportMarketSell">
+    insert into standard_sport_market_sell
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="sportId != null">
+        sport_id,
+      </if>
+      <if test="matchInfoId != null">
+        match_info_id,
+      </if>
+      <if test="roundType != null">
+        round_type,
+      </if>
+      <if test="matchManageId != null">
+        match_manage_id,
+      </if>
+      <if test="preRiskManagerCode != null">
+        pre_risk_manager_code,
+      </if>
+      <if test="preMatchDataProviderCode != null">
+        pre_match_data_provider_code,
+      </if>
+      <if test="liveRiskManagerCode != null">
+        live_risk_manager_code,
+      </if>
+      <if test="liveMatchDataProviderCode != null">
+        live_match_data_provider_code,
+      </if>
+      <if test="tournamentLevel != null">
+        tournament_level,
+      </if>
+      <if test="liveOddBusiness != null">
+        live_odd_business,
+      </if>
+      <if test="tournamentId != null">
+        tournament_id,
+      </if>
+      <if test="teamHomeId != null">
+        team_home_id,
+      </if>
+      <if test="teamAwayId != null">
+        team_away_id,
+      </if>
+      <if test="preMatchTime != null">
+        pre_match_time,
+      </if>
+      <if test="liveOddTime != null">
+        live_odd_time,
+      </if>
+      <if test="beginTime != null">
+        begin_time,
+      </if>
+      <if test="preTraderId != null">
+        pre_trader_id,
+      </if>
+      <if test="preTrader != null">
+        pre_trader,
+      </if>
+      <if test="preTraderDepartmentId != null">
+        pre_trader_department_id,
+      </if>
+      <if test="preTraderStatus != null">
+        pre_trader_status,
+      </if>
+      <if test="liveTraderId != null">
+        live_trader_id,
+      </if>
+      <if test="liveTrader != null">
+        live_trader,
+      </if>
+      <if test="liveTraderDepartmentId != null">
+        live_trader_department_id,
+      </if>
+      <if test="liveTraderStatus != null">
+        live_trader_status,
+      </if>
+      <if test="auditorId != null">
+        auditor_id,
+      </if>
+      <if test="auditor != null">
+        auditor,
+      </if>
+      <if test="auditorDepartmentId != null">
+        auditor_department_id,
+      </if>
+      <if test="auditorStatus != null">
+        auditor_status,
+      </if>
+      <if test="reporter != null">
+        reporter,
+      </if>
+      <if test="businessEvent != null">
+        business_event,
+      </if>
+      <if test="preMatchSellStatus != null">
+        pre_match_sell_status,
+      </if>
+      <if test="liveMatchSellStatus != null">
+        live_match_sell_status,
+      </if>
+      <if test="neutralGround != null">
+        neutral_ground,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="modifyTime != null">
+        modify_time,
+      </if>
+      <if test="matchStatusSourceCode != null">
+        match_status_source_code,
+      </if>
+      <if test="label != null">
+        label,
+      </if>
+      <if test="settlementTime != null">
+        settlement_time,
+      </if>
+      <if test="preUsedOddsCodes != null">
+        pre_used_odds_codes,
+      </if>
+      <if test="liveUsedOddsCodes != null">
+        live_used_odds_codes,
+      </if>
+      <if test="sellBeginDiffer != null">
+        sell_begin_differ,
+      </if>
+      <if test="videoCode != null">
+        video_code,
+      </if>
+      <if test="animationCode != null">
+        animation_code,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="sportId != null">
+        #{sportId,jdbcType=BIGINT},
+      </if>
+      <if test="matchInfoId != null">
+        #{matchInfoId,jdbcType=BIGINT},
+      </if>
+      <if test="roundType != null">
+        #{roundType,jdbcType=TINYINT},
+      </if>
+      <if test="matchManageId != null">
+        #{matchManageId,jdbcType=VARCHAR},
+      </if>
+      <if test="preRiskManagerCode != null">
+        #{preRiskManagerCode,jdbcType=VARCHAR},
+      </if>
+      <if test="preMatchDataProviderCode != null">
+        #{preMatchDataProviderCode,jdbcType=VARCHAR},
+      </if>
+      <if test="liveRiskManagerCode != null">
+        #{liveRiskManagerCode,jdbcType=VARCHAR},
+      </if>
+      <if test="liveMatchDataProviderCode != null">
+        #{liveMatchDataProviderCode,jdbcType=VARCHAR},
+      </if>
+      <if test="tournamentLevel != null">
+        #{tournamentLevel,jdbcType=INTEGER},
+      </if>
+      <if test="liveOddBusiness != null">
+        #{liveOddBusiness,jdbcType=TINYINT},
+      </if>
+      <if test="tournamentId != null">
+        #{tournamentId,jdbcType=BIGINT},
+      </if>
+      <if test="teamHomeId != null">
+        #{teamHomeId,jdbcType=BIGINT},
+      </if>
+      <if test="teamAwayId != null">
+        #{teamAwayId,jdbcType=BIGINT},
+      </if>
+      <if test="preMatchTime != null">
+        #{preMatchTime,jdbcType=BIGINT},
+      </if>
+      <if test="liveOddTime != null">
+        #{liveOddTime,jdbcType=BIGINT},
+      </if>
+      <if test="beginTime != null">
+        #{beginTime,jdbcType=BIGINT},
+      </if>
+      <if test="preTraderId != null">
+        #{preTraderId,jdbcType=VARCHAR},
+      </if>
+      <if test="preTrader != null">
+        #{preTrader,jdbcType=VARCHAR},
+      </if>
+      <if test="preTraderDepartmentId != null">
+        #{preTraderDepartmentId,jdbcType=VARCHAR},
+      </if>
+      <if test="preTraderStatus != null">
+        #{preTraderStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="liveTraderId != null">
+        #{liveTraderId,jdbcType=VARCHAR},
+      </if>
+      <if test="liveTrader != null">
+        #{liveTrader,jdbcType=VARCHAR},
+      </if>
+      <if test="liveTraderDepartmentId != null">
+        #{liveTraderDepartmentId,jdbcType=VARCHAR},
+      </if>
+      <if test="liveTraderStatus != null">
+        #{liveTraderStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="auditorId != null">
+        #{auditorId,jdbcType=VARCHAR},
+      </if>
+      <if test="auditor != null">
+        #{auditor,jdbcType=VARCHAR},
+      </if>
+      <if test="auditorDepartmentId != null">
+        #{auditorDepartmentId,jdbcType=VARCHAR},
+      </if>
+      <if test="auditorStatus != null">
+        #{auditorStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="reporter != null">
+        #{reporter,jdbcType=VARCHAR},
+      </if>
+      <if test="businessEvent != null">
+        #{businessEvent,jdbcType=VARCHAR},
+      </if>
+      <if test="preMatchSellStatus != null">
+        #{preMatchSellStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="liveMatchSellStatus != null">
+        #{liveMatchSellStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="neutralGround != null">
+        #{neutralGround,jdbcType=TINYINT},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=CHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null">
+        #{modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="matchStatusSourceCode != null">
+        #{matchStatusSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="label != null">
+        #{label,jdbcType=TINYINT},
+      </if>
+      <if test="settlementTime != null">
+        #{settlementTime,jdbcType=BIGINT},
+      </if>
+      <if test="preUsedOddsCodes != null">
+        #{preUsedOddsCodes,jdbcType=VARCHAR},
+      </if>
+      <if test="liveUsedOddsCodes != null">
+        #{liveUsedOddsCodes,jdbcType=VARCHAR},
+      </if>
+      <if test="sellBeginDiffer != null">
+        #{sellBeginDiffer,jdbcType=BIGINT},
+      </if>
+      <if test="videoCode != null">
+        #{videoCode,jdbcType=VARCHAR},
+      </if>
+      <if test="animationCode != null">
+        #{animationCode,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.panda.merge.model.StandardSportMarketSellExample" resultType="java.lang.Long">
+    select count(*) from standard_sport_market_sell
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <select id="selectByMatchIds" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from standard_sport_market_sell
+    where match_info_id in (
+    <foreach collection="matchIdList" item="item" separator=",">
+        #{item}
+    </foreach>
+    )
+    <!--  <where>
+        <foreach item="item" index="index" collection="matchIdList" open="match_info_id in (" separator="," close=")">
+          #{item}
+        </foreach>
+      </where>-->
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update standard_sport_market_sell
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.sportId != null">
+        sport_id = #{record.sportId,jdbcType=BIGINT},
+      </if>
+      <if test="record.matchInfoId != null">
+        match_info_id = #{record.matchInfoId,jdbcType=BIGINT},
+      </if>
+      <if test="record.roundType != null">
+        round_type = #{record.roundType,jdbcType=TINYINT},
+      </if>
+      <if test="record.matchManageId != null">
+        match_manage_id = #{record.matchManageId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.preRiskManagerCode != null">
+        pre_risk_manager_code = #{record.preRiskManagerCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.preMatchDataProviderCode != null">
+        pre_match_data_provider_code = #{record.preMatchDataProviderCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.liveRiskManagerCode != null">
+        live_risk_manager_code = #{record.liveRiskManagerCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.liveMatchDataProviderCode != null">
+        live_match_data_provider_code = #{record.liveMatchDataProviderCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.tournamentLevel != null">
+        tournament_level = #{record.tournamentLevel,jdbcType=INTEGER},
+      </if>
+      <if test="record.liveOddBusiness != null">
+        live_odd_business = #{record.liveOddBusiness,jdbcType=TINYINT},
+      </if>
+      <if test="record.tournamentId != null">
+        tournament_id = #{record.tournamentId,jdbcType=BIGINT},
+      </if>
+      <if test="record.teamHomeId != null">
+        team_home_id = #{record.teamHomeId,jdbcType=BIGINT},
+      </if>
+      <if test="record.teamAwayId != null">
+        team_away_id = #{record.teamAwayId,jdbcType=BIGINT},
+      </if>
+      <if test="record.preMatchTime != null">
+        pre_match_time = #{record.preMatchTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.liveOddTime != null">
+        live_odd_time = #{record.liveOddTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.beginTime != null">
+        begin_time = #{record.beginTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.preTraderId != null">
+        pre_trader_id = #{record.preTraderId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.preTrader != null">
+        pre_trader = #{record.preTrader,jdbcType=VARCHAR},
+      </if>
+      <if test="record.preTraderDepartmentId != null">
+        pre_trader_department_id = #{record.preTraderDepartmentId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.preTraderStatus != null">
+        pre_trader_status = #{record.preTraderStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="record.liveTraderId != null">
+        live_trader_id = #{record.liveTraderId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.liveTrader != null">
+        live_trader = #{record.liveTrader,jdbcType=VARCHAR},
+      </if>
+      <if test="record.liveTraderDepartmentId != null">
+        live_trader_department_id = #{record.liveTraderDepartmentId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.liveTraderStatus != null">
+        live_trader_status = #{record.liveTraderStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="record.auditorId != null">
+        auditor_id = #{record.auditorId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.auditor != null">
+        auditor = #{record.auditor,jdbcType=VARCHAR},
+      </if>
+      <if test="record.auditorDepartmentId != null">
+        auditor_department_id = #{record.auditorDepartmentId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.auditorStatus != null">
+        auditor_status = #{record.auditorStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="record.reporter != null">
+        reporter = #{record.reporter,jdbcType=VARCHAR},
+      </if>
+      <if test="record.businessEvent != null">
+        business_event = #{record.businessEvent,jdbcType=VARCHAR},
+      </if>
+      <if test="record.preMatchSellStatus != null">
+        pre_match_sell_status = #{record.preMatchSellStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="record.liveMatchSellStatus != null">
+        live_match_sell_status = #{record.liveMatchSellStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="record.neutralGround != null">
+        neutral_ground = #{record.neutralGround,jdbcType=TINYINT},
+      </if>
+      <if test="record.status != null">
+        status = #{record.status,jdbcType=CHAR},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.modifyTime != null">
+        modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.matchStatusSourceCode != null">
+        match_status_source_code = #{record.matchStatusSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.label != null">
+        label = #{record.label,jdbcType=TINYINT},
+      </if>
+      <if test="record.settlementTime != null">
+        settlement_time = #{record.settlementTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.preUsedOddsCodes != null">
+        pre_used_odds_codes = #{record.preUsedOddsCodes,jdbcType=VARCHAR},
+      </if>
+      <if test="record.liveUsedOddsCodes != null">
+        live_used_odds_codes = #{record.liveUsedOddsCodes,jdbcType=VARCHAR},
+      </if>
+      <if test="record.sellBeginDiffer != null">
+        sell_begin_differ = #{record.sellBeginDiffer,jdbcType=BIGINT},
+      </if>
+      <if test="record.videoCode != null">
+        video_code = #{record.videoCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.animationCode != null">
+        animation_code = #{record.animationCode,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update standard_sport_market_sell
+    set id = #{record.id,jdbcType=BIGINT},
+      sport_id = #{record.sportId,jdbcType=BIGINT},
+      match_info_id = #{record.matchInfoId,jdbcType=BIGINT},
+      round_type = #{record.roundType,jdbcType=TINYINT},
+      match_manage_id = #{record.matchManageId,jdbcType=VARCHAR},
+      pre_risk_manager_code = #{record.preRiskManagerCode,jdbcType=VARCHAR},
+      pre_match_data_provider_code = #{record.preMatchDataProviderCode,jdbcType=VARCHAR},
+      live_risk_manager_code = #{record.liveRiskManagerCode,jdbcType=VARCHAR},
+      live_match_data_provider_code = #{record.liveMatchDataProviderCode,jdbcType=VARCHAR},
+      tournament_level = #{record.tournamentLevel,jdbcType=INTEGER},
+      live_odd_business = #{record.liveOddBusiness,jdbcType=TINYINT},
+      tournament_id = #{record.tournamentId,jdbcType=BIGINT},
+      team_home_id = #{record.teamHomeId,jdbcType=BIGINT},
+      team_away_id = #{record.teamAwayId,jdbcType=BIGINT},
+      pre_match_time = #{record.preMatchTime,jdbcType=BIGINT},
+      live_odd_time = #{record.liveOddTime,jdbcType=BIGINT},
+      begin_time = #{record.beginTime,jdbcType=BIGINT},
+      pre_trader_id = #{record.preTraderId,jdbcType=VARCHAR},
+      pre_trader = #{record.preTrader,jdbcType=VARCHAR},
+      pre_trader_department_id = #{record.preTraderDepartmentId,jdbcType=VARCHAR},
+      pre_trader_status = #{record.preTraderStatus,jdbcType=VARCHAR},
+      live_trader_id = #{record.liveTraderId,jdbcType=VARCHAR},
+      live_trader = #{record.liveTrader,jdbcType=VARCHAR},
+      live_trader_department_id = #{record.liveTraderDepartmentId,jdbcType=VARCHAR},
+      live_trader_status = #{record.liveTraderStatus,jdbcType=VARCHAR},
+      auditor_id = #{record.auditorId,jdbcType=VARCHAR},
+      auditor = #{record.auditor,jdbcType=VARCHAR},
+      auditor_department_id = #{record.auditorDepartmentId,jdbcType=VARCHAR},
+      auditor_status = #{record.auditorStatus,jdbcType=VARCHAR},
+      reporter = #{record.reporter,jdbcType=VARCHAR},
+      business_event = #{record.businessEvent,jdbcType=VARCHAR},
+      pre_match_sell_status = #{record.preMatchSellStatus,jdbcType=VARCHAR},
+      live_match_sell_status = #{record.liveMatchSellStatus,jdbcType=VARCHAR},
+      neutral_ground = #{record.neutralGround,jdbcType=TINYINT},
+      status = #{record.status,jdbcType=CHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      match_status_source_code = #{record.matchStatusSourceCode,jdbcType=VARCHAR},
+      label = #{record.label,jdbcType=TINYINT},
+      settlement_time = #{record.settlementTime,jdbcType=BIGINT},
+      pre_used_odds_codes = #{record.preUsedOddsCodes,jdbcType=VARCHAR},
+      live_used_odds_codes = #{record.liveUsedOddsCodes,jdbcType=VARCHAR},
+      sell_begin_differ = #{record.sellBeginDiffer,jdbcType=BIGINT},
+      video_code = #{record.videoCode,jdbcType=VARCHAR},
+      animation_code = #{record.animationCode,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.panda.merge.model.StandardSportMarketSell">
+    update standard_sport_market_sell
+    <set>
+      <if test="sportId != null">
+        sport_id = #{sportId,jdbcType=BIGINT},
+      </if>
+      <if test="matchInfoId != null">
+        match_info_id = #{matchInfoId,jdbcType=BIGINT},
+      </if>
+      <if test="roundType != null">
+        round_type = #{roundType,jdbcType=TINYINT},
+      </if>
+      <if test="matchManageId != null">
+        match_manage_id = #{matchManageId,jdbcType=VARCHAR},
+      </if>
+      <if test="preRiskManagerCode != null">
+        pre_risk_manager_code = #{preRiskManagerCode,jdbcType=VARCHAR},
+      </if>
+      <if test="preMatchDataProviderCode != null">
+        pre_match_data_provider_code = #{preMatchDataProviderCode,jdbcType=VARCHAR},
+      </if>
+      <if test="liveRiskManagerCode != null">
+        live_risk_manager_code = #{liveRiskManagerCode,jdbcType=VARCHAR},
+      </if>
+      <if test="liveMatchDataProviderCode != null">
+        live_match_data_provider_code = #{liveMatchDataProviderCode,jdbcType=VARCHAR},
+      </if>
+      <if test="tournamentLevel != null">
+        tournament_level = #{tournamentLevel,jdbcType=INTEGER},
+      </if>
+      <if test="liveOddBusiness != null">
+        live_odd_business = #{liveOddBusiness,jdbcType=TINYINT},
+      </if>
+      <if test="tournamentId != null">
+        tournament_id = #{tournamentId,jdbcType=BIGINT},
+      </if>
+      <if test="teamHomeId != null">
+        team_home_id = #{teamHomeId,jdbcType=BIGINT},
+      </if>
+      <if test="teamAwayId != null">
+        team_away_id = #{teamAwayId,jdbcType=BIGINT},
+      </if>
+      <if test="preMatchTime != null">
+        pre_match_time = #{preMatchTime,jdbcType=BIGINT},
+      </if>
+      <if test="liveOddTime != null">
+        live_odd_time = #{liveOddTime,jdbcType=BIGINT},
+      </if>
+      <if test="beginTime != null">
+        begin_time = #{beginTime,jdbcType=BIGINT},
+      </if>
+      <if test="preTraderId != null">
+        pre_trader_id = #{preTraderId,jdbcType=VARCHAR},
+      </if>
+      <if test="preTrader != null">
+        pre_trader = #{preTrader,jdbcType=VARCHAR},
+      </if>
+      <if test="preTraderDepartmentId != null">
+        pre_trader_department_id = #{preTraderDepartmentId,jdbcType=VARCHAR},
+      </if>
+      <if test="preTraderStatus != null">
+        pre_trader_status = #{preTraderStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="liveTraderId != null">
+        live_trader_id = #{liveTraderId,jdbcType=VARCHAR},
+      </if>
+      <if test="liveTrader != null">
+        live_trader = #{liveTrader,jdbcType=VARCHAR},
+      </if>
+      <if test="liveTraderDepartmentId != null">
+        live_trader_department_id = #{liveTraderDepartmentId,jdbcType=VARCHAR},
+      </if>
+      <if test="liveTraderStatus != null">
+        live_trader_status = #{liveTraderStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="auditorId != null">
+        auditor_id = #{auditorId,jdbcType=VARCHAR},
+      </if>
+      <if test="auditor != null">
+        auditor = #{auditor,jdbcType=VARCHAR},
+      </if>
+      <if test="auditorDepartmentId != null">
+        auditor_department_id = #{auditorDepartmentId,jdbcType=VARCHAR},
+      </if>
+      <if test="auditorStatus != null">
+        auditor_status = #{auditorStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="reporter != null">
+        reporter = #{reporter,jdbcType=VARCHAR},
+      </if>
+      <if test="businessEvent != null">
+        business_event = #{businessEvent,jdbcType=VARCHAR},
+      </if>
+      <if test="preMatchSellStatus != null">
+        pre_match_sell_status = #{preMatchSellStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="liveMatchSellStatus != null">
+        live_match_sell_status = #{liveMatchSellStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="neutralGround != null">
+        neutral_ground = #{neutralGround,jdbcType=TINYINT},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=CHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null">
+        modify_time = #{modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="matchStatusSourceCode != null">
+        match_status_source_code = #{matchStatusSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="label != null">
+        label = #{label,jdbcType=TINYINT},
+      </if>
+      <if test="settlementTime != null">
+        settlement_time = #{settlementTime,jdbcType=BIGINT},
+      </if>
+      <if test="preUsedOddsCodes != null">
+        pre_used_odds_codes = #{preUsedOddsCodes,jdbcType=VARCHAR},
+      </if>
+      <if test="liveUsedOddsCodes != null">
+        live_used_odds_codes = #{liveUsedOddsCodes,jdbcType=VARCHAR},
+      </if>
+      <if test="sellBeginDiffer != null">
+        sell_begin_differ = #{sellBeginDiffer,jdbcType=BIGINT},
+      </if>
+      <if test="videoCode != null">
+        video_code = #{videoCode,jdbcType=VARCHAR},
+      </if>
+      <if test="animationCode != null">
+        animation_code = #{animationCode,jdbcType=VARCHAR},
+      </if>
+      <if test="showResultStatus != null">
+        show_result_status = #{showResultStatus,jdbcType=BIGINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.panda.merge.model.StandardSportMarketSell">
+    update standard_sport_market_sell
+    set sport_id = #{sportId,jdbcType=BIGINT},
+      match_info_id = #{matchInfoId,jdbcType=BIGINT},
+      round_type = #{roundType,jdbcType=TINYINT},
+      match_manage_id = #{matchManageId,jdbcType=VARCHAR},
+      pre_risk_manager_code = #{preRiskManagerCode,jdbcType=VARCHAR},
+      pre_match_data_provider_code = #{preMatchDataProviderCode,jdbcType=VARCHAR},
+      live_risk_manager_code = #{liveRiskManagerCode,jdbcType=VARCHAR},
+      live_match_data_provider_code = #{liveMatchDataProviderCode,jdbcType=VARCHAR},
+      tournament_level = #{tournamentLevel,jdbcType=INTEGER},
+      live_odd_business = #{liveOddBusiness,jdbcType=TINYINT},
+      tournament_id = #{tournamentId,jdbcType=BIGINT},
+      team_home_id = #{teamHomeId,jdbcType=BIGINT},
+      team_away_id = #{teamAwayId,jdbcType=BIGINT},
+      pre_match_time = #{preMatchTime,jdbcType=BIGINT},
+      live_odd_time = #{liveOddTime,jdbcType=BIGINT},
+      begin_time = #{beginTime,jdbcType=BIGINT},
+      pre_trader_id = #{preTraderId,jdbcType=VARCHAR},
+      pre_trader = #{preTrader,jdbcType=VARCHAR},
+      pre_trader_department_id = #{preTraderDepartmentId,jdbcType=VARCHAR},
+      pre_trader_status = #{preTraderStatus,jdbcType=VARCHAR},
+      live_trader_id = #{liveTraderId,jdbcType=VARCHAR},
+      live_trader = #{liveTrader,jdbcType=VARCHAR},
+      live_trader_department_id = #{liveTraderDepartmentId,jdbcType=VARCHAR},
+      live_trader_status = #{liveTraderStatus,jdbcType=VARCHAR},
+      auditor_id = #{auditorId,jdbcType=VARCHAR},
+      auditor = #{auditor,jdbcType=VARCHAR},
+      auditor_department_id = #{auditorDepartmentId,jdbcType=VARCHAR},
+      auditor_status = #{auditorStatus,jdbcType=VARCHAR},
+      reporter = #{reporter,jdbcType=VARCHAR},
+      business_event = #{businessEvent,jdbcType=VARCHAR},
+      pre_match_sell_status = #{preMatchSellStatus,jdbcType=VARCHAR},
+      live_match_sell_status = #{liveMatchSellStatus,jdbcType=VARCHAR},
+      neutral_ground = #{neutralGround,jdbcType=TINYINT},
+      status = #{status,jdbcType=CHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      modify_time = #{modifyTime,jdbcType=BIGINT},
+      match_status_source_code = #{matchStatusSourceCode,jdbcType=VARCHAR},
+      label = #{label,jdbcType=TINYINT},
+      settlement_time = #{settlementTime,jdbcType=BIGINT},
+      pre_used_odds_codes = #{preUsedOddsCodes,jdbcType=VARCHAR},
+      live_used_odds_codes = #{liveUsedOddsCodes,jdbcType=VARCHAR},
+      sell_begin_differ = #{sellBeginDiffer,jdbcType=BIGINT},
+      video_code = #{videoCode,jdbcType=VARCHAR},
+      animation_code = #{animationCode,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <update id="updateShowResultStatusAll">
+    update standard_sport_market_sell
+    set
+        modify_time = #{modifyTime},
+        show_result_status = #{showResultStatus}
+    where match_info_id in
+    <foreach collection="list" item="item" open=" (" close=")" separator=",">
+      #{item}
+    </foreach>
+  </update>
+</mapper>

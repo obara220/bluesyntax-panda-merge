@@ -1,0 +1,583 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.mapper.ThirdVideoBoardCastRecordMapper">
+  <resultMap id="BaseResultMap" type="com.panda.merge.model.ThirdVideoBoardCastRecord">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="match_id" jdbcType="VARCHAR" property="matchId" />
+    <result column="data_source_code" jdbcType="VARCHAR" property="dataSourceCode" />
+    <result column="sport_id" jdbcType="BIGINT" property="sportId" />
+    <result column="cate" jdbcType="VARCHAR" property="cate" />
+    <result column="league" jdbcType="VARCHAR" property="league" />
+    <result column="start_date" jdbcType="TIMESTAMP" property="startDate" />
+    <result column="home_zn" jdbcType="VARCHAR" property="homeZn" />
+    <result column="away_zn" jdbcType="VARCHAR" property="awayZn" />
+    <result column="home_en" jdbcType="VARCHAR" property="homeEn" />
+    <result column="away_en" jdbcType="VARCHAR" property="awayEn" />
+    <result column="live_video_path_status" jdbcType="BIGINT" property="liveVideoPathStatus" />
+    <result column="live_video_online" jdbcType="BIGINT" property="liveVideoOnline" />
+    <result column="live_video_hd" jdbcType="VARCHAR" property="liveVideoHd" />
+    <result column="ani_id" jdbcType="VARCHAR" property="aniId" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="modify_time" jdbcType="BIGINT" property="modifyTime" />
+    <result column="player_url" jdbcType="VARCHAR" property="playerUrl" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.panda.merge.model.ThirdVideoBoardCastRecord">
+    <result column="live_video_path_m3u8" jdbcType="LONGVARCHAR" property="liveVideoPathM3u8" />
+    <result column="live_video_path_flv" jdbcType="LONGVARCHAR" property="liveVideoPathFlv" />
+    <result column="animation_path" jdbcType="LONGVARCHAR" property="animationPath" />
+    <result column="animation3_paths" jdbcType="LONGVARCHAR" property="animation3Paths" />
+    <result column="home_team_logo_url" jdbcType="LONGVARCHAR" property="homeTeamLogoUrl" />
+    <result column="away_team_logo_url" jdbcType="LONGVARCHAR" property="awayTeamLogoUrl" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, match_id, data_source_code, sport_id, cate, league, start_date, home_zn, away_zn,
+    home_en, away_en, live_video_path_status, live_video_online, live_video_hd, ani_id,
+    create_time, modify_time, player_url
+  </sql>
+  <sql id="Blob_Column_List">
+    live_video_path_m3u8, live_video_path_flv, animation_path, animation3_paths, home_team_logo_url,
+    away_team_logo_url
+  </sql>
+  <select id="selectByExampleWithBLOBs" parameterType="com.panda.merge.model.ThirdVideoBoardCastRecordExample" resultMap="ResultMapWithBLOBs">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from third_video_board_cast_record
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" parameterType="com.panda.merge.model.ThirdVideoBoardCastRecordExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from third_video_board_cast_record
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
+    select
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from third_video_board_cast_record
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from third_video_board_cast_record
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.panda.merge.model.ThirdVideoBoardCastRecordExample">
+    delete from third_video_board_cast_record
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.panda.merge.model.ThirdVideoBoardCastRecord">
+    insert into third_video_board_cast_record (id, match_id, data_source_code,
+      sport_id, cate, league,
+      start_date, home_zn, away_zn,
+      home_en, away_en, live_video_path_status,
+      live_video_online, live_video_hd, ani_id,
+      create_time, modify_time, player_url,
+      live_video_path_m3u8, live_video_path_flv,
+      animation_path, animation3_paths,
+      home_team_logo_url, away_team_logo_url
+      )
+    values (#{id,jdbcType=VARCHAR}, #{matchId,jdbcType=VARCHAR}, #{dataSourceCode,jdbcType=VARCHAR},
+      #{sportId,jdbcType=BIGINT}, #{cate,jdbcType=VARCHAR}, #{league,jdbcType=VARCHAR},
+      #{startDate,jdbcType=TIMESTAMP}, #{homeZn,jdbcType=VARCHAR}, #{awayZn,jdbcType=VARCHAR},
+      #{homeEn,jdbcType=VARCHAR}, #{awayEn,jdbcType=VARCHAR}, #{liveVideoPathStatus,jdbcType=BIGINT},
+      #{liveVideoOnline,jdbcType=BIGINT}, #{liveVideoHd,jdbcType=VARCHAR}, #{aniId,jdbcType=VARCHAR},
+      #{createTime,jdbcType=BIGINT}, #{modifyTime,jdbcType=BIGINT}, #{playerUrl,jdbcType=VARCHAR},
+      #{liveVideoPathM3u8,jdbcType=LONGVARCHAR}, #{liveVideoPathFlv,jdbcType=LONGVARCHAR},
+      #{animationPath,jdbcType=LONGVARCHAR}, #{animation3Paths,jdbcType=LONGVARCHAR},
+      #{homeTeamLogoUrl,jdbcType=LONGVARCHAR}, #{awayTeamLogoUrl,jdbcType=LONGVARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.panda.merge.model.ThirdVideoBoardCastRecord">
+    insert into third_video_board_cast_record
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="matchId != null">
+        match_id,
+      </if>
+      <if test="dataSourceCode != null">
+        data_source_code,
+      </if>
+      <if test="sportId != null">
+        sport_id,
+      </if>
+      <if test="cate != null">
+        cate,
+      </if>
+      <if test="league != null">
+        league,
+      </if>
+      <if test="startDate != null">
+        start_date,
+      </if>
+      <if test="homeZn != null">
+        home_zn,
+      </if>
+      <if test="awayZn != null">
+        away_zn,
+      </if>
+      <if test="homeEn != null">
+        home_en,
+      </if>
+      <if test="awayEn != null">
+        away_en,
+      </if>
+      <if test="liveVideoPathStatus != null">
+        live_video_path_status,
+      </if>
+      <if test="liveVideoOnline != null">
+        live_video_online,
+      </if>
+      <if test="liveVideoHd != null">
+        live_video_hd,
+      </if>
+      <if test="aniId != null">
+        ani_id,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="modifyTime != null">
+        modify_time,
+      </if>
+      <if test="playerUrl != null">
+        player_url,
+      </if>
+      <if test="liveVideoPathM3u8 != null">
+        live_video_path_m3u8,
+      </if>
+      <if test="liveVideoPathFlv != null">
+        live_video_path_flv,
+      </if>
+      <if test="animationPath != null">
+        animation_path,
+      </if>
+      <if test="animation3Paths != null">
+        animation3_paths,
+      </if>
+      <if test="homeTeamLogoUrl != null">
+        home_team_logo_url,
+      </if>
+      <if test="awayTeamLogoUrl != null">
+        away_team_logo_url,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="matchId != null">
+        #{matchId,jdbcType=VARCHAR},
+      </if>
+      <if test="dataSourceCode != null">
+        #{dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="sportId != null">
+        #{sportId,jdbcType=BIGINT},
+      </if>
+      <if test="cate != null">
+        #{cate,jdbcType=VARCHAR},
+      </if>
+      <if test="league != null">
+        #{league,jdbcType=VARCHAR},
+      </if>
+      <if test="startDate != null">
+        #{startDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="homeZn != null">
+        #{homeZn,jdbcType=VARCHAR},
+      </if>
+      <if test="awayZn != null">
+        #{awayZn,jdbcType=VARCHAR},
+      </if>
+      <if test="homeEn != null">
+        #{homeEn,jdbcType=VARCHAR},
+      </if>
+      <if test="awayEn != null">
+        #{awayEn,jdbcType=VARCHAR},
+      </if>
+      <if test="liveVideoPathStatus != null">
+        #{liveVideoPathStatus,jdbcType=BIGINT},
+      </if>
+      <if test="liveVideoOnline != null">
+        #{liveVideoOnline,jdbcType=BIGINT},
+      </if>
+      <if test="liveVideoHd != null">
+        #{liveVideoHd,jdbcType=VARCHAR},
+      </if>
+      <if test="aniId != null">
+        #{aniId,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null">
+        #{modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="playerUrl != null">
+        #{playerUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="liveVideoPathM3u8 != null">
+        #{liveVideoPathM3u8,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="liveVideoPathFlv != null">
+        #{liveVideoPathFlv,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="animationPath != null">
+        #{animationPath,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="animation3Paths != null">
+        #{animation3Paths,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="homeTeamLogoUrl != null">
+        #{homeTeamLogoUrl,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="awayTeamLogoUrl != null">
+        #{awayTeamLogoUrl,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.panda.merge.model.ThirdVideoBoardCastRecordExample" resultType="java.lang.Long">
+    select count(*) from third_video_board_cast_record
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update third_video_board_cast_record
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
+      </if>
+      <if test="record.matchId != null">
+        match_id = #{record.matchId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.dataSourceCode != null">
+        data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.sportId != null">
+        sport_id = #{record.sportId,jdbcType=BIGINT},
+      </if>
+      <if test="record.cate != null">
+        cate = #{record.cate,jdbcType=VARCHAR},
+      </if>
+      <if test="record.league != null">
+        league = #{record.league,jdbcType=VARCHAR},
+      </if>
+      <if test="record.startDate != null">
+        start_date = #{record.startDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.homeZn != null">
+        home_zn = #{record.homeZn,jdbcType=VARCHAR},
+      </if>
+      <if test="record.awayZn != null">
+        away_zn = #{record.awayZn,jdbcType=VARCHAR},
+      </if>
+      <if test="record.homeEn != null">
+        home_en = #{record.homeEn,jdbcType=VARCHAR},
+      </if>
+      <if test="record.awayEn != null">
+        away_en = #{record.awayEn,jdbcType=VARCHAR},
+      </if>
+      <if test="record.liveVideoPathStatus != null">
+        live_video_path_status = #{record.liveVideoPathStatus,jdbcType=BIGINT},
+      </if>
+      <if test="record.liveVideoOnline != null">
+        live_video_online = #{record.liveVideoOnline,jdbcType=BIGINT},
+      </if>
+      <if test="record.liveVideoHd != null">
+        live_video_hd = #{record.liveVideoHd,jdbcType=VARCHAR},
+      </if>
+      <if test="record.aniId != null">
+        ani_id = #{record.aniId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.modifyTime != null">
+        modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.playerUrl != null">
+        player_url = #{record.playerUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.liveVideoPathM3u8 != null">
+        live_video_path_m3u8 = #{record.liveVideoPathM3u8,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.liveVideoPathFlv != null">
+        live_video_path_flv = #{record.liveVideoPathFlv,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.animationPath != null">
+        animation_path = #{record.animationPath,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.animation3Paths != null">
+        animation3_paths = #{record.animation3Paths,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.homeTeamLogoUrl != null">
+        home_team_logo_url = #{record.homeTeamLogoUrl,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.awayTeamLogoUrl != null">
+        away_team_logo_url = #{record.awayTeamLogoUrl,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map">
+    update third_video_board_cast_record
+    set id = #{record.id,jdbcType=VARCHAR},
+      match_id = #{record.matchId,jdbcType=VARCHAR},
+      data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+      sport_id = #{record.sportId,jdbcType=BIGINT},
+      cate = #{record.cate,jdbcType=VARCHAR},
+      league = #{record.league,jdbcType=VARCHAR},
+      start_date = #{record.startDate,jdbcType=TIMESTAMP},
+      home_zn = #{record.homeZn,jdbcType=VARCHAR},
+      away_zn = #{record.awayZn,jdbcType=VARCHAR},
+      home_en = #{record.homeEn,jdbcType=VARCHAR},
+      away_en = #{record.awayEn,jdbcType=VARCHAR},
+      live_video_path_status = #{record.liveVideoPathStatus,jdbcType=BIGINT},
+      live_video_online = #{record.liveVideoOnline,jdbcType=BIGINT},
+      live_video_hd = #{record.liveVideoHd,jdbcType=VARCHAR},
+      ani_id = #{record.aniId,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      player_url = #{record.playerUrl,jdbcType=VARCHAR},
+      live_video_path_m3u8 = #{record.liveVideoPathM3u8,jdbcType=LONGVARCHAR},
+      live_video_path_flv = #{record.liveVideoPathFlv,jdbcType=LONGVARCHAR},
+      animation_path = #{record.animationPath,jdbcType=LONGVARCHAR},
+      animation3_paths = #{record.animation3Paths,jdbcType=LONGVARCHAR},
+      home_team_logo_url = #{record.homeTeamLogoUrl,jdbcType=LONGVARCHAR},
+      away_team_logo_url = #{record.awayTeamLogoUrl,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update third_video_board_cast_record
+    set id = #{record.id,jdbcType=VARCHAR},
+      match_id = #{record.matchId,jdbcType=VARCHAR},
+      data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+      sport_id = #{record.sportId,jdbcType=BIGINT},
+      cate = #{record.cate,jdbcType=VARCHAR},
+      league = #{record.league,jdbcType=VARCHAR},
+      start_date = #{record.startDate,jdbcType=TIMESTAMP},
+      home_zn = #{record.homeZn,jdbcType=VARCHAR},
+      away_zn = #{record.awayZn,jdbcType=VARCHAR},
+      home_en = #{record.homeEn,jdbcType=VARCHAR},
+      away_en = #{record.awayEn,jdbcType=VARCHAR},
+      live_video_path_status = #{record.liveVideoPathStatus,jdbcType=BIGINT},
+      live_video_online = #{record.liveVideoOnline,jdbcType=BIGINT},
+      live_video_hd = #{record.liveVideoHd,jdbcType=VARCHAR},
+      ani_id = #{record.aniId,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      player_url = #{record.playerUrl,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.panda.merge.model.ThirdVideoBoardCastRecord">
+    update third_video_board_cast_record
+    <set>
+      <if test="matchId != null">
+        match_id = #{matchId,jdbcType=VARCHAR},
+      </if>
+      <if test="dataSourceCode != null">
+        data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="sportId != null">
+        sport_id = #{sportId,jdbcType=BIGINT},
+      </if>
+      <if test="cate != null">
+        cate = #{cate,jdbcType=VARCHAR},
+      </if>
+      <if test="league != null">
+        league = #{league,jdbcType=VARCHAR},
+      </if>
+      <if test="startDate != null">
+        start_date = #{startDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="homeZn != null">
+        home_zn = #{homeZn,jdbcType=VARCHAR},
+      </if>
+      <if test="awayZn != null">
+        away_zn = #{awayZn,jdbcType=VARCHAR},
+      </if>
+      <if test="homeEn != null">
+        home_en = #{homeEn,jdbcType=VARCHAR},
+      </if>
+      <if test="awayEn != null">
+        away_en = #{awayEn,jdbcType=VARCHAR},
+      </if>
+      <if test="liveVideoPathStatus != null">
+        live_video_path_status = #{liveVideoPathStatus,jdbcType=BIGINT},
+      </if>
+      <if test="liveVideoOnline != null">
+        live_video_online = #{liveVideoOnline,jdbcType=BIGINT},
+      </if>
+      <if test="liveVideoHd != null">
+        live_video_hd = #{liveVideoHd,jdbcType=VARCHAR},
+      </if>
+      <if test="aniId != null">
+        ani_id = #{aniId,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null">
+        modify_time = #{modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="playerUrl != null">
+        player_url = #{playerUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="liveVideoPathM3u8 != null">
+        live_video_path_m3u8 = #{liveVideoPathM3u8,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="liveVideoPathFlv != null">
+        live_video_path_flv = #{liveVideoPathFlv,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="animationPath != null">
+        animation_path = #{animationPath,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="animation3Paths != null">
+        animation3_paths = #{animation3Paths,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="homeTeamLogoUrl != null">
+        home_team_logo_url = #{homeTeamLogoUrl,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="awayTeamLogoUrl != null">
+        away_team_logo_url = #{awayTeamLogoUrl,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.panda.merge.model.ThirdVideoBoardCastRecord">
+    update third_video_board_cast_record
+    set match_id = #{matchId,jdbcType=VARCHAR},
+      data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
+      sport_id = #{sportId,jdbcType=BIGINT},
+      cate = #{cate,jdbcType=VARCHAR},
+      league = #{league,jdbcType=VARCHAR},
+      start_date = #{startDate,jdbcType=TIMESTAMP},
+      home_zn = #{homeZn,jdbcType=VARCHAR},
+      away_zn = #{awayZn,jdbcType=VARCHAR},
+      home_en = #{homeEn,jdbcType=VARCHAR},
+      away_en = #{awayEn,jdbcType=VARCHAR},
+      live_video_path_status = #{liveVideoPathStatus,jdbcType=BIGINT},
+      live_video_online = #{liveVideoOnline,jdbcType=BIGINT},
+      live_video_hd = #{liveVideoHd,jdbcType=VARCHAR},
+      ani_id = #{aniId,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      modify_time = #{modifyTime,jdbcType=BIGINT},
+      player_url = #{playerUrl,jdbcType=VARCHAR},
+      live_video_path_m3u8 = #{liveVideoPathM3u8,jdbcType=LONGVARCHAR},
+      live_video_path_flv = #{liveVideoPathFlv,jdbcType=LONGVARCHAR},
+      animation_path = #{animationPath,jdbcType=LONGVARCHAR},
+      animation3_paths = #{animation3Paths,jdbcType=LONGVARCHAR},
+      home_team_logo_url = #{homeTeamLogoUrl,jdbcType=LONGVARCHAR},
+      away_team_logo_url = #{awayTeamLogoUrl,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.panda.merge.model.ThirdVideoBoardCastRecord">
+    update third_video_board_cast_record
+    set match_id = #{matchId,jdbcType=VARCHAR},
+      data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
+      sport_id = #{sportId,jdbcType=BIGINT},
+      cate = #{cate,jdbcType=VARCHAR},
+      league = #{league,jdbcType=VARCHAR},
+      start_date = #{startDate,jdbcType=TIMESTAMP},
+      home_zn = #{homeZn,jdbcType=VARCHAR},
+      away_zn = #{awayZn,jdbcType=VARCHAR},
+      home_en = #{homeEn,jdbcType=VARCHAR},
+      away_en = #{awayEn,jdbcType=VARCHAR},
+      live_video_path_status = #{liveVideoPathStatus,jdbcType=BIGINT},
+      live_video_online = #{liveVideoOnline,jdbcType=BIGINT},
+      live_video_hd = #{liveVideoHd,jdbcType=VARCHAR},
+      ani_id = #{aniId,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      modify_time = #{modifyTime,jdbcType=BIGINT},
+      player_url = #{playerUrl,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.dao.ThirdTeamPlayerRelationDao">
+
+    <insert id="insertList" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO third_team_player_relation(
+            id, team_id, player_id,jersey_number,position, create_time,modify_time
+        ) VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+        (#{item.id}, #{item.teamId}, #{item.playerId},#{item.jerseyNumber}, #{item.position},
+            REPLACE(unix_timestamp(current_timestamp(3)),'.',''), REPLACE(unix_timestamp(current_timestamp(3)),'.',''))
+        </foreach>
+    </insert>
+
+    <update id="updateList" parameterType="java.util.List">
+        <foreach collection="list" item="item" separator=";">
+            UPDATE third_team_player_relation
+            <set>
+                <if test="item.teamId != null">
+                    team_id = #{item.teamId,jdbcType=BIGINT},
+                </if>
+                <if test="item.playerId != null">
+                    player_id = #{item.playerId,jdbcType=BIGINT},
+                </if>
+                <if test="item.jerseyNumber != null">
+                    jersey_number = #{item.jerseyNumber,jdbcType=INTEGER},
+                </if>
+                <if test="item.position != null">
+                    position = #{item.position,jdbcType=VARCHAR},
+                </if>
+                modify_time = REPLACE(unix_timestamp(current_timestamp(3)),'.','')
+            </set>
+            WHERE id = #{item.id}
+        </foreach>
+    </update>
+</mapper>

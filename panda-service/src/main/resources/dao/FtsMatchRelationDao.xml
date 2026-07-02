@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.dao.FtsMatchRelationDao">
+
+    <select id="getFtsMatchRelation" resultType="com.panda.merge.model.FtsMatchRelation" parameterType="com.panda.merge.model.FtsMatchRelation">
+        select new_match_id      as "newMatchId",
+               new_home_team_id  as "newHomeTeamId",
+               new_home_match_id as "newHomeMatchId",
+               new_away_team_id  as "newAwayTeamId",
+               new_away_match_id as "newAwayMatchId",
+               create_time       as "createTime"
+        from fts_match_relation where new_home_match_id = #{newMatchId} or new_away_match_id = #{newMatchId}
+    </select>
+
+    <select id="getFtsMatchByFtsId" resultType="com.panda.merge.model.FtsMatchRelation">
+        select new_match_id      as "newMatchId",
+               new_home_team_id  as "newHomeTeamId",
+               new_home_match_id as "newHomeMatchId",
+               new_away_team_id  as "newAwayTeamId",
+               new_away_match_id as "newAwayMatchId",
+               create_time       as "createTime"
+        from fts_match_relation where new_match_id = #{newMatchId}
+    </select>
+</mapper>

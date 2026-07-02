@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.mapper.MarketCategoryEventCodeRelationMapper">
+  <resultMap id="BaseResultMap" type="com.panda.merge.model.MarketCategoryEventCodeRelation">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="sport_id" jdbcType="BIGINT" property="sportId" />
+    <result column="market_category_id" jdbcType="BIGINT" property="marketCategoryId" />
+    <result column="event_code_id" jdbcType="BIGINT" property="eventCodeId" />
+    <result column="match_period_id" jdbcType="INTEGER" property="matchPeriodId" />
+    <result column="normal_flag" jdbcType="BIT" property="normalFlag" />
+    <result column="dynamic_flag" jdbcType="BIT" property="dynamicFlag" />
+    <result column="period_dynamic_flag" jdbcType="BIT" property="periodDynamicFlag" />
+    <result column="range_flag" jdbcType="BIT" property="rangeFlag" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, sport_id, market_category_id, event_code_id, match_period_id, normal_flag, dynamic_flag, 
+    period_dynamic_flag, range_flag
+  </sql>
+  <select id="selectByExample" parameterType="com.panda.merge.model.MarketCategoryEventCodeRelationExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from market_category_event_code_relation
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from market_category_event_code_relation
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from market_category_event_code_relation
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.panda.merge.model.MarketCategoryEventCodeRelationExample">
+    delete from market_category_event_code_relation
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.panda.merge.model.MarketCategoryEventCodeRelation">
+    insert into market_category_event_code_relation (id, sport_id, market_category_id, 
+      event_code_id, match_period_id, normal_flag, 
+      dynamic_flag, period_dynamic_flag, range_flag
+      )
+    values (#{id,jdbcType=BIGINT}, #{sportId,jdbcType=BIGINT}, #{marketCategoryId,jdbcType=BIGINT}, 
+      #{eventCodeId,jdbcType=BIGINT}, #{matchPeriodId,jdbcType=INTEGER}, #{normalFlag,jdbcType=BIT}, 
+      #{dynamicFlag,jdbcType=BIT}, #{periodDynamicFlag,jdbcType=BIT}, #{rangeFlag,jdbcType=BIT}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.panda.merge.model.MarketCategoryEventCodeRelation">
+    insert into market_category_event_code_relation
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="sportId != null">
+        sport_id,
+      </if>
+      <if test="marketCategoryId != null">
+        market_category_id,
+      </if>
+      <if test="eventCodeId != null">
+        event_code_id,
+      </if>
+      <if test="matchPeriodId != null">
+        match_period_id,
+      </if>
+      <if test="normalFlag != null">
+        normal_flag,
+      </if>
+      <if test="dynamicFlag != null">
+        dynamic_flag,
+      </if>
+      <if test="periodDynamicFlag != null">
+        period_dynamic_flag,
+      </if>
+      <if test="rangeFlag != null">
+        range_flag,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="sportId != null">
+        #{sportId,jdbcType=BIGINT},
+      </if>
+      <if test="marketCategoryId != null">
+        #{marketCategoryId,jdbcType=BIGINT},
+      </if>
+      <if test="eventCodeId != null">
+        #{eventCodeId,jdbcType=BIGINT},
+      </if>
+      <if test="matchPeriodId != null">
+        #{matchPeriodId,jdbcType=INTEGER},
+      </if>
+      <if test="normalFlag != null">
+        #{normalFlag,jdbcType=BIT},
+      </if>
+      <if test="dynamicFlag != null">
+        #{dynamicFlag,jdbcType=BIT},
+      </if>
+      <if test="periodDynamicFlag != null">
+        #{periodDynamicFlag,jdbcType=BIT},
+      </if>
+      <if test="rangeFlag != null">
+        #{rangeFlag,jdbcType=BIT},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.panda.merge.model.MarketCategoryEventCodeRelationExample" resultType="java.lang.Long">
+    select count(*) from market_category_event_code_relation
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update market_category_event_code_relation
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.sportId != null">
+        sport_id = #{record.sportId,jdbcType=BIGINT},
+      </if>
+      <if test="record.marketCategoryId != null">
+        market_category_id = #{record.marketCategoryId,jdbcType=BIGINT},
+      </if>
+      <if test="record.eventCodeId != null">
+        event_code_id = #{record.eventCodeId,jdbcType=BIGINT},
+      </if>
+      <if test="record.matchPeriodId != null">
+        match_period_id = #{record.matchPeriodId,jdbcType=INTEGER},
+      </if>
+      <if test="record.normalFlag != null">
+        normal_flag = #{record.normalFlag,jdbcType=BIT},
+      </if>
+      <if test="record.dynamicFlag != null">
+        dynamic_flag = #{record.dynamicFlag,jdbcType=BIT},
+      </if>
+      <if test="record.periodDynamicFlag != null">
+        period_dynamic_flag = #{record.periodDynamicFlag,jdbcType=BIT},
+      </if>
+      <if test="record.rangeFlag != null">
+        range_flag = #{record.rangeFlag,jdbcType=BIT},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update market_category_event_code_relation
+    set id = #{record.id,jdbcType=BIGINT},
+      sport_id = #{record.sportId,jdbcType=BIGINT},
+      market_category_id = #{record.marketCategoryId,jdbcType=BIGINT},
+      event_code_id = #{record.eventCodeId,jdbcType=BIGINT},
+      match_period_id = #{record.matchPeriodId,jdbcType=INTEGER},
+      normal_flag = #{record.normalFlag,jdbcType=BIT},
+      dynamic_flag = #{record.dynamicFlag,jdbcType=BIT},
+      period_dynamic_flag = #{record.periodDynamicFlag,jdbcType=BIT},
+      range_flag = #{record.rangeFlag,jdbcType=BIT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.panda.merge.model.MarketCategoryEventCodeRelation">
+    update market_category_event_code_relation
+    <set>
+      <if test="sportId != null">
+        sport_id = #{sportId,jdbcType=BIGINT},
+      </if>
+      <if test="marketCategoryId != null">
+        market_category_id = #{marketCategoryId,jdbcType=BIGINT},
+      </if>
+      <if test="eventCodeId != null">
+        event_code_id = #{eventCodeId,jdbcType=BIGINT},
+      </if>
+      <if test="matchPeriodId != null">
+        match_period_id = #{matchPeriodId,jdbcType=INTEGER},
+      </if>
+      <if test="normalFlag != null">
+        normal_flag = #{normalFlag,jdbcType=BIT},
+      </if>
+      <if test="dynamicFlag != null">
+        dynamic_flag = #{dynamicFlag,jdbcType=BIT},
+      </if>
+      <if test="periodDynamicFlag != null">
+        period_dynamic_flag = #{periodDynamicFlag,jdbcType=BIT},
+      </if>
+      <if test="rangeFlag != null">
+        range_flag = #{rangeFlag,jdbcType=BIT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.panda.merge.model.MarketCategoryEventCodeRelation">
+    update market_category_event_code_relation
+    set sport_id = #{sportId,jdbcType=BIGINT},
+      market_category_id = #{marketCategoryId,jdbcType=BIGINT},
+      event_code_id = #{eventCodeId,jdbcType=BIGINT},
+      match_period_id = #{matchPeriodId,jdbcType=INTEGER},
+      normal_flag = #{normalFlag,jdbcType=BIT},
+      dynamic_flag = #{dynamicFlag,jdbcType=BIT},
+      period_dynamic_flag = #{periodDynamicFlag,jdbcType=BIT},
+      range_flag = #{rangeFlag,jdbcType=BIT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

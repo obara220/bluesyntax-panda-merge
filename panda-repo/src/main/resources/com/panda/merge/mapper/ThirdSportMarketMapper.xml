@@ -1,0 +1,611 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.mapper.ThirdSportMarketMapper">
+  <resultMap id="BaseResultMap" type="com.panda.merge.model.ThirdSportMarket">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="tournament_id" jdbcType="BIGINT" property="tournamentId" />
+    <result column="match_id" jdbcType="BIGINT" property="matchId" />
+    <result column="market_category_id" jdbcType="BIGINT" property="marketCategoryId" />
+    <result column="third_market_source_id" jdbcType="VARCHAR" property="thirdMarketSourceId" />
+    <result column="reference_id" jdbcType="BIGINT" property="referenceId" />
+    <result column="market_type" jdbcType="TINYINT" property="marketType" />
+    <result column="data_source_code" jdbcType="VARCHAR" property="dataSourceCode" />
+    <result column="status" jdbcType="TINYINT" property="status" />
+    <result column="third_market_source_status" jdbcType="TINYINT" property="thirdMarketSourceStatus" />
+    <result column="scope_id" jdbcType="VARCHAR" property="scopeId" />
+    <result column="name_code" jdbcType="BIGINT" property="nameCode" />
+    <result column="odds_type_name" jdbcType="VARCHAR" property="oddsTypeName" />
+    <result column="third_odds_type" jdbcType="VARCHAR" property="thirdOddsType" />
+    <result column="odds_value" jdbcType="VARCHAR" property="oddsValue" />
+    <result column="order_type" jdbcType="VARCHAR" property="orderType" />
+    <result column="odds_name" jdbcType="VARCHAR" property="oddsName" />
+    <result column="odds_metric" jdbcType="BIGINT" property="oddsMetric" />
+    <result column="addition1" jdbcType="VARCHAR" property="addition1" />
+    <result column="addition2" jdbcType="VARCHAR" property="addition2" />
+    <result column="addition3" jdbcType="VARCHAR" property="addition3" />
+    <result column="addition4" jdbcType="VARCHAR" property="addition4" />
+    <result column="addition5" jdbcType="VARCHAR" property="addition5" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="modify_time" jdbcType="BIGINT" property="modifyTime" />
+    <result column="extra_info" jdbcType="VARCHAR" property="extraInfo" />
+    <result column="offer_line_id" jdbcType="TINYINT" property="offerLineId" />
+    <result column="number_of_winners" jdbcType="INTEGER" property="numberOfWinners" />
+    <result column="internal_data_source_code" jdbcType="VARCHAR" property="internalDataSourceCode" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, tournament_id, match_id, market_category_id, third_market_source_id, reference_id, 
+    market_type, data_source_code, status, third_market_source_status, scope_id, name_code, 
+    odds_type_name, third_odds_type, odds_value, order_type, odds_name, odds_metric, 
+    addition1, addition2, addition3, addition4, addition5, remark, create_time, modify_time, 
+    extra_info, offer_line_id, number_of_winners, internal_data_source_code
+  </sql>
+  <select id="selectByExample" parameterType="com.panda.merge.model.ThirdSportMarketExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from third_sport_market
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from third_sport_market
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from third_sport_market
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.panda.merge.model.ThirdSportMarketExample">
+    delete from third_sport_market
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.panda.merge.model.ThirdSportMarket">
+    insert into third_sport_market (id, tournament_id, match_id, 
+      market_category_id, third_market_source_id, reference_id, 
+      market_type, data_source_code, status, 
+      third_market_source_status, scope_id, name_code, 
+      odds_type_name, third_odds_type, odds_value, 
+      order_type, odds_name, odds_metric, 
+      addition1, addition2, addition3, 
+      addition4, addition5, remark, 
+      create_time, modify_time, extra_info, 
+      offer_line_id, number_of_winners, internal_data_source_code)
+    values (#{id,jdbcType=BIGINT}, #{tournamentId,jdbcType=BIGINT}, #{matchId,jdbcType=BIGINT}, 
+      #{marketCategoryId,jdbcType=BIGINT}, #{thirdMarketSourceId,jdbcType=VARCHAR}, #{referenceId,jdbcType=BIGINT}, 
+      #{marketType,jdbcType=TINYINT}, #{dataSourceCode,jdbcType=VARCHAR}, #{status,jdbcType=TINYINT}, 
+      #{thirdMarketSourceStatus,jdbcType=TINYINT}, #{scopeId,jdbcType=VARCHAR}, #{nameCode,jdbcType=BIGINT}, 
+      #{oddsTypeName,jdbcType=VARCHAR}, #{thirdOddsType,jdbcType=VARCHAR}, #{oddsValue,jdbcType=VARCHAR}, 
+      #{orderType,jdbcType=VARCHAR}, #{oddsName,jdbcType=VARCHAR}, #{oddsMetric,jdbcType=BIGINT}, 
+      #{addition1,jdbcType=VARCHAR}, #{addition2,jdbcType=VARCHAR}, #{addition3,jdbcType=VARCHAR}, 
+      #{addition4,jdbcType=VARCHAR}, #{addition5,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=BIGINT}, #{modifyTime,jdbcType=BIGINT}, #{extraInfo,jdbcType=VARCHAR}, 
+      #{offerLineId,jdbcType=TINYINT}, #{numberOfWinners,jdbcType=INTEGER}, #{internalDataSourceCode,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.panda.merge.model.ThirdSportMarket">
+    insert into third_sport_market
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="tournamentId != null">
+        tournament_id,
+      </if>
+      <if test="matchId != null">
+        match_id,
+      </if>
+      <if test="marketCategoryId != null">
+        market_category_id,
+      </if>
+      <if test="thirdMarketSourceId != null">
+        third_market_source_id,
+      </if>
+      <if test="referenceId != null">
+        reference_id,
+      </if>
+      <if test="marketType != null">
+        market_type,
+      </if>
+      <if test="dataSourceCode != null">
+        data_source_code,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="thirdMarketSourceStatus != null">
+        third_market_source_status,
+      </if>
+      <if test="scopeId != null">
+        scope_id,
+      </if>
+      <if test="nameCode != null">
+        name_code,
+      </if>
+      <if test="oddsTypeName != null">
+        odds_type_name,
+      </if>
+      <if test="thirdOddsType != null">
+        third_odds_type,
+      </if>
+      <if test="oddsValue != null">
+        odds_value,
+      </if>
+      <if test="orderType != null">
+        order_type,
+      </if>
+      <if test="oddsName != null">
+        odds_name,
+      </if>
+      <if test="oddsMetric != null">
+        odds_metric,
+      </if>
+      <if test="addition1 != null">
+        addition1,
+      </if>
+      <if test="addition2 != null">
+        addition2,
+      </if>
+      <if test="addition3 != null">
+        addition3,
+      </if>
+      <if test="addition4 != null">
+        addition4,
+      </if>
+      <if test="addition5 != null">
+        addition5,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="modifyTime != null">
+        modify_time,
+      </if>
+      <if test="extraInfo != null">
+        extra_info,
+      </if>
+      <if test="offerLineId != null">
+        offer_line_id,
+      </if>
+      <if test="numberOfWinners != null">
+        number_of_winners,
+      </if>
+      <if test="internalDataSourceCode != null">
+        internal_data_source_code,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="tournamentId != null">
+        #{tournamentId,jdbcType=BIGINT},
+      </if>
+      <if test="matchId != null">
+        #{matchId,jdbcType=BIGINT},
+      </if>
+      <if test="marketCategoryId != null">
+        #{marketCategoryId,jdbcType=BIGINT},
+      </if>
+      <if test="thirdMarketSourceId != null">
+        #{thirdMarketSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="referenceId != null">
+        #{referenceId,jdbcType=BIGINT},
+      </if>
+      <if test="marketType != null">
+        #{marketType,jdbcType=TINYINT},
+      </if>
+      <if test="dataSourceCode != null">
+        #{dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=TINYINT},
+      </if>
+      <if test="thirdMarketSourceStatus != null">
+        #{thirdMarketSourceStatus,jdbcType=TINYINT},
+      </if>
+      <if test="scopeId != null">
+        #{scopeId,jdbcType=VARCHAR},
+      </if>
+      <if test="nameCode != null">
+        #{nameCode,jdbcType=BIGINT},
+      </if>
+      <if test="oddsTypeName != null">
+        #{oddsTypeName,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdOddsType != null">
+        #{thirdOddsType,jdbcType=VARCHAR},
+      </if>
+      <if test="oddsValue != null">
+        #{oddsValue,jdbcType=VARCHAR},
+      </if>
+      <if test="orderType != null">
+        #{orderType,jdbcType=VARCHAR},
+      </if>
+      <if test="oddsName != null">
+        #{oddsName,jdbcType=VARCHAR},
+      </if>
+      <if test="oddsMetric != null">
+        #{oddsMetric,jdbcType=BIGINT},
+      </if>
+      <if test="addition1 != null">
+        #{addition1,jdbcType=VARCHAR},
+      </if>
+      <if test="addition2 != null">
+        #{addition2,jdbcType=VARCHAR},
+      </if>
+      <if test="addition3 != null">
+        #{addition3,jdbcType=VARCHAR},
+      </if>
+      <if test="addition4 != null">
+        #{addition4,jdbcType=VARCHAR},
+      </if>
+      <if test="addition5 != null">
+        #{addition5,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null">
+        #{modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="extraInfo != null">
+        #{extraInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="offerLineId != null">
+        #{offerLineId,jdbcType=TINYINT},
+      </if>
+      <if test="numberOfWinners != null">
+        #{numberOfWinners,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.panda.merge.model.ThirdSportMarketExample" resultType="java.lang.Long">
+    select count(*) from third_sport_market
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <select id="countByThirdMatchIds" resultType="java.lang.Long" parameterType="list">
+    select count(*)
+    from third_sport_market
+    where match_id in
+    <foreach collection="matchIds" item="matchId" open="(" separator="," close=")">
+      #{matchId}
+    </foreach>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update third_sport_market
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.tournamentId != null">
+        tournament_id = #{record.tournamentId,jdbcType=BIGINT},
+      </if>
+      <if test="record.matchId != null">
+        match_id = #{record.matchId,jdbcType=BIGINT},
+      </if>
+      <if test="record.marketCategoryId != null">
+        market_category_id = #{record.marketCategoryId,jdbcType=BIGINT},
+      </if>
+      <if test="record.thirdMarketSourceId != null">
+        third_market_source_id = #{record.thirdMarketSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.referenceId != null">
+        reference_id = #{record.referenceId,jdbcType=BIGINT},
+      </if>
+      <if test="record.marketType != null">
+        market_type = #{record.marketType,jdbcType=TINYINT},
+      </if>
+      <if test="record.dataSourceCode != null">
+        data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.status != null">
+        status = #{record.status,jdbcType=TINYINT},
+      </if>
+      <if test="record.thirdMarketSourceStatus != null">
+        third_market_source_status = #{record.thirdMarketSourceStatus,jdbcType=TINYINT},
+      </if>
+      <if test="record.scopeId != null">
+        scope_id = #{record.scopeId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.nameCode != null">
+        name_code = #{record.nameCode,jdbcType=BIGINT},
+      </if>
+      <if test="record.oddsTypeName != null">
+        odds_type_name = #{record.oddsTypeName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.thirdOddsType != null">
+        third_odds_type = #{record.thirdOddsType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.oddsValue != null">
+        odds_value = #{record.oddsValue,jdbcType=VARCHAR},
+      </if>
+      <if test="record.orderType != null">
+        order_type = #{record.orderType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.oddsName != null">
+        odds_name = #{record.oddsName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.oddsMetric != null">
+        odds_metric = #{record.oddsMetric,jdbcType=BIGINT},
+      </if>
+      <if test="record.addition1 != null">
+        addition1 = #{record.addition1,jdbcType=VARCHAR},
+      </if>
+      <if test="record.addition2 != null">
+        addition2 = #{record.addition2,jdbcType=VARCHAR},
+      </if>
+      <if test="record.addition3 != null">
+        addition3 = #{record.addition3,jdbcType=VARCHAR},
+      </if>
+      <if test="record.addition4 != null">
+        addition4 = #{record.addition4,jdbcType=VARCHAR},
+      </if>
+      <if test="record.addition5 != null">
+        addition5 = #{record.addition5,jdbcType=VARCHAR},
+      </if>
+      <if test="record.remark != null">
+        remark = #{record.remark,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.modifyTime != null">
+        modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.extraInfo != null">
+        extra_info = #{record.extraInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.offerLineId != null">
+        offer_line_id = #{record.offerLineId,jdbcType=TINYINT},
+      </if>
+      <if test="record.numberOfWinners != null">
+        number_of_winners = #{record.numberOfWinners,jdbcType=INTEGER},
+      </if>
+      <if test="record.internalDataSourceCode != null">
+        internal_data_source_code = #{record.internalDataSourceCode,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update third_sport_market
+    set id = #{record.id,jdbcType=BIGINT},
+      tournament_id = #{record.tournamentId,jdbcType=BIGINT},
+      match_id = #{record.matchId,jdbcType=BIGINT},
+      market_category_id = #{record.marketCategoryId,jdbcType=BIGINT},
+      third_market_source_id = #{record.thirdMarketSourceId,jdbcType=VARCHAR},
+      reference_id = #{record.referenceId,jdbcType=BIGINT},
+      market_type = #{record.marketType,jdbcType=TINYINT},
+      data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+      status = #{record.status,jdbcType=TINYINT},
+      third_market_source_status = #{record.thirdMarketSourceStatus,jdbcType=TINYINT},
+      scope_id = #{record.scopeId,jdbcType=VARCHAR},
+      name_code = #{record.nameCode,jdbcType=BIGINT},
+      odds_type_name = #{record.oddsTypeName,jdbcType=VARCHAR},
+      third_odds_type = #{record.thirdOddsType,jdbcType=VARCHAR},
+      odds_value = #{record.oddsValue,jdbcType=VARCHAR},
+      order_type = #{record.orderType,jdbcType=VARCHAR},
+      odds_name = #{record.oddsName,jdbcType=VARCHAR},
+      odds_metric = #{record.oddsMetric,jdbcType=BIGINT},
+      addition1 = #{record.addition1,jdbcType=VARCHAR},
+      addition2 = #{record.addition2,jdbcType=VARCHAR},
+      addition3 = #{record.addition3,jdbcType=VARCHAR},
+      addition4 = #{record.addition4,jdbcType=VARCHAR},
+      addition5 = #{record.addition5,jdbcType=VARCHAR},
+      remark = #{record.remark,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      extra_info = #{record.extraInfo,jdbcType=VARCHAR},
+      offer_line_id = #{record.offerLineId,jdbcType=TINYINT},
+      number_of_winners = #{record.numberOfWinners,jdbcType=INTEGER},
+      internal_data_source_code = #{record.internalDataSourceCode,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.panda.merge.model.ThirdSportMarket">
+    update third_sport_market
+    <set>
+      <if test="tournamentId != null">
+        tournament_id = #{tournamentId,jdbcType=BIGINT},
+      </if>
+      <if test="matchId != null">
+        match_id = #{matchId,jdbcType=BIGINT},
+      </if>
+      <if test="marketCategoryId != null">
+        market_category_id = #{marketCategoryId,jdbcType=BIGINT},
+      </if>
+      <if test="thirdMarketSourceId != null">
+        third_market_source_id = #{thirdMarketSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="referenceId != null">
+        reference_id = #{referenceId,jdbcType=BIGINT},
+      </if>
+      <if test="marketType != null">
+        market_type = #{marketType,jdbcType=TINYINT},
+      </if>
+      <if test="dataSourceCode != null">
+        data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=TINYINT},
+      </if>
+      <if test="thirdMarketSourceStatus != null">
+        third_market_source_status = #{thirdMarketSourceStatus,jdbcType=TINYINT},
+      </if>
+      <if test="scopeId != null">
+        scope_id = #{scopeId,jdbcType=VARCHAR},
+      </if>
+      <if test="nameCode != null">
+        name_code = #{nameCode,jdbcType=BIGINT},
+      </if>
+      <if test="oddsTypeName != null">
+        odds_type_name = #{oddsTypeName,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdOddsType != null">
+        third_odds_type = #{thirdOddsType,jdbcType=VARCHAR},
+      </if>
+      <if test="oddsValue != null">
+        odds_value = #{oddsValue,jdbcType=VARCHAR},
+      </if>
+      <if test="orderType != null">
+        order_type = #{orderType,jdbcType=VARCHAR},
+      </if>
+      <if test="oddsName != null">
+        odds_name = #{oddsName,jdbcType=VARCHAR},
+      </if>
+      <if test="oddsMetric != null">
+        odds_metric = #{oddsMetric,jdbcType=BIGINT},
+      </if>
+      <if test="addition1 != null">
+        addition1 = #{addition1,jdbcType=VARCHAR},
+      </if>
+      <if test="addition2 != null">
+        addition2 = #{addition2,jdbcType=VARCHAR},
+      </if>
+      <if test="addition3 != null">
+        addition3 = #{addition3,jdbcType=VARCHAR},
+      </if>
+      <if test="addition4 != null">
+        addition4 = #{addition4,jdbcType=VARCHAR},
+      </if>
+      <if test="addition5 != null">
+        addition5 = #{addition5,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null">
+        modify_time = #{modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="extraInfo != null">
+        extra_info = #{extraInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="offerLineId != null">
+        offer_line_id = #{offerLineId,jdbcType=TINYINT},
+      </if>
+      <if test="numberOfWinners != null">
+        number_of_winners = #{numberOfWinners,jdbcType=INTEGER},
+      </if>
+      <if test="internalDataSourceCode != null">
+        internal_data_source_code = #{internalDataSourceCode,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.panda.merge.model.ThirdSportMarket">
+    update third_sport_market
+    set tournament_id = #{tournamentId,jdbcType=BIGINT},
+      match_id = #{matchId,jdbcType=BIGINT},
+      market_category_id = #{marketCategoryId,jdbcType=BIGINT},
+      third_market_source_id = #{thirdMarketSourceId,jdbcType=VARCHAR},
+      reference_id = #{referenceId,jdbcType=BIGINT},
+      market_type = #{marketType,jdbcType=TINYINT},
+      data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
+      status = #{status,jdbcType=TINYINT},
+      third_market_source_status = #{thirdMarketSourceStatus,jdbcType=TINYINT},
+      scope_id = #{scopeId,jdbcType=VARCHAR},
+      name_code = #{nameCode,jdbcType=BIGINT},
+      odds_type_name = #{oddsTypeName,jdbcType=VARCHAR},
+      third_odds_type = #{thirdOddsType,jdbcType=VARCHAR},
+      odds_value = #{oddsValue,jdbcType=VARCHAR},
+      order_type = #{orderType,jdbcType=VARCHAR},
+      odds_name = #{oddsName,jdbcType=VARCHAR},
+      odds_metric = #{oddsMetric,jdbcType=BIGINT},
+      addition1 = #{addition1,jdbcType=VARCHAR},
+      addition2 = #{addition2,jdbcType=VARCHAR},
+      addition3 = #{addition3,jdbcType=VARCHAR},
+      addition4 = #{addition4,jdbcType=VARCHAR},
+      addition5 = #{addition5,jdbcType=VARCHAR},
+      remark = #{remark,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      modify_time = #{modifyTime,jdbcType=BIGINT},
+      extra_info = #{extraInfo,jdbcType=VARCHAR},
+      offer_line_id = #{offerLineId,jdbcType=TINYINT},
+      number_of_winners = #{numberOfWinners,jdbcType=INTEGER},
+      internal_data_source_code = #{internalDataSourceCode,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

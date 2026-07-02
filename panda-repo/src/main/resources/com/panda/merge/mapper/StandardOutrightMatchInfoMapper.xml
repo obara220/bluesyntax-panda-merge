@@ -1,0 +1,469 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.mapper.StandardOutrightMatchInfoMapper">
+  <resultMap id="BaseResultMap" type="com.panda.merge.model.StandardOutrightMatchInfo">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="sport_id" jdbcType="BIGINT" property="sportId" />
+    <result column="region_id" jdbcType="BIGINT" property="regionId" />
+    <result column="standard_tournament_id" jdbcType="BIGINT" property="standardTournamentId" />
+    <result column="standard_outright_name_en" jdbcType="VARCHAR" property="standardOutrightNameEn" />
+    <result column="standard_outright_name_cn" jdbcType="VARCHAR" property="standardOutrightNameCn" />
+    <result column="data_source_code" jdbcType="VARCHAR" property="dataSourceCode" />
+    <result column="match_market_status" jdbcType="TINYINT" property="matchMarketStatus" />
+    <result column="standard_outright_manager_id" jdbcType="VARCHAR" property="standardOutrightManagerId" />
+    <result column="third_outright_match_id" jdbcType="BIGINT" property="thirdOutrightMatchId" />
+    <result column="third_outright_match_source_id" jdbcType="VARCHAR" property="thirdOutrightMatchSourceId" />
+    <result column="standrd_outright_match_begion_time" jdbcType="BIGINT" property="standrdOutrightMatchBegionTime" />
+    <result column="standrd_outright_match_end_time" jdbcType="BIGINT" property="standrdOutrightMatchEndTime" />
+    <result column="sell_status" jdbcType="VARCHAR" property="sellStatus" />
+    <result column="auto_sell_status" jdbcType="VARCHAR" property="autoSellStatus" />
+    <result column="season_id" jdbcType="VARCHAR" property="seasonId" />
+    <result column="standard_outright_year" jdbcType="VARCHAR" property="standardOutrightYear" />
+    <result column="booked" jdbcType="TINYINT" property="booked" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="modify_time" jdbcType="BIGINT" property="modifyTime" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, sport_id, region_id, standard_tournament_id, standard_outright_name_en, standard_outright_name_cn, 
+    data_source_code, match_market_status, standard_outright_manager_id, third_outright_match_id, 
+    third_outright_match_source_id, standrd_outright_match_begion_time, standrd_outright_match_end_time, 
+    sell_status, auto_sell_status, season_id, standard_outright_year, booked, remark, 
+    create_time, modify_time
+  </sql>
+  <select id="selectByExample" parameterType="com.panda.merge.model.StandardOutrightMatchInfoExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from standard_outright_match_info
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from standard_outright_match_info
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from standard_outright_match_info
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.panda.merge.model.StandardOutrightMatchInfoExample">
+    delete from standard_outright_match_info
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.panda.merge.model.StandardOutrightMatchInfo">
+    insert into standard_outright_match_info (id, sport_id, region_id, 
+      standard_tournament_id, standard_outright_name_en, 
+      standard_outright_name_cn, data_source_code, 
+      match_market_status, standard_outright_manager_id, 
+      third_outright_match_id, third_outright_match_source_id, 
+      standrd_outright_match_begion_time, standrd_outright_match_end_time, 
+      sell_status, auto_sell_status, season_id, 
+      standard_outright_year, booked, remark, 
+      create_time, modify_time)
+    values (#{id,jdbcType=BIGINT}, #{sportId,jdbcType=BIGINT}, #{regionId,jdbcType=BIGINT}, 
+      #{standardTournamentId,jdbcType=BIGINT}, #{standardOutrightNameEn,jdbcType=VARCHAR}, 
+      #{standardOutrightNameCn,jdbcType=VARCHAR}, #{dataSourceCode,jdbcType=VARCHAR}, 
+      #{matchMarketStatus,jdbcType=TINYINT}, #{standardOutrightManagerId,jdbcType=VARCHAR}, 
+      #{thirdOutrightMatchId,jdbcType=BIGINT}, #{thirdOutrightMatchSourceId,jdbcType=VARCHAR}, 
+      #{standrdOutrightMatchBegionTime,jdbcType=BIGINT}, #{standrdOutrightMatchEndTime,jdbcType=BIGINT}, 
+      #{sellStatus,jdbcType=VARCHAR}, #{autoSellStatus,jdbcType=VARCHAR}, #{seasonId,jdbcType=VARCHAR}, 
+      #{standardOutrightYear,jdbcType=VARCHAR}, #{booked,jdbcType=TINYINT}, #{remark,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=BIGINT}, #{modifyTime,jdbcType=BIGINT})
+  </insert>
+  <insert id="insertSelective" parameterType="com.panda.merge.model.StandardOutrightMatchInfo">
+    insert into standard_outright_match_info
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="sportId != null">
+        sport_id,
+      </if>
+      <if test="regionId != null">
+        region_id,
+      </if>
+      <if test="standardTournamentId != null">
+        standard_tournament_id,
+      </if>
+      <if test="standardOutrightNameEn != null">
+        standard_outright_name_en,
+      </if>
+      <if test="standardOutrightNameCn != null">
+        standard_outright_name_cn,
+      </if>
+      <if test="dataSourceCode != null">
+        data_source_code,
+      </if>
+      <if test="matchMarketStatus != null">
+        match_market_status,
+      </if>
+      <if test="standardOutrightManagerId != null">
+        standard_outright_manager_id,
+      </if>
+      <if test="thirdOutrightMatchId != null">
+        third_outright_match_id,
+      </if>
+      <if test="thirdOutrightMatchSourceId != null">
+        third_outright_match_source_id,
+      </if>
+      <if test="standrdOutrightMatchBegionTime != null">
+        standrd_outright_match_begion_time,
+      </if>
+      <if test="standrdOutrightMatchEndTime != null">
+        standrd_outright_match_end_time,
+      </if>
+      <if test="sellStatus != null">
+        sell_status,
+      </if>
+      <if test="autoSellStatus != null">
+        auto_sell_status,
+      </if>
+      <if test="seasonId != null">
+        season_id,
+      </if>
+      <if test="standardOutrightYear != null">
+        standard_outright_year,
+      </if>
+      <if test="booked != null">
+        booked,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="modifyTime != null">
+        modify_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="sportId != null">
+        #{sportId,jdbcType=BIGINT},
+      </if>
+      <if test="regionId != null">
+        #{regionId,jdbcType=BIGINT},
+      </if>
+      <if test="standardTournamentId != null">
+        #{standardTournamentId,jdbcType=BIGINT},
+      </if>
+      <if test="standardOutrightNameEn != null">
+        #{standardOutrightNameEn,jdbcType=VARCHAR},
+      </if>
+      <if test="standardOutrightNameCn != null">
+        #{standardOutrightNameCn,jdbcType=VARCHAR},
+      </if>
+      <if test="dataSourceCode != null">
+        #{dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="matchMarketStatus != null">
+        #{matchMarketStatus,jdbcType=TINYINT},
+      </if>
+      <if test="standardOutrightManagerId != null">
+        #{standardOutrightManagerId,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdOutrightMatchId != null">
+        #{thirdOutrightMatchId,jdbcType=BIGINT},
+      </if>
+      <if test="thirdOutrightMatchSourceId != null">
+        #{thirdOutrightMatchSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="standrdOutrightMatchBegionTime != null">
+        #{standrdOutrightMatchBegionTime,jdbcType=BIGINT},
+      </if>
+      <if test="standrdOutrightMatchEndTime != null">
+        #{standrdOutrightMatchEndTime,jdbcType=BIGINT},
+      </if>
+      <if test="sellStatus != null">
+        #{sellStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="autoSellStatus != null">
+        #{autoSellStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="seasonId != null">
+        #{seasonId,jdbcType=VARCHAR},
+      </if>
+      <if test="standardOutrightYear != null">
+        #{standardOutrightYear,jdbcType=VARCHAR},
+      </if>
+      <if test="booked != null">
+        #{booked,jdbcType=TINYINT},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null">
+        #{modifyTime,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.panda.merge.model.StandardOutrightMatchInfoExample" resultType="java.lang.Long">
+    select count(*) from standard_outright_match_info
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update standard_outright_match_info
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.sportId != null">
+        sport_id = #{record.sportId,jdbcType=BIGINT},
+      </if>
+      <if test="record.regionId != null">
+        region_id = #{record.regionId,jdbcType=BIGINT},
+      </if>
+      <if test="record.standardTournamentId != null">
+        standard_tournament_id = #{record.standardTournamentId,jdbcType=BIGINT},
+      </if>
+      <if test="record.standardOutrightNameEn != null">
+        standard_outright_name_en = #{record.standardOutrightNameEn,jdbcType=VARCHAR},
+      </if>
+      <if test="record.standardOutrightNameCn != null">
+        standard_outright_name_cn = #{record.standardOutrightNameCn,jdbcType=VARCHAR},
+      </if>
+      <if test="record.dataSourceCode != null">
+        data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.matchMarketStatus != null">
+        match_market_status = #{record.matchMarketStatus,jdbcType=TINYINT},
+      </if>
+      <if test="record.standardOutrightManagerId != null">
+        standard_outright_manager_id = #{record.standardOutrightManagerId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.thirdOutrightMatchId != null">
+        third_outright_match_id = #{record.thirdOutrightMatchId,jdbcType=BIGINT},
+      </if>
+      <if test="record.thirdOutrightMatchSourceId != null">
+        third_outright_match_source_id = #{record.thirdOutrightMatchSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.standrdOutrightMatchBegionTime != null">
+        standrd_outright_match_begion_time = #{record.standrdOutrightMatchBegionTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.standrdOutrightMatchEndTime != null">
+        standrd_outright_match_end_time = #{record.standrdOutrightMatchEndTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.sellStatus != null">
+        sell_status = #{record.sellStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="record.autoSellStatus != null">
+        auto_sell_status = #{record.autoSellStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="record.seasonId != null">
+        season_id = #{record.seasonId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.standardOutrightYear != null">
+        standard_outright_year = #{record.standardOutrightYear,jdbcType=VARCHAR},
+      </if>
+      <if test="record.booked != null">
+        booked = #{record.booked,jdbcType=TINYINT},
+      </if>
+      <if test="record.remark != null">
+        remark = #{record.remark,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.modifyTime != null">
+        modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update standard_outright_match_info
+    set id = #{record.id,jdbcType=BIGINT},
+      sport_id = #{record.sportId,jdbcType=BIGINT},
+      region_id = #{record.regionId,jdbcType=BIGINT},
+      standard_tournament_id = #{record.standardTournamentId,jdbcType=BIGINT},
+      standard_outright_name_en = #{record.standardOutrightNameEn,jdbcType=VARCHAR},
+      standard_outright_name_cn = #{record.standardOutrightNameCn,jdbcType=VARCHAR},
+      data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+      match_market_status = #{record.matchMarketStatus,jdbcType=TINYINT},
+      standard_outright_manager_id = #{record.standardOutrightManagerId,jdbcType=VARCHAR},
+      third_outright_match_id = #{record.thirdOutrightMatchId,jdbcType=BIGINT},
+      third_outright_match_source_id = #{record.thirdOutrightMatchSourceId,jdbcType=VARCHAR},
+      standrd_outright_match_begion_time = #{record.standrdOutrightMatchBegionTime,jdbcType=BIGINT},
+      standrd_outright_match_end_time = #{record.standrdOutrightMatchEndTime,jdbcType=BIGINT},
+      sell_status = #{record.sellStatus,jdbcType=VARCHAR},
+      auto_sell_status = #{record.autoSellStatus,jdbcType=VARCHAR},
+      season_id = #{record.seasonId,jdbcType=VARCHAR},
+      standard_outright_year = #{record.standardOutrightYear,jdbcType=VARCHAR},
+      booked = #{record.booked,jdbcType=TINYINT},
+      remark = #{record.remark,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      modify_time = #{record.modifyTime,jdbcType=BIGINT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.panda.merge.model.StandardOutrightMatchInfo">
+    update standard_outright_match_info
+    <set>
+      <if test="sportId != null">
+        sport_id = #{sportId,jdbcType=BIGINT},
+      </if>
+      <if test="regionId != null">
+        region_id = #{regionId,jdbcType=BIGINT},
+      </if>
+      <if test="standardTournamentId != null">
+        standard_tournament_id = #{standardTournamentId,jdbcType=BIGINT},
+      </if>
+      <if test="standardOutrightNameEn != null">
+        standard_outright_name_en = #{standardOutrightNameEn,jdbcType=VARCHAR},
+      </if>
+      <if test="standardOutrightNameCn != null">
+        standard_outright_name_cn = #{standardOutrightNameCn,jdbcType=VARCHAR},
+      </if>
+      <if test="dataSourceCode != null">
+        data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="matchMarketStatus != null">
+        match_market_status = #{matchMarketStatus,jdbcType=TINYINT},
+      </if>
+      <if test="standardOutrightManagerId != null">
+        standard_outright_manager_id = #{standardOutrightManagerId,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdOutrightMatchId != null">
+        third_outright_match_id = #{thirdOutrightMatchId,jdbcType=BIGINT},
+      </if>
+      <if test="thirdOutrightMatchSourceId != null">
+        third_outright_match_source_id = #{thirdOutrightMatchSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="standrdOutrightMatchBegionTime != null">
+        standrd_outright_match_begion_time = #{standrdOutrightMatchBegionTime,jdbcType=BIGINT},
+      </if>
+      <if test="standrdOutrightMatchEndTime != null">
+        standrd_outright_match_end_time = #{standrdOutrightMatchEndTime,jdbcType=BIGINT},
+      </if>
+      <if test="sellStatus != null">
+        sell_status = #{sellStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="autoSellStatus != null">
+        auto_sell_status = #{autoSellStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="seasonId != null">
+        season_id = #{seasonId,jdbcType=VARCHAR},
+      </if>
+      <if test="standardOutrightYear != null">
+        standard_outright_year = #{standardOutrightYear,jdbcType=VARCHAR},
+      </if>
+      <if test="booked != null">
+        booked = #{booked,jdbcType=TINYINT},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null">
+        modify_time = #{modifyTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.panda.merge.model.StandardOutrightMatchInfo">
+    update standard_outright_match_info
+    set sport_id = #{sportId,jdbcType=BIGINT},
+      region_id = #{regionId,jdbcType=BIGINT},
+      standard_tournament_id = #{standardTournamentId,jdbcType=BIGINT},
+      standard_outright_name_en = #{standardOutrightNameEn,jdbcType=VARCHAR},
+      standard_outright_name_cn = #{standardOutrightNameCn,jdbcType=VARCHAR},
+      data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
+      match_market_status = #{matchMarketStatus,jdbcType=TINYINT},
+      standard_outright_manager_id = #{standardOutrightManagerId,jdbcType=VARCHAR},
+      third_outright_match_id = #{thirdOutrightMatchId,jdbcType=BIGINT},
+      third_outright_match_source_id = #{thirdOutrightMatchSourceId,jdbcType=VARCHAR},
+      standrd_outright_match_begion_time = #{standrdOutrightMatchBegionTime,jdbcType=BIGINT},
+      standrd_outright_match_end_time = #{standrdOutrightMatchEndTime,jdbcType=BIGINT},
+      sell_status = #{sellStatus,jdbcType=VARCHAR},
+      auto_sell_status = #{autoSellStatus,jdbcType=VARCHAR},
+      season_id = #{seasonId,jdbcType=VARCHAR},
+      standard_outright_year = #{standardOutrightYear,jdbcType=VARCHAR},
+      booked = #{booked,jdbcType=TINYINT},
+      remark = #{remark,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      modify_time = #{modifyTime,jdbcType=BIGINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

@@ -1,0 +1,370 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.mapper.ConfigMarketMarginGapMapper">
+  <resultMap id="BaseResultMap" type="com.panda.merge.model.ConfigMarketMarginGap">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="match_id" jdbcType="BIGINT" property="matchId" />
+    <result column="market_category_id" jdbcType="BIGINT" property="marketCategoryId" />
+    <result column="odds_type" jdbcType="VARCHAR" property="oddsType" />
+    <result column="linkage_mode" jdbcType="TINYINT" property="linkageMode" />
+    <result column="margin" jdbcType="DOUBLE" property="margin" />
+    <result column="diff_value" jdbcType="DOUBLE" property="diffValue" />
+    <result column="probability" jdbcType="DOUBLE" property="probability" />
+    <result column="anchor" jdbcType="TINYINT" property="anchor" />
+    <result column="operater_id" jdbcType="BIGINT" property="operaterId" />
+    <result column="link_id" jdbcType="VARCHAR" property="linkId" />
+    <result column="modify_time" jdbcType="BIGINT" property="modifyTime" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="place_num" jdbcType="INTEGER" property="placeNum" />
+    <result column="child_standard_category_id" jdbcType="BIGINT" property="childStandardCategoryId" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, match_id, market_category_id, odds_type, linkage_mode, margin, diff_value, probability, 
+    anchor, operater_id, link_id, modify_time, create_time, place_num, child_standard_category_id
+  </sql>
+  <select id="selectByExample" parameterType="com.panda.merge.model.ConfigMarketMarginGapExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from config_market_margin_gap
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from config_market_margin_gap
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from config_market_margin_gap
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.panda.merge.model.ConfigMarketMarginGapExample">
+    delete from config_market_margin_gap
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.panda.merge.model.ConfigMarketMarginGap">
+    insert into config_market_margin_gap (id, match_id, market_category_id, 
+      odds_type, linkage_mode, margin, 
+      diff_value, probability, anchor, 
+      operater_id, link_id, modify_time, 
+      create_time, place_num, child_standard_category_id
+      )
+    values (#{id,jdbcType=BIGINT}, #{matchId,jdbcType=BIGINT}, #{marketCategoryId,jdbcType=BIGINT}, 
+      #{oddsType,jdbcType=VARCHAR}, #{linkageMode,jdbcType=TINYINT}, #{margin,jdbcType=DOUBLE}, 
+      #{diffValue,jdbcType=DOUBLE}, #{probability,jdbcType=DOUBLE}, #{anchor,jdbcType=TINYINT}, 
+      #{operaterId,jdbcType=BIGINT}, #{linkId,jdbcType=VARCHAR}, #{modifyTime,jdbcType=BIGINT}, 
+      #{createTime,jdbcType=BIGINT}, #{placeNum,jdbcType=INTEGER}, #{childStandardCategoryId,jdbcType=BIGINT}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.panda.merge.model.ConfigMarketMarginGap">
+    insert into config_market_margin_gap
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="matchId != null">
+        match_id,
+      </if>
+      <if test="marketCategoryId != null">
+        market_category_id,
+      </if>
+      <if test="oddsType != null">
+        odds_type,
+      </if>
+      <if test="linkageMode != null">
+        linkage_mode,
+      </if>
+      <if test="margin != null">
+        margin,
+      </if>
+      <if test="diffValue != null">
+        diff_value,
+      </if>
+      <if test="probability != null">
+        probability,
+      </if>
+      <if test="anchor != null">
+        anchor,
+      </if>
+      <if test="operaterId != null">
+        operater_id,
+      </if>
+      <if test="linkId != null">
+        link_id,
+      </if>
+      <if test="modifyTime != null">
+        modify_time,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="placeNum != null">
+        place_num,
+      </if>
+      <if test="childStandardCategoryId != null">
+        child_standard_category_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="matchId != null">
+        #{matchId,jdbcType=BIGINT},
+      </if>
+      <if test="marketCategoryId != null">
+        #{marketCategoryId,jdbcType=BIGINT},
+      </if>
+      <if test="oddsType != null">
+        #{oddsType,jdbcType=VARCHAR},
+      </if>
+      <if test="linkageMode != null">
+        #{linkageMode,jdbcType=TINYINT},
+      </if>
+      <if test="margin != null">
+        #{margin,jdbcType=DOUBLE},
+      </if>
+      <if test="diffValue != null">
+        #{diffValue,jdbcType=DOUBLE},
+      </if>
+      <if test="probability != null">
+        #{probability,jdbcType=DOUBLE},
+      </if>
+      <if test="anchor != null">
+        #{anchor,jdbcType=TINYINT},
+      </if>
+      <if test="operaterId != null">
+        #{operaterId,jdbcType=BIGINT},
+      </if>
+      <if test="linkId != null">
+        #{linkId,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null">
+        #{modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="placeNum != null">
+        #{placeNum,jdbcType=INTEGER},
+      </if>
+      <if test="childStandardCategoryId != null">
+        #{childStandardCategoryId,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.panda.merge.model.ConfigMarketMarginGapExample" resultType="java.lang.Long">
+    select count(*) from config_market_margin_gap
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update config_market_margin_gap
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.matchId != null">
+        match_id = #{record.matchId,jdbcType=BIGINT},
+      </if>
+      <if test="record.marketCategoryId != null">
+        market_category_id = #{record.marketCategoryId,jdbcType=BIGINT},
+      </if>
+      <if test="record.oddsType != null">
+        odds_type = #{record.oddsType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.linkageMode != null">
+        linkage_mode = #{record.linkageMode,jdbcType=TINYINT},
+      </if>
+      <if test="record.margin != null">
+        margin = #{record.margin,jdbcType=DOUBLE},
+      </if>
+      <if test="record.diffValue != null">
+        diff_value = #{record.diffValue,jdbcType=DOUBLE},
+      </if>
+      <if test="record.probability != null">
+        probability = #{record.probability,jdbcType=DOUBLE},
+      </if>
+      <if test="record.anchor != null">
+        anchor = #{record.anchor,jdbcType=TINYINT},
+      </if>
+      <if test="record.operaterId != null">
+        operater_id = #{record.operaterId,jdbcType=BIGINT},
+      </if>
+      <if test="record.linkId != null">
+        link_id = #{record.linkId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.modifyTime != null">
+        modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.placeNum != null">
+        place_num = #{record.placeNum,jdbcType=INTEGER},
+      </if>
+      <if test="record.childStandardCategoryId != null">
+        child_standard_category_id = #{record.childStandardCategoryId,jdbcType=BIGINT},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update config_market_margin_gap
+    set id = #{record.id,jdbcType=BIGINT},
+      match_id = #{record.matchId,jdbcType=BIGINT},
+      market_category_id = #{record.marketCategoryId,jdbcType=BIGINT},
+      odds_type = #{record.oddsType,jdbcType=VARCHAR},
+      linkage_mode = #{record.linkageMode,jdbcType=TINYINT},
+      margin = #{record.margin,jdbcType=DOUBLE},
+      diff_value = #{record.diffValue,jdbcType=DOUBLE},
+      probability = #{record.probability,jdbcType=DOUBLE},
+      anchor = #{record.anchor,jdbcType=TINYINT},
+      operater_id = #{record.operaterId,jdbcType=BIGINT},
+      link_id = #{record.linkId,jdbcType=VARCHAR},
+      modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      place_num = #{record.placeNum,jdbcType=INTEGER},
+      child_standard_category_id = #{record.childStandardCategoryId,jdbcType=BIGINT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.panda.merge.model.ConfigMarketMarginGap">
+    update config_market_margin_gap
+    <set>
+      <if test="matchId != null">
+        match_id = #{matchId,jdbcType=BIGINT},
+      </if>
+      <if test="marketCategoryId != null">
+        market_category_id = #{marketCategoryId,jdbcType=BIGINT},
+      </if>
+      <if test="oddsType != null">
+        odds_type = #{oddsType,jdbcType=VARCHAR},
+      </if>
+      <if test="linkageMode != null">
+        linkage_mode = #{linkageMode,jdbcType=TINYINT},
+      </if>
+      <if test="margin != null">
+        margin = #{margin,jdbcType=DOUBLE},
+      </if>
+      <if test="diffValue != null">
+        diff_value = #{diffValue,jdbcType=DOUBLE},
+      </if>
+      <if test="probability != null">
+        probability = #{probability,jdbcType=DOUBLE},
+      </if>
+      <if test="anchor != null">
+        anchor = #{anchor,jdbcType=TINYINT},
+      </if>
+      <if test="operaterId != null">
+        operater_id = #{operaterId,jdbcType=BIGINT},
+      </if>
+      <if test="linkId != null">
+        link_id = #{linkId,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null">
+        modify_time = #{modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="placeNum != null">
+        place_num = #{placeNum,jdbcType=INTEGER},
+      </if>
+      <if test="childStandardCategoryId != null">
+        child_standard_category_id = #{childStandardCategoryId,jdbcType=BIGINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.panda.merge.model.ConfigMarketMarginGap">
+    update config_market_margin_gap
+    set match_id = #{matchId,jdbcType=BIGINT},
+      market_category_id = #{marketCategoryId,jdbcType=BIGINT},
+      odds_type = #{oddsType,jdbcType=VARCHAR},
+      linkage_mode = #{linkageMode,jdbcType=TINYINT},
+      margin = #{margin,jdbcType=DOUBLE},
+      diff_value = #{diffValue,jdbcType=DOUBLE},
+      probability = #{probability,jdbcType=DOUBLE},
+      anchor = #{anchor,jdbcType=TINYINT},
+      operater_id = #{operaterId,jdbcType=BIGINT},
+      link_id = #{linkId,jdbcType=VARCHAR},
+      modify_time = #{modifyTime,jdbcType=BIGINT},
+      create_time = #{createTime,jdbcType=BIGINT},
+      place_num = #{placeNum,jdbcType=INTEGER},
+      child_standard_category_id = #{childStandardCategoryId,jdbcType=BIGINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

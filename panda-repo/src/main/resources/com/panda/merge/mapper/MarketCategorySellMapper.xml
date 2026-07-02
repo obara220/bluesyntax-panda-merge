@@ -1,0 +1,811 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.mapper.MarketCategorySellMapper">
+  <resultMap id="BaseResultMap" type="com.panda.merge.model.MarketCategorySell">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="match_id" jdbcType="BIGINT" property="matchId" />
+    <result column="market_type" jdbcType="VARCHAR" property="marketType" />
+    <result column="market_category_id" jdbcType="BIGINT" property="marketCategoryId" />
+    <result column="data_source_code" jdbcType="VARCHAR" property="dataSourceCode" />
+    <result column="sr_weight" jdbcType="TINYINT" property="srWeight" />
+    <result column="bc_weight" jdbcType="TINYINT" property="bcWeight" />
+    <result column="bg_weight" jdbcType="TINYINT" property="bgWeight" />
+    <result column="sell_status" jdbcType="VARCHAR" property="sellStatus" />
+    <result column="sell_time" jdbcType="BIGINT" property="sellTime" />
+    <result column="is_send" jdbcType="TINYINT" property="isSend" />
+    <result column="tournament_level" jdbcType="INTEGER" property="tournamentLevel" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="modify_time" jdbcType="BIGINT" property="modifyTime" />
+    <result column="market_count" jdbcType="INTEGER" property="marketCount" />
+    <result column="is_series" jdbcType="TINYINT" property="isSeries" />
+    <result column="auto_close_Market" jdbcType="INTEGER" property="autoCloseMarket" />
+    <result column="match_progress_time" jdbcType="INTEGER" property="matchProgressTime" />
+    <result column="injury_time" jdbcType="INTEGER" property="injuryTime" />
+    <result column="market_near_diff" jdbcType="DECIMAL" property="marketNearDiff" />
+    <result column="market_near_odds_diff" jdbcType="DECIMAL" property="marketNearOddsDiff" />
+    <result column="is_sell" jdbcType="TINYINT" property="isSell" />
+    <result column="link_id" jdbcType="VARCHAR" property="linkId" />
+    <result column="is_special_pumping" jdbcType="INTEGER" property="isSpecialPumping" />
+    <result column="special_odds_interval" jdbcType="VARCHAR" property="specialOddsInterval" />
+    <result column="min_ball_head" jdbcType="DECIMAL" property="minBallHead" />
+    <result column="max_ball_head" jdbcType="DECIMAL" property="maxBallHead" />
+    <result column="pi_weight" jdbcType="TINYINT" property="piWeight" />
+    <result column="ao_weight" jdbcType="TINYINT" property="aoWeight" />
+    <result column="ls_weight" jdbcType="TINYINT" property="lsWeight" />
+    <result column="bt_weight" jdbcType="TINYINT" property="btWeight" />
+    <result column="be_weight" jdbcType="TINYINT" property="beWeight" />
+    <result column="ko_weight" jdbcType="TINYINT" property="koWeight" />
+    <result column="rb_weight" jdbcType="TINYINT" property="rbWeight" />
+    <result column="tx_weight" jdbcType="TINYINT" property="txWeight" />
+    <result column="od_weight" jdbcType="TINYINT" property="odWeight" />
+    <result column="n01_weight" jdbcType="TINYINT" property="n01Weight" />
+    <result column="n02_weight" jdbcType="TINYINT" property="n02Weight" />
+    <result column="f01_weight" jdbcType="TINYINT" property="f01Weight" />
+    <result column="n03_weight" jdbcType="TINYINT" property="n03Weight" />
+    <result column="l02_weight" jdbcType="TINYINT" property="l02Weight" />
+    <result column="auto_open_market" jdbcType="INTEGER" property="autoOpenMarket" />
+    <result column="auto_open_time" jdbcType="INTEGER" property="autoOpenTime" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, match_id, market_type, market_category_id, data_source_code, sr_weight, bc_weight,
+    bg_weight, sell_status, sell_time, is_send, tournament_level, create_time, modify_time,
+    market_count, is_series, auto_close_Market, match_progress_time, injury_time, market_near_diff,
+    market_near_odds_diff, is_sell, link_id, is_special_pumping, special_odds_interval,
+    min_ball_head, max_ball_head, pi_weight, ao_weight, ls_weight, bt_weight,
+    be_weight, ko_weight, rb_weight, tx_weight, od_weight, n01_weight, n02_weight, f01_weight,
+    n03_weight,l02_weight, auto_open_market, auto_open_time
+  </sql>
+  <select id="selectByExample" parameterType="com.panda.merge.model.MarketCategorySellExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from market_category_sell
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from market_category_sell
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from market_category_sell
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.panda.merge.model.MarketCategorySellExample">
+    delete from market_category_sell
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.panda.merge.model.MarketCategorySell">
+    insert into market_category_sell (id, match_id, market_type,
+    market_category_id, data_source_code, sr_weight,
+    bc_weight, bg_weight, sell_status,
+    sell_time, is_send, tournament_level,
+    create_time, modify_time, market_count,
+    is_series, auto_close_Market, match_progress_time,
+    injury_time, market_near_diff, market_near_odds_diff,
+    is_sell, link_id, is_special_pumping,
+    special_odds_interval, min_ball_head, max_ball_head,
+    pi_weight, ao_weight, ls_weight,
+    bt_weight, be_weight,
+    ko_weight, rb_weight, tx_weight,
+    od_weight, n01_weight, n02_weight,
+    f01_weight,n03_weight, l02_weight,auto_open_market, auto_open_time
+    )
+    values (#{id,jdbcType=BIGINT}, #{matchId,jdbcType=BIGINT}, #{marketType,jdbcType=VARCHAR},
+    #{marketCategoryId,jdbcType=BIGINT}, #{dataSourceCode,jdbcType=VARCHAR}, #{srWeight,jdbcType=TINYINT},
+    #{bcWeight,jdbcType=TINYINT}, #{bgWeight,jdbcType=TINYINT}, #{sellStatus,jdbcType=VARCHAR},
+    #{sellTime,jdbcType=BIGINT}, #{isSend,jdbcType=TINYINT}, #{tournamentLevel,jdbcType=INTEGER},
+    #{createTime,jdbcType=BIGINT}, #{modifyTime,jdbcType=BIGINT}, #{marketCount,jdbcType=INTEGER},
+    #{isSeries,jdbcType=TINYINT}, #{autoCloseMarket,jdbcType=INTEGER}, #{matchProgressTime,jdbcType=INTEGER},
+    #{injuryTime,jdbcType=INTEGER}, #{marketNearDiff,jdbcType=DECIMAL}, #{marketNearOddsDiff,jdbcType=DECIMAL},
+    #{isSell,jdbcType=TINYINT}, #{linkId,jdbcType=VARCHAR}, #{isSpecialPumping,jdbcType=INTEGER},
+    #{specialOddsInterval,jdbcType=VARCHAR}, #{minBallHead,jdbcType=DECIMAL}, #{maxBallHead,jdbcType=DECIMAL},
+    #{piWeight,jdbcType=TINYINT}, #{aoWeight,jdbcType=TINYINT}, #{lsWeight,jdbcType=TINYINT},
+    #{btWeight,jdbcType=TINYINT},#{beWeight,jdbcType=TINYINT},
+    #{koWeight,jdbcType=TINYINT}, #{rbWeight,jdbcType=TINYINT}, #{txWeight,jdbcType=TINYINT},
+    #{odWeight,jdbcType=TINYINT}, #{n01Weight,jdbcType=TINYINT}, #{n02Weight,jdbcType=TINYINT},
+    #{f01Weight,jdbcType=TINYINT}, #{n03Weight,jdbcType=TINYINT},#{l02Weight,jdbcType=TINYINT},#{autoOpenMarket,jdbcType=INTEGER}, #{autoOpenTime,jdbcType=INTEGER}
+    )
+  </insert>
+  <insert id="insertSelective" parameterType="com.panda.merge.model.MarketCategorySell">
+    insert into market_category_sell
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="matchId != null">
+        match_id,
+      </if>
+      <if test="marketType != null">
+        market_type,
+      </if>
+      <if test="marketCategoryId != null">
+        market_category_id,
+      </if>
+      <if test="dataSourceCode != null">
+        data_source_code,
+      </if>
+      <if test="srWeight != null">
+        sr_weight,
+      </if>
+      <if test="bcWeight != null">
+        bc_weight,
+      </if>
+      <if test="bgWeight != null">
+        bg_weight,
+      </if>
+      <if test="sellStatus != null">
+        sell_status,
+      </if>
+      <if test="sellTime != null">
+        sell_time,
+      </if>
+      <if test="isSend != null">
+        is_send,
+      </if>
+      <if test="tournamentLevel != null">
+        tournament_level,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="modifyTime != null">
+        modify_time,
+      </if>
+      <if test="marketCount != null">
+        market_count,
+      </if>
+      <if test="isSeries != null">
+        is_series,
+      </if>
+      <if test="autoCloseMarket != null">
+        auto_close_Market,
+      </if>
+      <if test="matchProgressTime != null">
+        match_progress_time,
+      </if>
+      <if test="injuryTime != null">
+        injury_time,
+      </if>
+      <if test="marketNearDiff != null">
+        market_near_diff,
+      </if>
+      <if test="marketNearOddsDiff != null">
+        market_near_odds_diff,
+      </if>
+      <if test="isSell != null">
+        is_sell,
+      </if>
+      <if test="linkId != null">
+        link_id,
+      </if>
+      <if test="isSpecialPumping != null">
+        is_special_pumping,
+      </if>
+      <if test="specialOddsInterval != null">
+        special_odds_interval,
+      </if>
+      <if test="minBallHead != null">
+        min_ball_head,
+      </if>
+      <if test="maxBallHead != null">
+        max_ball_head,
+      </if>
+      <if test="piWeight != null">
+        pi_weight,
+      </if>
+      <if test="aoWeight != null">
+        ao_weight,
+      </if>
+      <if test="lsWeight != null">
+        ls_weight,
+      </if>
+      <if test="btWeight != null">
+        bt_weight,
+      </if>
+      <if test="beWeight != null">
+        be_weight,
+      </if>
+      <if test="koWeight != null">
+        ko_weight,
+      </if>
+      <if test="rbWeight != null">
+        rb_weight,
+      </if>
+      <if test="txWeight != null">
+        tx_weight,
+      </if>
+      <if test="odWeight != null">
+        od_weight,
+      </if>
+      <if test="n01Weight != null">
+        n01_weight,
+      </if>
+      <if test="n02Weight != null">
+        n02_weight,
+      </if>
+      <if test="f01Weight != null">
+        f01_weight,
+      </if>
+      <if test="n03Weight != null">
+        n03_weight,
+      </if>
+      <if test="l02Weight != null">
+        l02_weight,
+      </if>
+      <if test="autoOpenMarket != null">
+        auto_open_market,
+      </if>
+      <if test="autoOpenTime != null">
+        auto_open_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="matchId != null">
+        #{matchId,jdbcType=BIGINT},
+      </if>
+      <if test="marketType != null">
+        #{marketType,jdbcType=VARCHAR},
+      </if>
+      <if test="marketCategoryId != null">
+        #{marketCategoryId,jdbcType=BIGINT},
+      </if>
+      <if test="dataSourceCode != null">
+        #{dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="srWeight != null">
+        #{srWeight,jdbcType=TINYINT},
+      </if>
+      <if test="bcWeight != null">
+        #{bcWeight,jdbcType=TINYINT},
+      </if>
+      <if test="bgWeight != null">
+        #{bgWeight,jdbcType=TINYINT},
+      </if>
+      <if test="sellStatus != null">
+        #{sellStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="sellTime != null">
+        #{sellTime,jdbcType=BIGINT},
+      </if>
+      <if test="isSend != null">
+        #{isSend,jdbcType=TINYINT},
+      </if>
+      <if test="tournamentLevel != null">
+        #{tournamentLevel,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null">
+        #{modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="marketCount != null">
+        #{marketCount,jdbcType=INTEGER},
+      </if>
+      <if test="isSeries != null">
+        #{isSeries,jdbcType=TINYINT},
+      </if>
+      <if test="autoCloseMarket != null">
+        #{autoCloseMarket,jdbcType=INTEGER},
+      </if>
+      <if test="matchProgressTime != null">
+        #{matchProgressTime,jdbcType=INTEGER},
+      </if>
+      <if test="injuryTime != null">
+        #{injuryTime,jdbcType=INTEGER},
+      </if>
+      <if test="marketNearDiff != null">
+        #{marketNearDiff,jdbcType=DECIMAL},
+      </if>
+      <if test="marketNearOddsDiff != null">
+        #{marketNearOddsDiff,jdbcType=DECIMAL},
+      </if>
+      <if test="isSell != null">
+        #{isSell,jdbcType=TINYINT},
+      </if>
+      <if test="linkId != null">
+        #{linkId,jdbcType=VARCHAR},
+      </if>
+      <if test="isSpecialPumping != null">
+        #{isSpecialPumping,jdbcType=INTEGER},
+      </if>
+      <if test="specialOddsInterval != null">
+        #{specialOddsInterval,jdbcType=VARCHAR},
+      </if>
+      <if test="minBallHead != null">
+        #{minBallHead,jdbcType=DECIMAL},
+      </if>
+      <if test="maxBallHead != null">
+        #{maxBallHead,jdbcType=DECIMAL},
+      </if>
+      <if test="piWeight != null">
+        #{piWeight,jdbcType=TINYINT},
+      </if>
+      <if test="aoWeight != null">
+        #{aoWeight,jdbcType=TINYINT},
+      </if>
+      <if test="lsWeight != null">
+        #{lsWeight,jdbcType=TINYINT},
+      </if>
+      <if test="btWeight != null">
+        #{btWeight,jdbcType=TINYINT},
+      </if>
+      <if test="beWeight != null">
+        #{beWeight,jdbcType=TINYINT},
+      </if>
+      <if test="koWeight != null">
+        #{koWeight,jdbcType=TINYINT},
+      </if>
+      <if test="rbWeight != null">
+        #{rbWeight,jdbcType=TINYINT},
+      </if>
+      <if test="txWeight != null">
+        #{txWeight,jdbcType=TINYINT},
+      </if>
+      <if test="odWeight != null">
+        #{odWeight,jdbcType=TINYINT},
+      </if>
+      <if test="n01Weight != null">
+        #{n01Weight,jdbcType=TINYINT},
+      </if>
+      <if test="n02Weight != null">
+        #{n02Weight,jdbcType=TINYINT},
+      </if>
+      <if test="f01Weight != null">
+        #{f01Weight,jdbcType=TINYINT},
+      </if>
+      <if test="n03Weight != null">
+        #{n03Weight,jdbcType=TINYINT},
+      </if>
+      <if test="l02Weight != null">
+        #{l02Weight,jdbcType=TINYINT},
+      </if>
+      <if test="autoOpenMarket != null">
+        #{autoOpenMarket,jdbcType=INTEGER},
+      </if>
+      <if test="autoOpenTime != null">
+        #{autoOpenTime,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.panda.merge.model.MarketCategorySellExample" resultType="java.lang.Long">
+    select count(*) from market_category_sell
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update market_category_sell
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.matchId != null">
+        match_id = #{record.matchId,jdbcType=BIGINT},
+      </if>
+      <if test="record.marketType != null">
+        market_type = #{record.marketType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.marketCategoryId != null">
+        market_category_id = #{record.marketCategoryId,jdbcType=BIGINT},
+      </if>
+      <if test="record.dataSourceCode != null">
+        data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.srWeight != null">
+        sr_weight = #{record.srWeight,jdbcType=TINYINT},
+      </if>
+      <if test="record.bcWeight != null">
+        bc_weight = #{record.bcWeight,jdbcType=TINYINT},
+      </if>
+      <if test="record.bgWeight != null">
+        bg_weight = #{record.bgWeight,jdbcType=TINYINT},
+      </if>
+      <if test="record.sellStatus != null">
+        sell_status = #{record.sellStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="record.sellTime != null">
+        sell_time = #{record.sellTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.isSend != null">
+        is_send = #{record.isSend,jdbcType=TINYINT},
+      </if>
+      <if test="record.tournamentLevel != null">
+        tournament_level = #{record.tournamentLevel,jdbcType=INTEGER},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.modifyTime != null">
+        modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.marketCount != null">
+        market_count = #{record.marketCount,jdbcType=INTEGER},
+      </if>
+      <if test="record.isSeries != null">
+        is_series = #{record.isSeries,jdbcType=TINYINT},
+      </if>
+      <if test="record.autoCloseMarket != null">
+        auto_close_Market = #{record.autoCloseMarket,jdbcType=INTEGER},
+      </if>
+      <if test="record.matchProgressTime != null">
+        match_progress_time = #{record.matchProgressTime,jdbcType=INTEGER},
+      </if>
+      <if test="record.injuryTime != null">
+        injury_time = #{record.injuryTime,jdbcType=INTEGER},
+      </if>
+      <if test="record.marketNearDiff != null">
+        market_near_diff = #{record.marketNearDiff,jdbcType=DECIMAL},
+      </if>
+      <if test="record.marketNearOddsDiff != null">
+        market_near_odds_diff = #{record.marketNearOddsDiff,jdbcType=DECIMAL},
+      </if>
+      <if test="record.isSell != null">
+        is_sell = #{record.isSell,jdbcType=TINYINT},
+      </if>
+      <if test="record.linkId != null">
+        link_id = #{record.linkId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.isSpecialPumping != null">
+        is_special_pumping = #{record.isSpecialPumping,jdbcType=INTEGER},
+      </if>
+      <if test="record.specialOddsInterval != null">
+        special_odds_interval = #{record.specialOddsInterval,jdbcType=VARCHAR},
+      </if>
+      <if test="record.minBallHead != null">
+        min_ball_head = #{record.minBallHead,jdbcType=DECIMAL},
+      </if>
+      <if test="record.maxBallHead != null">
+        max_ball_head = #{record.maxBallHead,jdbcType=DECIMAL},
+      </if>
+      <if test="record.piWeight != null">
+        pi_weight = #{record.piWeight,jdbcType=TINYINT},
+      </if>
+      <if test="record.aoWeight != null">
+        ao_weight = #{record.aoWeight,jdbcType=TINYINT},
+      </if>
+      <if test="record.lsWeight != null">
+        ls_weight = #{record.lsWeight,jdbcType=TINYINT},
+      </if>
+      <if test="record.btWeight != null">
+        bt_weight = #{record.btWeight,jdbcType=TINYINT},
+      </if>
+      <if test="record.beWeight != null">
+        be_weight = #{record.beWeight,jdbcType=TINYINT},
+      </if>
+      <if test="record.koWeight != null">
+        ko_weight = #{record.koWeight,jdbcType=TINYINT},
+      </if>
+      <if test="record.rbWeight != null">
+        rb_weight = #{record.rbWeight,jdbcType=TINYINT},
+      </if>
+      <if test="record.txWeight != null">
+        tx_weight = #{record.txWeight,jdbcType=TINYINT},
+      </if>
+      <if test="record.odWeight != null">
+        od_weight = #{record.odWeight,jdbcType=TINYINT},
+      </if>
+      <if test="record.n01Weight != null">
+        n01_weight = #{record.n01Weight,jdbcType=TINYINT},
+      </if>
+      <if test="record.n02Weight != null">
+        n02_weight = #{record.n02Weight,jdbcType=TINYINT},
+      </if>
+      <if test="record.f01Weight != null">
+        f01_weight = #{record.f01Weight,jdbcType=TINYINT},
+      </if>
+      <if test="record.autoOpenMarket != null">
+        auto_open_market = #{record.autoOpenMarket,jdbcType=INTEGER},
+      </if>
+      <if test="record.n03Weight != null">
+        n03_weight = #{record.n03Weight,jdbcType=TINYINT},
+      </if>
+        <if test="record.l02Weight != null">
+            l02_weight = #{record.02Weight,jdbcType=TINYINT},
+        </if>
+      <if test="record.autoOpenTime != null">
+        auto_open_time = #{record.autoOpenTime,jdbcType=INTEGER},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update market_category_sell
+    set id = #{record.id,jdbcType=BIGINT},
+    match_id = #{record.matchId,jdbcType=BIGINT},
+    market_type = #{record.marketType,jdbcType=VARCHAR},
+    market_category_id = #{record.marketCategoryId,jdbcType=BIGINT},
+    data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+    sr_weight = #{record.srWeight,jdbcType=TINYINT},
+    bc_weight = #{record.bcWeight,jdbcType=TINYINT},
+    bg_weight = #{record.bgWeight,jdbcType=TINYINT},
+    sell_status = #{record.sellStatus,jdbcType=VARCHAR},
+    sell_time = #{record.sellTime,jdbcType=BIGINT},
+    is_send = #{record.isSend,jdbcType=TINYINT},
+    tournament_level = #{record.tournamentLevel,jdbcType=INTEGER},
+    create_time = #{record.createTime,jdbcType=BIGINT},
+    modify_time = #{record.modifyTime,jdbcType=BIGINT},
+    market_count = #{record.marketCount,jdbcType=INTEGER},
+    is_series = #{record.isSeries,jdbcType=TINYINT},
+    auto_close_Market = #{record.autoCloseMarket,jdbcType=INTEGER},
+    match_progress_time = #{record.matchProgressTime,jdbcType=INTEGER},
+    injury_time = #{record.injuryTime,jdbcType=INTEGER},
+    market_near_diff = #{record.marketNearDiff,jdbcType=DECIMAL},
+    market_near_odds_diff = #{record.marketNearOddsDiff,jdbcType=DECIMAL},
+    is_sell = #{record.isSell,jdbcType=TINYINT},
+    link_id = #{record.linkId,jdbcType=VARCHAR},
+    is_special_pumping = #{record.isSpecialPumping,jdbcType=INTEGER},
+    special_odds_interval = #{record.specialOddsInterval,jdbcType=VARCHAR},
+    min_ball_head = #{record.minBallHead,jdbcType=DECIMAL},
+    max_ball_head = #{record.maxBallHead,jdbcType=DECIMAL},
+    pi_weight = #{record.piWeight,jdbcType=TINYINT},
+    ao_weight = #{record.aoWeight,jdbcType=TINYINT},
+    ls_weight = #{record.lsWeight,jdbcType=TINYINT},
+    bt_weight = #{record.btWeight,jdbcType=TINYINT},
+    be_weight = #{record.beWeight,jdbcType=TINYINT},
+    ko_weight = #{record.koWeight,jdbcType=TINYINT},
+    rb_weight = #{record.rbWeight,jdbcType=TINYINT},
+    tx_weight = #{record.txWeight,jdbcType=TINYINT},
+    od_weight = #{record.odWeight,jdbcType=TINYINT},
+    n01_weight = #{record.n01Weight,jdbcType=TINYINT},
+    n02_weight = #{record.n02Weight,jdbcType=TINYINT},
+    f01_weight = #{record.f01Weight,jdbcType=TINYINT},
+    n03_weight = #{record.n03Weight,jdbcType=TINYINT},
+    auto_open_market = #{record.autoOpenMarket,jdbcType=INTEGER},
+    auto_open_time = #{record.autoOpenTime,jdbcType=INTEGER}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.panda.merge.model.MarketCategorySell">
+    update market_category_sell
+    <set>
+      <if test="matchId != null">
+        match_id = #{matchId,jdbcType=BIGINT},
+      </if>
+      <if test="marketType != null">
+        market_type = #{marketType,jdbcType=VARCHAR},
+      </if>
+      <if test="marketCategoryId != null">
+        market_category_id = #{marketCategoryId,jdbcType=BIGINT},
+      </if>
+      <if test="dataSourceCode != null">
+        data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="srWeight != null">
+        sr_weight = #{srWeight,jdbcType=TINYINT},
+      </if>
+      <if test="bcWeight != null">
+        bc_weight = #{bcWeight,jdbcType=TINYINT},
+      </if>
+      <if test="bgWeight != null">
+        bg_weight = #{bgWeight,jdbcType=TINYINT},
+      </if>
+      <if test="sellStatus != null">
+        sell_status = #{sellStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="sellTime != null">
+        sell_time = #{sellTime,jdbcType=BIGINT},
+      </if>
+      <if test="isSend != null">
+        is_send = #{isSend,jdbcType=TINYINT},
+      </if>
+      <if test="tournamentLevel != null">
+        tournament_level = #{tournamentLevel,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null">
+        modify_time = #{modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="marketCount != null">
+        market_count = #{marketCount,jdbcType=INTEGER},
+      </if>
+      <if test="isSeries != null">
+        is_series = #{isSeries,jdbcType=TINYINT},
+      </if>
+      <if test="autoCloseMarket != null">
+        auto_close_Market = #{autoCloseMarket,jdbcType=INTEGER},
+      </if>
+      <if test="matchProgressTime != null">
+        match_progress_time = #{matchProgressTime,jdbcType=INTEGER},
+      </if>
+      <if test="injuryTime != null">
+        injury_time = #{injuryTime,jdbcType=INTEGER},
+      </if>
+      <if test="marketNearDiff != null">
+        market_near_diff = #{marketNearDiff,jdbcType=DECIMAL},
+      </if>
+      <if test="marketNearOddsDiff != null">
+        market_near_odds_diff = #{marketNearOddsDiff,jdbcType=DECIMAL},
+      </if>
+      <if test="isSell != null">
+        is_sell = #{isSell,jdbcType=TINYINT},
+      </if>
+      <if test="linkId != null">
+        link_id = #{linkId,jdbcType=VARCHAR},
+      </if>
+      <if test="isSpecialPumping != null">
+        is_special_pumping = #{isSpecialPumping,jdbcType=INTEGER},
+      </if>
+      <if test="specialOddsInterval != null">
+        special_odds_interval = #{specialOddsInterval,jdbcType=VARCHAR},
+      </if>
+      <if test="minBallHead != null">
+        min_ball_head = #{minBallHead,jdbcType=DECIMAL},
+      </if>
+      <if test="maxBallHead != null">
+        max_ball_head = #{maxBallHead,jdbcType=DECIMAL},
+      </if>
+      <if test="piWeight != null">
+        pi_weight = #{piWeight,jdbcType=TINYINT},
+      </if>
+      <if test="aoWeight != null">
+        ao_weight = #{aoWeight,jdbcType=TINYINT},
+      </if>
+      <if test="lsWeight != null">
+        ls_weight = #{lsWeight,jdbcType=TINYINT},
+      </if>
+      <if test="btWeight != null">
+        bt_weight = #{btWeight,jdbcType=TINYINT},
+      </if>
+      <if test="beWeight != null">
+        be_weight = #{beWeight,jdbcType=TINYINT},
+      </if>
+      <if test="koWeight != null">
+        ko_weight = #{koWeight,jdbcType=TINYINT},
+      </if>
+      <if test="rbWeight != null">
+        rb_weight = #{rbWeight,jdbcType=TINYINT},
+      </if>
+      <if test="txWeight != null">
+        tx_weight = #{txWeight,jdbcType=TINYINT},
+      </if>
+      <if test="odWeight != null">
+        od_weight = #{odWeight,jdbcType=TINYINT},
+      </if>
+      <if test="n01Weight != null">
+        n01_weight = #{n01Weight,jdbcType=TINYINT},
+      </if>
+      <if test="n02Weight != null">
+        n02_weight = #{n02Weight,jdbcType=TINYINT},
+      </if>
+      <if test="f01Weight != null">
+        f01_weight = #{f01Weight,jdbcType=TINYINT},
+      </if>
+      <if test="n03Weight != null">
+        n03_weight = #{n03Weight,jdbcType=TINYINT},
+      </if>
+      <if test="l02Weight != null">
+        l02_weight = #{l02Weight,jdbcType=TINYINT},
+      </if>
+      <if test="autoOpenMarket != null">
+        auto_open_market = #{autoOpenMarket,jdbcType=INTEGER},
+      </if>
+      <if test="autoOpenTime != null">
+        auto_open_time = #{autoOpenTime,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.panda.merge.model.MarketCategorySell">
+    update market_category_sell
+    set match_id = #{matchId,jdbcType=BIGINT},
+    market_type = #{marketType,jdbcType=VARCHAR},
+    market_category_id = #{marketCategoryId,jdbcType=BIGINT},
+    data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
+    sr_weight = #{srWeight,jdbcType=TINYINT},
+    bc_weight = #{bcWeight,jdbcType=TINYINT},
+    bg_weight = #{bgWeight,jdbcType=TINYINT},
+    sell_status = #{sellStatus,jdbcType=VARCHAR},
+    sell_time = #{sellTime,jdbcType=BIGINT},
+    is_send = #{isSend,jdbcType=TINYINT},
+    tournament_level = #{tournamentLevel,jdbcType=INTEGER},
+    create_time = #{createTime,jdbcType=BIGINT},
+    modify_time = #{modifyTime,jdbcType=BIGINT},
+    market_count = #{marketCount,jdbcType=INTEGER},
+    is_series = #{isSeries,jdbcType=TINYINT},
+    auto_close_Market = #{autoCloseMarket,jdbcType=INTEGER},
+    match_progress_time = #{matchProgressTime,jdbcType=INTEGER},
+    injury_time = #{injuryTime,jdbcType=INTEGER},
+    market_near_diff = #{marketNearDiff,jdbcType=DECIMAL},
+    market_near_odds_diff = #{marketNearOddsDiff,jdbcType=DECIMAL},
+    is_sell = #{isSell,jdbcType=TINYINT},
+    link_id = #{linkId,jdbcType=VARCHAR},
+    is_special_pumping = #{isSpecialPumping,jdbcType=INTEGER},
+    special_odds_interval = #{specialOddsInterval,jdbcType=VARCHAR},
+    min_ball_head = #{minBallHead,jdbcType=DECIMAL},
+    max_ball_head = #{maxBallHead,jdbcType=DECIMAL},
+    pi_weight = #{piWeight,jdbcType=TINYINT},
+    ao_weight = #{aoWeight,jdbcType=TINYINT},
+    ls_weight = #{lsWeight,jdbcType=TINYINT},
+    bt_weight = #{btWeight,jdbcType=TINYINT},
+    be_weight = #{beWeight,jdbcType=TINYINT},
+    ko_weight = #{koWeight,jdbcType=TINYINT},
+    rb_weight = #{rbWeight,jdbcType=TINYINT},
+    tx_weight = #{txWeight,jdbcType=TINYINT},
+    od_weight = #{odWeight,jdbcType=TINYINT},
+    n01_weight = #{n01Weight,jdbcType=TINYINT},
+    n02_weight = #{n02Weight,jdbcType=TINYINT},
+    f01_weight = #{f01Weight,jdbcType=TINYINT},
+    n03_weight = #{n03Weight,jdbcType=TINYINT},
+    auto_open_market = #{autoOpenMarket,jdbcType=INTEGER},
+    auto_open_time = #{autoOpenTime,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

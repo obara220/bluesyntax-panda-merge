@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.dao.ThirdSportTournamentDao">
+
+
+    <select id="getItemPageByModifyTime" parameterType="com.panda.merge.dto.nonrealttime.query.QueryThirdRankingInfoDTO" resultMap="com.panda.merge.mapper.ThirdSportTournamentMapper.ResultMapWithBLOBs">
+        SELECT *
+        FROM   third_sport_tournament
+        WHERE  modify_time &gt;= #{beginTime}
+        AND    data_source_code = #{dataSourceCode}
+        AND reference_id != 0
+        AND reference_id IS NOT NULL
+        <if test="standardTournamentIds != null">
+            AND reference_id in (#{standardTournamentIds})
+        </if>
+        <if test="sportIds != null">
+            AND sport_id in (#{sportIds})
+        </if>
+        order by modify_time, id
+    </select>
+
+
+
+</mapper>

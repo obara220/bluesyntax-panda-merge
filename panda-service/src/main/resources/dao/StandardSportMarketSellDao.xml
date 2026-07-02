@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.dao.StandardSportMarketSellDao">
+
+  <select id="getMatchSellMatchIdByExample" resultType="java.lang.Long">
+    SELECT s.match_info_id
+    FROM standard_sport_market_sell s
+           LEFT JOIN standard_match_info m ON m.id = s.match_info_id
+    WHERE (s.pre_match_sell_status = 'Sold' OR s.live_match_sell_status = 'Sold')
+      AND m.match_status NOT IN (3, 4, 5)
+      AND m.match_over = 0
+  </select>
+</mapper>

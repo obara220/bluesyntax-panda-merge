@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.mapper.ConfigStandardThirdOddsTempletRelationMapper">
+  <resultMap id="BaseResultMap" type="com.panda.merge.model.ConfigStandardThirdOddsTempletRelation">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="standard_category_id" jdbcType="INTEGER" property="standardCategoryId" />
+    <result column="sport_type" jdbcType="VARCHAR" property="sportType" />
+    <result column="pd_name" jdbcType="VARCHAR" property="pdName" />
+    <result column="data_source_code" jdbcType="VARCHAR" property="dataSourceCode" />
+    <result column="third_category_id" jdbcType="VARCHAR" property="thirdCategoryId" />
+    <result column="third_templet_source_id" jdbcType="VARCHAR" property="thirdTempletSourceId" />
+    <result column="third_templet_name" jdbcType="VARCHAR" property="thirdTempletName" />
+    <result column="standard_templet_id" jdbcType="VARCHAR" property="standardTempletId" />
+    <result column="enable_flag" jdbcType="CHAR" property="enableFlag" />
+    <result column="odds_order" jdbcType="CHAR" property="oddsOrder" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, standard_category_id, sport_type, pd_name, data_source_code, third_category_id, 
+    third_templet_source_id, third_templet_name, standard_templet_id, enable_flag, odds_order
+  </sql>
+  <select id="selectByExample" parameterType="com.panda.merge.model.ConfigStandardThirdOddsTempletRelationExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from config_standard_third_odds_templet_relation
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from config_standard_third_odds_templet_relation
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from config_standard_third_odds_templet_relation
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.panda.merge.model.ConfigStandardThirdOddsTempletRelationExample">
+    delete from config_standard_third_odds_templet_relation
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.panda.merge.model.ConfigStandardThirdOddsTempletRelation">
+    insert into config_standard_third_odds_templet_relation (id, standard_category_id, sport_type, 
+      pd_name, data_source_code, third_category_id, 
+      third_templet_source_id, third_templet_name, 
+      standard_templet_id, enable_flag, odds_order
+      )
+    values (#{id,jdbcType=BIGINT}, #{standardCategoryId,jdbcType=INTEGER}, #{sportType,jdbcType=VARCHAR}, 
+      #{pdName,jdbcType=VARCHAR}, #{dataSourceCode,jdbcType=VARCHAR}, #{thirdCategoryId,jdbcType=VARCHAR}, 
+      #{thirdTempletSourceId,jdbcType=VARCHAR}, #{thirdTempletName,jdbcType=VARCHAR}, 
+      #{standardTempletId,jdbcType=VARCHAR}, #{enableFlag,jdbcType=CHAR}, #{oddsOrder,jdbcType=CHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.panda.merge.model.ConfigStandardThirdOddsTempletRelation">
+    insert into config_standard_third_odds_templet_relation
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="standardCategoryId != null">
+        standard_category_id,
+      </if>
+      <if test="sportType != null">
+        sport_type,
+      </if>
+      <if test="pdName != null">
+        pd_name,
+      </if>
+      <if test="dataSourceCode != null">
+        data_source_code,
+      </if>
+      <if test="thirdCategoryId != null">
+        third_category_id,
+      </if>
+      <if test="thirdTempletSourceId != null">
+        third_templet_source_id,
+      </if>
+      <if test="thirdTempletName != null">
+        third_templet_name,
+      </if>
+      <if test="standardTempletId != null">
+        standard_templet_id,
+      </if>
+      <if test="enableFlag != null">
+        enable_flag,
+      </if>
+      <if test="oddsOrder != null">
+        odds_order,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="standardCategoryId != null">
+        #{standardCategoryId,jdbcType=INTEGER},
+      </if>
+      <if test="sportType != null">
+        #{sportType,jdbcType=VARCHAR},
+      </if>
+      <if test="pdName != null">
+        #{pdName,jdbcType=VARCHAR},
+      </if>
+      <if test="dataSourceCode != null">
+        #{dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdCategoryId != null">
+        #{thirdCategoryId,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdTempletSourceId != null">
+        #{thirdTempletSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdTempletName != null">
+        #{thirdTempletName,jdbcType=VARCHAR},
+      </if>
+      <if test="standardTempletId != null">
+        #{standardTempletId,jdbcType=VARCHAR},
+      </if>
+      <if test="enableFlag != null">
+        #{enableFlag,jdbcType=CHAR},
+      </if>
+      <if test="oddsOrder != null">
+        #{oddsOrder,jdbcType=CHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.panda.merge.model.ConfigStandardThirdOddsTempletRelationExample" resultType="java.lang.Long">
+    select count(*) from config_standard_third_odds_templet_relation
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update config_standard_third_odds_templet_relation
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.standardCategoryId != null">
+        standard_category_id = #{record.standardCategoryId,jdbcType=INTEGER},
+      </if>
+      <if test="record.sportType != null">
+        sport_type = #{record.sportType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.pdName != null">
+        pd_name = #{record.pdName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.dataSourceCode != null">
+        data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.thirdCategoryId != null">
+        third_category_id = #{record.thirdCategoryId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.thirdTempletSourceId != null">
+        third_templet_source_id = #{record.thirdTempletSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.thirdTempletName != null">
+        third_templet_name = #{record.thirdTempletName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.standardTempletId != null">
+        standard_templet_id = #{record.standardTempletId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.enableFlag != null">
+        enable_flag = #{record.enableFlag,jdbcType=CHAR},
+      </if>
+      <if test="record.oddsOrder != null">
+        odds_order = #{record.oddsOrder,jdbcType=CHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update config_standard_third_odds_templet_relation
+    set id = #{record.id,jdbcType=BIGINT},
+      standard_category_id = #{record.standardCategoryId,jdbcType=INTEGER},
+      sport_type = #{record.sportType,jdbcType=VARCHAR},
+      pd_name = #{record.pdName,jdbcType=VARCHAR},
+      data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+      third_category_id = #{record.thirdCategoryId,jdbcType=VARCHAR},
+      third_templet_source_id = #{record.thirdTempletSourceId,jdbcType=VARCHAR},
+      third_templet_name = #{record.thirdTempletName,jdbcType=VARCHAR},
+      standard_templet_id = #{record.standardTempletId,jdbcType=VARCHAR},
+      enable_flag = #{record.enableFlag,jdbcType=CHAR},
+      odds_order = #{record.oddsOrder,jdbcType=CHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.panda.merge.model.ConfigStandardThirdOddsTempletRelation">
+    update config_standard_third_odds_templet_relation
+    <set>
+      <if test="standardCategoryId != null">
+        standard_category_id = #{standardCategoryId,jdbcType=INTEGER},
+      </if>
+      <if test="sportType != null">
+        sport_type = #{sportType,jdbcType=VARCHAR},
+      </if>
+      <if test="pdName != null">
+        pd_name = #{pdName,jdbcType=VARCHAR},
+      </if>
+      <if test="dataSourceCode != null">
+        data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdCategoryId != null">
+        third_category_id = #{thirdCategoryId,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdTempletSourceId != null">
+        third_templet_source_id = #{thirdTempletSourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdTempletName != null">
+        third_templet_name = #{thirdTempletName,jdbcType=VARCHAR},
+      </if>
+      <if test="standardTempletId != null">
+        standard_templet_id = #{standardTempletId,jdbcType=VARCHAR},
+      </if>
+      <if test="enableFlag != null">
+        enable_flag = #{enableFlag,jdbcType=CHAR},
+      </if>
+      <if test="oddsOrder != null">
+        odds_order = #{oddsOrder,jdbcType=CHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.panda.merge.model.ConfigStandardThirdOddsTempletRelation">
+    update config_standard_third_odds_templet_relation
+    set standard_category_id = #{standardCategoryId,jdbcType=INTEGER},
+      sport_type = #{sportType,jdbcType=VARCHAR},
+      pd_name = #{pdName,jdbcType=VARCHAR},
+      data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
+      third_category_id = #{thirdCategoryId,jdbcType=VARCHAR},
+      third_templet_source_id = #{thirdTempletSourceId,jdbcType=VARCHAR},
+      third_templet_name = #{thirdTempletName,jdbcType=VARCHAR},
+      standard_templet_id = #{standardTempletId,jdbcType=VARCHAR},
+      enable_flag = #{enableFlag,jdbcType=CHAR},
+      odds_order = #{oddsOrder,jdbcType=CHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>
