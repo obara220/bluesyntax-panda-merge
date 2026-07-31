@@ -75,6 +75,13 @@ public class ThirdMarketBatchSaveProcessor {
     @Getter
     @NacosValue(value = "${market.validate.enabled.football:true}", autoRefreshed = true)
     private boolean footballValidateEnabled;
+
+    /**
+     * 数据商延迟恢复兜底阈值(毫秒)：盘口时间戳水位线陈旧(长时间未推进)或被未来时间戳污染超过该阈值时，
+     * 强制重置水位线并放行本次数据，避免数据商延迟恢复后盘口冻结至水位线Key的TTL过期。
+     * 与 ThirdMatchMarketProcessor.marketTimeClose 的时间戳兜底阈值(180000ms)保持一致。
+     */
+    private static final long WATERMARK_STALE_MS = 180_000L;
     /**
      * 1.兼容冠军盘口
      * 2.三方玩法转换标准玩法
@@ -445,8 +452,19 @@ public class ThirdMarketBatchSaveProcessor {
             String dataSourceTimeKeyMd5 = genKeyBasedDatasourceTime(thirdMarketDTO, thirdMatchInfoBasedIdMap);
             Long oldTime = oldTimesMap.get(dataSourceTimeKeyMd5);
             if (!redisService.setIfGreater(thirdMarketDTO.getLinkId(),thirdMarketDTO.getData().getThirdMarketSourceId(),dataSourceTimeKeyMd5,thirdMarketDTO.getData().getModifyTime(),RedisConfig.REDIS_MY_TIME)){
-                log.info("::{}::ThirdMarketSaveProcessor,盘口时间戳小于当前盘口时间戳,三方源盘口id:{},旧时间戳:{}", thirdMarketDTO.getLinkId(), thirdMarketDTO.getData().getThirdMarketSourceId(), oldTime);
-                continue;
+                //数据商延迟恢复兜底：水位线陈旧或被未来时间戳污染时，删除水位线并放行本次，由下一条数据重建水位线，避免盘口冻结至TTL过期
+                long now = System.currentTimeMillis();
+                Long modifyTime = thirdMarketDTO.getData().getModifyTime();
+                boolean brokenWatermark = oldTime != null
+                        && (now - oldTime > WATERMARK_STALE_MS || oldTime > now + WATERMARK_STALE_MS);
+                if (brokenWatermark) {
+                    redisService.del(dataSourceTimeKeyMd5);
+                    log.info("::{}::ThirdMarketSaveProcessor,水位线陈旧/污染兜底放行,已删除水位线,三方源盘口id:{},旧时间戳:{},新时间戳:{},当前时间:{}",
+                            thirdMarketDTO.getLinkId(), thirdMarketDTO.getData().getThirdMarketSourceId(), oldTime, modifyTime, now);
+                } else {
+                    log.info("::{}::ThirdMarketSaveProcessor,盘口时间戳小于当前盘口时间戳,三方源盘口id:{},旧时间戳:{}", thirdMarketDTO.getLinkId(), thirdMarketDTO.getData().getThirdMarketSourceId(), oldTime);
+                    continue;
+                }
             }
             /*if (oldTime != null && oldTime > thirdMarketDTO.getData().getModifyTime()) {
                 if(lockFlag){
