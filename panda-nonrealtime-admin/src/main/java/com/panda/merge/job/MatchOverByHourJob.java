@@ -1,6 +1,5 @@
 package com.panda.merge.job;
 
-import cn.hutool.core.date.SystemClock;
 import cn.hutool.core.lang.UUID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.nacos.api.config.annotation.NacosValue;
@@ -72,10 +71,10 @@ public class MatchOverByHourJob extends IJobHandler {
     private Integer footBallMatchOverDays;
 
     //92233 【产品】【生产】足球完赛兜底机制优化
-    @NacosValue(value = "${match.over.third.tournament:1356965774763839490}", autoRefreshed = true)
+    @NacosValue(value = "${match.over.third.tournament:10011003316}", autoRefreshed = true)
     private String matchOverThirdTournamentIds;
 
-    @NacosValue(value = "${match.over.standard.tournament:3316}", autoRefreshed = true)
+    @NacosValue(value = "${match.over.standard.tournament:10011003316}", autoRefreshed = true)
     private String matchOverStandardTournaments;
 
 
@@ -89,13 +88,13 @@ public class MatchOverByHourJob extends IJobHandler {
         try {
             //key：小时数,vla:运动类型列表 例：{"4":"1,2,8","12":"10","24":"4,5,6,9","48":"3","168":"7"}
             Map<String, String> parMap = JSON.parseObject(param, Map.class);
-            log.info("【MatchOverByHourJob 完赛操作调度，兜底完赛】 完赛处理开始,入参：{}",parMap);
+            //log.info("【MatchOverByHourJob 完赛操作调度，兜底完赛】 完赛处理开始,入参：{}",parMap);
             XxlJobLogger.log("【MatchOverByHourJob 完赛操作调度，兜底完赛】 完赛处理开始,入参：{}",parMap);
             for (String hourNum: parMap.keySet()) {
                 if(StringUtils.isNotBlank(hourNum)){
                     //hourNum小时兜底完赛的运动种类
                     List<Long> sportIds = new HashSet<>(Splitter.on(",").splitToList(parMap.get(hourNum))).stream().map(sportId -> Long.valueOf(sportId)).collect(Collectors.toList());
-                    log.info("【MatchOverByHourJob 完赛操作调度，{}小时兜底完赛】 需要完赛的运动类型：{}",hourNum,JSON.toJSONString(sportIds));
+                    //log.info("【MatchOverByHourJob 完赛操作调度，{}小时兜底完赛】 需要完赛的运动类型：{}",hourNum,JSON.toJSONString(sportIds));
                     XxlJobLogger.log("【MatchOverByHourJob 完赛操作调度，{}小时兜底完赛】 需要完赛的运动类型：{}",hourNum,JSON.toJSONString(sportIds));
                     //三方赛事完赛处理
                     this.thirdMatchInfoOver(hourNum,sportIds);
@@ -109,7 +108,7 @@ public class MatchOverByHourJob extends IJobHandler {
             log.error("【MatchOverByHourJob 完赛操作调度，兜底完赛异常】 Exception:", e);
             XxlJobLogger.log("【MatchOverByHourJob 完赛操作调度，兜底完赛异常】 Exception:"+e.getMessage());
         }
-        log.info("【MatchOverByHourJob 完赛操作调度，兜底完赛】 完赛处理结束");
+        //log.info("【MatchOverByHourJob 完赛操作调度，兜底完赛】 完赛处理结束");
         XxlJobLogger.log("【MatchOverByHourJob 完赛操作调度，兜底完赛】 完赛处理结束");
         return ReturnT.SUCCESS;
     }
@@ -139,11 +138,11 @@ public class MatchOverByHourJob extends IJobHandler {
                 .andTournamentIdNotIn(tournamentIds)
                 .andSportIdIn(sportIds);
         List<ThirdMatchInfo> thirdMatchInfoList = thirdMatchInfoMapper.selectByExample(example);
-        log.info("【MatchOverByHourJob 完赛操作调度，{}小时兜底完赛】三方赛事表需要完赛的集合条数{}，时间{}",hourNum, thirdMatchInfoList.size(),time);
+        //log.info("【MatchOverByHourJob 完赛操作调度，{}小时兜底完赛】三方赛事表需要完赛的集合条数{}，时间{}",hourNum, thirdMatchInfoList.size(),time);
         XxlJobLogger.log("【MatchOverByHourJob 完赛操作调度，{}小时兜底完赛】三方赛事表需要完赛的集合条数{}，时间{}",hourNum, thirdMatchInfoList.size(),time);
         if (!CollectionUtils.isEmpty(thirdMatchInfoList)) {
 //            List<Long> thirdMatchIds = thirdMatchInfoList.stream().map(obj -> obj.getId()).collect(Collectors.toList());
-//            log.info("【MatchOverByHourJob 完赛操作调度，{}小时兜底完赛】完赛的三方赛事ID列表：{}",hourNum, thirdMatchIds);
+//            //log.info("【MatchOverByHourJob 完赛操作调度，{}小时兜底完赛】完赛的三方赛事ID列表：{}",hourNum, thirdMatchIds);
 //            XxlJobLogger.log("【MatchOverByHourJob 完赛操作调度，{}小时兜底完赛】完赛的三方赛事ID列表：{}",hourNum, thirdMatchIds);
             ThirdMatchInfo enity = new ThirdMatchInfo();
             enity.setMatchOver(YesNoEnum.Y.value);
@@ -197,11 +196,11 @@ public class MatchOverByHourJob extends IJobHandler {
                 .andStandardTournamentIdNotIn(tournamentIds)
                 .andSportIdIn(sportIds);
         List<StandardMatchInfo> standardMatchInfoList = standardMatchInfoMapper.selectByExample(example);
-        log.info("【MatchOverByHourJob 完赛操作调度，{}小时兜底完赛】标准赛事表需要完赛的集合条数{}，时间{}",hourNum, standardMatchInfoList.size(),time);
+        //log.info("【MatchOverByHourJob 完赛操作调度，{}小时兜底完赛】标准赛事表需要完赛的集合条数{}，时间{}",hourNum, standardMatchInfoList.size(),time);
         XxlJobLogger.log("【MatchOverByHourJob 完赛操作调度，{}小时兜底完赛】标准赛事表需要完赛的集合条数{}，时间{}",hourNum, standardMatchInfoList.size(),time);
         if (!CollectionUtils.isEmpty(standardMatchInfoList)) {
 //            List<Long> standardIds = standardMatchInfoList.stream().map(obj -> obj.getId()).collect(Collectors.toList());
-//            log.info("【MatchOverByHourJob 完赛操作调度，{}小时兜底完赛】完赛的标准赛事ID列表：{}",hourNum, standardIds);
+//            //log.info("【MatchOverByHourJob 完赛操作调度，{}小时兜底完赛】完赛的标准赛事ID列表：{}",hourNum, standardIds);
 //            XxlJobLogger.log("【MatchOverByHourJob 完赛操作调度，{}小时兜底完赛】完赛的标准赛事ID列表：{}",hourNum, standardIds);
             StandardMatchInfo enity = new StandardMatchInfo();
             enity.setMatchOver(YesNoEnum.Y.value);
@@ -250,11 +249,11 @@ public class MatchOverByHourJob extends IJobHandler {
                 .andBeginTimeLessThanOrEqualTo(time)
                 .andSportIdEqualTo(StandardSportTypeEnum.FootBall.code);
         List<ThirdMatchInfo> thirdMatchInfoList = thirdMatchInfoMapper.selectByExample(exampleNew);
-        log.info("【MatchOverByHourJob 足球完赛操作调度，{}天兜底完赛】三方赛事表需要完赛的集合条数{}，时间{}",footBallMatchOverDays, thirdMatchInfoList.size(),time);
+        //log.info("【MatchOverByHourJob 足球完赛操作调度，{}天兜底完赛】三方赛事表需要完赛的集合条数{}，时间{}",footBallMatchOverDays, thirdMatchInfoList.size(),time);
         XxlJobLogger.log("【MatchOverByHourJob 足球完赛操作调度，{}天兜底完赛】三方赛事表需要完赛的集合条数{}，时间{}",footBallMatchOverDays, thirdMatchInfoList.size(),time);
         if (!CollectionUtils.isEmpty(thirdMatchInfoList)) {
 //            List<Long> thirdMatchIds = thirdMatchInfoList.stream().map(ThirdMatchInfo::getId).collect(Collectors.toList());
-//            log.info("【MatchOverByHourJob  足球完赛操作调度，{}天兜底完赛】完赛的三方赛事ID列表：{}",footBallMatchOverDays, thirdMatchIds);
+//            //log.info("【MatchOverByHourJob  足球完赛操作调度，{}天兜底完赛】完赛的三方赛事ID列表：{}",footBallMatchOverDays, thirdMatchIds);
 //            XxlJobLogger.log("【MatchOverByHourJob 足球完赛操作调度，{}天兜底完赛】完赛的三方赛事ID列表：{}",footBallMatchOverDays, thirdMatchIds);
             ThirdMatchInfo enity = new ThirdMatchInfo();
             enity.setMatchOver(YesNoEnum.Y.value);
@@ -270,11 +269,11 @@ public class MatchOverByHourJob extends IJobHandler {
                 .andBeginTimeLessThanOrEqualTo(time)
                 .andSportIdEqualTo(StandardSportTypeEnum.FootBall.code);
         List<StandardMatchInfo> standardMatchInfoList = standardMatchInfoMapper.selectByExample(standardExample);
-        log.info("【MatchOverByHourJob 足球完赛操作调度，{}天兜底完赛】标准赛事表需要完赛的集合条数{}，时间{}",footBallMatchOverDays, standardMatchInfoList.size(),time);
+        //log.info("【MatchOverByHourJob 足球完赛操作调度，{}天兜底完赛】标准赛事表需要完赛的集合条数{}，时间{}",footBallMatchOverDays, standardMatchInfoList.size(),time);
         XxlJobLogger.log("【MatchOverByHourJob 足球完赛操作调度，{}天兜底完赛】标准赛事表需要完赛的集合条数{}，时间{}",footBallMatchOverDays, standardMatchInfoList.size(),time);
         if (!CollectionUtils.isEmpty(standardMatchInfoList)) {
 //            List<Long> standardIds = standardMatchInfoList.stream().map(StandardMatchInfo::getId).collect(Collectors.toList());
-//            log.info("【MatchOverByHourJob 足球完赛操作调度，{}天兜底完赛】完赛的标准赛事ID列表：{}",footBallMatchOverDays, standardIds);
+//            //log.info("【MatchOverByHourJob 足球完赛操作调度，{}天兜底完赛】完赛的标准赛事ID列表：{}",footBallMatchOverDays, standardIds);
 //            XxlJobLogger.log("【MatchOverByHourJob 足球完赛操作调度，{}天兜底完赛】完赛的标准赛事ID列表：{}",footBallMatchOverDays, standardIds);
             StandardMatchInfo standardEntity = new StandardMatchInfo();
             standardEntity.setModifyTime(TimeUtils.millsSecondsEast8ZoneGmt());

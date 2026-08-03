@@ -85,38 +85,38 @@ public class A99ThirdSportMarketMergeProducer extends BaseProcessor {
         standardMatchThirdMarketMessageRequest.setDataSourceCode(thirdSportMarketMessages.get(0).getDataSourceCode());
         MessageBuilder<Request<StandardMatchThirdMarketMessage>> builder = MessageBuilder.withPayload(standardMatchThirdMarketMessageRequest)
                 .setHeader(MessageConst.PROPERTY_KEYS, standardMatchThirdMarketMessageRequest.getLinkId());
-        log.info("::{}::开始下发三方数据商盘口合并消息,topic:A99_MARKET_ODDS_TO_RISK", standardMatchThirdMarketMessageRequest.getLinkId());
-        rocketMqTemplate.asyncSend(A99_MARKET_ODDS_TO_RISK, builder.build(), new SendCallback() {
+        log.info("::{}::开始下发三方数据商盘口合并消息,topic:A99_STANDARD_ODDS_TO_A01", standardMatchThirdMarketMessageRequest.getLinkId());
+        rocketMqTemplate.asyncSend(A99_STANDARD_ODDS_TO_A01, builder.build(), new SendCallback() {
             @Override
             public void onSuccess(SendResult sendResult) {
-                log.info("::{}::,A99_MARKET_ODDS_TO_RISK send successful", linkId);
+                log.info("::{}::,A99_STANDARD_ODDS_TO_A01 send successful", linkId);
             }
 
             @Override
             public void onException(Throwable throwable) {
-                log.error("::{}::TOPIC={}，send fail; ", linkId, "A99_MARKET_ODDS_TO_RISK", throwable);
+                log.error("::{}::TOPIC={}，send fail; ", linkId, "A99_STANDARD_ODDS_TO_A01", throwable);
             }
         });
 
-        List<StandardMarketDataMessage> standardMarketDataMessages = thirdSportMarketMessages.stream().map(e -> {
-            StandardMarketDataMessage v = thirdMarketConvertStandard(e);
-            if (null != v) {
-                v.setChildMarketCategoryId((CategoryUtils.getChildCategoryId(linkId, v.getMarketCategoryId(), v.getAddition1(), v.getAddition2(), v.getAddition3(), v.getAddition4(), v.getAddition5(), String.valueOf(v.getStandardMatchInfoId()))));
-            }
-            return v;
-        }).collect(Collectors.toList());
-        log.info("::{},三方盘口转换标准盘口:{}", linkId, standardMarketDataMessages);
-
-        /**
-         * 缓存下发的A99赔率，当操盘后台关闭A99时，需要给融合下发关盘
-         */
-        Long marketCategoryId = thirdSportMarketMessages.get(0).getMarketCategoryId();
-        redisService.hSet(Constant.REDIS_KEY.RONGHE_A99_PUSHED_MARKET_ODDS, marketCategoryId.toString(), standardMarketDataMessages, 3*24*60*60);
-
-        /**
-         * 下发标准A99赔率给融合
-         */
-        sendA99OddsToRonghe(standardMarketDataMessages, linkId+"_A99");
+//        List<StandardMarketDataMessage> standardMarketDataMessages = thirdSportMarketMessages.stream().map(e -> {
+//            StandardMarketDataMessage v = thirdMarketConvertStandard(e);
+//            if (null != v) {
+//                v.setChildMarketCategoryId((CategoryUtils.getChildCategoryId(linkId, v.getMarketCategoryId(), v.getAddition1(), v.getAddition2(), v.getAddition3(), v.getAddition4(), v.getAddition5(), String.valueOf(v.getStandardMatchInfoId()))));
+//            }
+//            return v;
+//        }).collect(Collectors.toList());
+//        log.info("::{},三方盘口转换标准盘口:{}", linkId, standardMarketDataMessages);
+//
+//        /**
+//         * 缓存下发的A99赔率，当操盘后台关闭A99时，需要给融合下发关盘
+//         */
+//        Long marketCategoryId = thirdSportMarketMessages.get(0).getMarketCategoryId();
+//        redisService.hSet(Constant.REDIS_KEY.RONGHE_A99_PUSHED_MARKET_ODDS, marketCategoryId.toString(), standardMarketDataMessages, 3*24*60*60);
+//
+//        /**
+//         * 下发标准A99赔率给融合
+//         */
+//        sendA99OddsToRonghe(standardMarketDataMessages, linkId+"_A99");
 
         //TX/AO主列表玩法百家赔 只下发足球
         /*if (!StandardSportTypeEnum.FootBall.code.equals(standardMatchInfo.getSportId())) {

@@ -55,8 +55,11 @@ public class MatchSettleEventAssemble {
         List<MatchSettleEventDto> matchSettleScoreDtos=new ArrayList<>();
         Map<String, Integer> deleteStatusMap = new HashMap<>();
         Map<String, Integer> dataMismatchMap = new HashMap<>();
+        log.info("searchFootballMatchSettleEvent-list1::{}",list.size());
         mentionStatusHelper.obtainDetailInfo(settleScoreSearchDto, deleteStatusMap, dataMismatchMap);
+        log.info("searchFootballMatchSettleEvent-list2::{}",list.size());
         for (MatchSettleEvent matchSettleScore : list) {
+            log.info("searchFootballMatchSettleEvent-matchSettleEvent::{}",matchSettleScore);
             MatchSettleEventDto matchSettleScoreDto =new MatchSettleEventDto();
             BeanUtils.copyProperties(matchSettleScore,matchSettleScoreDto);
             matchSettleScoreDto.setId(matchSettleScore.getId().toString());

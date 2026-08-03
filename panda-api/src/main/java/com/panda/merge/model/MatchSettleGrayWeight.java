@@ -18,7 +18,7 @@ public class MatchSettleGrayWeight implements Serializable {
     @ApiModelProperty(value = "灰色区间分钟数5~90")
     private Integer grayAreaMin;
 
-    @ApiModelProperty(value = "数据商编码")
+    @ApiModelProperty(value = "灰色区间设置模版id")
     private String dataSourceCode;
 
     @ApiModelProperty(value = "灰色区间状态0待确认1已确认")

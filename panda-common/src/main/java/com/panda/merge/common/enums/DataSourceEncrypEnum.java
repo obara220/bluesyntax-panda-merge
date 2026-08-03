@@ -42,6 +42,7 @@ public enum DataSourceEncrypEnum {
     FTS("FTS", "FTS"),
     N01("N01", "N01"),
     N02("N02", "N02"),
+    L02("L02", "L02"),
     F01("F01", "F01");
 
     private String code;

@@ -1,5 +1,9 @@
 package com.panda.merge.service;
 
+import com.panda.merge.bo.ThirdSportMarketCategoryBO;
+import com.panda.merge.dto.Request;
+import com.panda.merge.dto.Response;
+import com.panda.merge.dto.ThirdCategoryDTO;
 import com.panda.merge.model.ThirdMarketCategory;
 
 import java.util.List;
@@ -60,6 +64,20 @@ public interface ThirdMarketCategoryService {
      * @param categoryList
      */
     void updateBatchById(List<ThirdMarketCategory> categoryList);
+
+    /**
+     * 查询三方盘口列表
+     * @param dto
+     * @return
+     */
+    List<ThirdSportMarketCategoryBO> queryThirdMarketCategory(ThirdCategoryDTO dto);
+
+    /**
+     * 修改三方玩法配置
+     * @param request
+     * @return
+     */
+    void updateThirdMarketCategory(Request<ThirdCategoryDTO> request);
 
     /**
      * 清理全量缓存

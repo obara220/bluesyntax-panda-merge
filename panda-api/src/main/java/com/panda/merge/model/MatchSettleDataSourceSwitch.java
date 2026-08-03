@@ -49,6 +49,14 @@ public class MatchSettleDataSourceSwitch extends AbstructMatchSettleDto implemen
         this.id = id;
     }
 
+    public Long getSportId() {
+        return sportId;
+    }
+
+    public void setSportId(Long sportId) {
+        this.sportId = sportId;
+    }
+
     public String getDataSourceCode() {
         return dataSourceCode;
     }
@@ -136,6 +144,7 @@ public class MatchSettleDataSourceSwitch extends AbstructMatchSettleDto implemen
         sb.append(" [");
         sb.append("Hash = ").append(hashCode());
         sb.append(", id=").append(id);
+        sb.append(", sportId=").append(sportId);
         sb.append(", dataSourceCode=").append(dataSourceCode);
         sb.append(", goal=").append(goal);
         sb.append(", corner=").append(corner);

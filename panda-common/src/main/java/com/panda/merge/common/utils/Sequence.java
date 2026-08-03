@@ -1,8 +1,11 @@
 package com.panda.merge.common.utils;
 
+import cn.hutool.core.lang.Assert;
+import com.github.pagehelper.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
+import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -56,7 +59,7 @@ public class Sequence {
 
     public Sequence() {
         this.workerId = getWorkId(maxWorkerId);
-        log.info("Sequence workId is 1 {}", this.workerId);
+        log.info("Sequence workId is {}", this.workerId);
     }
 
     public Sequence(long workerId) {
@@ -65,7 +68,7 @@ public class Sequence {
         } else {
             this.workerId = workerId;
         }
-        log.info("Sequence workId is 2 {}", this.workerId);
+        log.info("Sequence workId is {}", this.workerId);
     }
 
     /**
@@ -122,6 +125,7 @@ public class Sequence {
         }
 
         lastTimestamp = timestamp;
+        log.info("机器标识部分:{}",workerId);
         // 时间戳部分 | 数据中心部分 | 机器标识部分 | 序列号部分
         long id = ((timestamp - twepoch) << timestampLeftShift)
                 | (workerId << workerIdShift)

@@ -12,9 +12,37 @@
         limit 0,#{limit}
     </select>
 
-    <update id="upDataList" parameterType="java.util.List">
+    <insert id="insertList" parameterType="java.util.List">
+        insert into panda_odds.third_sport_market_odds_${dataSourceCode}
+        (id, market_id, reference_id,
+        active, settlement_result_text, settlement_result,
+        bet_settlement_certainty, odds_type, addition1,
+        addition2, addition3, addition4,
+        addition5, third_odds_field_source_id, order_odds,
+        name_code, name_expression_value, odds_value,
+        pa_odds_value, original_odds_value, odds_fields_template_id,
+        third_template_source_id, target_side, data_source_code,
+        remark, create_time, modify_time,
+        extra_info, name, third_match_id
+        )
+        VALUES
+        <foreach collection="list" index="index" item="record" separator=",">
+            (#{record.id,jdbcType=BIGINT}, #{record.marketId,jdbcType=BIGINT}, #{record.referenceId,jdbcType=BIGINT},
+            #{record.active,jdbcType=TINYINT}, #{record.settlementResultText,jdbcType=VARCHAR}, #{record.settlementResult,jdbcType=VARCHAR},
+            #{record.betSettlementCertainty,jdbcType=VARCHAR}, #{record.oddsType,jdbcType=VARCHAR}, #{record.addition1,jdbcType=VARCHAR},
+            #{record.addition2,jdbcType=VARCHAR}, #{record.addition3,jdbcType=VARCHAR}, #{record.addition4,jdbcType=VARCHAR},
+            #{record.addition5,jdbcType=VARCHAR}, #{record.thirdOddsFieldSourceId,jdbcType=VARCHAR}, #{record.orderOdds,jdbcType=INTEGER},
+            #{record.nameCode,jdbcType=BIGINT}, #{record.nameExpressionValue,jdbcType=VARCHAR}, #{record.oddsValue,jdbcType=INTEGER},
+            #{record.paOddsValue,jdbcType=INTEGER}, #{record.originalOddsValue,jdbcType=INTEGER}, #{record.oddsFieldsTemplateId,jdbcType=BIGINT},
+            #{record.thirdTemplateSourceId,jdbcType=VARCHAR}, #{record.targetSide,jdbcType=VARCHAR}, #{record.dataSourceCode,jdbcType=VARCHAR},
+            #{record.remark,jdbcType=VARCHAR}, #{record.createTime,jdbcType=BIGINT}, #{record.modifyTime,jdbcType=BIGINT},
+            #{record.extraInfo,jdbcType=VARCHAR}, #{record.name,jdbcType=VARCHAR}, #{record.thirdMatchId,jdbcType=BIGINT}
+        </foreach>
+    </insert>
+
+    <update id="upDataList">
         <foreach collection="list" item="record" index="index" open="" close="" separator=";">
-            update third_sport_market_odds_${dataSourceCode}
+            update panda_odds.third_sport_market_odds_${dataSourceCode}
             <set>
                 <if test="record.referenceId != null">
                     reference_id = #{record.referenceId,jdbcType=BIGINT},
@@ -95,7 +123,7 @@
                     third_match_id = #{record.thirdMatchId,jdbcType=BIGINT},
                 </if>
             </set>
-            where data_source_code = #{dataSourceCode,jdbcType=VARCHAR} AND id = #{record.id,jdbcType=BIGINT}
+            where data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR} AND id = #{record.id,jdbcType=BIGINT}
         </foreach>
     </update>
 

@@ -11,6 +11,9 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 /**
  * <Description> dubbo接口统一异常处理类<br>
  * @author Aison<br>
@@ -61,10 +64,17 @@ public class BindingDubboAspect {
         for (Object arg : reqPars) {
             if(arg instanceof Request){
                 Request request = (Request) arg;
-                log.error("业务处理异常1【dubbo ："+ className+" : "+methodName+"】【::"+request.getLinkId()+"::】,data="+JSON.toJSONString(reqPars)+" ,Exception:",e);
+                log.error("业务处理异常1【dubbo ："+ className+" : "+methodName+"】【::"+request.getLinkId()+"::】,data="+JSON.toJSONString(reqPars)+" ,Exception="+getExceptionMessage(e));
                 continue;
             }
             log.error("业务处理异常2【dubbo ："+ className+" : "+methodName+"】,data="+JSON.toJSONString(reqPars)+" Exception:",e);
         }
+    }
+
+    public static String getExceptionMessage(Throwable e)
+    {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw, true));
+        return sw.toString();
     }
 }

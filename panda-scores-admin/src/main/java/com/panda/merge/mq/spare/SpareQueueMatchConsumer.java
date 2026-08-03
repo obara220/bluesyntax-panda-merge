@@ -30,7 +30,7 @@ import java.util.List;
 @Component
 public class SpareQueueMatchConsumer {
     private static final String TOPIC = "modify_match";
-    private static final String CONSUMER_GROUP = "scores_group_queue_match";
+    private static final String CONSUMER_GROUP = "scores_group_queue_match2";
 
     @Value("${slaveNamesrvAddr}")
     private String nameServers;

@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RocketMQMessageListener(topic = "PD_FOOTBALL_SCORE", consumerGroup = "scores-group-PDScoresConsumer",consumeThreadMax = 2,
         consumeTimeout = 10000L,
-        messageModel = MessageModel.CLUSTERING)
+        messageModel = MessageModel.BROADCASTING)
 @DependsOn("mergeWebSocketApplication")
 public class PDScoresConsumer implements RocketMQListener<Request<String>> {
 
@@ -31,7 +31,6 @@ public class PDScoresConsumer implements RocketMQListener<Request<String>> {
     public void onMessage(Request<String> request) {
 //        log.info("PD_FOOTBALL_SCORE_GET:{}",request.getData());
         pdSubcribe.sendPdScore(request.getData());
-        log.info("PD_FOOTBALL_SCORE_GET_END:");
     }
 
 }

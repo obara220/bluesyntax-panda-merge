@@ -121,7 +121,7 @@ public class OutrightTradeConfigApiServiceImpl extends BaseProcessor implements 
         if ( StringUtils.isEmpty(linkId) ) {
             linkId = UUID.randomUUID().toString();
         }
-        log.info("::{}::putOutrightTradeTypeConfig:->{}", linkId, JSON.toJSONString(request));
+        log.info("::{}::putOutrightTradeTypeConfig: {}", linkId, JSON.toJSONString(request));
         validateLinkId("putOutrightTradeTypeConfig", request);
         OutrightTradeTypeConfigDTO configDTO = request.getData();
         ConfigOutrightTradeType configOutrightTradeType = outrightTradeTypeConfigService.selectItem(configDTO);
@@ -129,7 +129,7 @@ public class OutrightTradeConfigApiServiceImpl extends BaseProcessor implements 
         Integer newTradeType = configDTO.getTradeType();
         if(null == configOutrightTradeType){
             outrightTradeTypeConfigService.insertItem(request.getLinkId(),configDTO);
-        } else {
+        }else {
             oldTradeType = configOutrightTradeType.getTradeType();
             configOutrightTradeType.setTradeType(configDTO.getTradeType());
             configOutrightTradeType.setModifyTime(TimeUtils.millsSecondsEast8ZoneGmt());
@@ -153,7 +153,6 @@ public class OutrightTradeConfigApiServiceImpl extends BaseProcessor implements 
         StandardMarketDataMessage standardMarketMessage = (StandardMarketDataMessage) redisService.hGet( redisKey, configDTO.getStandardMarketId().toString());
         if ( null != standardMarketMessage) {
             standardMarketMessage.setTradeType(configDTO.getTradeType());
-            if ( null == standardMarketMessage.getNumberOfWinners() || standardMarketMessage.getNumberOfWinners() < 1 )
             {
                 standardMarketMessage.setNumberOfWinners(1);
             }
@@ -287,6 +286,8 @@ public class OutrightTradeConfigApiServiceImpl extends BaseProcessor implements 
             configOutrightTradeMarket.setMarketStatus(configDTO.getMarketStatus());
             configOutrightTradeMarket.setModifyTime(TimeUtils.millsSecondsEast8ZoneGmt());
             configOutrightTradeMarket.setLinkId(request.getLinkId());
+            Integer operateType = null == configDTO.getOperateType() ? Constant.OUTRIGHT_ONE : configDTO.getOperateType();
+            configOutrightTradeMarket.setOperateType(operateType);
             outrightTradeMarketConfigService.updateItem(configOutrightTradeMarket);
         }
         StandardOutrightMarket standardOutrightMarket = standardOutrightMarketService.selectByExample(configDTO.getStandardMarketId());
@@ -337,7 +338,7 @@ public class OutrightTradeConfigApiServiceImpl extends BaseProcessor implements 
                 thirdMatchMarketProcessor.getChampionStandardMarketDataMessageMap( request.getLinkId(), standardMatchInfo,  standardSportMarketSell);
         Set<Long> marketIdSet = new HashSet<>();
         marketIdSet.add(configDTO.getStandardMarketId());
-        thirdMatchMarketProcessor.processOddsByAll(request.getLinkId(),request.getOddsSource(), request.getOperaterId(),standardMatchInfo, marketIdSet,standardMarketDataMessageMap, request.getDataSourceTime(), standardSportMarketSell, new HashMap<>());
+        thirdMatchMarketProcessor.processOddsByAll(request.getLinkId(),request.getOddsSource(),request.getOperaterId(), standardMatchInfo, marketIdSet,standardMarketDataMessageMap, request.getDataSourceTime(), standardSportMarketSell, new HashMap<>());
         return Response.success();
     }
 
@@ -372,7 +373,7 @@ public class OutrightTradeConfigApiServiceImpl extends BaseProcessor implements 
                 thirdMatchMarketProcessor.getChampionStandardMarketDataMessageMap( request.getLinkId(), standardMatchInfo,  standardSportMarketSell);
         Set<Long> marketIdSet = new HashSet<>();
         marketIdSet.add(configDTO.getStandardMarketId());
-        thirdMatchMarketProcessor.processOddsByAll(request.getLinkId(),request.getOddsSource(),request.getOperaterId(), standardMatchInfo, marketIdSet,standardMarketDataMessageMap, request.getDataSourceTime(), standardSportMarketSell, new HashMap<>());
+        thirdMatchMarketProcessor.processOddsByAll(request.getLinkId(),request.getOddsSource(), request.getOperaterId(),standardMatchInfo, marketIdSet,standardMarketDataMessageMap, request.getDataSourceTime(), standardSportMarketSell, new HashMap<>());
         return Response.success();
     }
 

@@ -93,7 +93,7 @@ public class ThirdSportMarketMergeProducer extends BaseProcessor {
         List<ThirdSportMarketMessage> txThirdSportMarketMessages = new ArrayList<>();
         thirdSportMarketMessages.forEach(thirdMarket -> {
             if (MarginCategoryConfig.FootBall_3446_3447_CATEGORY.contains(thirdMarket.getMarketCategoryId())
-                    ||MarginCategoryConfig.BasketBall_3446_3447_CATEGORY.contains(thirdMarket.getMarketCategoryId())) {
+                ||MarginCategoryConfig.BasketBall_3446_3447_CATEGORY.contains(thirdMarket.getMarketCategoryId())) {
                 if (thirdMarket.getMarketType() == marketType) {
 //                    log.info("::{}::下发足球TX主列表玩法百家赔,三方盘口ID:{},三方盘口类型:{},滚球标识:{}"
 //                            ,linkId,thirdMarket.getThirdMarketSourceId(),thirdMarket.getMarketType(),marketType);

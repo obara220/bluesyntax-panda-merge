@@ -454,14 +454,14 @@ public class ThirdMatchStatusProcessor extends BaseProcessor {
         //4248 【赛程】赛事中断场景优化: 状态源赛事中断&取消映射至赛事事件中断或取消
         if (interruptedEventSwitch) {
             //事件源编码
-            String businessEvent = standardSportMarketSell.getBusinessEvent();
-            log.info("linkId=【{}】pushMatchStatusInfo,标准赛事ID={},businessEvent={},Status={}", linkId, standardMatchInfo.getId(), businessEvent, standardMatchInfo.getMatchStatus());
+            //如果赛事状态取消，可能切换商业事件源，导致下发错误数据源的取消事件，所以这里延用当前的数据源
+            log.info("linkId=【{}】pushMatchStatusInfo,标准赛事ID={},dataSourceCode={},Status={}", linkId, standardMatchInfo.getId(), dataSourceCode, standardMatchInfo.getMatchStatus());
             if (MatchStatusEnum.Cancelled.value.equals(standardMatchInfo.getMatchStatus()) &&
                     !Objects.equals(MatchPeriodForMatchOverEnum.Abandoned.value, standardMatchInfo.getMatchPeriodId())) {
-                standardMatchStatusProducer.putMatchEventInfo(linkId, standardMatchInfo, businessEvent, MatchPeriodForMatchOverEnum.Abandoned.value);
+                standardMatchStatusProducer.putMatchEventInfo(linkId, standardMatchInfo, dataSourceCode, MatchPeriodForMatchOverEnum.Abandoned.value);
             } else if (MatchStatusEnum.Interrupted.value.equals(standardMatchInfo.getMatchStatus()) &&
                     !Objects.equals(MatchPeriodForMatchOverEnum.Interrupted.value, standardMatchInfo.getMatchPeriodId())) {
-                standardMatchStatusProducer.putMatchEventInfo(linkId, standardMatchInfo, businessEvent, MatchPeriodForMatchOverEnum.Interrupted.value);
+                standardMatchStatusProducer.putMatchEventInfo(linkId, standardMatchInfo, dataSourceCode, MatchPeriodForMatchOverEnum.Interrupted.value);
             }
         }
     }

@@ -4,7 +4,9 @@ import com.panda.merge.model.ThirdMatchSeasonStatistics;
 import com.panda.merge.model.ThirdMatchSeasonStatisticsExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public interface ThirdMatchSeasonStatisticsMapper {
     long countByExample(ThirdMatchSeasonStatisticsExample example);
 

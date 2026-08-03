@@ -1,13 +1,21 @@
 package com.panda.merge.service.impl;
 
 import com.panda.merge.common.RedisHelper;
+import com.panda.merge.bo.ThirdSportMarketCategoryBO;
+import com.panda.merge.common.RedisHelper;
 import com.panda.merge.config.RedisConfig;
 import com.panda.merge.config.RedisService;
+import com.panda.merge.config.RedisConfig;
 import com.panda.merge.dao.ThirdMarketCategoryDao;
+import com.panda.merge.dto.Request;
+import com.panda.merge.dto.ThirdCategoryDTO;
+import com.panda.merge.dto.ThirdMatchMarketDTO;
 import com.panda.merge.mapper.ThirdMarketCategoryMapper;
 import com.panda.merge.model.ThirdMarketCategory;
 import com.panda.merge.model.ThirdMarketCategoryExample;
+import com.panda.merge.model.ThirdMatchInfo;
 import com.panda.merge.service.ThirdMarketCategoryService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;
@@ -15,6 +23,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import javax.annotation.Resource;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -28,6 +42,7 @@ import java.util.stream.Collectors;
  * @createDate 2020/8/14 <br>
  * @see com.panda.merge.service.impl <br>
  */
+@Slf4j
 @Service
 @CacheConfig(cacheNames = RedisConfig.REDIS_KEY_DATABASE)
 public class ThirdMarketCategoryServiceImpl implements ThirdMarketCategoryService {
@@ -72,7 +87,7 @@ public class ThirdMarketCategoryServiceImpl implements ThirdMarketCategoryServic
         if(CollectionUtils.isEmpty(requiredCallItems)){
             return result;
         }
-
+        log.info("2724,查询三方盘口玩法模版数据库：{}", requiredCallItems);
         ThirdMarketCategoryExample example = new ThirdMarketCategoryExample();
         for (String category : requiredCallItems) {
             String[] array = category.split("-");         // dataSourceCode: array   thirdMarketCategorySourceId: arr[1]
@@ -167,6 +182,22 @@ public class ThirdMarketCategoryServiceImpl implements ThirdMarketCategoryServic
         }
         redisService.del(keyList);
         thirdMarketCategoryDao.updateBatchById(categoryList);
+    }
+
+    @Override
+    public List<ThirdSportMarketCategoryBO> queryThirdMarketCategory(ThirdCategoryDTO dto) {
+        return thirdMarketCategoryDao.queryThirdMarketCategory(dto);
+    }
+
+    @Override
+    public void updateThirdMarketCategory(Request<ThirdCategoryDTO> request) {
+        ThirdCategoryDTO data = request.getData();
+        ThirdMarketCategory thirdMarketCategory = new ThirdMarketCategory();
+        thirdMarketCategory.setId(data.getId());
+        thirdMarketCategory.setReferenceId(data.getReferenceId());
+        thirdMarketCategoryMapper.updateByPrimaryKeySelective(thirdMarketCategory);
+        String key = RedisConfig.REDIS_KEY_DATABASE + "::ThirdMarketCategory:" + data.getDataSourceCode() + "-" + data.getThirdSourceId();
+        redisService.del(key);
     }
 
     public int delRedisByAll(){

@@ -37,7 +37,7 @@ import java.util.List;
 public class SpareLiveDataScoresNewConsumer {
     private static final String TOPIC = "MATCH_EVENT_INFO_TO_RISK";
 
-    private static final String CONSUMER_GROUP = "scores-group-MATCH_EVENT_INFO_TO_RISK";
+    private static final String CONSUMER_GROUP = "scores-group-MATCH_EVENT_INFO_TO_RISK2";
 
     @Value("${slaveNamesrvAddr}")
     private String nameServers;

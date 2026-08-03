@@ -22,6 +22,9 @@ public enum MergeMarketStatusEnum {
     CATEGORY_SET(51),
     CATEGORY_INVALID(52);
 
+
+
+
     public final Integer code;
 
     MergeMarketStatusEnum(Integer code) {

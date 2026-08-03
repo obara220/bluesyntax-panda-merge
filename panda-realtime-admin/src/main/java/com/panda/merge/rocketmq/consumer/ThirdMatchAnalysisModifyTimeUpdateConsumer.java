@@ -3,6 +3,7 @@ package com.panda.merge.rocketmq.consumer;
 import com.alibaba.nacos.api.config.annotation.NacosValue;
 import com.panda.merge.dto.Request;
 import com.panda.merge.dto.ThirdMatchAnalysisModifyTimeDTO;
+import com.panda.merge.dto.message.SoldMessage;
 import com.panda.merge.rocketmq.processor.ThirdMatchAnalysisModifyTimeUpdateProcessor;
 import com.panda.merge.rocketmq.producer.DataCenterProducer;
 import lombok.extern.slf4j.Slf4j;
@@ -13,8 +14,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 
-import static com.panda.merge.constant.ConstantSystem.CONSUME_REALTIME_GROUP;
-import static com.panda.merge.constant.ConstantSystem.THIRD_MATCH_ANALYSIS_MODIFY_TIME;
+import static com.panda.merge.constant.ConstantSystem.*;
 
 /** 赛事分析修改modify_time */
 @Slf4j

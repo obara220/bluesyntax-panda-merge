@@ -12,19 +12,19 @@ public interface MarketCategorySellMapper {
 
     int deleteByPrimaryKey(Long id);
 
-    int insert(MarketCategorySell record);
+    int insert(MarketCategorySell row);
 
-    int insertSelective(MarketCategorySell record);
+    int insertSelective(MarketCategorySell row);
 
     List<MarketCategorySell> selectByExample(MarketCategorySellExample example);
 
     MarketCategorySell selectByPrimaryKey(Long id);
 
-    int updateByExampleSelective(@Param("record") MarketCategorySell record, @Param("example") MarketCategorySellExample example);
+    int updateByExampleSelective(@Param("row") MarketCategorySell row, @Param("example") MarketCategorySellExample example);
 
-    int updateByExample(@Param("record") MarketCategorySell record, @Param("example") MarketCategorySellExample example);
+    int updateByExample(@Param("row") MarketCategorySell row, @Param("example") MarketCategorySellExample example);
 
-    int updateByPrimaryKeySelective(MarketCategorySell record);
+    int updateByPrimaryKeySelective(MarketCategorySell row);
 
-    int updateByPrimaryKey(MarketCategorySell record);
+    int updateByPrimaryKey(MarketCategorySell row);
 }

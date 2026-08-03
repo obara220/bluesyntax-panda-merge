@@ -50,7 +50,7 @@ public class FootballPenaltyScores implements Serializable {
         pointNum=0;
         penaltyMiss = new CommonItem();
         roundScores = new HashMap<>();
-        round5Scores = new CommonItem(null,null,true);
+        round5Scores = new CommonItem(-1,-1,true);
     }
 
     public FootballPenaltyScores(boolean init){
@@ -158,6 +158,8 @@ public class FootballPenaltyScores implements Serializable {
             log.info("::{}::点球大战比分4：eventCode={}",data.getLinkId(),data.getEventCode()+",item="+commonItem+"firstNum:"+firstNum+",roundScores="+roundScores);
         }
         roundScores.put(firstNum.toString().trim(),commonItem);
+        log.info("::{}::点球大战比分5：eventCode={}",data.getLinkId(),data.getEventCode()+",item="+commonItem+"firstNum:"+firstNum+",roundScores="+roundScores);
+
 
     }
     /**
@@ -169,6 +171,7 @@ public class FootballPenaltyScores implements Serializable {
             return;
         }
         log.info("删除点球进球或者点球未进，score-center:linkId：{}，firstNum={},pointNum:{},前5轮比分：{},每局比分：{}",data.getLinkId(),firstNum,pointNum,round5Scores,roundScores);
+        pointNum--;
         //1.计算局数
         //2.根据局数得到当前局数比分
         CommonItem commonItem=roundScores.get(firstNum.toString().trim());

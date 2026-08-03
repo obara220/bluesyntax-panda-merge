@@ -10,6 +10,7 @@ import com.panda.merge.advertise.mq.EventProducer;
 import com.panda.merge.advertise.service.CommonAdvertiseService;
 import com.panda.merge.common.enums.TeamTypeEnum;
 import com.panda.merge.config.RedisService;
+import com.panda.merge.constant.SnookerConstant;
 import com.panda.merge.constant.SourceTypeEnum;
 import com.panda.merge.constant.SportPeriodConstant;
 import com.panda.merge.constant.SportTypeEnum;
@@ -21,6 +22,9 @@ import com.panda.merge.repository.MatchScoreInfoRepository;
 import com.panda.merge.repository.MatchTimeInfoRepository;
 import com.panda.merge.repository.PdMatchInfoRepository;
 import com.panda.merge.service.IScoresService;
+import com.panda.merge.snooker.dto.SnookerV2Scores;
+import com.panda.merge.snooker.service.helper.MatchScoreCommonHelper;
+import com.panda.merge.volleyball.dto.VolleyballV2Scores;
 import com.panda.merge.utils.JsonMapUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -32,6 +36,10 @@ import org.springframework.util.StopWatch;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import javax.annotation.Resource;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.panda.merge.constant.SportPeriodConstant.SportPeriod.WHOLE_MATCH;
 
@@ -62,6 +70,8 @@ public class CommonAdvertiseServiceImpl implements CommonAdvertiseService {
     @Autowired
     MatchTimeInfoMapper matchTimeInfoMapper;
 
+    @Autowired
+    private MatchScoreCommonHelper matchScoreCommonHelper;
     @Override
     public Response<MatchScoreAndTimeVo> checkMatchScoreAndTimeCreate( Long thirdMatchId)
     {
@@ -103,13 +113,22 @@ public class CommonAdvertiseServiceImpl implements CommonAdvertiseService {
                 IceHockeyScores iceHockeyScores = new IceHockeyScores(0L);
                 periodIceHockeyScores.put(WHOLE_MATCH, iceHockeyScores);
                 matchScoresInfo.setScoresJson(JSONObject.toJSONString(periodIceHockeyScores));
+            } else if (SportTypeEnum.SNOOKER.getValue().equals(thirdMatchInfo.getSportId())) {
+                Map<Long, SnookerV2Scores> snookerPeriodScores = new HashMap<>();
+                snookerPeriodScores.put(WHOLE_MATCH, new SnookerV2Scores());
+                matchScoresInfo.setScoresJson(JSONObject.toJSONString(snookerPeriodScores));
+            } else if (thirdMatchInfo.getSportId().equals(9L)) {
+                Map<Long, VolleyballV2Scores> volleyballPeriodScores = new HashMap<>();
+                volleyballPeriodScores.put(WHOLE_MATCH, new VolleyballV2Scores());
+                matchScoresInfo.setScoresJson(JSONObject.toJSONString(volleyballPeriodScores));
             }
             pdMatchInfoRepository.setRedisAndMatchScoresInfo(matchScoresInfo, null);
         }
         MatchTimeInfo matchTimeInfo = timeInfoRepository.selectByPrimaryKey(matchScoresInfo.getId());
         if (ObjectUtils.isEmpty(matchTimeInfo))
         {
-            return Response.failed("PA赛事时间不存在.");
+            matchTimeInfo = createMatchTimeInfo(matchScoresInfo);
+//            return Response.failed("PA赛事时间不存在.");
         }
         MatchTimeInfo timeInfo = matchTimeInfo;
         log.info("CommonAdvertiseServiceImpl-checkMatchScoreAndTimeCreate-thirdMatchId={},time={}", thirdMatchId, timeInfo);
@@ -125,8 +144,21 @@ public class CommonAdvertiseServiceImpl implements CommonAdvertiseService {
             StandardMatchInfo standardMatchInfo = pdMatchInfoRepository.getStandardMatchInfo(thirdMatchInfo.getReferenceId(), null);
             matchScoreAndTimeVo.setStandardMatchInfo(standardMatchInfo);
         }
-
-        if ( !timeInfo.getPeriod().equals(matchScoresInfo.getPeriod()) )
+        log.info("{} 获取PD赛事阶段:{},{},{}",timeInfo.getThirdMatchId(),timeInfo.getPeriod(),matchScoresInfo.getPeriod(),!Objects.equals(timeInfo.getPeriod(), matchScoresInfo.getPeriod()));
+        // period 被污染为 null（如 updateMatchStatus 传 null matchPeriodId）后，两者都为 null 永远相等，
+        // 同步分支不会触发；此处走 matchPeriodValid 从 DB 查最大 period 回填。
+        // 若 matchPeriodValid 后仍为 null（DB 中所有行 period 均为 null），兜底置为 0L。
+        if (timeInfo.getPeriod() == null || matchScoresInfo.getPeriod() == null) {
+            String linkId = "check_" + thirdMatchId;
+            matchPeriodValid(linkId, thirdMatchInfo, matchScoresInfo, timeInfo);
+        }
+        if (timeInfo.getPeriod() == null && matchScoresInfo.getPeriod() == null) {
+            timeInfo.setPeriod(0L);
+            matchScoresInfo.setPeriod(0L);
+            timeInfoRepository.updateByPrimaryKey(timeInfo);
+            matchScoreInfoRepository.updateScoresInfo(matchScoresInfo);
+        } else if (!Objects.equals(timeInfo.getPeriod(), matchScoresInfo.getPeriod())
+                && matchScoresInfo.getPeriod() != null)
         {
             timeInfo.setPeriod(matchScoresInfo.getPeriod());
             timeInfoRepository.updateByPrimaryKey(timeInfo);
@@ -137,6 +169,31 @@ public class CommonAdvertiseServiceImpl implements CommonAdvertiseService {
         return Response.success(matchScoreAndTimeVo);
     }
 
+    /**
+     * 更新赛事时间
+     * @param matchScoresInfo
+     */
+    private MatchTimeInfo createMatchTimeInfo(MatchScoresInfo matchScoresInfo) {
+        if(matchScoresInfo==null){
+            return null;
+        }
+        MatchTimeInfo matchTimeInfo =new MatchTimeInfo();
+        matchTimeInfo.setCreateTime(System.currentTimeMillis());
+        matchTimeInfo.setModifyTime(System.currentTimeMillis());
+        matchTimeInfo.setDataSourceType(matchScoresInfo.getDataSourceType());
+        matchTimeInfo.setTimeGo(0);
+        matchTimeInfo.setThirdMatchId(matchScoresInfo.getThirdMatchId());
+        matchTimeInfo.setPeriod(matchScoresInfo.getPeriod());
+        matchTimeInfo.setSecondFromStart(matchScoresInfo.getSecondsMatchStart());
+        matchTimeInfo.setId(matchScoresInfo.getId());
+        matchTimeInfo.setMatchLength(matchScoresInfo.getMatchLength());
+        matchTimeInfo.setRemainingTime(0L);
+        matchTimeInfo.setEventTime(System.currentTimeMillis());
+        timeInfoRepository.updateByPrimaryKey(matchTimeInfo);
+        return matchTimeInfo;
+
+
+    }
     @Override
     public void matchPeriodValid( String linkId, ThirdMatchInfo thirdMatchInfo, MatchScoresInfo matchScoresInfo, MatchTimeInfo timeInfo) {
         Long scoresInfoPeriod = matchScoresInfo.getPeriod();
@@ -155,6 +212,7 @@ public class CommonAdvertiseServiceImpl implements CommonAdvertiseService {
         List<MatchScoresInfo> scoresInfoList = matchScoresInfoMapper.selectByExample(scoreExample);
 
         List<MatchScoresInfo> pdScoreList = Lists.newArrayList();
+        MatchScoresInfo effectiveScoresInfo = matchScoresInfo;
         if ( reSetScore ) {
             MatchScoresInfo dbInfo = matchScoreInfoRepository.queryMatchScoreFromDB(matchScoresInfo.getId());
             if ( Objects.isNull(dbInfo) ) {
@@ -162,10 +220,11 @@ public class CommonAdvertiseServiceImpl implements CommonAdvertiseService {
             } else {
                 // 刷新缓存
                 matchScoreInfoRepository.updateScoresInfoCache(dbInfo);
-                matchScoresInfo = dbInfo;
+                effectiveScoresInfo = dbInfo;
+                matchScoresInfo.setPeriod(dbInfo.getPeriod());
             }
         }
-        pdScoreList.add(matchScoresInfo);
+        pdScoreList.add(effectiveScoresInfo);
 
         if ( CollectionUtil.isNotEmpty(scoresInfoList) ) {
             pdScoreList.addAll(scoresInfoList);
@@ -177,7 +236,8 @@ public class CommonAdvertiseServiceImpl implements CommonAdvertiseService {
         List<Long> ids = pdScoreList.stream().map(MatchScoresInfo::getId).collect(Collectors.toList());
         log.info("::{}::matchPeriodValid比分id:{}", linkId, ids);
 
-        Optional<MatchScoresInfo> maxScore = pdScoreList.stream().max(Comparator.comparing(MatchScoresInfo::getPeriod));
+        Optional<MatchScoresInfo> maxScore = pdScoreList.stream()
+                .max(Comparator.comparing(MatchScoresInfo::getPeriod, Comparator.nullsFirst(Comparator.naturalOrder())));
         Long maxPeriod = scoresInfoPeriod;
         if ( maxScore.isPresent() ) {
             maxPeriod = maxScore.get().getPeriod();
@@ -189,12 +249,17 @@ public class CommonAdvertiseServiceImpl implements CommonAdvertiseService {
                 matchScoreInfoRepository.updateScoresInfo(scoresInfo);
             }
         }
+        matchScoresInfo.setPeriod(effectiveScoresInfo.getPeriod());
+        if ( maxPeriod != null && (null == timeInfo.getPeriod() || timeInfo.getPeriod() < maxPeriod) ) {
+            timeInfo.setPeriod(maxPeriod);
+            timeInfoRepository.updateByPrimaryKey(timeInfo);
+        }
 
         // 数据库阶段的校验与同步
         MatchTimeInfoExample timeExample = new MatchTimeInfoExample();
         timeExample.createCriteria().andIdIn(ids);
         List<MatchTimeInfo> matchTimeInfos = matchTimeInfoMapper.selectByExample(timeExample);
-        if ( CollectionUtil.isNotEmpty(matchTimeInfos) ) {
+        if ( CollectionUtil.isNotEmpty(matchTimeInfos) && maxPeriod != null ) {
             for ( MatchTimeInfo matchTimeInfo : matchTimeInfos) {
                 if ( null == matchTimeInfo.getPeriod() || matchTimeInfo.getPeriod() < maxPeriod ) {
                     matchTimeInfo.setPeriod(maxPeriod);
@@ -238,6 +303,14 @@ public class CommonAdvertiseServiceImpl implements CommonAdvertiseService {
                 TennisScores tennisScores = new TennisScores(0l);
                 periodFootballScores.put(WHOLE_MATCH, tennisScores);
                 matchScoresInfo.setScoresJson(JSONObject.toJSONString(periodFootballScores));
+            } else if (SportTypeEnum.SNOOKER.getValue().equals(thirdMatchInfo.getSportId())) {
+                Map<Long, SnookerV2Scores> snookerPeriodScores = new HashMap<>();
+                snookerPeriodScores.put(WHOLE_MATCH, new SnookerV2Scores());
+                matchScoresInfo.setScoresJson(JSONObject.toJSONString(snookerPeriodScores));
+            } else if (thirdMatchInfo.getSportId().equals(9L)) {
+                Map<Long, VolleyballV2Scores> volleyballPeriodScores = new HashMap<>();
+                volleyballPeriodScores.put(WHOLE_MATCH, new VolleyballV2Scores());
+                matchScoresInfo.setScoresJson(JSONObject.toJSONString(volleyballPeriodScores));
             }
 //            matchScoresInfoMapper.updateByPrimaryKey(matchScoresInfo);
             pdMatchInfoRepository.setRedisAndMatchScoresInfo(matchScoresInfo, null);
@@ -264,7 +337,7 @@ public class CommonAdvertiseServiceImpl implements CommonAdvertiseService {
 //            StandardMatchInfo standardMatchInfo =standardMatchInfoMapper.selectByPrimaryKey(thirdMatchInfo.getReferenceId());
             StandardMatchInfo standardMatchInfo = pdMatchInfoRepository.getStandardMatchInfo(thirdMatchInfo.getReferenceId(), null);
             matchScoreAndTimeVo.setStandardMatchInfo(standardMatchInfo);
-            if (null == timeInfo.getSecondFromStart()) {
+            if (null == timeInfo.getSecondFromStart() && standardMatchInfo != null && standardMatchInfo.getSecondsMatchStart() != null) {
                 timeInfo.setSecondFromStart(standardMatchInfo.getSecondsMatchStart().longValue());
             }
         }
@@ -517,6 +590,112 @@ public class CommonAdvertiseServiceImpl implements CommonAdvertiseService {
         }
         ThirdSportTeam thirdSportTeam =thirdSportTeamMapper.selectByPrimaryKey(thirdMatchTeamRelation.getTeamId());
         return thirdSportTeam;
+    }
+
+    @Override
+    public MatchScoreAndTimeVo searchMatchScoreAndTime(Long thirdMatchId) throws Exception {
+        log.info("[CommonAdvertiseServiceImpl]searchMatchScoreAndTime start thirdMatchId::{}",thirdMatchId);
+        ThirdMatchInfo thirdMatchInfo = pdMatchInfoRepository.getThirdMatchInfo(thirdMatchId, null);
+        if(thirdMatchInfo==null){
+            throw new Exception("三方赛事不存在！");
+        }
+        MatchScoresInfo matchScoresInfo = matchScoreInfoRepository.selectByExample(thirdMatchId, SourceTypeEnum.LIVE_DATA.getCode());
+        if(matchScoresInfo==null){
+            matchScoresInfo = scoresService.createPDMatchScoresInfo(thirdMatchInfo);
+            matchScoreCommonHelper.setMatchCacheStatus(thirdMatchId, SnookerConstant.MATCH_CURRENT_PERIOD, matchScoresInfo.getPeriod());
+        }
+        
+        // 比分校验：如果 scoresJson 为空或无效，初始化对应运动类型的比分数据
+        boolean needInit = false;
+        if(StringUtils.isEmpty(matchScoresInfo.getScoresJson())){
+            needInit = true;
+        } else {
+            // 检查 scoresJson 是否是有效的 JSON（对于斯诺克 / 排球）
+            if(thirdMatchInfo.getSportId().equals(7L) || thirdMatchInfo.getSportId().equals(9L)) {
+                try {
+                    JSONObject.parseObject(matchScoresInfo.getScoresJson());
+                } catch (Exception e) {
+                    log.warn("[CommonAdvertiseServiceImpl]searchMatchScoreAndTime invalid scoresJson sportId:{} match:{} error:{}",
+                            thirdMatchInfo.getSportId(), thirdMatchId, e.getMessage());
+                    needInit = true;
+                }
+            }
+        }
+        
+        if(needInit){
+            if(thirdMatchInfo.getSportId().equals(2l)){
+                Map<Long, BasketballScores> periodFootballScores= new HashMap<>();
+                BasketballScores basketballScores=new BasketballScores(0l);
+                periodFootballScores.put(WHOLE_MATCH,basketballScores);
+                matchScoresInfo.setScoresJson(JSONObject.toJSONString(periodFootballScores));
+            } else if (thirdMatchInfo.getSportId().equals(1l)){
+                Map<Long, FootballScores> periodFootballScores= new HashMap<>();
+                FootballScores footballScores=new FootballScores(0l);
+                periodFootballScores.put(WHOLE_MATCH,footballScores);
+                matchScoresInfo.setScoresJson(JSONObject.toJSONString(periodFootballScores));
+            } else if (thirdMatchInfo.getSportId().equals(5l)) {
+                Map<Long, TennisScores> periodFootballScores= new HashMap<>();
+                TennisScores tennisScores = new TennisScores(0l);
+                periodFootballScores.put(WHOLE_MATCH, tennisScores);
+                matchScoresInfo.setScoresJson(JSONObject.toJSONString(periodFootballScores));
+            } else if (thirdMatchInfo.getSportId().equals(7l)) {
+                // 斯诺克初始化：创建全局比分（wholeScore）和当前局比分（如果存在）
+                Map<Long, SnookerV2Scores> allPeriodScores = new HashMap<>();
+                SnookerV2Scores wholeScore = new SnookerV2Scores();
+                allPeriodScores.put(WHOLE_MATCH, wholeScore);
+                
+                // 如果当前有阶段信息，也初始化当前阶段的比分
+                Long currentPeriod = matchScoresInfo.getPeriod();
+                if (currentPeriod != null && currentPeriod > 0 && !currentPeriod.equals(WHOLE_MATCH)) {
+                    SnookerV2Scores periodScore = new SnookerV2Scores();
+                    allPeriodScores.put(currentPeriod, periodScore);
+                }
+
+                matchScoresInfo.setScoresJson(JSONObject.toJSONString(allPeriodScores));
+                log.info("[CommonAdvertiseServiceImpl]searchMatchScoreAndTime initialized snooker scores for match:{} period:{}", 
+                        thirdMatchId, currentPeriod);
+            } else if (thirdMatchInfo.getSportId().equals(9L)) {
+                // 排球初始化：与斯诺克对齐，建全局 (-1) 桶 + 当前局桶（若有）
+                Map<Long, VolleyballV2Scores> allPeriodScores = new HashMap<>();
+                allPeriodScores.put(WHOLE_MATCH, new VolleyballV2Scores());
+
+                Long currentPeriod = matchScoresInfo.getPeriod();
+                if (currentPeriod != null && currentPeriod > 0 && !currentPeriod.equals(WHOLE_MATCH)) {
+                    allPeriodScores.put(currentPeriod, new VolleyballV2Scores());
+                }
+
+                matchScoresInfo.setScoresJson(JSONObject.toJSONString(allPeriodScores));
+                log.info("[CommonAdvertiseServiceImpl]searchMatchScoreAndTime initialized volleyball scores for match:{} period:{}",
+                        thirdMatchId, currentPeriod);
+            }
+            // 更新缓存和数据库
+            pdMatchInfoRepository.setRedisAndMatchScoresInfo(matchScoresInfo, null);
+        }
+        
+        MatchTimeInfo matchTimeInfo = timeInfoRepository.selectByPrimaryKey(matchScoresInfo.getId());
+//        if(matchTimeInfo == null){
+//            matchTimeInfo = new MatchTimeInfo();
+//            matchTimeInfo.setCreateTime(System.currentTimeMillis());
+//            matchTimeInfo.setModifyTime(System.currentTimeMillis());
+//            matchTimeInfo.setDataSourceType(matchScoresInfo.getDataSourceType());
+//            matchTimeInfo.setTimeGo(0);
+//            matchTimeInfo.setThirdMatchId(matchScoresInfo.getThirdMatchId());
+//            matchTimeInfo.setPeriod(matchScoresInfo.getPeriod());
+//            matchTimeInfo.setSecondFromStart(matchScoresInfo.getSecondsMatchStart());
+//            matchTimeInfo.setId(matchScoresInfo.getId());
+//            matchTimeInfo.setMatchLength(matchScoresInfo.getMatchLength());
+//            matchTimeInfo.setRemainingTime(matchScoresInfo.getRemainingTime());
+//            matchTimeInfo.setEventTime(System.currentTimeMillis());
+//            timeInfoRepository.updateByPrimaryKey(matchTimeInfo);
+//        }
+        StandardMatchInfo standardMatchInfo = pdMatchInfoRepository.getStandardMatchInfo(thirdMatchInfo.getReferenceId(), null);
+        MatchScoreAndTimeVo matchScoreAndTimeVo =new MatchScoreAndTimeVo();
+        matchScoreAndTimeVo.setThirdMatchInfo(thirdMatchInfo);
+        matchScoreAndTimeVo.setMatchScoresInfo(matchScoresInfo);
+        matchScoreAndTimeVo.setMatchTimeInfo(matchTimeInfo);
+        matchScoreAndTimeVo.setStandardMatchInfo(standardMatchInfo);
+        log.info("[CommonAdvertiseServiceImpl]searchMatchScoreAndTime end!");
+        return matchScoreAndTimeVo;
     }
 
     private void init5MinScores(MatchScoresInfo matchScoresInfo) {

@@ -108,6 +108,10 @@ public class StandardSportMarket implements Serializable, StandardMarketModifica
      * 内部数据源 不入库
      */
     private String internalDataSourceCode;
+    /**
+     * AO特殊事件 不入库
+     */
+    private Integer eventType = 0;
 
     /**
      * 玩法类型 计算

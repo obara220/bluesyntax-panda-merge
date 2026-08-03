@@ -49,7 +49,7 @@ public class PreSoldReportMessageProducer {
         data.put("eventType", 4);
         datas.add(data);
         request.setData(datas);
-        MessageBuilder<JSONObject> builder = MessageBuilder.withPayload(object)
+        MessageBuilder<Request<JSONArray>> builder = MessageBuilder.withPayload(request)
                 .setHeader(MessageConst.PROPERTY_KEYS, message.getMatchInfoId());
         rocketMqTemplate.asyncSend("RCS_MATCH_EVENT_INFO_WARN_NOTICE" + ":" + message.getMatchInfoId(), builder.build(), new SendCallback() {
             @Override

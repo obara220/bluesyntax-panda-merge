@@ -1,11 +1,13 @@
 package com.panda.merge.dto.odds;
 
-import com.panda.merge.common.enums.MarketTypeEnum;
 import lombok.Data;
 import org.springframework.util.CollectionUtils;
 
 import javax.validation.constraints.NotNull;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * DataSourceAutoSwitchConfig

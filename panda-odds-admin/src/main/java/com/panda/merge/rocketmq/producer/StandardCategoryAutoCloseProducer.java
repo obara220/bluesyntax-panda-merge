@@ -45,4 +45,16 @@ public class StandardCategoryAutoCloseProducer {
         rocketMqTemplate.send("STANDARD_CATEGORY_AUTOCLOSE:" + standardCategoryAutoCloseMessage.getStandardMatchId(), builder.build());
         log.info("::{}::自动关闭玩法集合下发,topic:STANDARD_CATEGORY_AUTOCLOSE,标准赛事ID：{},request:{}", linkId, standardCategoryAutoCloseMessage.getStandardMatchId(), JSON.toJSONString(messageRequest));
     }
+
+
+    public void sendStandardChildCategoryAutoClose(String linkId, StandardCategoryAutoCloseMessage standardCategoryAutoCloseMessage) {
+        Request<StandardCategoryAutoCloseMessage> messageRequest = new Request<>();
+        messageRequest.setLinkId(linkId);
+        messageRequest.setData(standardCategoryAutoCloseMessage);
+        MessageBuilder<Request<StandardCategoryAutoCloseMessage>> builder = MessageBuilder.withPayload(messageRequest)
+                .setHeader(MessageConst.PROPERTY_KEYS, linkId);
+        //第一个参数表示topic:tag
+        rocketMqTemplate.send("STANDARD_CHILD_CATEGORY_AUTOCLOSE:" + standardCategoryAutoCloseMessage.getStandardMatchId(), builder.build());
+        log.info("::{}::自动关闭子玩法集合下发,topic:STANDARD_CHILD_CATEGORY_AUTOCLOSE,标准赛事ID：{},request:{}", linkId, standardCategoryAutoCloseMessage.getStandardMatchId(), JSON.toJSONString(messageRequest));
+    }
 }

@@ -25,10 +25,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -54,6 +51,9 @@ public class ChampionMarketProcessor extends BaseProcessor {
 
     @Autowired
     private StandardOutrightMarketService standardOutrightMarketService;
+
+    @Autowired
+    private OutrightTradeOddsConfigService outrightTradeOddsConfigService;
 
     public void processChampionMarketSetting(@Valid Request<StandardMatchMarketDTO> request) {
         log.info("::{}::processChampionMarketSetting操作入参:{}", request.getLinkId(), JSON.toJSONString(request));
@@ -89,8 +89,59 @@ public class ChampionMarketProcessor extends BaseProcessor {
             log.info("::{}::processChampionMarketSetting投注项不能为空", linkId);
             return;
         }
+
+        List<Long> filterOddsId = new ArrayList();
+
+        // 优先从缓存中获取投注项 active 状态，替代 DB 查询
+        Map<String, StandardMarketDataMessage> standardMarketMessageMap = redisService.hGetAll(marketKey);
+        log.info("::{}::processChampionMarketSetting redisKey:{} cacheSize:{}", linkId, marketKey,
+                standardMarketMessageMap == null ? 0 : standardMarketMessageMap.size());
+        StandardMarketDataMessage cachedMarketMessage = CollectionUtils.isEmpty(standardMarketMessageMap) ? null
+                : standardMarketMessageMap.get(standardSportMarket.getRelationMarketId().toString());
+        if (cachedMarketMessage != null && !CollectionUtils.isEmpty(cachedMarketMessage.getMarketOddsList())) {
+            // 从缓存的 marketOddsList 中提取 active=0（锁盘）的投注项 id，并过滤掉
+            Map<Long, Integer> cacheOddsActiveMap = cachedMarketMessage.getMarketOddsList().stream()
+                    .filter(o -> o.getId() != null && o.getActive() != null)
+                    .collect(Collectors.toMap(
+                            StandardMarketOddsDataMessage::getId,
+                            StandardMarketOddsDataMessage::getActive,
+                            (existing, replacement) -> existing));
+            List<Long> closeOddsIds = cacheOddsActiveMap.entrySet().stream()
+                    .filter(e -> Integer.valueOf(0).equals(e.getValue()) || Integer.valueOf(2).equals(e.getValue()) )
+                    .map(Map.Entry::getKey).collect(Collectors.toList());
+            log.info("::{}::processChampionMarketSetting 缓存命中，封盘投注项ids:{}", linkId, closeOddsIds);
+            if (!CollectionUtils.isEmpty(closeOddsIds)) {
+                marketOddsList = marketOddsList.stream()
+                        .filter(odds -> !closeOddsIds.contains(Long.parseLong(odds.getId())))
+                        .collect(Collectors.toList());
+                marketDTO.setMarketOddsList(marketOddsList);
+                filterOddsId.addAll(closeOddsIds);
+            }
+        } else {
+            // 缓存未命中，fallback 到 DB 查询
+            log.info("::{}::processChampionMarketSetting 缓存未命中，fallback到DB查询", linkId);
+            List<Long> oddsIds = marketOddsList.stream().map(odds -> Long.parseLong(odds.getId())).collect(Collectors.toList());
+            List<ConfigOutrightTradeOdds> configOutrightTradeOdds = outrightTradeOddsConfigService.selectOddsTradeList(oddsIds);
+            if (!CollectionUtils.isEmpty(configOutrightTradeOdds)) {
+                List<Long> closeOddsIds = configOutrightTradeOdds.stream()
+                        .filter(trade -> Constant.SPORT_MARKET.ODDS_STATUS.SUSPENDED.equals(trade.getOddsStatus()))
+                        .map(ConfigOutrightTradeOdds::getStandardMarketOddsId).collect(Collectors.toList());
+                if (!CollectionUtils.isEmpty(closeOddsIds)) {
+                    marketOddsList = marketOddsList.stream()
+                            .filter(odds -> !closeOddsIds.contains(Long.parseLong(odds.getId())))
+                            .collect(Collectors.toList());
+                    marketDTO.setMarketOddsList(marketOddsList);
+                    filterOddsId.addAll(closeOddsIds);
+                }
+            }
+        }
+
         Set<Long> oddsUnActiveList = marketOddsList.stream().filter(odds -> 0== odds.getActive()).map( odds -> Long.parseLong(odds.getId())).collect(Collectors.toSet());
         StandardOutrightMarket standardOutrightMarket = standardOutrightMarketService.selectByExample(standardSportMarket.getRelationMarketId());
+
+        if ( !CollectionUtils.isEmpty(oddsUnActiveList) ) {
+            filterOddsId.addAll(oddsUnActiveList);
+        }
 
         List<StandardSportMarketOdds> standardSportMarketOddsList = Lists.newArrayList();
         for (StandardMarketOddsDTO oddsDTO : marketOddsList) {
@@ -126,6 +177,19 @@ public class ChampionMarketProcessor extends BaseProcessor {
         List<StandardMarketMessage> sendStandardMarketMessageList = Lists.newArrayList();
 
         if ( null != standardOutrightMarket && SaleMatchSellStausEnum.Sold.name().equals(standardOutrightMarket.getMarketSellStatus()) ) {
+
+            if ( !CollectionUtils.isEmpty(filterOddsId) ) {
+                for ( StandardMarketDTO standardMarketDTO : standardMarketDTOList) {
+                    if ( !CollectionUtils.isEmpty(standardMarketDTO.getMarketOddsList()) ) {
+                        for ( StandardMarketOddsDTO standardMarketOddsDTO : standardMarketDTO.getMarketOddsList() ) {
+                            if ( filterOddsId.contains(Long.parseLong(standardMarketOddsDTO.getId()))) {
+                                standardMarketOddsDTO.setActive(Constant.SPORT_MARKET.ODDS_STATUS.SUSPENDED);
+                            }
+                        }
+                    }
+                }
+            }
+
             // 数据的组装
             tradeMarketOddsApiService.processOutrightTradeMarketOdds(request, standardMarketDTOList, standardMatchInfo, sendStandardMarketMessageList);
             // 数据的下发

@@ -31,7 +31,9 @@ public enum SportBallPeroidEnum {
     SCORES_CENTER_MATCH_SETTING(100097, "赛果显示设置", "match result show setting"),
     SCORES_CENTER_DEFAULT(100098, "默认值", "default"),
     SCORES_CANCEL_WITH_ONE_CLICK(100300,"一键取消","One-click cancel"),
-    SCORES_CENTER_DEFAULT_SETTING(100099, "默认值设置", "default setting");
+    SCORES_CENTER_DEFAULT_SETTING(100099, "默认值设置", "default setting"),
+    MINUTES_SCORES_CHECK_SWITCH(100203,"区间比分校验开关","Minutes scores check switch"),
+
 
     ;
 

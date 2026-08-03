@@ -28,7 +28,10 @@ public interface ThirdSportMarketOddsService {
     ThirdSportMarketOdds updateByPrimaryKeySelective(String dataSourceCode,ThirdSportMarketOdds thirdSportMarketOdds);
 
     void upThirdOddsList(String linkId, String dataSourceCode, List<ThirdSportMarketOdds> upOddsList, List<ThirdMarketOddsDTO> thirdMarketOddsDTOS);
+
     void upThirdOddsAsyncList(String linkId, String dataSourceCode, List<ThirdSportMarketOdds> upOddsList, List<ThirdMarketOddsDTO> thirdMarketOddsDTOS);
+
+    void upThirdOddsListByDataSourceCode(String linkId, String dataSourceCode, List<ThirdSportMarketOdds> upOddsList);
 
     Long getRelationMarketOddsId(Long relationMarketId, String oddsType,String thirdOddsFieldSourceId,String addition1, Long marketGategoryId);
 

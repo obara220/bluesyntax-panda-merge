@@ -11,6 +11,7 @@ import com.panda.merge.dto.scores.MatchScoresStatusDto;
 import com.panda.merge.dto.scores.PdOneInfo;
 import com.panda.merge.dto.scores.PdTwoInfo;
 import com.panda.merge.mapper.MatchScoresSearchMapper;
+import com.panda.merge.mapper.PlsThirdMatchRelationMapper;
 import com.panda.merge.mapper.StandardSportMarketSellMapper;
 import com.panda.merge.mapper.ThirdMatchInfoMapper;
 import com.panda.merge.model.StandardSportMarketSell;
@@ -48,6 +49,9 @@ public class ScoreSearchServiceImpl {
 
     @DubboReference(check = false)
     private IAuthRequiredPermission iAuthRequiredPermission;
+
+    @Autowired
+    private PlsThirdMatchRelationMapper plsThirdMatchRelationMapper;
     /**
      * 查询赛事比分列表
      * @param matchIds
@@ -360,6 +364,30 @@ public class ScoreSearchServiceImpl {
             log.error("searchBetterListMatchScores推送异常:{},-------",e.getMessage(),e);
         }
         return scores;
+    }
+
+    public List<MatchScoresBetterDto> searchBetterListScoreNet(String key, List<Long> matchIds) {
+//        List<PlsThirdMatchRelationIdDTO> plsList = plsThirdMatchRelationMapper.selectByPlsMatchManageIdList(matchIds);
+//        List<Long> standardMatchIdList = plsList.stream().map(PlsThirdMatchRelationIdDTO::getStandardMatchId).collect(Collectors.toList());
+//        List<MatchScoresBetterDto> matchScoresBetterDtos = matchScoresSearchMapper.searchScoresByStandardId(standardMatchIdList);
+//        for (PlsThirdMatchRelationIdDTO plsThirdMatchRelation : plsList) {
+//            for (MatchScoresBetterDto matchScoresBetterDto : matchScoresBetterDtos) {
+//                if (plsThirdMatchRelation.getStandardMatchId().equals(Long.valueOf(matchScoresBetterDto.getMatchId()))) {
+//                    matchScoresBetterDto.setPlsMatchManageId(plsThirdMatchRelation.getPlsMatchManageId());
+//                }
+//            }
+//        }
+//        List<MatchScoresBetterDto> newMatchScoresBetterDtos = new ArrayList<>(matchScoresBetterDtos);
+        List<MatchScoresBetterDto> newMatchScoresBetterDtos = new ArrayList<>();
+//        List<Long> oldPlsList = matchScoresBetterDtos.stream().map(MatchScoresBetterDto::getPlsMatchManageId).collect(Collectors.toList());
+//        for (Long matchId : matchIds) {
+//            if (!oldPlsList.contains(matchId)) {
+//                MatchScoresBetterDto dto = new MatchScoresBetterDto();
+//                dto.setPlsMatchManageId(matchId);
+//                newMatchScoresBetterDtos.add(dto);
+//            }
+//        }
+        return newMatchScoresBetterDtos;
     }
 
     /**

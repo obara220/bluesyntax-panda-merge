@@ -33,6 +33,7 @@ public class StandardEventCashOutStatusProcessor {
      */
     @NacosValue(value = "${market.pre.switch}", autoRefreshed = true)
     private boolean marketPreSwitch;
+
     public static List<String> EVENT_CODE = Arrays.asList("possible_video_assistant_referee", "video_assistant_referee", "possible_var", "var_reason", "var_reviewing");
 
     public void cashOutStatusUnavailable(StandardMatchInfo standardMatchInfo, String newLinkId, String eventCode) {

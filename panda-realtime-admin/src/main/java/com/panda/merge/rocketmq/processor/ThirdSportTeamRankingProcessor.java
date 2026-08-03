@@ -20,6 +20,7 @@ import org.springframework.validation.annotation.Validated;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -58,9 +59,14 @@ public class ThirdSportTeamRankingProcessor extends BaseProcessor {
         Set<String> ids = dtoItemList.stream().map(obj -> obj.getThirdSourceSeasonId() + FIX + obj.getRankingId() + FIX + obj.getThirdTeamSourceId()).collect(Collectors.toSet());
         //获取库中存在的榜单列表
         Map<String, ThirdSportTeamRanking> id2Ranking = thirdSportTeamRankingService.getItems(Lists.newArrayList(ids)).stream().collect(Collectors.toMap(ThirdSportTeamRanking::getId, i -> i));
+        List<ThirdSportTeamRanking> pushList = new ArrayList<>();
+        String thirdTournamentSourceId = "";
         for (ThirdSportTeamRankingDTO dtoItem: dtoItemList) {
             if(StringUtils.isBlank(dtoItem.getDataSourceCode())){
                 dtoItem.setDataSourceCode(dataSourceCode);
+            }
+            if (StringUtils.isBlank(thirdTournamentSourceId) && StringUtils.isNotBlank(dtoItem.getThirdTournamentSourceId())){
+                thirdTournamentSourceId = dtoItem.getThirdTournamentSourceId();
             }
             //获取标准赛种
             Long sportId = validateSportId(dtoItem.getDataSourceCode(), dtoItem.getSportId()+"");
@@ -97,9 +103,14 @@ public class ThirdSportTeamRankingProcessor extends BaseProcessor {
                 thirdSportTeamRankingService.updateTeamRanking(item,request.getLinkId());
             }
 
-            //3875 【比分网】比分网后台-榜單管理
-            thirdSportTeamRankingProducer.pushThirdSportTeamRankingPLS(request.getLinkId(),dtoItem.getDataSourceCode(),item);
+            pushList.add(item);
+
         }
+
+        //110632 改为批量下发
+        //3875 【比分网】比分网后台-榜單管理
+        thirdSportTeamRankingProducer.pushThirdSportTeamRankingPLS(request.getLinkId(), dataSourceCode, pushList, thirdTournamentSourceId);
+
         response.setDataSourceTime(System.currentTimeMillis() - beginTime);
         log.info("【"+PROJECT_ID_REALTIME+" ："+THIRD_SPORT_TEAM_RANKING_API+"】【"+dataSourceCode+" ::"+request.getLinkId()+"::】联赛下球队排行榜单数据接收结束,返回结果 ：{}" , JSON.toJSONString(response));
         return response;

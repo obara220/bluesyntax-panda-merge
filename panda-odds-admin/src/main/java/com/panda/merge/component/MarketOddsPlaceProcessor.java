@@ -25,6 +25,7 @@ import com.panda.merge.util.CategoryUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -42,8 +43,6 @@ public class MarketOddsPlaceProcessor extends BaseProcessor {
     @Autowired
     private ConfigTradeTypeService configTradeTypeService;
     @Autowired
-    private ScoreHandicapProcessor scoreHandicapProcessor;
-    @Autowired
     private FootballMarketsSoreProcessor footballMarketsSoreProcessor;
     @Autowired
     private CommonAsyncService commonAsyncService;
@@ -54,7 +53,6 @@ public class MarketOddsPlaceProcessor extends BaseProcessor {
 
     public void setOddsOrderByOddsValue(String linkId, Map<String, StandardMarketDataMessage> standardMarketMessageMap, StandardMatchInfo standardMatchInfo, Set<Long> marketCategoryIdSet, Set<Long> oddsTypeIdSet, Set<Long> categorySet, Set<Long> riskCategorySet, Boolean isTrue) {
         int liveFlag = isOddsLive(standardMatchInfo.getId());
-        standardMatchInfo.setMatchPeriodId(getMatchPeriod(standardMatchInfo.getId()));
         //设置子玩法id
         standardMarketMessageMap.forEach((k, v) -> {
             v.setChildMarketCategoryId(CategoryUtils.getChildCategoryId(linkId, v.getMarketCategoryId(), v.getAddition1(), v.getAddition2(), v.getAddition3(), v.getAddition4(), v.getAddition5(), String.valueOf(v.getStandardMatchInfoId())));
@@ -190,13 +188,11 @@ public class MarketOddsPlaceProcessor extends BaseProcessor {
                 }
             }
 
-            //------------处理无效盘口的排序-----------
-            //------------处理无效盘口的排序 有投注项 盘口状态为关 -----------
+            //------------处理无效盘口的排序（关盘）-----------
             List<StandardMarketDataMessage> standardMarketsInvalids = standardMarketDataMessages.stream()
                     .filter(e -> CollectionUtils.isEmpty(e.getMarketOddsList()) || e.getThirdMarketSourceStatus() >= Constant.SPORT_MARKET.STATUS.DEACTIVATED).collect(Collectors.toList());
             if (!CollectionUtils.isEmpty(standardMarketsInvalids)) {
                 standardMarketsInvalids.forEach(m -> {
-                    //关盘排序，时间戳处理，去除时间秒，比如盘口时间戳存在 12:01:20 , 12:01:50 , 去除后 12:01:00 , 12:01:00 , 相同时间分钟为一批的盘口
                     Long format = format(m.getModifyTime());
                     m.setModifyTimeFormat(format);
                     if (!CollectionUtils.isEmpty(m.getMarketOddsList())) {
@@ -205,42 +201,23 @@ public class MarketOddsPlaceProcessor extends BaseProcessor {
                         m.setOddsMetric(999999);
                     }
                 });
-                //根据盘口修改时间降序大-小，盘口状态升序 大-小 ，盘口赔率差降序-小-大
-                Comparator<StandardMarketDataMessage> comparator = Comparator.comparing(StandardMarketDataMessage::getModifyTimeFormat,Comparator.reverseOrder())
-                        .thenComparing(StandardMarketDataMessage::getThirdMarketSourceStatus,Comparator.reverseOrder())
+                Comparator<StandardMarketDataMessage> comparator = Comparator.comparing(StandardMarketDataMessage::getModifyTimeFormat, Comparator.reverseOrder())
+                        .thenComparing(StandardMarketDataMessage::getThirdMarketSourceStatus, Comparator.reverseOrder())
                         .thenComparingLong(StandardMarketDataMessage::getOddsMetric);
                 standardMarketsInvalids = standardMarketsInvalids.stream().sorted(comparator).collect(Collectors.toList());
-                invalidMarketSort(placeNum, standardMarketsInvalids, AMarketCategoryIds);
-            }
-            if (CollectionUtils.isEmpty(standardMarketsValid)
-                   // && Constant.TRADE_MARKET_CONFIG.TRADE_TYPE.AUTO_PLUS.equals(tradeTypeMap.getOrDefault(entry.getKey(),0))
-            ){
-                String redisOddsKey = DigestUtil.md5Hex(Constant.REDIS_KEY.RONGHE_STANDARD_THE_LAST_A_MARKETODDS + standardMatchInfo.getId());
-                Object obj =  redisService.hGet(redisOddsKey,String.valueOf(entry.getKey()));
-                log.info("::{}::关盘盘口排序后,标准赛事id:{},obj==null:{}}",
-                        linkId,standardMatchInfo.getId(),obj!=null);
-                if (obj!=null){
-                    List<StandardMarketMessage> standardMarketMessageList = (List<StandardMarketMessage>) obj;
-                    log.info("::{}::关盘盘口排序后,标准赛事id:{},:{}}",
-                            linkId,standardMatchInfo.getId(),standardMarketMessageList.size());
-                    for (StandardMarketDataMessage s : entry.getValue()){
-                        for(StandardMarketMessage s1 : standardMarketMessageList){
-                            log.info("::{}::关盘盘口排序后,标准赛事id:{},条件:{}}",
-                                    linkId,standardMatchInfo.getId(),(s.getRelationMarketId()==s1.getRelationMarketId()||s.getRelationMarketId().equals(s1.getRelationMarketId())));
-                            if (s.getRelationMarketId()==s1.getRelationMarketId()||s.getRelationMarketId().equals(s1.getRelationMarketId())){
-                                s.setPlaceNum(s1.getPlaceNum());
-                                log.info("::{}::关盘盘口排序后,标准赛事id:{},标准盘口id:{},统一盘口id:{},玩法:{},,盘口位置:{}}",
-                                        linkId,standardMatchInfo.getId(),s.getRelationMarketId(),s.getRelationMarketId(),s.getMarketCategoryId(),s.getPlaceNum());
-                            }
-                        }
-                    }
-                    for (StandardMarketDataMessage s : entry.getValue()){
-                        if(s.getPlaceNum()==null){
-                            s.setPlaceNum(999);
-                        }
-                    }
-                }else{
+                if (!CollectionUtils.isEmpty(standardMarketsValid)) {
+                    // 存在非关盘（开盘/封盘）：保持原逻辑，关盘盘接在有效盘后继续编号
                     invalidMarketSort(placeNum, standardMarketsInvalids, AMarketCategoryIds);
+                } else {
+                    // 全部关盘：PA 置 0 后，按上次下发顺序排序；未出现在上次下发中的盘口 placeNum=999
+                    invalidMarketSortPaOnly(standardMarketsInvalids);
+                    closedMarketPlaceSortHelper.sortClosedStandardMarketDataMessages(
+                            linkId, standardMatchInfo.getId(), entry.getKey(), standardMarketDataMessages);
+                    for (StandardMarketDataMessage s : entry.getValue()) {
+                        if (s.getPlaceNum() == null) {
+                            s.setPlaceNum(ClosedMarketPlaceSortHelper.UNKNOWN_PLACE_NUM);
+                        }
+                    }
                 }
             }
 
@@ -252,6 +229,30 @@ public class MarketOddsPlaceProcessor extends BaseProcessor {
     }
     @Autowired
     public RedisService redisService;
+
+    @Autowired
+    private ClosedMarketPlaceSortHelper closedMarketPlaceSortHelper;
+
+    /**
+     * 全部关盘时仅处理关盘 PA，不分配坑位（坑位由 {@link ClosedMarketPlaceSortHelper} 统一分配）
+     */
+    private void invalidMarketSortPaOnly(List<StandardMarketDataMessage> standardMarketsInvalid) {
+        if (CollectionUtils.isEmpty(standardMarketsInvalid)) {
+            return;
+        }
+        for (StandardMarketDataMessage standardMarket : standardMarketsInvalid) {
+            if (Constant.SPORT_MARKET.STATUS.SETTLED.equals(standardMarket.getThirdMarketSourceStatus())
+                    || Constant.SPORT_MARKET.STATUS.CANCELLED.equals(standardMarket.getThirdMarketSourceStatus())) {
+                standardMarket.setThirdMarketSourceStatus(Constant.SPORT_MARKET.STATUS.DEACTIVATED);
+            }
+            if (!CollectionUtils.isEmpty(standardMarket.getMarketOddsList())) {
+                for (StandardMarketOddsDataMessage standardMarketOddsDataMessage : standardMarket.getMarketOddsList()) {
+                    standardMarketOddsDataMessage.setPaOddsValue(0);
+                }
+            }
+        }
+    }
+
     private  void invalidMarketSort(int placeNum, List<StandardMarketDataMessage> standardMarketsInvalid,Set<Long> AMarketCategoryIds) {
         Long marektId = null;
         if (!CollectionUtils.isEmpty(standardMarketsInvalid)) {

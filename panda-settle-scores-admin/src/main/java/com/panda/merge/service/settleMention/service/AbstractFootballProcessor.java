@@ -35,13 +35,17 @@ public abstract class AbstractFootballProcessor<T> extends AbstractSettleMention
     protected Object buildData(Object object) {
         Map<String, Object> parameters = (Map<String, Object>) object;
         FootballMentionStatus footballMentionStatus = (FootballMentionStatus) querySettleMentionFromRedis(String.valueOf(parameters.get("redisKey")));
+        log.info("[AbstractFootballProcessor] addSettleMention footballMentionStatus:{}", footballMentionStatus);
         SettleEventCodeEnum eventCode = (SettleEventCodeEnum)parameters.get("settleEventCodeEnum");
+        log.info("[AbstractFootballProcessor] addSettleMention eventCode:{}", eventCode);
         if (footballMentionStatus == null) {
             footballMentionStatus = FootballMentionStatus.buildInstance();
         }
+        log.info("[AbstractFootballProcessor] addSettleMention interval");
         FootballMentionStatus.EventStatus eventStatus = footballMentionStatus.getDetailStatusFieldByEventCode(eventCode);
+        log.info("[AbstractFootballProcessor] addSettleMention eventStatus:{}", eventStatus);
         Map<String, Integer> deleteEventMap = (Map<String, Integer>) parameters.get("redisValue");
-
+        log.info("[AbstractFootballProcessor] addSettleMention deleteEventMap0:{}", deleteEventMap);
         if (eventStatus.getDetailStatus() != null) {
             // 将 Map<String, Object> 中的值转换为 Integer
             for (Map.Entry<String, Object> entry : eventStatus.getDetailStatus().entrySet()) {
@@ -58,6 +62,7 @@ public abstract class AbstractFootballProcessor<T> extends AbstractSettleMention
                 }
             }
         }
+        log.info("[AbstractFootballProcessor] addSettleMention deleteEventMap:{}", deleteEventMap);
         footballMentionStatus.setDataByEventCode(eventCode, deleteEventMap);
         Map<String, Object> result = new HashMap<>();
         result.put("redisKey", parameters.get("redisKey"));

@@ -6,6 +6,7 @@ import com.github.pagehelper.PageHelper;
 import com.panda.merge.config.RedisConfig;
 import com.panda.merge.dao.ThirdSportTournamentDao;
 import com.panda.merge.dto.PageModel;
+import com.panda.merge.dto.StandardTournamentRuleDTO;
 import com.panda.merge.dto.nonrealttime.query.QueryThirdRankingInfoDTO;
 import com.panda.merge.mapper.ThirdSportTournamentMapper;
 import com.panda.merge.model.ThirdSportTournament;
@@ -115,5 +116,11 @@ public class ThirdSportTournamentServiceImpl extends BaseServiceImpl<ThirdSportT
     @Override
     public ThirdSportTournament getThirdSportTournament(Long id){
         return thirdSportTournamentMapper.selectByPrimaryKey(id);
+    }
+
+    @Override
+    public Page<ThirdSportTournament> getTournamentRulePage(PageModel<StandardTournamentRuleDTO> page) {
+        PageHelper.startPage(page.getCurrent(), page.getSize());
+        return thirdSportTournamentDao.getTournamentRulePage(page.getData());
     }
 }

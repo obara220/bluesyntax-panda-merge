@@ -1,6 +1,7 @@
 package com.panda.merge.dto.message;
 
 import com.panda.merge.common.enums.MatchStatusEnum;
+import io.swagger.models.auth.In;
 import lombok.Getter;
 import lombok.Setter;
 

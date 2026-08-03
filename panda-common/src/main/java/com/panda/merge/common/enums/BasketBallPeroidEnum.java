@@ -43,6 +43,8 @@ public enum BasketBallPeroidEnum {
     BK_FT_ET5(12, "第五盘", "5th Quarter"),
     BK_FT_RG6(441, "第六盘", "6th Quarter"),
     BK_Q1016(442, "第七盘", "7th Quarter"),
+    MINUTES_SCORES_CHECK_SWITCH(100203,"区间比分校验开关","Minutes scores check switch"),
+
     ;
 
     @Getter

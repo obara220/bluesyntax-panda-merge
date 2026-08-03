@@ -21,6 +21,7 @@ public enum MatchPeriodForMatchOverEnum {
 
     MATCH_1H(6L, "上半场"),
     MATCH_2H(7L, "下半场"),
+    HALF_TIME(31L, "下半场"),
     Interrupted(80L, "比赛中断"),
     Abandoned(90L, "放弃播报"),
     WALKOVER1(93L, "客队球员未参赛"),

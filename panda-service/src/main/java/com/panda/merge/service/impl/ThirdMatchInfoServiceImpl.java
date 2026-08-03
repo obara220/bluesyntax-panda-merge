@@ -34,7 +34,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.panda.merge.constant.ConstantSystem.THREE;
-import static com.panda.merge.constant.ConstantSystem.TWO;
 
 /**
  * <Description> 三方赛事信息
@@ -76,12 +75,12 @@ public class ThirdMatchInfoServiceImpl extends BaseServiceImpl<ThirdMatchInfo> i
     @Override
 //    @CachePut(key = "'ThirdMatchInfoDetail:' + #upItem.dataSourceCode +  '-' + #upItem.thirdMatchSourceId",unless="#result == null")
     public ThirdMatchInfoDetail saveOrupdate(ThirdMatchInfoDetail upItem,String linkId) {
-        try {
-            Long.valueOf(upItem.getMatchPeriod());
-        } catch (Exception e) {
-            log.info("【linkId="+linkId+",源赛事ID={}】,三方赛事阶段转换异常,原始值:{},转换为'0'", upItem.getThirdMatchSourceId(), upItem.getMatchPeriod());
-            upItem.setMatchPeriod("0");
-        }
+//        try {
+//            Long.valueOf(upItem.getMatchPeriod());
+//        } catch (Exception e) {
+//            log.info("【linkId="+linkId+",源赛事ID={}】,三方赛事阶段转换异常,原始值:{},转换为'0'", upItem.getThirdMatchSourceId(), upItem.getMatchPeriod());
+//            upItem.setMatchPeriod("0");
+//        }
         String redisKey = RedisConfig.REDIS_KEY_DATABASE + "::lock:ThirdMatchInfo:" + upItem.getDataSourceCode()+ upItem.getSportId()+ upItem.getThirdMatchSourceId();
         boolean flag = false;
         try {
@@ -144,7 +143,7 @@ public class ThirdMatchInfoServiceImpl extends BaseServiceImpl<ThirdMatchInfo> i
         if(CollectionUtils.isEmpty(requiredCallItems)){
             return result;
         }
-
+//        log.info("2724,查询三方赛事数据库：{}", requiredCallItems);
         // Obtaining remained data from mysql
         ThirdMatchInfoExample example = new ThirdMatchInfoExample();
         for(OddsWrapper<ThirdMatchMarketDTO> match : requiredCallItems) {
@@ -178,7 +177,7 @@ public class ThirdMatchInfoServiceImpl extends BaseServiceImpl<ThirdMatchInfo> i
         if (CollectionUtils.isEmpty(requiredCallItems)) {
             return result;
         }
-
+//        log.info("2724,查询三方赛事数据库2：{}", requiredCallItems);
         // Obtaining remained data from mysql
         ThirdMatchInfoExample example = new ThirdMatchInfoExample();
         example.createCriteria().andReferenceIdIn(requiredCallItems).andDataSourceCodeEqualTo(dataSourceCode);
@@ -277,7 +276,7 @@ public class ThirdMatchInfoServiceImpl extends BaseServiceImpl<ThirdMatchInfo> i
         if(CollectionUtils.isEmpty(requiredCallItems)){
             return result;
         }
-
+//        log.info("2724,查询三方赛事数据库3：{}", requiredCallItems);
         // Obtaining remained data from mysql
         ThirdMatchInfoExample example = new ThirdMatchInfoExample();
         example.createCriteria().andIdIn(requiredCallItems);
@@ -402,6 +401,8 @@ public class ThirdMatchInfoServiceImpl extends BaseServiceImpl<ThirdMatchInfo> i
         }
         return upItem;
     }
-
-
+    @Override
+    public ThirdMatchInfo getItemByReferenceId(Long referenceId, String dataSourceCode){
+        return refreshCache(getItem(referenceId,dataSourceCode));
+    }
 }

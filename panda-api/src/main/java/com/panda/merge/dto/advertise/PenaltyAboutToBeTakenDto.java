@@ -4,7 +4,6 @@ package com.panda.merge.dto.advertise;
 import lombok.Data;
 
 /**
- * 点球即将开踢
  * @author Kepa
  */
 @Data

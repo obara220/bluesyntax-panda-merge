@@ -21,6 +21,6 @@ public class ConfigMarketMarginGapLogImplService implements ConfigMarketMarginGa
 
     @Override
     public void createList(List<ConfigMarketMarginGapLog> logs) {
-//        configMarketMarginGapLogDao.insertList(logs);
+        //configMarketMarginGapLogDao.insertList(logs);
     }
 }

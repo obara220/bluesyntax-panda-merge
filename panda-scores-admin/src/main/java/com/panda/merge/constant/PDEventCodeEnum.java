@@ -51,7 +51,6 @@ public enum PDEventCodeEnum {
     CANCELED_CORNER("canceled_corner", "取消角球"),
     CANCELED_GOAL("canceled_goal", "取消进球"),
     CANCELED_FREE_KICK("canceled_free_kick", "取消可能的任意球"),
-
     /**------------------------------------VAR Event Code------------------------------------*/
     POSSIBLE_VAR_RED_CARD("possible_var_red_card", "可能VAR: 罚牌"),
     POSSIBLE_VAR_GOAL("possible_var_goal", "可能VAR: 进球"),
@@ -65,6 +64,9 @@ public enum PDEventCodeEnum {
     CANCELED_VAR_PENALTY("canceled_var_penalty", "VAR取消点球"),
     VIDEO_ASSISTANT_REFEREE_OVER("video_assistant_referee_over", "确认进入VAR"),   // extra_info: 0: 进球 1: 点球 2: 红牌
     CANCELED_VIDEO_ASSISTANT_REFEREE("canceled_video_assistant_referee", "取消进入VAR"), // extra_info: 0: 进球 1: 点球 2: 红牌
+    UNKNOWN_VAR("unknown_var", "未知VAR"),
+    POSSIBLE_UNKNOWN_VAR("possible_unknown_var", "可能未知VAR"),
+    CANCELED_UNKNOWN_VAR("canceled_unknown_var", "取消未知VAR"),
 
     /**
      * ------------------------------------other Event Code------------------------------------
@@ -93,7 +95,10 @@ public enum PDEventCodeEnum {
     /**
      * ------------------------------- 点击进球后，启用VAR按钮------------------------------------
      */
-    public static final List<PDEventCodeEnum> ENABLE_VAR_BUTTON = Arrays.asList(VIDEO_ASSISTANT_REFEREE_OVER, CANCELED_VIDEO_ASSISTANT_REFEREE);
+    public static final List<PDEventCodeEnum> ENABLE_VAR_BUTTON = Arrays.asList(
+            VIDEO_ASSISTANT_REFEREE_OVER,
+            CANCELED_VIDEO_ASSISTANT_REFEREE,
+            POSSIBLE_VIDEO_ASSISTANT_REFEREE);
 
     /**
      * ------------------------------- 点击进球后，禁用相关可能事件按钮------------------------------------
@@ -142,7 +147,7 @@ public enum PDEventCodeEnum {
     /**------------------------------- var event codes ------------------------------------*/
     public static final List<PDEventCodeEnum> confirmVAREventCodes = Arrays.asList(VAR_RED_CARD, VAR_GOAL, VAR_PENALTY, VAR_YELLOW_CARD, PENALTY_GOAL);
     public static final List<PDEventCodeEnum> canceledVAREventCodes = Arrays.asList(CANCELED_VAR_RED_CARD, CANCELED_VAR_GOAL, CANCELED_VAR_PENALTY, PENALTY_MISSED, PENALTY_CANCELED);
-    public static final List<PDEventCodeEnum> possibleVAREventCodes = Arrays.asList(POSSIBLE_VAR_RED_CARD, POSSIBLE_VAR_GOAL, POSSIBLE_VAR_PENALTY);
+    public static final List<PDEventCodeEnum> possibleVAREventCodes = Arrays.asList(POSSIBLE_VAR_RED_CARD, POSSIBLE_VAR_GOAL, POSSIBLE_VAR_PENALTY,POSSIBLE_UNKNOWN_VAR);
     PDEventCodeEnum(String eventCode, String eventName) {
         this.eventCode = eventCode;
         this.eventName = eventName;

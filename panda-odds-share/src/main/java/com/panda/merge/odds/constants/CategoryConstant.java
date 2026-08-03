@@ -173,6 +173,18 @@ public final class CategoryConstant {
             4L, 113L, 306L, 128L, 1100414L, 1100406L,
             // 半场
             19L, 121L, 308L, 130L, 1100416L, 1100409L));
+    //主隊进球大小
+    public static final Set<Long> HOME_GOALSIZE_SET = new HashSet<>(Arrays.asList(
+            10L, //进球大小
+            87L, //上半场进球大小
+            88L)//下半场进球大小
+    );
+    //客隊进球大小
+    public static final Set<Long> AWAY_GOALSIZE_SET = new HashSet<>(Arrays.asList(
+            11L,//进球大小
+            97L,//上半场进球大小
+            98L)//下半场进球大小
+    );
 
     public static final Map<Long, MarketScoreTypeEnum> CATEGORY_SCORE_TYPE_MAP = new HashMap<>();
 

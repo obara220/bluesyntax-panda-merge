@@ -41,6 +41,7 @@
     <result column="home_team_half_time_score" jdbcType="VARCHAR" property="homeTeamHalfTimeScore" />
     <result column="away_team_half_time_score" jdbcType="VARCHAR" property="awayTeamHalfTimeScore" />
     <result column="is_current_season" jdbcType="INTEGER" property="isCurrentSeason" />
+    <result column="zs_round_description" jdbcType="VARCHAR" property="zsRoundDescription" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -101,13 +102,13 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, tournament_id, season_id, data_source_code, sport_id, cn_name, en_name, group_id,
-    series_id, begin_time, team1_id, team2_id, team1_name, team2_name, team1_score, team2_score,
-    team1_come_from, team2_come_from, match_ids, round_order, line_order, double_elimination_group,
-    status, winner, round_description, parent_id, modify_time, create_time, match_id,
-    invalid, home_team_normal_time_score, away_team_normal_time_score, home_extra_time_first_half_score,
-    away_extra_time_first_half_score, home_extra_time_second_half_score, away_extra_time_second_half_score,
-    home_team_half_time_score, away_team_half_time_score, is_current_season
+    id, tournament_id, season_id, data_source_code, sport_id, cn_name, en_name, group_id, 
+    series_id, begin_time, team1_id, team2_id, team1_name, team2_name, team1_score, team2_score, 
+    team1_come_from, team2_come_from, match_ids, round_order, line_order, double_elimination_group, 
+    status, winner, round_description, parent_id, modify_time, create_time, match_id, 
+    invalid, home_team_normal_time_score, away_team_normal_time_score, home_extra_time_first_half_score, 
+    away_extra_time_first_half_score, home_extra_time_second_half_score, away_extra_time_second_half_score, 
+    home_team_half_time_score, away_team_half_time_score, is_current_season, zs_round_description
   </sql>
   <select id="selectByExample" parameterType="com.panda.merge.model.ThirdMatchPromotionChartExample" resultMap="BaseResultMap">
     select
@@ -124,7 +125,7 @@
     </if>
   </select>
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
-    select
+    select 
     <include refid="Base_Column_List" />
     from third_match_promotion_chart
     where id = #{id,jdbcType=VARCHAR}
@@ -140,36 +141,36 @@
     </if>
   </delete>
   <insert id="insert" parameterType="com.panda.merge.model.ThirdMatchPromotionChart">
-    insert into third_match_promotion_chart (id, tournament_id, season_id,
-      data_source_code, sport_id, cn_name,
-      en_name, group_id, series_id,
-      begin_time, team1_id, team2_id,
-      team1_name, team2_name, team1_score,
-      team2_score, team1_come_from, team2_come_from,
-      match_ids, round_order, line_order,
-      double_elimination_group, status, winner,
-      round_description, parent_id, modify_time,
-      create_time, match_id, invalid,
-      home_team_normal_time_score, away_team_normal_time_score,
-      home_extra_time_first_half_score, away_extra_time_first_half_score,
-      home_extra_time_second_half_score, away_extra_time_second_half_score,
-      home_team_half_time_score, away_team_half_time_score,
-      is_current_season)
-    values (#{id,jdbcType=VARCHAR}, #{tournamentId,jdbcType=VARCHAR}, #{seasonId,jdbcType=VARCHAR},
-      #{dataSourceCode,jdbcType=VARCHAR}, #{sportId,jdbcType=BIGINT}, #{cnName,jdbcType=VARCHAR},
-      #{enName,jdbcType=VARCHAR}, #{groupId,jdbcType=BIGINT}, #{seriesId,jdbcType=VARCHAR},
-      #{beginTime,jdbcType=TIMESTAMP}, #{team1Id,jdbcType=VARCHAR}, #{team2Id,jdbcType=VARCHAR},
-      #{team1Name,jdbcType=VARCHAR}, #{team2Name,jdbcType=VARCHAR}, #{team1Score,jdbcType=VARCHAR},
-      #{team2Score,jdbcType=VARCHAR}, #{team1ComeFrom,jdbcType=INTEGER}, #{team2ComeFrom,jdbcType=INTEGER},
-      #{matchIds,jdbcType=VARCHAR}, #{roundOrder,jdbcType=INTEGER}, #{lineOrder,jdbcType=INTEGER},
-      #{doubleEliminationGroup,jdbcType=INTEGER}, #{status,jdbcType=INTEGER}, #{winner,jdbcType=INTEGER},
-      #{roundDescription,jdbcType=VARCHAR}, #{parentId,jdbcType=INTEGER}, #{modifyTime,jdbcType=BIGINT},
-      #{createTime,jdbcType=BIGINT}, #{matchId,jdbcType=VARCHAR}, #{invalid,jdbcType=TINYINT},
-      #{homeTeamNormalTimeScore,jdbcType=VARCHAR}, #{awayTeamNormalTimeScore,jdbcType=VARCHAR},
-      #{homeExtraTimeFirstHalfScore,jdbcType=VARCHAR}, #{awayExtraTimeFirstHalfScore,jdbcType=VARCHAR},
-      #{homeExtraTimeSecondHalfScore,jdbcType=VARCHAR}, #{awayExtraTimeSecondHalfScore,jdbcType=VARCHAR},
-      #{homeTeamHalfTimeScore,jdbcType=VARCHAR}, #{awayTeamHalfTimeScore,jdbcType=VARCHAR},
-      #{isCurrentSeason,jdbcType=INTEGER})
+    insert into third_match_promotion_chart (id, tournament_id, season_id, 
+      data_source_code, sport_id, cn_name, 
+      en_name, group_id, series_id, 
+      begin_time, team1_id, team2_id, 
+      team1_name, team2_name, team1_score, 
+      team2_score, team1_come_from, team2_come_from, 
+      match_ids, round_order, line_order, 
+      double_elimination_group, status, winner, 
+      round_description, parent_id, modify_time, 
+      create_time, match_id, invalid, 
+      home_team_normal_time_score, away_team_normal_time_score, 
+      home_extra_time_first_half_score, away_extra_time_first_half_score, 
+      home_extra_time_second_half_score, away_extra_time_second_half_score, 
+      home_team_half_time_score, away_team_half_time_score, 
+      is_current_season, zs_round_description)
+    values (#{id,jdbcType=VARCHAR}, #{tournamentId,jdbcType=VARCHAR}, #{seasonId,jdbcType=VARCHAR}, 
+      #{dataSourceCode,jdbcType=VARCHAR}, #{sportId,jdbcType=BIGINT}, #{cnName,jdbcType=VARCHAR}, 
+      #{enName,jdbcType=VARCHAR}, #{groupId,jdbcType=BIGINT}, #{seriesId,jdbcType=VARCHAR}, 
+      #{beginTime,jdbcType=TIMESTAMP}, #{team1Id,jdbcType=VARCHAR}, #{team2Id,jdbcType=VARCHAR}, 
+      #{team1Name,jdbcType=VARCHAR}, #{team2Name,jdbcType=VARCHAR}, #{team1Score,jdbcType=VARCHAR}, 
+      #{team2Score,jdbcType=VARCHAR}, #{team1ComeFrom,jdbcType=INTEGER}, #{team2ComeFrom,jdbcType=INTEGER}, 
+      #{matchIds,jdbcType=VARCHAR}, #{roundOrder,jdbcType=INTEGER}, #{lineOrder,jdbcType=INTEGER}, 
+      #{doubleEliminationGroup,jdbcType=INTEGER}, #{status,jdbcType=INTEGER}, #{winner,jdbcType=INTEGER}, 
+      #{roundDescription,jdbcType=VARCHAR}, #{parentId,jdbcType=INTEGER}, #{modifyTime,jdbcType=BIGINT}, 
+      #{createTime,jdbcType=BIGINT}, #{matchId,jdbcType=VARCHAR}, #{invalid,jdbcType=TINYINT}, 
+      #{homeTeamNormalTimeScore,jdbcType=VARCHAR}, #{awayTeamNormalTimeScore,jdbcType=VARCHAR}, 
+      #{homeExtraTimeFirstHalfScore,jdbcType=VARCHAR}, #{awayExtraTimeFirstHalfScore,jdbcType=VARCHAR}, 
+      #{homeExtraTimeSecondHalfScore,jdbcType=VARCHAR}, #{awayExtraTimeSecondHalfScore,jdbcType=VARCHAR}, 
+      #{homeTeamHalfTimeScore,jdbcType=VARCHAR}, #{awayTeamHalfTimeScore,jdbcType=VARCHAR}, 
+      #{isCurrentSeason,jdbcType=INTEGER}, #{zsRoundDescription,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.panda.merge.model.ThirdMatchPromotionChart">
     insert into third_match_promotion_chart
@@ -291,6 +292,9 @@
       <if test="isCurrentSeason != null">
         is_current_season,
       </if>
+      <if test="zsRoundDescription != null">
+        zs_round_description,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -409,6 +413,9 @@
       </if>
       <if test="isCurrentSeason != null">
         #{isCurrentSeason,jdbcType=INTEGER},
+      </if>
+      <if test="zsRoundDescription != null">
+        #{zsRoundDescription,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -538,6 +545,9 @@
       <if test="record.isCurrentSeason != null">
         is_current_season = #{record.isCurrentSeason,jdbcType=INTEGER},
       </if>
+      <if test="record.zsRoundDescription != null">
+        zs_round_description = #{record.zsRoundDescription,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -583,7 +593,8 @@
       away_extra_time_second_half_score = #{record.awayExtraTimeSecondHalfScore,jdbcType=VARCHAR},
       home_team_half_time_score = #{record.homeTeamHalfTimeScore,jdbcType=VARCHAR},
       away_team_half_time_score = #{record.awayTeamHalfTimeScore,jdbcType=VARCHAR},
-      is_current_season = #{record.isCurrentSeason,jdbcType=INTEGER}
+      is_current_season = #{record.isCurrentSeason,jdbcType=INTEGER},
+      zs_round_description = #{record.zsRoundDescription,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -705,6 +716,9 @@
       <if test="isCurrentSeason != null">
         is_current_season = #{isCurrentSeason,jdbcType=INTEGER},
       </if>
+      <if test="zsRoundDescription != null">
+        zs_round_description = #{zsRoundDescription,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -747,7 +761,8 @@
       away_extra_time_second_half_score = #{awayExtraTimeSecondHalfScore,jdbcType=VARCHAR},
       home_team_half_time_score = #{homeTeamHalfTimeScore,jdbcType=VARCHAR},
       away_team_half_time_score = #{awayTeamHalfTimeScore,jdbcType=VARCHAR},
-      is_current_season = #{isCurrentSeason,jdbcType=INTEGER}
+      is_current_season = #{isCurrentSeason,jdbcType=INTEGER},
+      zs_round_description = #{zsRoundDescription,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

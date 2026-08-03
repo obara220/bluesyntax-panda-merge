@@ -10,6 +10,7 @@
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="modify_time" jdbcType="BIGINT" property="modifyTime" />
     <result column="operater_id" jdbcType="BIGINT" property="operaterId" />
+    <result column="operate_type" jdbcType="TINYINT" property="operateType" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -71,7 +72,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, standard_match_id, standard_market_id, market_status, link_id, create_time, modify_time, 
-    operater_id
+    operater_id, operate_type
   </sql>
   <select id="selectByExample" parameterType="com.panda.merge.model.ConfigOutrightTradeMarketExample" resultMap="BaseResultMap">
     select
@@ -106,10 +107,12 @@
   <insert id="insert" parameterType="com.panda.merge.model.ConfigOutrightTradeMarket">
     insert into config_outright_trade_market (id, standard_match_id, standard_market_id, 
       market_status, link_id, create_time, 
-      modify_time, operater_id)
+      modify_time, operater_id, operate_type
+      )
     values (#{id,jdbcType=BIGINT}, #{standardMatchId,jdbcType=BIGINT}, #{standardMarketId,jdbcType=BIGINT}, 
       #{marketStatus,jdbcType=INTEGER}, #{linkId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
-      #{modifyTime,jdbcType=BIGINT}, #{operaterId,jdbcType=BIGINT})
+      #{modifyTime,jdbcType=BIGINT}, #{operaterId,jdbcType=BIGINT}, #{operateType,jdbcType=TINYINT}
+      )
   </insert>
   <insert id="insertSelective" parameterType="com.panda.merge.model.ConfigOutrightTradeMarket">
     insert into config_outright_trade_market
@@ -138,6 +141,9 @@
       <if test="operaterId != null">
         operater_id,
       </if>
+      <if test="operateType != null">
+        operate_type,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -163,6 +169,9 @@
       </if>
       <if test="operaterId != null">
         #{operaterId,jdbcType=BIGINT},
+      </if>
+      <if test="operateType != null">
+        #{operateType,jdbcType=TINYINT},
       </if>
     </trim>
   </insert>
@@ -199,6 +208,9 @@
       <if test="record.operaterId != null">
         operater_id = #{record.operaterId,jdbcType=BIGINT},
       </if>
+      <if test="record.operateType != null">
+        operate_type = #{record.operateType,jdbcType=TINYINT},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -213,7 +225,8 @@
       link_id = #{record.linkId,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       modify_time = #{record.modifyTime,jdbcType=BIGINT},
-      operater_id = #{record.operaterId,jdbcType=BIGINT}
+      operater_id = #{record.operaterId,jdbcType=BIGINT},
+      operate_type = #{record.operateType,jdbcType=TINYINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -242,6 +255,9 @@
       <if test="operaterId != null">
         operater_id = #{operaterId,jdbcType=BIGINT},
       </if>
+      <if test="operateType != null">
+        operate_type = #{operateType,jdbcType=TINYINT},
+      </if>
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
@@ -253,7 +269,8 @@
       link_id = #{linkId,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       modify_time = #{modifyTime,jdbcType=BIGINT},
-      operater_id = #{operaterId,jdbcType=BIGINT}
+      operater_id = #{operaterId,jdbcType=BIGINT},
+      operate_type = #{operateType,jdbcType=TINYINT}
     where id = #{id,jdbcType=BIGINT}
   </update>
 </mapper>

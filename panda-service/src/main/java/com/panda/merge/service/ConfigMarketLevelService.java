@@ -3,6 +3,7 @@ package com.panda.merge.service;
 import com.panda.merge.model.ConfigMarketLevel;
 
 import java.util.List;
+import java.util.Set;
 
 public interface ConfigMarketLevelService {
     List<ConfigMarketLevel> getItemLevel(Long sportId,Integer level);

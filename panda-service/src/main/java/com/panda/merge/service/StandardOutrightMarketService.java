@@ -59,5 +59,12 @@ public interface StandardOutrightMarketService {
      */
     List<StandardOutrightMarket> queryChampionMarket(Long matchId);
 
+    /**
+     * 批量冠军盘口数据的查询
+     * @param ids
+     * @return
+     */
+    List<StandardOutrightMarket> queryChampionMarket(List<Long> ids);
+
 
 }

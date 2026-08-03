@@ -274,6 +274,11 @@ public class StandardMarketDataMessage implements Serializable, StandardMarketSc
 
     private BigDecimal obh;
 
+    /**
+     * 玩法操盘方 0-pa,1-XTS
+     */
+    private int categoryRiskCode ;
+
     public void saveStandardMarketOddsMessageList(List<StandardMarketOddsMessage> list) {
     	if(CollectionUtils.isEmpty(list)) {
     		return;

@@ -22,4 +22,140 @@
             third_t.match_id = #{thirdMatchId}
     </select>
 
+    <insert id="insertList" parameterType="java.util.List">
+        insert into third_sport_market (id, tournament_id, match_id,
+        market_category_id, third_market_source_id, reference_id,
+        market_type, data_source_code, status,
+        scope_id, name_code, odds_type_name,
+        third_odds_type, odds_value, order_type,
+        odds_name, odds_metric, addition1,
+        addition2, addition3, addition4,
+        addition5, remark, create_time,
+        modify_time, extra_info, third_market_source_status,
+        offer_line_id, number_of_winners, internal_data_source_code,
+        event_type)
+        values
+        <foreach collection="list" index="index" item="record" separator=",">
+            (#{record.id,jdbcType=BIGINT}, #{record.tournamentId,jdbcType=BIGINT}, #{record.matchId,jdbcType=BIGINT},
+            #{record.marketCategoryId,jdbcType=BIGINT}, #{record.thirdMarketSourceId,jdbcType=VARCHAR},
+            #{record.referenceId,jdbcType=BIGINT},
+            #{record.marketType,jdbcType=TINYINT}, #{record.dataSourceCode,jdbcType=VARCHAR},
+            #{record.status,jdbcType=TINYINT},
+            #{record.scopeId,jdbcType=VARCHAR}, #{record.nameCode,jdbcType=BIGINT},
+            #{record.oddsTypeName,jdbcType=VARCHAR},
+            #{record.thirdOddsType,jdbcType=VARCHAR}, #{record.oddsValue,jdbcType=VARCHAR},
+            #{record.orderType,jdbcType=VARCHAR},
+            #{record.oddsName,jdbcType=VARCHAR}, #{record.oddsMetric,jdbcType=BIGINT},
+            #{record.addition1,jdbcType=VARCHAR},
+            #{record.addition2,jdbcType=VARCHAR}, #{record.addition3,jdbcType=VARCHAR},
+            #{record.addition4,jdbcType=VARCHAR},
+            #{record.addition5,jdbcType=VARCHAR}, #{record.remark,jdbcType=VARCHAR},
+            #{record.createTime,jdbcType=BIGINT},
+            #{record.modifyTime,jdbcType=BIGINT}, #{record.extraInfo,jdbcType=VARCHAR},
+            #{record.thirdMarketSourceStatus,jdbcType=TINYINT},
+            #{record.offerLineId,jdbcType=TINYINT}, #{record.numberOfWinners,jdbcType=INTEGER},
+            #{record.internalDataSourceCode,jdbcType=VARCHAR},
+            #{record.eventType,jdbcType=TINYINT})
+        </foreach>
+    </insert>
+
+    <update id="upDataList" parameterType="java.util.List">
+        <foreach collection="list" item="record" index="index" open="" close="" separator=";">
+            update third_sport_market
+            <set>
+                <if test="tournamentId != null">
+                    tournament_id = #{record.tournamentId,jdbcType=BIGINT},
+                </if>
+                <if test="matchId != null">
+                    match_id = #{record.matchId,jdbcType=BIGINT},
+                </if>
+                <if test="marketCategoryId != null">
+                    market_category_id = #{record.marketCategoryId,jdbcType=BIGINT},
+                </if>
+                <if test="thirdMarketSourceId != null">
+                    third_market_source_id = #{record.thirdMarketSourceId,jdbcType=VARCHAR},
+                </if>
+                <if test="referenceId != null">
+                    reference_id = #{record.referenceId,jdbcType=BIGINT},
+                </if>
+                <if test="marketType != null">
+                    market_type = #{record.marketType,jdbcType=TINYINT},
+                </if>
+                <if test="dataSourceCode != null">
+                    data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+                </if>
+                <if test="status != null">
+                    status = #{record.status,jdbcType=TINYINT},
+                </if>
+                <if test="scopeId != null">
+                    scope_id = #{record.scopeId,jdbcType=VARCHAR},
+                </if>
+                <if test="nameCode != null">
+                    name_code = #{record.nameCode,jdbcType=BIGINT},
+                </if>
+                <if test="oddsTypeName != null">
+                    odds_type_name = #{record.oddsTypeName,jdbcType=VARCHAR},
+                </if>
+                <if test="thirdOddsType != null">
+                    third_odds_type = #{record.thirdOddsType,jdbcType=VARCHAR},
+                </if>
+                <if test="oddsValue != null">
+                    odds_value = #{record.oddsValue,jdbcType=VARCHAR},
+                </if>
+                <if test="orderType != null">
+                    order_type = #{record.orderType,jdbcType=VARCHAR},
+                </if>
+                <if test="oddsName != null">
+                    odds_name = #{record.oddsName,jdbcType=VARCHAR},
+                </if>
+                <if test="oddsMetric != null">
+                    odds_metric = #{record.oddsMetric,jdbcType=BIGINT},
+                </if>
+                <if test="addition1 != null">
+                    addition1 = #{record.addition1,jdbcType=VARCHAR},
+                </if>
+                <if test="addition2 != null">
+                    addition2 = #{record.addition2,jdbcType=VARCHAR},
+                </if>
+                <if test="addition3 != null">
+                    addition3 = #{record.addition3,jdbcType=VARCHAR},
+                </if>
+                <if test="addition4 != null">
+                    addition4 = #{record.addition4,jdbcType=VARCHAR},
+                </if>
+                <if test="addition5 != null">
+                    addition5 = #{record.addition5,jdbcType=VARCHAR},
+                </if>
+                <if test="remark != null">
+                    remark = #{record.remark,jdbcType=VARCHAR},
+                </if>
+                <if test="createTime != null">
+                    create_time = #{record.createTime,jdbcType=BIGINT},
+                </if>
+                <if test="modifyTime != null">
+                    modify_time = #{record.modifyTime,jdbcType=BIGINT},
+                </if>
+                <if test="extraInfo != null">
+                    extra_info = #{record.extraInfo,jdbcType=VARCHAR},
+                </if>
+                <if test="thirdMarketSourceStatus != null">
+                    third_market_source_status = #{record.thirdMarketSourceStatus,jdbcType=TINYINT},
+                </if>
+                <if test="offerLineId != null">
+                    offer_line_id = #{record.offerLineId,jdbcType=TINYINT},
+                </if>
+                <if test="numberOfWinners != null">
+                    number_of_winners = #{record.numberOfWinners,jdbcType=INTEGER},
+                </if>
+                <if test="internalDataSourceCode != null">
+                    internal_data_source_code = #{record.internalDataSourceCode,jdbcType=VARCHAR},
+                </if>
+                <if test="eventType != null">
+                    event_type = #{record.eventType,jdbcType=TINYINT},
+                </if>
+            </set>
+            where id = #{record.id,jdbcType=BIGINT}
+        </foreach>
+    </update>
+
 </mapper>

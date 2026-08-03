@@ -101,10 +101,10 @@ public class StandardMatchMarketOddsLinkageProcessor extends BaseProcessor {
                         //设置主赔率标识
                         standardMarketOddsMessage.setOddsIsMain(1);
                     } else if (0 == marketOddsLinkageConfigMessage.getType()) {
-                        //自动水差存在，不联动
+                        //自动水差存在，不联动当前投注项，继续处理后续投注项
                         if(ObjectUtils.isNotEmpty(autoDiff)){
                             log.info("::{}::赔率联动,赛事ID：{}，玩法ID：{}，盘口ID：{}，投注项ID：{}，自动水差存在，不联动：{}", linkId, standardMatchInfo.getId(), marketCategoryId, standardMarketId, standardMarketOddsId, autoDiff);
-                            return;
+                            continue;
                         }
                         //副投注项，找出主投注项的投注项ID  ,赔率，和盘口状态下发
                         String oddsMainKey = Constant.REDIS_KEY.RONGE_ODDS_LINKAGE_CONFIG + marketOddsLinkageConfigMessage.getParentStandardMarketOddsId();
@@ -170,7 +170,6 @@ public class StandardMatchMarketOddsLinkageProcessor extends BaseProcessor {
                     }
                     //如果是主投注项，判断缓存 和 当前的赔率、盘口状态是否一致，不一致通知其他副投注项触发赔率下发
                     if (1 == marketOddsLinkageConfigMessage.getType()) {
-
                         Integer active = standardMarketOddsMessage.getActive();
                         if ( null == active ) {
                             continue;
@@ -195,10 +194,10 @@ public class StandardMatchMarketOddsLinkageProcessor extends BaseProcessor {
                         //设置主赔率标识
                         standardMarketOddsMessage.setOddsIsMain(1);
                     } else if (0 == marketOddsLinkageConfigMessage.getType()) {
-                        //自动水差存在，不联动
+                        //自动水差存在，不联动当前投注项，继续处理后续投注项
                         if(ObjectUtils.isNotEmpty(autoDiff)){
                             log.info("::{}::赔率联动,赛事ID：{}，玩法ID：{}，盘口ID：{}，投注项ID：{}，自动水差存在，不联动：{}", linkId, standardMatchInfo.getId(), marketCategoryId, standardMarketId, standardMarketOddsId, autoDiff);
-                            return;
+                            continue;
                         }
                         //副投注项，找出主投注项的投注项ID  ,赔率，和盘口状态下发
                         String oddsMainKey = Constant.REDIS_KEY.RONGE_ODDS_LINKAGE_CONFIG + marketOddsLinkageConfigMessage.getParentStandardMarketOddsId();

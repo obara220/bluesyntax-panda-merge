@@ -122,6 +122,9 @@ public class ThirdMatchPromotionChart implements Serializable {
     @ApiModelProperty(value = "是否当前赛季(0:否,1:是)")
     private Integer isCurrentSeason;
 
+    @ApiModelProperty(value = "轮次文字描述（中文）")
+    private String zsRoundDescription;
+
     private static final long serialVersionUID = 1L;
 
     public String getId() {
@@ -436,6 +439,14 @@ public class ThirdMatchPromotionChart implements Serializable {
         this.isCurrentSeason = isCurrentSeason;
     }
 
+    public String getZsRoundDescription() {
+        return zsRoundDescription;
+    }
+
+    public void setZsRoundDescription(String zsRoundDescription) {
+        this.zsRoundDescription = zsRoundDescription;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -481,6 +492,7 @@ public class ThirdMatchPromotionChart implements Serializable {
         sb.append(", homeTeamHalfTimeScore=").append(homeTeamHalfTimeScore);
         sb.append(", awayTeamHalfTimeScore=").append(awayTeamHalfTimeScore);
         sb.append(", isCurrentSeason=").append(isCurrentSeason);
+        sb.append(", zsRoundDescription=").append(zsRoundDescription);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

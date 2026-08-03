@@ -71,7 +71,9 @@ public class SpareDBTableConsumer {
     };
 
     public ConsumeOrderlyStatus processMessages(List<MessageExt> msgs, ConsumeOrderlyContext context) {
+        log.info("SpareDBTableConsumer start ...");
         if(datacenterSettleSwitch){
+            log.info("SpareDBTableConsumer datacenterSettleSwitch turn on ...");
             return ConsumeOrderlyStatus.SUCCESS;
         }
         String linkIdTotal = msgs.get(0).getProperties().get("KEYS");
@@ -83,7 +85,7 @@ public class SpareDBTableConsumer {
                 log.info("linkId::{}::SpareDBTableConsumer start", linkId);
                 String tag = ext.getProperties().get(CommonConstant.TAG);
                 Class clazz = tableClass.get(tag);
-                Boolean isInsert = Boolean.valueOf(msgs.get(0).getProperties().get(CommonConstant.IS_INSERT));
+                Boolean isInsert = Boolean.valueOf(ext.getProperties().get(CommonConstant.IS_INSERT));
                 String message = new String(ext.getBody(), StandardCharsets.UTF_8);
                 log.info("linkId::{}::SpareDBTableConsumer isInsert:{} message:{} ", linkId, isInsert, message);
                 JSONObject jsonObject = JSONObject.parseObject(message);

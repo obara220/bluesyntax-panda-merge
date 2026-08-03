@@ -62,7 +62,7 @@ public class AbstractSportScores  implements Serializable{
 
 
             } catch (Exception e) {
-
+                
                 String msg = "FootballScoresDto" + ";" + filedName + ":统计出错";
             }
         }
@@ -102,9 +102,9 @@ public class AbstractSportScores  implements Serializable{
                     }
                 }
             }catch (IllegalAccessException e) {
-
+                
             } catch (Exception e) {
-
+                
             }
         }
         return  false;
@@ -193,7 +193,7 @@ public class AbstractSportScores  implements Serializable{
                     }
                 }
             }catch (IllegalAccessException e) {
-
+                
             }
         }
         return  null;
@@ -229,7 +229,7 @@ public class AbstractSportScores  implements Serializable{
                     }
                 }
             } catch (IllegalAccessException e) {
-
+                
             }
 
         }

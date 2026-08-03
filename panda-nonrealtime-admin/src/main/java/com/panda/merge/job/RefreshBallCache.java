@@ -45,13 +45,13 @@ public class RefreshBallCache extends IJobHandler {
 
     @Override
     public ReturnT<String> execute(String parKey) {
-        log.info("【RefreshBallCache 根据传入key值获取缓存】 处理开始");
+        //log.info("【RefreshBallCache 根据传入key值获取缓存】 处理开始");
         XxlJobLogger.log("RefreshBallCache 根据传入key值获取缓存】 处理开始");
         //找出支持A01的三方赛事
         ThirdMatchInfoExample thirdMatchInfoExample = new ThirdMatchInfoExample();
         thirdMatchInfoExample.createCriteria().andSportIdEqualTo(StandardSportTypeEnum.FootBall.getCode()).andDataSourceCodeEqualTo(DataSourceCodeEnum.AO.getCode());
         List<ThirdMatchInfo> thirdMatchInfoList = thirdMatchInfoMapper.selectByExample(thirdMatchInfoExample);
-        log.info("【RefreshBallCache 根据传入key值获取缓存】 处理开始条数:{}", thirdMatchInfoList.size());
+        //log.info("【RefreshBallCache 根据传入key值获取缓存】 处理开始条数:{}", thirdMatchInfoList.size());
         XxlJobLogger.log("RefreshBallCache 根据传入key值获取缓存】 处理开始条数:{}", thirdMatchInfoList.size());
         if (CollectionUtils.isEmpty(thirdMatchInfoList)) {
             return ReturnT.SUCCESS;
@@ -98,7 +98,7 @@ public class RefreshBallCache extends IJobHandler {
                 }
             }
         }
-        log.info("【RefreshBallCache 根据传入key值获取缓存】 处理结束");
+        //log.info("【RefreshBallCache 根据传入key值获取缓存】 处理结束");
         XxlJobLogger.log("RefreshBallCache 根据传入key值获取缓存】 处理结束");
         return ReturnT.SUCCESS;
     }

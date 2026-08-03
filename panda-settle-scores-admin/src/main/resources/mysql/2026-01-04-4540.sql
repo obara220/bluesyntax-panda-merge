@@ -10,9 +10,9 @@ ALTER TABLE match_settle_event
 
 UPDATE match_settle_template
 SET template_json = REPLACE(
-        REPLACE(template_json, '}', ',"heartbeatSecond":1800,"singleDatasourceSettleSwitch":0}'),
-        ',"heartbeatSecond":1800,"singleDatasourceSettleSwitch":0},"heartbeatSecond":1800,"singleDatasourceSettleSwitch":0}',
-        ',"heartbeatSecond":1800,"singleDatasourceSettleSwitch":0}'
+        REPLACE(template_json, '}', ',"heartbeatSecond":0,"singleDatasourceSettleSwitch":0}'),
+        ',"heartbeatSecond":0,"singleDatasourceSettleSwitch":0},"heartbeatSecond":0,"singleDatasourceSettleSwitch":0}',
+        ',"heartbeatSecond":0,"singleDatasourceSettleSwitch":0}'
                     )
 WHERE sport_id = 1 and template_type = 1 and tournament_level != -1 and template_json IS NOT NULL
   AND template_json != ''
@@ -68,7 +68,6 @@ SELECT
     FLOOR(UNIX_TIMESTAMP(NOW(3)) * 1000)
 FROM match_settle_event src
 WHERE src.event_type = 1
-  AND src.status = 0
   AND src.period_id  IN (6, 7)
   AND src.event_code IN ('goal','no goal','corner','fa_card','yellow_card','red_card')
   AND NOT EXISTS (

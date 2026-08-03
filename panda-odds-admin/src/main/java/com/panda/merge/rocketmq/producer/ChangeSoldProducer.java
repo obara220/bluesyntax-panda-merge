@@ -11,11 +11,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
+
 @Slf4j
 @Component
 public class ChangeSoldProducer {
     @Autowired
     private RocketMQTemplate rocketMqTemplate;
+
     public void sendChangeSoldMessageToMQ(Request<SoldMessage> soldMessageRequest)
     {
         MessageBuilder<Request<SoldMessage>> builder = MessageBuilder.withPayload(soldMessageRequest)

@@ -268,15 +268,15 @@ public class BadmintonCalculationServiceImpl  extends AbstractCalculationService
         for(Map.Entry<Long, BadmintonScores> entry : allPeriodScores.entrySet()){
             Long scoresPperiod=changePeriodByExtryPeriodEvent(entry.getKey());
             if(scoresPperiod==8L && tennisSwitch.getFirstSwitch()==1){
-                standardScores.put(8L,allPeriodScores.get(scoresPperiod));
+                standardScores.put(8L,entry.getValue());
             }else if(scoresPperiod==9L && tennisSwitch.getSecondSwitch()==1){
-                standardScores.put(9L,allPeriodScores.get(scoresPperiod));
+                standardScores.put(9L,entry.getValue());
             }else if(scoresPperiod==10L && tennisSwitch.getThirdSwitch()==1){
-                standardScores.put(10L,allPeriodScores.get(scoresPperiod));
+                standardScores.put(10L,entry.getValue());
             }else if(scoresPperiod==11L && tennisSwitch.getFourSwitch()==1){
-                standardScores.put(11L,allPeriodScores.get(scoresPperiod));
+                standardScores.put(11L,entry.getValue());
             }else if(scoresPperiod==12L && tennisSwitch.getFifSwitch()==1){
-                standardScores.put(12L,allPeriodScores.get(scoresPperiod));
+                standardScores.put(12L,entry.getValue());
             }
         }
 

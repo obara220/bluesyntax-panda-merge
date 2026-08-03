@@ -5,6 +5,7 @@ import com.panda.merge.model.ConfigOutrightTradeMarket;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * <Description> <br>
@@ -43,6 +44,8 @@ public interface OutrightTradeMarketConfigService {
      */
     ConfigOutrightTradeMarket selectItem(Long standardMatchId, Long standardMarketId);
 
+    List<ConfigOutrightTradeMarket> selectItems(Map<Long, Set<Long>> matchAndMarketIdsMap);
+
 
     /**
      * 查询
@@ -51,12 +54,28 @@ public interface OutrightTradeMarketConfigService {
      */
     List<ConfigOutrightTradeMarket> selectListItem(Long standardMatchId);
 
+
+    /**
+     * 根据盘口id获取对应的盘口操盘状态
+     * @param ids
+     * @return
+     */
+    List<ConfigOutrightTradeMarket> selectList(List<Long> ids);
+
     /**
      * 根据赛事查询
      * @param matchIds
      * @return
      */
     Map<Long, Integer> queryTradeStatus(List<Long> matchIds);
+
+
+    /**
+     * 赛事批量查询对应的操盘开关
+     * @param matchIds
+     * @return
+     */
+    List<ConfigOutrightTradeMarket> queryTradeMarketList( List<Long> matchIds);
 
 
     /**

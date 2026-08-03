@@ -72,7 +72,7 @@ public class StandardSportMarketSellServiceImpl extends BaseServiceImpl<Standard
         if(CollectionUtils.isEmpty(requiredCallItems)){
             return result;
         }
-
+        log.info("2724,查询标准赛事开售数据库：{}", requiredCallItems);
         // Obtaining remained data from mysql
         StandardSportMarketSellExample example = new StandardSportMarketSellExample();
         example.createCriteria().andMatchInfoIdIn(requiredCallItems);
@@ -109,22 +109,6 @@ public class StandardSportMarketSellServiceImpl extends BaseServiceImpl<Standard
         }
         return item;
     }
-
-
-    @Override
-    public List<StandardSportMarketSell> selectByStandardMatchIds(List<Long> standardMatchIds){
-        StandardSportMarketSellExample example = new StandardSportMarketSellExample();
-        example.createCriteria().andMatchInfoIdIn(standardMatchIds);
-        return standardSportMarketSellMapper.selectByExample(example);
-    }
-
-    @Override
-    public List<StandardSportMarketSell> selectByStandardMatchIdsAndRefreshCache(List<Long> ids){
-        List<StandardSportMarketSell> result = this.selectByStandardMatchIds(ids);
-        result.forEach(this::refreshCache);
-        return result;
-    }
-
 
     @Override
     public void evictCache(Long standardMatchId) {

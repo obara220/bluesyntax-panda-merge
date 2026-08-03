@@ -237,6 +237,16 @@ public class LiveDataScoresNewConsumer extends AbstractSingleMessageMQConsumer<R
             if(StringUtils.isBlank(event.getLinkId())){
                 event.setLinkId(linkId);
             }
+            // 足球控球率计算（PD事件也需要计算控球率，确保下发的scoresJson包含最新控球率）
+            if (event.getSportId() == 1L) {
+                try {
+                    footballCalculationService.calcFootballEventTimePublic(event, matchScoresInfo);
+                } catch (Exception e) {
+                    log.error("linkId::{}::PD事件控球率计算失败", linkId, e);
+                }
+            }
+            //主客队相反
+            scoresService.changePDHomeAwayScores(matchScoresInfo, thirdMatchInfo);
             scoresProducer.sendToMQ(thirdMatchInfo, matchScoresInfo, event);
             if(event.getSportId()==1L){
                 //比分写入缓存
@@ -266,12 +276,12 @@ public class LiveDataScoresNewConsumer extends AbstractSingleMessageMQConsumer<R
             //初始化赛事比分时间
             matchTimeInfo = this.createMatchTimeInfo(event, matchScoresInfo);
         }
-//        matchTimeInfo.setSecondFromStart(event.getSecondsFromStart());
-//        String key = MATCH_TIME_INFO +matchTimeInfo.getId();
-//        JSONObject jsonObject = (JSONObject) JSONObject.toJSON(matchTimeInfo);
-//        redisService.set(key, MessageGZIP.compressToByte(jsonObject.toJSONString()), RepositoryConstant.REDIS_THREE_TIME);
-//        String thirdMatchIdKey = MATCH_TIME_INFO + matchTimeInfo.getThirdMatchId() + "_" + matchTimeInfo.getDataSourceType();
-//        redisService.set(thirdMatchIdKey, MessageGZIP.compressToByte(jsonObject.toJSONString()), RepositoryConstant.REDIS_THREE_TIME);
+        matchTimeInfo.setSecondFromStart(event.getSecondsFromStart());
+        String key = MATCH_TIME_INFO +matchTimeInfo.getId();
+        JSONObject jsonObject = (JSONObject) JSONObject.toJSON(matchTimeInfo);
+        redisService.set(key, MessageGZIP.compressToByte(jsonObject.toJSONString()), RepositoryConstant.REDIS_THREE_TIME);
+        String thirdMatchIdKey = MATCH_TIME_INFO + matchTimeInfo.getThirdMatchId() + "_" + matchTimeInfo.getDataSourceType();
+        redisService.set(thirdMatchIdKey, MessageGZIP.compressToByte(jsonObject.toJSONString()), RepositoryConstant.REDIS_THREE_TIME);
     }
 
     /**
@@ -611,8 +621,7 @@ public class LiveDataScoresNewConsumer extends AbstractSingleMessageMQConsumer<R
     private void saveStandardScores(MatchScoresInfo matchScoresInfo, MatchEventInfo data,ThirdMatchInfo thirdMatchInfo,StandardMatchInfo standardMatchInfo,StandardSportMarketSell standardSportMarketSell ) {
         log.info("linkId::{}::saveStandardScores start", data.getLinkId());
         Long oldPeriod = data.getMatchPeriodId();
-        List<Long> STANDARC_SCORE_SPORTIDS = new ArrayList<>(Arrays.asList(1L,2L,5L,8L,9L,10L));
-        if(!STANDARC_SCORE_SPORTIDS.contains(data.getSportId())){
+        if(!DataSourceConstant.STANDARC_SCORE_SPORTIDS.contains(data.getSportId())){
             return;
         }
         if(!standardSportMarketSell.getBusinessEvent().equals(matchScoresInfo.getDataSourceCode())){
@@ -620,6 +629,7 @@ public class LiveDataScoresNewConsumer extends AbstractSingleMessageMQConsumer<R
             return;
         }
         log.info("linkId::{}::saveStandardScores 开始保存标准比分(网乒排羽足蓝)", data.getLinkId());
+
         StandardMatchScores score = scoresRedisHelp.getCatchStandScoreByMatchId(data.getStandardMatchId());
         //更新对应数据源的标准比分
         if(null == score){
@@ -643,6 +653,17 @@ public class LiveDataScoresNewConsumer extends AbstractSingleMessageMQConsumer<R
             score.setDataSourceCode(standardSportMarketSell.getBusinessEvent());
             score.setMatchManageId(standardMatchInfo.getMatchManageId());
         }
+        if(SportTypeEnum.BASKETBALL.getValue().equals(standardMatchInfo.getSportId())){
+            if(!Objects.equals(score.getMatchLength(), matchScoresInfo.getMatchLength())){
+                log.info("linkId::{}::saveStandardScores 篮球赛制不相等！ 更新赛制,清空比分::{} : {}",data.getLinkId(),score.getMatchLength(),matchScoresInfo.getMatchLength());
+                //赛制不相等时,更新赛制,并且清空标准比分,再同步
+                score.setMatchLength(matchScoresInfo.getMatchLength());
+                score.setUpdateTime(System.currentTimeMillis());
+                score.setScoreJson(null);
+                score.setDataSourceAccoSwitch(getSwitchsAsSportId(data.getSportId()));
+                scoresRedisHelp.saveCatchStandScore(score);
+            }
+        }
         String redisLockKey = "STAND:SCORES:MATCHID:"+data.getStandardMatchId()+"_"+data.getDataSourceCode();
 
         try {
@@ -662,9 +683,11 @@ public class LiveDataScoresNewConsumer extends AbstractSingleMessageMQConsumer<R
                 //标准比分入库
 //                standardMatchScoresMapper.update(score);
                 scoresRedisHelp.saveCatchStandScore(score);
+                //主客队相反
+                scoresService.changePDHomeAwayScores(score, thirdMatchInfo);
                 //1.发送 标准比分
                 CommonStandardScoresDto commonScoresDto = messageBuilderUtils.buildStandardMatchScoreCommonScoresDto(score, data,matchScoresInfo);
-                commonScoresDto.setPeriodId(oldPeriod);
+//                commonScoresDto.setPeriodId(oldPeriod);
                 //发送pls标准比分
                 if(standardMatchInfo.getPlsStandardMatchId()!=null && standardMatchInfo.getPlsStandardMatchId()!=0){
                     log.info("linkId::{}::STANDARD_MATCH_SCORES_PLS 发送到比分网开始", data.getLinkId());
@@ -678,7 +701,7 @@ public class LiveDataScoresNewConsumer extends AbstractSingleMessageMQConsumer<R
                 }
                 log.info("linkId::{}::saveStandardScores 标准比分更新完成,发送标准比分开始", data.getLinkId());
                 if (!scoresService.ifMatchSoldByThirdMatchId(thirdMatchInfo,standardMatchInfo)) {
-                    log.info("linkId::{}::saveStandardScores sendToMQ 该赛事未开售滚球！", data.getLinkId());
+                    log.info("linkId::{}::saveStandardScores sendToMQ 该赛事未开售！", data.getLinkId());
                     return;
                 }
 

@@ -66,6 +66,16 @@ public enum OperateLogTypeEnum {
      */
     ROLLBACK_SCORES_SETTLE(10019, "回滚比分", "Rollback"),
 
+    /**
+     * 标记确认
+     */
+    SETTLE_MARK_CONFIRM(10181, "标记已确认", "settle mark confirm"),
+
+    /**
+     * 结算2.0
+     */
+    SETTLE_MODULE_2(10182, "结算2.0", "settle module 2.0"),
+
 
     SCORES_SETTLE_10020(10020, "查询成功", "Searching successfully"),
     SCORES_SETTLE_10021(10021, "暂无日志", "No Data"),
@@ -164,6 +174,8 @@ public enum OperateLogTypeEnum {
     SCORES_PD_100100(100100, "报球板-足球", "PA Live Feed - Soccer"),
     SCORES_PD_100101(100101, "报球板-篮球", "PA Live Feed - Basketball"),
     SCORES_PD_100102(100102, "报球板-冰球", "PA Live Feed - Ice Hockey"),
+    SCORES_PD_100105(100105, "报球板-斯诺克", "PA Live Feed - Snooker"),
+    SCORES_PD_100129(100129, "报球板-排球", "PA Live Feed - Volleyball"),
     SCORES_PD_100103(100103, "修改开赛时间", "Modify Match Time"),
     SCORES_PD_100104(100104, "修改开赛日期", "Modify Match Date"),
     SCORES_PD_100106(100106, "开球", "Kick-Off"),
@@ -345,6 +357,7 @@ public enum OperateLogTypeEnum {
 
     SCORES_CENTER_SETTLE_CONV(100201,"常规比分下发","Match Scores Settle"),
     SCORES_CENTER_SETTLE_BREAK(100202,"比赛中断比分下发","Match Interruption Settle"),
+    MINUTES_SCORES_CHECK_SWITCH(100203,"区间比分校验开关","Minutes scores check switch"),
 
 
     /**
@@ -439,6 +452,8 @@ public enum OperateLogTypeEnum {
     SETTLE_REASON_82(9082,"系统问题","System Error"),
     SETTLE_REASON_83(9083,"人为错误","Human Error"),
     SETTLE_REASON_84(9084,"赛果不变","Resettle Same score"),
+    //4268斯诺克报球板
+    SCORE_CHANGE(426801, "变更比分", "SCORE CHANGE"),
     ;
 
     private Integer code;
@@ -487,7 +502,8 @@ public enum OperateLogTypeEnum {
     public static String getEnumByEn(String code) {
         for (OperateLogTypeEnum operateLogTypeEnum : OperateLogTypeEnum.values()) {
             if (operateLogTypeEnum.getCode().toString().equals(code)) {
-                return operateLogTypeEnum.getValue();
+                String val = operateLogTypeEnum.getValue();
+                return val != null ? val : code;
             }
         }
         return code;
@@ -496,15 +512,16 @@ public enum OperateLogTypeEnum {
     public static String getCodeByValue(String lang, String name) {
 
         String result = name;
+        if (name == null) return result;
         for (OperateLogTypeEnum operateLogTypeEnum : OperateLogTypeEnum.values()) {
             switch (lang) {
                 case "cn":
-                    if (operateLogTypeEnum.getName().toString().equals(name)) {
+                    if (operateLogTypeEnum.getName() != null && operateLogTypeEnum.getName().equals(name)) {
                         return operateLogTypeEnum.getCode().toString();
                     }
                     break;
                 case "en":
-                    if (operateLogTypeEnum.getValue().toString().equals(name)) {
+                    if (operateLogTypeEnum.getValue() != null && operateLogTypeEnum.getValue().equals(name)) {
                         return operateLogTypeEnum.getCode().toString();
                     }
                     break;

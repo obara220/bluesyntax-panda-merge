@@ -650,7 +650,7 @@
 //    public Response confirmBringInScore(BasketBallPutInJsonDto basketBallPutInJsonDto) {
 //        String key ="StandardMatchScoreConsumer:"+basketBallPutInJsonDto.getStandardMatchId();
 //
-//        if (redisService.tryLock(key, key, 2, 5)) {
+//        if (redisService.tryLock(key, key, 2, 3)) {
 //            log.info("审核员confirmBringInScore入参: {}",basketBallPutInJsonDto);
 //            Long standardMatchId = basketBallPutInJsonDto.getStandardMatchId();
 //            //解析需要带入的比分

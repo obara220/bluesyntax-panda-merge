@@ -85,7 +85,7 @@
 //    @Autowired
 //    IWsPushService wsPushService;
 //    @Autowired
-//    private StandardSportMarketSellMapper standardSportMarketSellMapper;
+//    MatchGrayIntervalMapper matchGrayIntervalMapper;
 //    @Autowired
 //    IMatchSettleScoreEventMapper iMatchSettleScoreEventMapper;
 //    @Autowired
@@ -102,6 +102,9 @@
 //    MatchSettleDataSourceWeightConfigMapper matchSettleDataSourceWeightConfigMapper;
 //    @Autowired
 //    StandardSportMarketSellService standardSportMarketSellService;
+//
+//    @Autowired
+//    StandardSportMarketSellMapper standardSportMarketSellMapper;
 //
 //
 //
@@ -346,77 +349,70 @@
 //
 //    @Override
 //    public Response settleSwitcher(MatchSettleSwitcherDto matchSettleSwitcherDto) {
-//        String redisKey = CommonConstant.SETTLE_SWITCH + matchSettleSwitcherDto.getMatchId();
-//
-//        if (redisService.tryLock(redisKey, redisKey, 2, 5)) {
-//            log.info("::{}:: 结算切换开始 参数: {} ", matchSettleSwitcherDto.getLinkId(), matchSettleSwitcherDto.toString());
-//            String linkId = matchSettleSwitcherDto.getLinkId();
-//            StandardSportMarketSell standardSportMarketSell =
-//                    getStandardSportMarketSell(matchSettleSwitcherDto.getMatchId());
-//            //联赛等级为16不支持切换 2.0
-//            if (standardSportMarketSell == null || standardSportMarketSell.getTournamentLevel().equals(16)) {
-//                return Response.failed("1031945");
-//            }
-//            //1.查询结算信息
-//            MatchSettleInfoExample matchSettleInfoExample = new MatchSettleInfoExample();
-//            MatchSettleInfoExample.Criteria criteria = matchSettleInfoExample.createCriteria();
-//            criteria.andIdEqualTo(matchSettleSwitcherDto.getMatchId());
-//            List<MatchSettleInfo> matchSettleInfos = matchSettleInfoMapper.selectByExample(matchSettleInfoExample);
-//
-//
-//            if (matchSettleInfos.size() == 0 && matchSettleSwitcherDto.getSettleType() == 1) {
-//                return Response.failed("1031958");
-//            }
-//            if (matchSettleInfos.size() != 0 && matchSettleInfos.get(0).getSettleType() != null && matchSettleInfos.get(0).getSettleType().equals(2) && matchSettleSwitcherDto.getSettleType().equals(2)) {
-//                return Response.failed("1031959");
-//            }
-//
-//            log.info("::{}:: 查询结算信息: {} ", linkId, matchSettleInfos.size() == 0 ? null : matchSettleInfos);
-//            //3.新增或更新结算信息, match_settle_info
-//            MatchSettleInfo matchSettleInfo = null;
-//            //记录修改前结算方式
-//            Integer settleType = 1;
-//            boolean createNewScore = false;
-//            if (matchSettleInfos.size() != 0) {
-//                matchSettleInfo = matchSettleInfos.get(0);
-//                settleType = matchSettleInfo.getSettleType() != null ? matchSettleInfo.getSettleType() :1;
-//            } else {
-//                createNewScore = true;
-//            }
-//            matchSettleInfo = settleInfoInsertOrUpdate(matchSettleInfo, matchSettleSwitcherDto, linkId);
-//
-//            //5.结算2.0将下发比分初始化
-//            if (matchSettleSwitcherDto.getSettleType() == 2 && createNewScore) {
-//                //比分初始化
-//                if (matchSettleInfo.getSportId().equals(1L)) {
-//                    matchSettleService.initMatchSettleScore(matchSettleInfo.getStandardMatchId());
-//                } else if (matchSettleInfo.getSportId().equals(2L)) {
-//                    matchSettleService.initBasketballSettleScore(matchSettleInfo.getStandardMatchId());
-//                }
-//            }
-//            //赛事增加结算2.0 标识
-//            StandardMatchInfo standardMatchInfo = standardMatchInfoService.getItem(matchSettleInfo.getStandardMatchId());
-//            if (standardMatchInfo != null) {
-//                StandardMatchInfo standardMatchInfoUpdate = new StandardMatchInfo();
-//                standardMatchInfoUpdate.setRemark(matchSettleInfo.getSettleType() + "");
-//
-//                StandardMatchInfoExample exampleMatchInfo = new StandardMatchInfoExample();
-//                exampleMatchInfo.createCriteria().andIdEqualTo(standardMatchInfo.getId());
-//
-//                standardMatchInfoService.updateByExampleSelective(standardMatchInfoUpdate, exampleMatchInfo);
-//            }
-//            //6.下发MQ给业务结算服务(topic: MATCH_SETTLE_TYPE )
-//            MatchSettleInfoMessage matchSettleInfoMessage = new MatchSettleInfoMessage(linkId, matchSettleInfo.getSportId(), matchSettleInfo.getStandardMatchId(), matchSettleInfo.getSettleType());
-//            matchSettleCenterProducer.pushMatchSettleType(matchSettleInfoMessage, matchSettleSwitcherDto.getLinkId());
-//
-//            //7.记录操作日志
-//            iMatchSettleLogService.settleSwitcherAddLog(matchSettleInfo, matchSettleSwitcherDto, settleType);
-//
-//            return Response.success();
-//        } else {
-//            log.info("::{}::{} 结算切换无法获取redis锁 ", matchSettleSwitcherDto.getLinkId(), matchSettleSwitcherDto.getMatchId());
+//        log.info("::{}:: 结算切换开始  参数: {} ", matchSettleSwitcherDto.getLinkId(), matchSettleSwitcherDto.toString());
+//        String linkId = matchSettleSwitcherDto.getLinkId();
+//        StandardSportMarketSell standardSportMarketSell =
+//                getStandardSportMarketSell(matchSettleSwitcherDto.getMatchId());
+//        //联赛等级为16不支持切换 2.0
+//        if (standardSportMarketSell == null || standardSportMarketSell.getTournamentLevel().equals(16)) {
+//            return Response.failed("1031945");
 //        }
-//        return Response.failed("结算切换没有获取redis锁,请重试!");
+//        //1.查询结算信息
+//        MatchSettleInfoExample matchSettleInfoExample = new MatchSettleInfoExample();
+//        MatchSettleInfoExample.Criteria criteria = matchSettleInfoExample.createCriteria();
+//        criteria.andIdEqualTo(matchSettleSwitcherDto.getMatchId());
+//        List<MatchSettleInfo> matchSettleInfos = matchSettleInfoMapper.selectByExample(matchSettleInfoExample);
+//
+//
+//        if (matchSettleInfos.size() == 0 && matchSettleSwitcherDto.getSettleType() == 1) {
+//            return Response.failed("1031958");
+//        }
+//        if (matchSettleInfos.size() != 0 && matchSettleInfos.get(0).getSettleType() != null && matchSettleInfos.get(0).getSettleType().equals(2) && matchSettleSwitcherDto.getSettleType().equals(2)) {
+//            return Response.failed("1031959");
+//        }
+//
+//        log.info("::{}:: 查询结算信息: {} ", linkId, matchSettleInfos.size() == 0 ? null : matchSettleInfos);
+//        //3.新增或更新结算信息, match_settle_info
+//        MatchSettleInfo matchSettleInfo = null;
+//        //记录修改前结算方式
+//        Integer settleType = 1;
+//        boolean createNewScore = false;
+//        if (matchSettleInfos.size() != 0) {
+//            matchSettleInfo = matchSettleInfos.get(0);
+//            settleType = matchSettleInfo.getSettleType() != null ? matchSettleInfo.getSettleType() :1;
+//        } else {
+//            createNewScore = true;
+//        }
+//        matchSettleInfo = settleInfoInsertOrUpdate(matchSettleInfo, matchSettleSwitcherDto, linkId);
+//
+//        //5.结算2.0将下发比分初始化
+//        if (matchSettleSwitcherDto.getSettleType() == 2 && createNewScore) {
+//            //比分初始化
+//            if (matchSettleInfo.getSportId().equals(1L)) {
+//                matchSettleService.initMatchSettleScore(matchSettleInfo.getStandardMatchId());
+//            } else if (matchSettleInfo.getSportId().equals(2L)) {
+//                matchSettleService.initBasketballSettleScore(matchSettleInfo.getStandardMatchId());
+//            }
+//        }
+//        //赛事增加结算2.0 标识
+//        StandardMatchInfo standardMatchInfo = standardMatchInfoService.getItem(matchSettleInfo.getStandardMatchId());
+//        if (standardMatchInfo != null) {
+//            StandardMatchInfo standardMatchInfoUpdate = new StandardMatchInfo();
+//            standardMatchInfoUpdate.setRemark(matchSettleInfo.getSettleType() + "");
+//
+//            StandardMatchInfoExample exampleMatchInfo = new StandardMatchInfoExample();
+//            exampleMatchInfo.createCriteria().andIdEqualTo(standardMatchInfo.getId());
+//
+//            standardMatchInfoService.updateByExampleSelective(standardMatchInfoUpdate, exampleMatchInfo);
+//        }
+//        //6.下发MQ给业务结算服务(topic: MATCH_SETTLE_TYPE )
+//        MatchSettleInfoMessage matchSettleInfoMessage = new MatchSettleInfoMessage(linkId, matchSettleInfo.getSportId(), matchSettleInfo.getStandardMatchId(), matchSettleInfo.getSettleType());
+//        matchSettleCenterProducer.pushMatchSettleType(matchSettleInfoMessage, matchSettleSwitcherDto.getLinkId());
+//
+//        //7.记录操作日志
+//        iMatchSettleLogService.settleSwitcherAddLog(matchSettleInfo, matchSettleSwitcherDto, settleType);
+//
+//        return Response.success();
 //    }
 //
 //    @Override
@@ -1023,7 +1019,7 @@
 //        settleInfoExample.createCriteria().andSportIdEqualTo(2L);
 //        record.setGoalAutoSettleDataSource(0);
 //        matchSettleInfoMapper.updateByExampleSelective(record, settleInfoExample);
-//        matchSettleInfoRepository.deleteAllCacheBasedIdKeys();
+//
 //        //记录日志
 //        recordMatchSettleOperateLog(isEnableAutoSettle, userName, ipAddress, status);
 //
@@ -1401,51 +1397,67 @@
 //        return Response.success();
 //    }
 //
-////    @Override
-////    public Response setDataSourceGrayInterval(List<DataSourceGrayIntervalDto> grayIntervalDtoList) {
-////        log.info("setDataSourceGrayInterval设置灰色区间入参:{}", JSON.toJSONString(grayIntervalDtoList));
-////        if (CollectionUtils.isEmpty(grayIntervalDtoList)) {
-////            Response.failed("设置灰色区间参数不能为空!");
-////        }
-////        Integer tournamentLevel = grayIntervalDtoList.get(0).getTournamentLevel();
-////        if ( null == tournamentLevel || tournamentLevel < 0 ) {
-////            Response.failed("编辑的联赛等级异常!");
-////        }
-////
-////        MatchGrayIntervalExample grayIntervalExample = new MatchGrayIntervalExample();
-////        grayIntervalExample.createCriteria().andTournamentLevelEqualTo(tournamentLevel);
-////        List<MatchGrayInterval> dbGrayIntervals = matchGrayIntervalMapper.selectByExample(grayIntervalExample);
-////        Map<String, MatchGrayInterval> dsgMap = Maps.newConcurrentMap();
-////        if ( !CollectionUtils.isEmpty(dbGrayIntervals) ) {
-////            dsgMap = dbGrayIntervals.stream().collect(Collectors.toMap(MatchGrayInterval::getDataSourceCode, Function.identity()));
-////        }
-////
-////        for (DataSourceGrayIntervalDto grayIntervalDto : grayIntervalDtoList) {
-////            String dataSourceCode = grayIntervalDto.getDataSourceCode();
-////            if ( null != dsgMap && dsgMap.size() > 0 && dsgMap.containsKey(dataSourceCode) ) {
-////                MatchGrayInterval dbGray = dsgMap.get(dataSourceCode);
-////                dbGray.setModifyTime(System.currentTimeMillis());
-////                dbGray.setMin5Goal(grayIntervalDto.getMin5Goal());
-////                dbGray.setMin15Goal(grayIntervalDto.getMin15Goal());
-////                dbGray.setMin15Bookings(grayIntervalDto.getMin15Bookings());
-////                dbGray.setMin15Corner(grayIntervalDto.getMin15Corner());
-////                matchGrayIntervalMapper.updateByPrimaryKeySelective(dbGray);
-////                iMatchSettleLogService.updateDataSourceGrayIntervalLog(grayIntervalDto,dsgMap.get(dataSourceCode));
-////            } else {
-////                MatchGrayInterval grayInterval = new MatchGrayInterval();
-////                BeanUtils.copyProperties(grayIntervalDto, grayInterval);
-////                grayInterval.setModifyTime(System.currentTimeMillis());
-////                grayInterval.setCreateTime(System.currentTimeMillis());
-////                matchGrayIntervalMapper.insert(grayInterval);
-////                iMatchSettleLogService.updateDataSourceGrayIntervalLog(grayIntervalDto,null);
-////            }
-////        }
-////
-////        // 缓存的刷新
-////        return Response.success();
-////    }
+//    @Override
+//    public Response setDataSourceGrayInterval(List<DataSourceGrayIntervalDto> grayIntervalDtoList) {
+//        log.info("setDataSourceGrayInterval设置灰色区间入参:{}", JSON.toJSONString(grayIntervalDtoList));
+//        if (CollectionUtils.isEmpty(grayIntervalDtoList)) {
+//            Response.failed("设置灰色区间参数不能为空!");
+//        }
+//        Integer tournamentLevel = grayIntervalDtoList.get(0).getTournamentLevel();
+//        if ( null == tournamentLevel || tournamentLevel < 0 ) {
+//            Response.failed("编辑的联赛等级异常!");
+//        }
 //
+//        MatchGrayIntervalExample grayIntervalExample = new MatchGrayIntervalExample();
+//        grayIntervalExample.createCriteria().andTournamentLevelEqualTo(tournamentLevel);
+//        List<MatchGrayInterval> dbGrayIntervals = matchGrayIntervalMapper.selectByExample(grayIntervalExample);
+//        Map<String, MatchGrayInterval> dsgMap = Maps.newConcurrentMap();
+//        if ( !CollectionUtils.isEmpty(dbGrayIntervals) ) {
+//            dsgMap = dbGrayIntervals.stream().collect(Collectors.toMap(MatchGrayInterval::getDataSourceCode, Function.identity()));
+//        }
 //
+//        for (DataSourceGrayIntervalDto grayIntervalDto : grayIntervalDtoList) {
+//            String dataSourceCode = grayIntervalDto.getDataSourceCode();
+//            if ( null != dsgMap && dsgMap.size() > 0 && dsgMap.containsKey(dataSourceCode) ) {
+//                MatchGrayInterval dbGray = dsgMap.get(dataSourceCode);
+//                dbGray.setModifyTime(System.currentTimeMillis());
+//                dbGray.setMin5Goal(grayIntervalDto.getMin5Goal());
+//                dbGray.setMin15Goal(grayIntervalDto.getMin15Goal());
+//                dbGray.setMin15Bookings(grayIntervalDto.getMin15Bookings());
+//                dbGray.setMin15Corner(grayIntervalDto.getMin15Corner());
+//                matchGrayIntervalMapper.updateByPrimaryKeySelective(dbGray);
+//                iMatchSettleLogService.updateDataSourceGrayIntervalLog(grayIntervalDto,dsgMap.get(dataSourceCode));
+//            } else {
+//                MatchGrayInterval grayInterval = new MatchGrayInterval();
+//                BeanUtils.copyProperties(grayIntervalDto, grayInterval);
+//                grayInterval.setModifyTime(System.currentTimeMillis());
+//                grayInterval.setCreateTime(System.currentTimeMillis());
+//                matchGrayIntervalMapper.insert(grayInterval);
+//                iMatchSettleLogService.updateDataSourceGrayIntervalLog(grayIntervalDto,null);
+//            }
+//        }
+//
+//        // 缓存的刷新
+//        return Response.success();
+//    }
+//
+//    @Override
+//    public Response getGrayIntervalByTournamentLevel(DataSourceGrayIntervalDto dto) {
+//        log.info("getGrayIntervalByTournamentLevel查询灰色区间列表入参:{}", JSON.toJSONString(dto));
+//        Integer tournamentLevel = dto.getTournamentLevel();
+//        if ( null == tournamentLevel || tournamentLevel < 0 ) {
+//            Response.failed("查询的联赛等级异常!");
+//        }
+//        List<MatchGrayInterval> grayIntervalList = Lists.newArrayList();
+//        MatchGrayIntervalExample grayIntervalExample = new MatchGrayIntervalExample();
+//        grayIntervalExample.createCriteria().andTournamentLevelEqualTo(tournamentLevel);
+//        List<MatchGrayInterval> dbGrayIntervals = matchGrayIntervalMapper.selectByExample(grayIntervalExample);
+//        if ( !CollectionUtils.isEmpty(dbGrayIntervals) ) {
+//            grayIntervalList.addAll(dbGrayIntervals);
+//        }
+//        log.info("getGrayIntervalByTournamentLevel返回结果:{}", JSON.toJSONString(grayIntervalList));
+//        return Response.success(grayIntervalList);
+//    }
 //
 //    private void checkAndinitFiveMinScore(Long standardMatchId) {
 //
@@ -1611,3 +1623,4 @@
 //    }
 //
 //}
+

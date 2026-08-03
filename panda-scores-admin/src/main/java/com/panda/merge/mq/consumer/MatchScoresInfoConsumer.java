@@ -69,7 +69,7 @@ public class MatchScoresInfoConsumer extends AbstractMultipleMessageMQConsumer<R
                 , new TypeReference<Request<MatchScoresInfo>>() {},consumerConfigDetail);
     }
     @Override
-    public void processMessageList(List<Request<MatchScoresInfo>> list) {
+   public void processMessageList(List<Request<MatchScoresInfo>> list) {
         log.info("MatchScoresInfoConsumer MQ消费数据开始...{}",datacenterMergeSwitch);
         if (datacenterMergeSwitch) {
             //MQ消息转发给数据中心

@@ -49,8 +49,8 @@ public class StandardMatchPreResultProducer extends BaseProcessor {
         aoMatchPreIconStatus(linkId, standardMatchInfo.getId(), marketPreResultMessageList);
         matchMarketPreMessage.setMatchPreStatusRisk(marketPreResultMessageList.get(0).getMatchPreStatusRisk());
         matchMarketPreMessage.setMatchPreStatus(marketPreResultMessageList.get(0).getMatchPreStatus());
-
         matchMarketPreMessage.setMarketPreResultMessages(marketPreResultMessageList);
+
 
         Request<StandardMatchMarketPreMessage> request = new Request<>();
         request.setLinkId(linkId);

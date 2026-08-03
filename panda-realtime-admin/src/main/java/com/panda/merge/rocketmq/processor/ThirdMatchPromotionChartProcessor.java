@@ -1,6 +1,7 @@
 package com.panda.merge.rocketmq.processor;
 
 import cn.hutool.core.bean.BeanUtil;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.panda.merge.common.BaseProcessor;
 import com.panda.merge.common.utils.TimeUtils;

@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StopWatch;
 
 import java.util.*;
@@ -63,7 +64,7 @@ public class ThirdMarketSaveProcessor {
      * @param thirdSportMarketMessages
      * @return
      */
-    public List<ThirdMarketDTO> marketSaveProcessor(String linkId, ThirdMatchInfo thirdMatchInfo, StandardMatchInfoDetail standardMatchInfo, ThirdMatchMarketDTO thirdMatchMarketDTO, Integer marketType, List<ThirdSportMarketMessage> thirdSportMarketMessages,Long dataSourceTime,  List<ThirdSportMarketOdds> thirdSportMarketOddsUpdate) {
+    public List<ThirdMarketDTO> marketSaveProcessor(String linkId, ThirdMatchInfo thirdMatchInfo, StandardMatchInfoDetail standardMatchInfo, ThirdMatchMarketDTO thirdMatchMarketDTO, Integer marketType, List<ThirdSportMarketMessage> thirdSportMarketMessages, Long dataSourceTime, List<ThirdSportMarketOdds> thirdSportMarketOddsUpdate) {
         //最终返回盘口
         List<ThirdMarketDTO> newList = new ArrayList<>();
         String dataSourceCode = thirdMatchInfo.getDataSourceCode();
@@ -83,7 +84,7 @@ public class ThirdMarketSaveProcessor {
             //三方盘口ID
             String thirdCategorySourceId = entry.getKey();
             //47319：数据商盘口状态是封 数据商盘口投注项全是未激活 ，改为关
-            checkMarketStateAndChange(linkId,entry.getValue(),dataSourceCode);
+            checkMarketStateAndChange(linkId, entry.getValue(), dataSourceCode);
             //找到标准玩法ID
             ThirdMarketCategory thirdMarketCategory = thirdMarketCategoryService.getItem(dataSourceCode, thirdCategorySourceId);
             if (thirdMarketCategory == null) {
@@ -112,7 +113,7 @@ public class ThirdMarketSaveProcessor {
                         SaleMatchSellStausEnum.Sold.name().equalsIgnoreCase(marketCategorySell.getSellStatus())) {
                     log.info("::{}::ThirdMarketSaveProcessor,一致不处理走原逻辑加锁,玩法ID:{},开售数据源:{}", linkId, marketCategoryId, dataSourceCode);
                     List<ThirdMarketDTO> marketDTOS = entry.getValue();
-                    marketDTOS.stream().forEach(market->{
+                    marketDTOS.stream().forEach(market -> {
                         //赋值标准玩法ID
                         market.setMarketCategoryId(marketCategoryId);
                     });
@@ -128,9 +129,16 @@ public class ThirdMarketSaveProcessor {
                 //两项盘数据源赔率合法性验证
                 if (Constant.SPORT_MARKET.STATUS.ACTIVE.equals(thirdMarketDTO.getStatus()) && !CollectionUtils.isEmpty(thirdMarketDTO.getMarketOddsList()) && thirdMarketDTO.getMarketOddsList().size() == 2) {
                     if (thirdMarketDTO.getMarketOddsList().get(0).getOriginalOddsValue() < 1.01 * 100000 || thirdMarketDTO.getMarketOddsList().get(1).getOriginalOddsValue() < 1.01 * 100000) {
-                        thirdMarketDTO.setStatus(Constant.SPORT_MARKET.STATUS.SUSPENDED);
-                        log.info("::{}::ThirdMarketSaveProcessor,两项盘(三方盘口源id):{},如果存在一个投注项原始赔率小于1.01,合法性封盘", linkId, thirdMarketDTO.getThirdMarketSourceId());
-                    }
+                       //如果是A01赔率 判断是否开启延长开售才封盘 开启则不封盘/不开启则正常处理 注:(玩法id 2 4 18 19)
+                        Object a01ExtendedTimeObjects  = null;
+                        if (standardMatchInfo != null) {
+                            a01ExtendedTimeObjects = redisService.get(Constant.REDIS_KEY.A01_EXTENDED_TIME_STATUS_KEY + standardMatchInfo.getMarketSell().getMatchInfoId());
+                        }
+                        if(!thirdMarketDTO.getDataSourceCode().equals(DataSourceCodeEnum.AO.code)||!checkA01ExtendedTimeStatus(thirdMarketDTO,a01ExtendedTimeObjects)){
+                            thirdMarketDTO.setStatus(Constant.SPORT_MARKET.STATUS.SUSPENDED);
+                            log.info("::{}::ThirdMarketSaveProcessor,两项盘(三方盘口源id):{},如果存在一个投注项原始赔率小于1.01,合法性封盘", linkId, thirdMarketDTO.getThirdMarketSourceId());
+                        }
+                     }
                 }
                 String dataSourceTimeKey;
                 if (dataSourceCode.equals(DataSourceCodeEnum.TX.code)) {
@@ -169,7 +177,7 @@ public class ThirdMarketSaveProcessor {
                     }
                 }
                 //三方赔率入库
-                ThirdSportMarketMessage thirdSportMarketMessage = thirdMatchMarketProcessor.processThirdSportMarket(linkId, dataSourceCode, thirdMatchInfo, thirdMarketDTO, thirdMarketCategory,thirdSportMarketOddsUpdate);
+                ThirdSportMarketMessage thirdSportMarketMessage = thirdMatchMarketProcessor.processThirdSportMarket(linkId, dataSourceCode, thirdMatchInfo, thirdMarketDTO, thirdMarketCategory, thirdSportMarketOddsUpdate);
                 //百家赔
                 if (thirdSportMarketMessage != null) {
                     thirdSportMarketMessages.add(thirdSportMarketMessage);
@@ -181,19 +189,20 @@ public class ThirdMarketSaveProcessor {
         log.info("::{}::ThirdMarketSaveProcessor,盘口处理耗时{}ms," + sw.prettyPrint(), linkId, sw.getTotalTimeMillis());
         return newList;
     }
+
     /**
      * 47319：数据商盘口状态是封 数据商盘口投注项全是未激活 ，改为关
+     *
      * @param marketList
      */
-    public void checkMarketStateAndChange(String linkId,List<ThirdMarketDTO> marketList,String dataSourceCode) {
-        if (dataSourceCode.equals(DataSourceCodeEnum.OD.getCode())
-                || dataSourceCode.equals(DataSourceCodeEnum.BE.getCode())) {
+    public void checkMarketStateAndChange(String linkId, List<ThirdMarketDTO> marketList, String dataSourceCode) {
+        if (dataSourceCode.equals(DataSourceCodeEnum.OD.getCode()) || dataSourceCode.equals(DataSourceCodeEnum.BE.getCode())) {
             return;
         }
         for (ThirdMarketDTO thirdMarketDTO : marketList) {
             try {
                 //如果数据商盘口为关
-                if(Constant.TRADE_MARKET_CONFIG.MARKET_STATUS.DEACTIVATED == thirdMarketDTO.getStatus()){
+                if (Constant.TRADE_MARKET_CONFIG.MARKET_STATUS.DEACTIVATED == thirdMarketDTO.getStatus()) {
                     continue;
                 }
                 //判断数据商盘口状态是否是'封'
@@ -205,8 +214,26 @@ public class ThirdMarketSaveProcessor {
                 }
                 thirdMarketDTO.setStatus(Constant.TRADE_MARKET_CONFIG.MARKET_STATUS.DEACTIVATED);
             } catch (Exception e) {
-                log.error("::{}::checkMarketStateAndChange检查数据源盘口是否需要关盘异常，error::{}",linkId,e);
+                log.error("::{}::checkMarketStateAndChange检查数据源盘口是否需要关盘异常，error::{}", linkId, e);
             }
         }
+    }
+
+    /**
+     * 验证A01是否开启延长开售
+     * @return
+     */
+    public static Boolean checkA01ExtendedTimeStatus(ThirdMarketDTO thirdMarketDTO,Object a01ExtendedTimeObjects){
+        if(!Objects.isNull(thirdMarketDTO)){
+            //Object a01ExtendedTimeObjects  = redisService.get(Constant.REDIS_KEY.A01_EXTENDED_TIME_STATUS_KEY + standardMatchInfo.getMarketSell().getMatchInfoId());
+            if (!Objects.isNull(a01ExtendedTimeObjects)) {
+                Integer a01ExtendedTimeStatus = (Integer) a01ExtendedTimeObjects;
+                if (a01ExtendedTimeStatus == 1 && thirdMarketDTO.getDataSourceCode().equals(DataSourceCodeEnum.AO.code)
+                        && MarginCategoryConfig.A01_EXTENDED_TIME_CATEGORY.contains(thirdMarketDTO.getMarketCategoryId())) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

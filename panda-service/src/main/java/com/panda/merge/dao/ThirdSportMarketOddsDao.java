@@ -19,7 +19,7 @@ public interface ThirdSportMarketOddsDao {
     /**
      * 批量创建
      */
-    //int insertList(@Param("list") List<ThirdSportMarketOdds> thirdSportMarketOdds);
+    int insertList(@Param("list") List<ThirdSportMarketOdds> thirdSportMarketOdds, @Param("dataSourceCode") String dataSourceCode);
 
     int upDataList(@Param("list") List<ThirdSportMarketOdds> list, @Param("dataSourceCode") String dataSourceCode);
 }

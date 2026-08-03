@@ -101,7 +101,7 @@ public class SoldMessageToThirdMarketProcessor {
                     thirdSportMarketMessages.add(thirdSportMarketMessage);
                 }
                 if (!CollectionUtils.isEmpty(thirdSportMarketMessages)) {
-                    commonAsyncService.sendMessageToRisk(linkId + "_" + dataSource + "_third", standardMatchInfo, thirdSportMarketMessages, thirdSportMarketMessages.get(0).getModifyTime());
+                    commonAsyncService.sendMessageToRisk(linkId + "_" + dataSource + "_third", standardMatchInfo, thirdSportMarketMessages, thirdSportMarketMessages.get(0).getModifyTime(),thirdMatchInfo);
                 }
             }
         }

@@ -148,6 +148,12 @@
             </exclusions>
         </dependency>
 
+        <dependency>
+            <groupId>com.panda.merge</groupId>
+            <artifactId>panda-rocketmq-starter</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
         <!--Druid连接池监控-->
         <dependency>
             <groupId>com.panda.merge</groupId>
@@ -167,12 +173,6 @@
                     <artifactId>rocketmq-spring-boot</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>com.panda.merge</groupId>
-            <artifactId>panda-rocketmq-starter</artifactId>
-            <version>${project.parent.version}</version>
         </dependency>
 
         <dependency>

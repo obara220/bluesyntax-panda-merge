@@ -30,6 +30,8 @@ public class CommonConstant {
     public static final String SETTLE_OPERATE_LOG_TABLE = "MatchSettleOperateLogEntity";
     public static final String IS_INSERT = "isInsert";
     public static final String TAG = "TAG";
+    public static final String MATCH_SETTLE_SCORE_COUNT = "match.settle.score.send.count:";
+
     public static final String SETTLE_FLOW_CONTROL_MATCH_IDS = "settle.flow.control.match.ids";
     public static final String FIVE_MIN_SETTLE_TIMES = "settle:five:min:settle:times:";
     public static final String SETTLE_DATASOURCE_LOST_CONNECTION = "settle:datasource:lost:connection:";

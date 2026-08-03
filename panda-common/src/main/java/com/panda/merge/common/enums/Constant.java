@@ -17,7 +17,7 @@ public interface Constant {
     /**
      * 通过Additionl确定球队ID的玩法
      */
-    Long[] CATEGORY_ADDITION1 = {1L, 3L, 4L, 5L, 8L, 9L, 10L, 11L, 17L, 19L, 21L, 22L, 25L, 27L, 28L, 29L, 30L, 32L, 33L, 37L, 39L, 43L, 44L, 46L, 48L, 49L, 50L, 52L, 54L, 55L, 56L, 58L, 60L, 61L, 62L, 64L, 66L, 67L, 69L, 71L, 78L, 79L, 80L, 81L, 82L, 83L, 84L, 85L, 86L, 87L, 88L, 89L, 90L, 92L, 93L, 94L, 95L, 96L, 97L, 98L, 99L, 100L, 111L, 112L, 113L, 115L, 116L, 119L, 120L, 121L, 123L, 124L, 125L, 126L, 128L, 129L, 130L, 132L, 135L, 136L, 137L, 139L, 140L, 141L, 142L, 143L, 145L, 146L, 147L, 144L, 149L, 153L, 154L, 155L, 156L, 157L, 162L, 163L, 167L, 168L, 172L, 175L, 176L, 179L, 181L, 184L, 185L, 188L, 189L, 192L, 193L, 195L, 196L, 224L, 225L, 231L, 310L, 311L, 320L, 321L, 322L, 323L, 394L};
+    Long[] CATEGORY_ADDITION1 = {1L, 3L, 4L, 5L, 8L, 9L, 10L, 11L, 17L, 19L, 21L, 22L, 25L, 27L, 28L, 29L, 30L, 32L, 33L, 37L, 39L, 43L, 44L, 46L, 48L, 49L, 50L, 52L, 54L, 55L, 56L, 58L, 60L, 61L, 62L, 64L, 66L, 67L, 69L, 71L, 78L, 79L, 80L, 81L, 82L, 83L, 84L, 85L, 86L, 87L, 88L, 89L, 90L, 92L, 93L, 94L, 95L, 96L, 97L, 98L, 99L, 100L, 111L, 112L, 113L, 115L, 116L, 119L, 120L, 121L, 123L, 124L, 125L, 126L, 128L, 129L, 130L, 132L, 135L, 136L, 137L, 139L, 140L, 141L, 142L, 143L, 145L, 146L, 147L, 144L, 149L, 153L, 154L, 155L, 156L, 157L, 162L, 163L, 167L, 168L, 172L, 175L, 176L, 179L, 181L, 184L, 185L, 188L, 189L, 192L, 193L, 195L, 196L, 224L, 225L, 231L, 310L, 311L, 320L, 321L, 322L, 323L, 394L,1100442L,1100445L};
 
     /**
      * 通过Addition2确定球队ID的玩法
@@ -80,12 +80,13 @@ public interface Constant {
     /**
      * 2分钟没有更新需要关盘的数据源
      */
-    List<String> WARNING_DATA_SOURCE_CODE = Arrays.asList(DataSourceCodeEnum.LS.getCode(),DataSourceCodeEnum.BG.getCode(),DataSourceCodeEnum.BC.getCode());
+    List<String> WARNING_DATA_SOURCE_CODE = Arrays.asList(DataSourceCodeEnum.LS.getCode(), DataSourceCodeEnum.BG.getCode(), DataSourceCodeEnum.BC.getCode());
 
     //综合球种ID：乒乓球/羽毛球/排球/斯诺克
     List<Long> COMPLEX_SPORTIDS = new ArrayList<>(Arrays.asList(7L, 8L, 9L, 10L));
 
     String LS_Bet365 = "L01-Bet365";
+
 
     interface REDIS_KEY {
         String RONGHE_STANDARDMARKET_TRADETYPE = "Ronghe:StandardMarket:TradeType:";
@@ -100,12 +101,11 @@ public interface Constant {
         String RONGHE_LINK_ID = "Ronghe:LinkId:";
         String RONGHE_MARKET_CATEGORY_MARGIN = "Ronghe:MarketCategoryMargin:";
         String RONGHE_STANDARD_MARKET_ID = "Ronghe:StandardMarket:ID:";
-
         String RONGHE_STANDARD_MARKET = "Ronghe:StandardMarketData:";
         //赛事+数据源+玩法
         String RONGHE_STANDARD_CATEGORY_MARKET = "Ronghe:StandardCategoryMarketData:";
         String RONGHE_STANDARD_MARKET_ODDS_ID = "Ronghe:StandardMarketOdds:ID:";
-        String RONGHE_THRID_MARKET_DATASOURCE_TIME = "Ronghe:ThridMarket:dataSourceTime:new:";
+        String RONGHE_THRID_MARKET_DATASOURCE_TIME = "Ronghe:ThridMarket:dataSourceTime:";
         String RONGHE_STANDARD_MARKET_RELATION_MARKET_ID = "Ronghe:StandardMarket:RelationMarketId:";
         String RONGHE_STANDARD_MARKET_ODDS_RELATION_MARKET_ODDS_ID = "Ronghe:StandardMarketOdds:RelationMarketOddsId:";
         /** hash {categoryId: dataSourceCode} **/
@@ -163,6 +163,8 @@ public interface Constant {
         String RONGHE_STANDARD_CATEGORY_SET_STATUS = "Ronghe:standardCategorySetStatus:";
         //赛事玩法集缓存key
         String RONGHE_STANDARD_CATEGORY_SETCODE_CACHE = "Ronghe:standardCategorySetCodeCache:";
+
+        String RONGHE_STANDARD_THE_LAST_MARKETODDS_TIME = "Ronghe:theLastAMarketOddsTimeKey:";
         /**
          * 4405 玩法级操盘模式（Hash）
          * key: Ronghe:playRiskManager:{matchId}:{marketType}
@@ -175,6 +177,8 @@ public interface Constant {
         String RONGHE_STANDARD_OUTRIGHT_MARKETALARMTASK = "Ronghe:outrightMarketAlarmTask";
         //融合独赢让分key
         String RONGHE_STANDARD_MARKET_ODDS_WINNER_HANDCIP = "Ronghe:standard:odds:winner:handcip:";
+        //融合足球独赢让分key
+        String RONGHE_STANDARD_MARKET_ODDS_FOOTBALL_WINNER_HANDCIP = "Ronghe:standard:odds:football:winner:handcip:";
 
         //三方赛事不存在缓存三方盘口数据 TX/AO
         String RONGHE_THIRD_STANDARD_MARKET = "Ronghe:ThirdStandardMarketData:";
@@ -207,6 +211,9 @@ public interface Constant {
         String AO_MAINTAIN_DATA_SOURCE = "Ronghe:maintain:datasource";
 
         String CACHE_KEY_PRE_SOLD_REPORT = "Ronghe:preSold:Report:";
+
+        //108048
+        String THIRD_MARKET_108048 = "Ronghe:CACHE:THIRD_MARKET_108048:";
         /**
          * 将废弃
          */
@@ -230,6 +237,8 @@ public interface Constant {
         String RONGHE_ORDER_STANDARD_MARKET = "Ronghe:Order:StandardMarketData:";
 
         String RONGHE_STANDARD_MARKET_PLACE = "Ronghe:StandardMarketData:Place:";
+
+        String RONGHE_STANDARD_MARKET_PLACE_NEW = "Ronghe:StandardMarketData:Place:New:";
 
         String RONGHE_STANDARD_MARKET_HEAD = "Ronghe:StandardMarketData:HEAD:";
 
@@ -289,7 +298,6 @@ public interface Constant {
         String SCORE_CENTER_SCORES = "ABSCORES:";
         //接入数据切换数据源
         String THIRD_MATCH_WITCH_DATA_SOURCE_KEY = "Ronghe:thirdMatchwitchDataSourceKey:";
-
         //服务器ip Map<ip,Worker>
         String RONGE_SERVE_IP = "Ronghe:serveIp::";
         //2868 赛事级别
@@ -479,27 +487,28 @@ public interface Constant {
             Integer PRE_MATCH_BUSINESS = 1;
             Integer LIVE_ODD_BUSINESS = 0;
         }
-        Map<Integer,Integer> MARKET_STATUS_ORDER_MAP = new HashMap<Integer,Integer>(){{
-            put(STATUS.ACTIVE,0);
-            put(STATUS.ENDED,1);
-            put(STATUS.LOCK,2);
-            put(STATUS.SUSPENDED,3);
-            put(STATUS.LOSE,4);
-            put(STATUS.SETTLED,5);
-            put(STATUS.CANCELLED,6);
-            put(STATUS.HANDEDOVER,7);
-            put(STATUS.DEACTIVATED,8);
+
+        Map<Integer, Integer> MARKET_STATUS_ORDER_MAP = new HashMap<Integer, Integer>() {{
+            put(STATUS.ACTIVE, 0);
+            put(STATUS.ENDED, 1);
+            put(STATUS.LOCK, 2);
+            put(STATUS.SUSPENDED, 3);
+            put(STATUS.LOSE, 4);
+            put(STATUS.SETTLED, 5);
+            put(STATUS.CANCELLED, 6);
+            put(STATUS.HANDEDOVER, 7);
+            put(STATUS.DEACTIVATED, 8);
         }};
-        Map<Integer,Integer> MARKET_STATUS_RESULT_MAP = new HashMap<Integer,Integer>(){{
-            put(0,STATUS.ACTIVE);
-            put(1,STATUS.ENDED);
-            put(2,STATUS.LOCK);
-            put(3,STATUS.SUSPENDED);
-            put(4,STATUS.LOSE);
-            put(5,STATUS.SETTLED);
-            put(6,STATUS.CANCELLED);
-            put(7,STATUS.HANDEDOVER);
-            put(8,STATUS.DEACTIVATED);
+        Map<Integer, Integer> MARKET_STATUS_RESULT_MAP = new HashMap<Integer, Integer>() {{
+            put(0, STATUS.ACTIVE);
+            put(1, STATUS.ENDED);
+            put(2, STATUS.LOCK);
+            put(3, STATUS.SUSPENDED);
+            put(4, STATUS.LOSE);
+            put(5, STATUS.SETTLED);
+            put(6, STATUS.CANCELLED);
+            put(7, STATUS.HANDEDOVER);
+            put(8, STATUS.DEACTIVATED);
         }};
 
         Map<Integer, Integer> MARKET_STATUS_ORDER2_MAP = new HashMap<Integer, Integer>() {{
@@ -586,13 +595,13 @@ public interface Constant {
     }
 
     interface CONFIG_MARKET_ODDS_STATUS {
-    	Integer CLOSE = 0;
-    	Integer OPEN = 1;
+        Integer CLOSE = 0;
+        Integer OPEN = 1;
     }
 
     interface CONFIG_MATCH_STATUS {
-    	Integer CLOSE = 0;
-    	Integer OPEN = 1;
+        Integer CLOSE = 0;
+        Integer OPEN = 1;
     }
 
 
@@ -636,9 +645,9 @@ public interface Constant {
      */
     public static final String AUTO_CLOSE = "autoClose";
     /**
-     *  赛事中途切PD,当场赛事之前的数据源不参与结算
+     * 赛事中途切PD,当场赛事之前的数据源不参与结算
      */
-    public static final String MATCH_FOOTBALL_SWITCH_PD_DATA_SOURCE="MATCH_FOOTBALL_SWITCH_PD_DATA_SOURCE:";
+    public static final String MATCH_FOOTBALL_SWITCH_PD_DATA_SOURCE = "MATCH_FOOTBALL_SWITCH_PD_DATA_SOURCE:";
 
     /**
      * 伤补时间

@@ -13,7 +13,9 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableCaching
 @EnableDubbo
 @EnableAsync
-@SpringBootApplication(exclude = {RocketMQAutoConfiguration.class})
+@SpringBootApplication(
+        excludeName = {"org.apache.rocketmq.spring.autoconfigure.RocketMQAutoConfiguration"}
+)
 @NacosPropertySource(dataId = "panda-a99-admin",autoRefreshed = true)
 public class A99AdminApplication {
 

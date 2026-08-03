@@ -1107,12 +1107,6 @@
 //    private void updateGrayTemplates(MatchSettleDataSourceWeightAndSwitchDto matchSettleDataSourceWeightAndSwitchDto, List<MatchSettleTemplate> grayTemplates) {
 //        grayTemplates.forEach(g->{
 //            List<GrayAreaSettleDto> grayDtos = SettleTemplateJsonUtils.tansferGrayAreaList(g.getTemplateJson());
-//            boolean tag = true;
-//            for (int i=0;i<grayDtos.size();i++){
-//                if (grayDtos.get(i).getDataSourceCode().equals(matchSettleDataSourceWeightAndSwitchDto.getDataSourceCode())){
-//                    tag=false;
-//                }
-//            }
 //            GrayAreaSettleDto dto = new GrayAreaSettleDto();
 //            if(matchSettleDataSourceWeightAndSwitchDto.getSportId()==1) {
 //                dto.setGoal5Min(SettleTemplateTypeEnum.INIT_GARY_TEMPLATE_SECOND.code);
@@ -1123,7 +1117,8 @@
 //                dto.setGoal6Min(SettleTemplateTypeEnum.INIT_GARY_TEMPLATE_SECOND.code);
 //            }
 //            dto.setDataSourceCode(matchSettleDataSourceWeightAndSwitchDto.getDataSourceCode());
-//            if (tag){ //避免重复添加
+//            String oldJson = JSONObject.toJSONString(grayDtos);
+//            if (!oldJson.contains(dto.getDataSourceCode())){ //避免重复添加
 //                grayDtos.add(dto);
 //                String updateJson = JSONObject.toJSONString(grayDtos);
 //                g.setModifyTime(TimeUtils.millsSecondsEast8ZoneGmt());
@@ -1139,13 +1134,6 @@
 //    private void updateSettleTemlates(MatchSettleDataSourceWeightAndSwitchDto matchSettleDataSourceWeightAndSwitchDto, List<MatchSettleTemplate> settleTemplates) {
 //        settleTemplates.forEach(s->{
 //            List<DataSourceSettleWeightDto> dataSourceSettleWeightDtos = SettleTemplateJsonUtils.tansferDataSourceSettleWeightDtoList(s.getTemplateJson());
-//            //避免重复添加
-//            boolean tag = true;
-//            for (int i=0;i<dataSourceSettleWeightDtos.size();i++){
-//                if(dataSourceSettleWeightDtos.get(i).getDataSourceCode().equals(matchSettleDataSourceWeightAndSwitchDto.getDataSourceCode())){
-//                    tag = false;
-//                }
-//            }
 //            DataSourceSettleWeightDto dto = new DataSourceSettleWeightDto();
 //            dto.setGoalWeight(SettleTemplateTypeEnum.INIT_TEMPLATE_WEIGHT.code);
 //            dto.setGrayWeight(SettleTemplateTypeEnum.INIT_TEMPLATE_WEIGHT.code);
@@ -1154,7 +1142,8 @@
 //                dto.setBookingWeight(SettleTemplateTypeEnum.INIT_TEMPLATE_WEIGHT.code);
 //            }
 //            dto.setDataSourceCode(matchSettleDataSourceWeightAndSwitchDto.getDataSourceCode());
-//            if (tag) {
+//            String oldJson = JSONObject.toJSONString(dataSourceSettleWeightDtos);
+//            if (!oldJson.contains(dto.getDataSourceCode())){ //避免重复添加
 //                dataSourceSettleWeightDtos.add(dto);
 //                String updateJson = JSONObject.toJSONString(dataSourceSettleWeightDtos);
 //                s.setTemplateJson(updateJson);

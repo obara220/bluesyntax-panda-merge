@@ -47,13 +47,11 @@ public class MatchTeamScheduleTask {
         @Scheduled(cron = "0/1 * * * * ?")
         //@Scheduled(fixedRate=5000)
         private void configureTasks() {
-            synchronized (this){
                 if(!isGo){
                     isGo=true;
                 }else {
                     return;
                 }
-            }
             Long updateTime =0l;
             MaxAggregationBuilder mb= AggregationBuilders.max("max_modify_time").field("modify_time");
             NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder();

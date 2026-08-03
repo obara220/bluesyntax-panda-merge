@@ -15,26 +15,42 @@ import org.springframework.beans.BeanUtils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MatchEventInfoSettleUtils {
     public static Integer  doCountEventScore(  Integer order,MatchSettleEvent matchSettleEvent, MatchEventInfo data, List<MatchEventInfo> eventInfos) {
         boolean flag= true;
+//        for (MatchEventInfo eventInfo : eventInfos) {
+//            if(eventInfo.getId().equals(data.getId())){
+//                flag=false;
+//            }
+//        }
+        //重复去除 三方赛事id+主客队+比分+阶段
+        Map<String,MatchEventInfo> matchEventInfoMap =new HashMap<>();
         for (MatchEventInfo eventInfo : eventInfos) {
             if(eventInfo.getId().equals(data.getId())){
                 flag=false;
             }
+//            String key = eventInfo.getThirdMatchSourceId()+"-"+eventInfo.getHomeAway()+"-"+eventInfo.getT1()+eventInfo+"-"+eventInfo.getT2()+"-"+eventInfo.getMatchPeriodId();
+            String key = eventInfo.getThirdMatchSourceId()+"-"+eventInfo.getHomeAway()+"-"+eventInfo.getEventTime()+"-"+eventInfo.getMatchPeriodId();
+            matchEventInfoMap.put(key,eventInfo);
         }
+        eventInfos =new ArrayList<>();
+        for (Map.Entry<String, MatchEventInfo> eventInfoEntry     : matchEventInfoMap.entrySet()) {
+            eventInfos.add(eventInfoEntry.getValue());
+        }
+        //重复去除 结束
         if(flag){
             order++;
             eventInfos.add(data);
         }
-        if(data.getEventCode().equals("goal")||data.getEventCode().equals("penalty_missed")){
-            doCountGoal(matchSettleEvent,data,eventInfos);
-        }else if(data.getEventCode().equals("corner")){
-            doCountCorner(matchSettleEvent,data,eventInfos);
-        }else if(data.getEventCode().equals("red_card")||data.getEventCode().equals("yellow_card")){
-            doCountFacard(matchSettleEvent,data,eventInfos);
-        }
+            if(data.getEventCode().equals("goal")||data.getEventCode().equals("penalty_missed")){
+                doCountGoal(matchSettleEvent,data,eventInfos);
+            }else if(data.getEventCode().equals("corner")){
+                doCountCorner(matchSettleEvent,data,eventInfos);
+            }else if(data.getEventCode().equals("red_card")||data.getEventCode().equals("yellow_card")){
+                doCountFacard(matchSettleEvent,data,eventInfos);
+            }
         return order;
     }
 

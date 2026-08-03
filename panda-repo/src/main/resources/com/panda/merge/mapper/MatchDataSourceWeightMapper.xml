@@ -19,6 +19,7 @@
     <result column="pi_weight" jdbcType="TINYINT" property="piWeight" />
     <result column="ls_weight" jdbcType="TINYINT" property="lsWeight" />
     <result column="bt_weight" jdbcType="TINYINT" property="btWeight" />
+    <result column="onex_weight" jdbcType="TINYINT" property="onexWeight" />
     <result column="be_weight" jdbcType="TINYINT" property="beWeight" />
     <result column="ko_weight" jdbcType="TINYINT" property="koWeight" />
     <result column="od_weight" jdbcType="TINYINT" property="odWeight" />
@@ -89,8 +90,8 @@
   <sql id="Base_Column_List">
     id, standard_match_id, tournament_level, market_type, sr_weight, bc_weight, bg_weight, 
     pd_weight, create_time, modify_time, operater_id, tx_weight, rb_weight, ao_weight, 
-    pi_weight, ls_weight, bt_weight, be_weight, ko_weight, od_weight, n01_weight,
-    n02_weight, f01_weight, n03_weight ,l02_weight
+    pi_weight, ls_weight, bt_weight, onex_weight, be_weight, ko_weight, od_weight, n01_weight,
+    n02_weight, f01_weight, n03_weight, l02_weight
   </sql>
   <select id="selectByExample" parameterType="com.panda.merge.model.MatchDataSourceWeightExample" resultMap="BaseResultMap">
     select
@@ -128,7 +129,7 @@
       bg_weight, pd_weight, create_time, 
       modify_time, operater_id, tx_weight, 
       rb_weight, ao_weight, pi_weight, 
-      ls_weight, bt_weight,
+      ls_weight, bt_weight, onex_weight, 
       be_weight, ko_weight, od_weight,
       n01_weight, n02_weight, f01_weight,
       n03_weight, l02_weight)
@@ -137,7 +138,7 @@
       #{bgWeight,jdbcType=INTEGER}, #{pdWeight,jdbcType=INTEGER}, #{createTime,jdbcType=BIGINT}, 
       #{modifyTime,jdbcType=BIGINT}, #{operaterId,jdbcType=BIGINT}, #{txWeight,jdbcType=INTEGER}, 
       #{rbWeight,jdbcType=TINYINT}, #{aoWeight,jdbcType=TINYINT}, #{piWeight,jdbcType=TINYINT}, 
-      #{lsWeight,jdbcType=TINYINT}, #{btWeight,jdbcType=TINYINT},
+      #{lsWeight,jdbcType=TINYINT}, #{btWeight,jdbcType=TINYINT}, #{onexWeight,jdbcType=TINYINT}, 
       #{beWeight,jdbcType=TINYINT}, #{koWeight,jdbcType=TINYINT}, #{odWeight,jdbcType=TINYINT},
       #{n01Weight,jdbcType=TINYINT}, #{n02Weight,jdbcType=TINYINT}, #{f01Weight,jdbcType=TINYINT},
       #{n03Weight,jdbcType=TINYINT}, #{l02Weight,jdbcType=TINYINT})
@@ -195,6 +196,9 @@
       </if>
       <if test="btWeight != null">
         bt_weight,
+      </if>
+      <if test="onexWeight != null">
+        onex_weight,
       </if>
       <if test="beWeight != null">
         be_weight,
@@ -273,6 +277,9 @@
       <if test="btWeight != null">
         #{btWeight,jdbcType=TINYINT},
       </if>
+      <if test="onexWeight != null">
+        #{onexWeight,jdbcType=TINYINT},
+      </if>
       <if test="beWeight != null">
         #{beWeight,jdbcType=TINYINT},
       </if>
@@ -308,114 +315,117 @@
   <update id="updateByExampleSelective" parameterType="map">
     update match_data_source_weight
     <set>
-      <if test="record.id != null">
-        id = #{record.id,jdbcType=BIGINT},
+      <if test="row.id != null">
+        id = #{row.id,jdbcType=BIGINT},
       </if>
-      <if test="record.standardMatchId != null">
-        standard_match_id = #{record.standardMatchId,jdbcType=BIGINT},
+      <if test="row.standardMatchId != null">
+        standard_match_id = #{row.standardMatchId,jdbcType=BIGINT},
       </if>
-      <if test="record.tournamentLevel != null">
-        tournament_level = #{record.tournamentLevel,jdbcType=INTEGER},
+      <if test="row.tournamentLevel != null">
+        tournament_level = #{row.tournamentLevel,jdbcType=INTEGER},
       </if>
-      <if test="record.marketType != null">
-        market_type = #{record.marketType,jdbcType=VARCHAR},
+      <if test="row.marketType != null">
+        market_type = #{row.marketType,jdbcType=VARCHAR},
       </if>
-      <if test="record.srWeight != null">
-        sr_weight = #{record.srWeight,jdbcType=INTEGER},
+      <if test="row.srWeight != null">
+        sr_weight = #{row.srWeight,jdbcType=INTEGER},
       </if>
-      <if test="record.bcWeight != null">
-        bc_weight = #{record.bcWeight,jdbcType=INTEGER},
+      <if test="row.bcWeight != null">
+        bc_weight = #{row.bcWeight,jdbcType=INTEGER},
       </if>
-      <if test="record.bgWeight != null">
-        bg_weight = #{record.bgWeight,jdbcType=INTEGER},
+      <if test="row.bgWeight != null">
+        bg_weight = #{row.bgWeight,jdbcType=INTEGER},
       </if>
-      <if test="record.pdWeight != null">
-        pd_weight = #{record.pdWeight,jdbcType=INTEGER},
+      <if test="row.pdWeight != null">
+        pd_weight = #{row.pdWeight,jdbcType=INTEGER},
       </if>
-      <if test="record.createTime != null">
-        create_time = #{record.createTime,jdbcType=BIGINT},
+      <if test="row.createTime != null">
+        create_time = #{row.createTime,jdbcType=BIGINT},
       </if>
-      <if test="record.modifyTime != null">
-        modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      <if test="row.modifyTime != null">
+        modify_time = #{row.modifyTime,jdbcType=BIGINT},
       </if>
-      <if test="record.operaterId != null">
-        operater_id = #{record.operaterId,jdbcType=BIGINT},
+      <if test="row.operaterId != null">
+        operater_id = #{row.operaterId,jdbcType=BIGINT},
       </if>
-      <if test="record.txWeight != null">
-        tx_weight = #{record.txWeight,jdbcType=INTEGER},
+      <if test="row.txWeight != null">
+        tx_weight = #{row.txWeight,jdbcType=INTEGER},
       </if>
-      <if test="record.rbWeight != null">
-        rb_weight = #{record.rbWeight,jdbcType=TINYINT},
+      <if test="row.rbWeight != null">
+        rb_weight = #{row.rbWeight,jdbcType=TINYINT},
       </if>
-      <if test="record.aoWeight != null">
-        ao_weight = #{record.aoWeight,jdbcType=TINYINT},
+      <if test="row.aoWeight != null">
+        ao_weight = #{row.aoWeight,jdbcType=TINYINT},
       </if>
-      <if test="record.piWeight != null">
-        pi_weight = #{record.piWeight,jdbcType=TINYINT},
+      <if test="row.piWeight != null">
+        pi_weight = #{row.piWeight,jdbcType=TINYINT},
       </if>
-      <if test="record.lsWeight != null">
-        ls_weight = #{record.lsWeight,jdbcType=TINYINT},
+      <if test="row.lsWeight != null">
+        ls_weight = #{row.lsWeight,jdbcType=TINYINT},
       </if>
-      <if test="record.btWeight != null">
-        bt_weight = #{record.btWeight,jdbcType=TINYINT},
+      <if test="row.btWeight != null">
+        bt_weight = #{row.btWeight,jdbcType=TINYINT},
       </if>
-      <if test="record.beWeight != null">
-        be_weight = #{record.beWeight,jdbcType=TINYINT},
+      <if test="row.onexWeight != null">
+        onex_weight = #{row.onexWeight,jdbcType=TINYINT},
       </if>
-      <if test="record.koWeight != null">
-        ko_weight = #{record.koWeight,jdbcType=TINYINT},
+      <if test="row.beWeight != null">
+        be_weight = #{row.beWeight,jdbcType=TINYINT},
       </if>
-      <if test="record.odWeight != null">
-        od_weight = #{record.odWeight,jdbcType=TINYINT},
+      <if test="row.koWeight != null">
+        ko_weight = #{row.koWeight,jdbcType=TINYINT},
       </if>
-      <if test="record.n01Weight != null">
-        n01_weight = #{record.n01Weight,jdbcType=TINYINT},
+      <if test="row.odWeight != null">
+        od_weight = #{row.odWeight,jdbcType=TINYINT},
       </if>
-      <if test="record.n02Weight != null">
-        n02_weight = #{record.n02Weight,jdbcType=TINYINT},
+      <if test="row.n01Weight != null">
+        n01_weight = #{row.n01Weight,jdbcType=TINYINT},
       </if>
-      <if test="record.f01Weight != null">
-        f01_weight = #{record.f01Weight,jdbcType=TINYINT},
+      <if test="row.n02Weight != null">
+        n02_weight = #{row.n02Weight,jdbcType=TINYINT},
       </if>
-      <if test="record.n03Weight != null">
-        n03_weight = #{record.n03Weight,jdbcType=TINYINT},
+      <if test="row.f01Weight != null">
+        f01_weight = #{row.f01Weight,jdbcType=TINYINT},
       </if>
-        <if test="record.l02Weight != null">
-            l02_weight = #{record.l02Weight,jdbcType=TINYINT},
+      <if test="row.n03Weight != null">
+        n03_weight = #{row.n03Weight,jdbcType=TINYINT},
+      </if>
+        <if test="row.l02Weight != null">
+            l02_weight = #{row.l02Weight,jdbcType=TINYINT},
         </if>
     </set>
-    <if test="_parameter != null">
+    <if test="example != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
     update match_data_source_weight
-    set id = #{record.id,jdbcType=BIGINT},
-      standard_match_id = #{record.standardMatchId,jdbcType=BIGINT},
-      tournament_level = #{record.tournamentLevel,jdbcType=INTEGER},
-      market_type = #{record.marketType,jdbcType=VARCHAR},
-      sr_weight = #{record.srWeight,jdbcType=INTEGER},
-      bc_weight = #{record.bcWeight,jdbcType=INTEGER},
-      bg_weight = #{record.bgWeight,jdbcType=INTEGER},
-      pd_weight = #{record.pdWeight,jdbcType=INTEGER},
-      create_time = #{record.createTime,jdbcType=BIGINT},
-      modify_time = #{record.modifyTime,jdbcType=BIGINT},
-      operater_id = #{record.operaterId,jdbcType=BIGINT},
-      tx_weight = #{record.txWeight,jdbcType=INTEGER},
-      rb_weight = #{record.rbWeight,jdbcType=TINYINT},
-      ao_weight = #{record.aoWeight,jdbcType=TINYINT},
-      pi_weight = #{record.piWeight,jdbcType=TINYINT},
-      ls_weight = #{record.lsWeight,jdbcType=TINYINT},
-      bt_weight = #{record.btWeight,jdbcType=TINYINT},
-      be_weight = #{record.beWeight,jdbcType=TINYINT},
-      ko_weight = #{record.koWeight,jdbcType=TINYINT},
-      od_weight = #{record.odWeight,jdbcType=TINYINT},
-      n01_weight = #{record.n01Weight,jdbcType=TINYINT},
-      n02_weight = #{record.n02Weight,jdbcType=TINYINT},
-      f01_weight = #{record.f01Weight,jdbcType=TINYINT},
-      n03_weight = #{record.n03Weight,jdbcType=TINYINT},
-      l02_weight = #{record.l02Weight,jdbcType=TINYINT}
-    <if test="_parameter != null">
+    set id = #{row.id,jdbcType=BIGINT},
+      standard_match_id = #{row.standardMatchId,jdbcType=BIGINT},
+      tournament_level = #{row.tournamentLevel,jdbcType=INTEGER},
+      market_type = #{row.marketType,jdbcType=VARCHAR},
+      sr_weight = #{row.srWeight,jdbcType=INTEGER},
+      bc_weight = #{row.bcWeight,jdbcType=INTEGER},
+      bg_weight = #{row.bgWeight,jdbcType=INTEGER},
+      pd_weight = #{row.pdWeight,jdbcType=INTEGER},
+      create_time = #{row.createTime,jdbcType=BIGINT},
+      modify_time = #{row.modifyTime,jdbcType=BIGINT},
+      operater_id = #{row.operaterId,jdbcType=BIGINT},
+      tx_weight = #{row.txWeight,jdbcType=INTEGER},
+      rb_weight = #{row.rbWeight,jdbcType=TINYINT},
+      ao_weight = #{row.aoWeight,jdbcType=TINYINT},
+      pi_weight = #{row.piWeight,jdbcType=TINYINT},
+      ls_weight = #{row.lsWeight,jdbcType=TINYINT},
+      bt_weight = #{row.btWeight,jdbcType=TINYINT},
+      onex_weight = #{row.onexWeight,jdbcType=TINYINT},
+      be_weight = #{row.beWeight,jdbcType=TINYINT},
+      ko_weight = #{row.koWeight,jdbcType=TINYINT},
+      od_weight = #{row.odWeight,jdbcType=TINYINT},
+      n01_weight = #{row.n01Weight,jdbcType=TINYINT},
+      n02_weight = #{row.n02Weight,jdbcType=TINYINT},
+      f01_weight = #{row.f01Weight,jdbcType=TINYINT},
+      n03_weight = #{record.n03Weight,jdbcType=TINYINT}
+    <if test="example != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
@@ -470,6 +480,9 @@
       <if test="btWeight != null">
         bt_weight = #{btWeight,jdbcType=TINYINT},
       </if>
+      <if test="onexWeight != null">
+        onex_weight = #{onexWeight,jdbcType=TINYINT},
+      </if>
       <if test="beWeight != null">
         be_weight = #{beWeight,jdbcType=TINYINT},
       </if>
@@ -515,6 +528,7 @@
       pi_weight = #{piWeight,jdbcType=TINYINT},
       ls_weight = #{lsWeight,jdbcType=TINYINT},
       bt_weight = #{btWeight,jdbcType=TINYINT},
+      onex_weight = #{onexWeight,jdbcType=TINYINT},
       be_weight = #{beWeight,jdbcType=TINYINT},
       ko_weight = #{koWeight,jdbcType=TINYINT},
       od_weight = #{odWeight,jdbcType=TINYINT},

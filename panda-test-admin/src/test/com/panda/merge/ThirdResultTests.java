@@ -1,6 +1,8 @@
 package com.panda.merge;
 
+import com.panda.merge.common.enums.Constant;
 import com.panda.merge.common.utils.TimeUtils;
+import com.panda.merge.component.UUIdUtils;
 import com.panda.merge.config.RedisService;
 import com.panda.merge.dao.StandardMatchInfoDao;
 import com.panda.merge.dao.StandardSportTeamDao;
@@ -13,10 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 @SpringBootTest
 class ThirdResultTests {
@@ -54,6 +53,16 @@ class ThirdResultTests {
             System.out.println(tUser.getId()+"-"+tUser.getName());
         }
 
+    }
+
+    @Autowired
+    private ConfigTradeTypeService configTradeTypeService;
+    @Test
+    void testRedisService()
+    {
+        Map<Long, Integer> tradeTypeMap = configTradeTypeService.getItemByMatchAndCategorys(3119006+"",new HashSet<Long>(){{add(201L);}});
+        boolean flat = Constant.TRADE_MARKET_CONFIG.TRADE_TYPE.AUTO_PLUS.equals(tradeTypeMap.get(Long.valueOf(201)))||Constant.TRADE_MARKET_CONFIG.TRADE_TYPE.AUTO.equals(tradeTypeMap.get(Long.valueOf(201)));
+        System.out.println(flat);
     }
 
     @Autowired
@@ -177,7 +186,11 @@ class ThirdResultTests {
     @Test
     void testBatchInsert()
     {
-        List<ConfigMarketCategoryPlace> c = configMarketCategoryPlaceService.getItemListCache(2953213L,2L);
-        System.out.println("========");
+        System.out.println(UUIdUtils.getId());
+        System.out.println(UUIdUtils.getId());
+        System.out.println(UUIdUtils.getId());
+        System.out.println(UUIdUtils.getId());
+        System.out.println(UUIdUtils.getId());
+        System.out.println(UUIdUtils.getId());
     }
 }

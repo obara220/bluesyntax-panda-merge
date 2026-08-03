@@ -5,9 +5,6 @@ import com.panda.merge.dto.BasketBallSearchScoreCompareDto;
 import com.panda.merge.dto.settle.MatchSettleScoreDto;
 import com.panda.merge.dto.settle.MatchSettleScoreSearchDto;
 import com.panda.merge.model.MatchSettleScore;
-import com.panda.merge.model.StandardMatchInfo;
-import com.panda.merge.service.IBasketballInSettleService;
-import com.panda.merge.service.StandardMatchInfoService;
 import com.panda.merge.utils.BasketBallSettleScoreUtils;
 import com.panda.merge.utils.MatchEventInfoSettleUtils;
 import com.panda.merge.v2.entity.MatchSettleScoreEntity;
@@ -16,7 +13,6 @@ import com.panda.merge.v2.service.helper.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -50,11 +46,6 @@ public class MatchSettleScoreAssemble {
 
     @Autowired
     private MentionStatusHelper mentionStatusHelper;
-    @Autowired
-    private StandardMatchInfoService standardMatchInfoService;
-    @Lazy
-    @Autowired
-    private IBasketballInSettleService basketballInSettleService;
 
     public List<MatchSettleScoreDto> searchFootballMatchSettleScores(MatchSettleScoreSearchDto settleScoreSearchDto) {
         List<String> eventCodes =new ArrayList<>();
@@ -68,14 +59,16 @@ public class MatchSettleScoreAssemble {
             eventCodes.add("corner");
         }
         List<MatchSettleScore> list =matchSettleScoreRepository.getModelByMatchIdAndEventCodeOrderBySettleNum(settleScoreSearchDto.getStandardMatchId(),eventCodes);
-
+        log.info("searchFootballMatchSettleScores-list1::{}",list.size());
         Map<String, Integer> deleteStatusMap = new HashMap<>();
         Map<String, Integer> dataMismatchMap = new HashMap<>();
         mentionStatusHelper.obtainDetailInfo(settleScoreSearchDto, deleteStatusMap, dataMismatchMap);
+        log.info("searchFootballMatchSettleScores-list2::{}",list.size());
         List<MatchSettleScoreDto> matchSettleScoreDtos=new ArrayList<>();
         for (MatchSettleScore matchSettleScore : list) {
             MatchSettleScoreDto matchSettleScoreDto =new MatchSettleScoreDto();
             BeanUtils.copyProperties(matchSettleScore,matchSettleScoreDto);
+            log.info("searchFootballMatchSettleScores-matchSettleScore::{}",matchSettleScore);
             matchSettleScoreDto.setSettleNum(matchSettleScore.getSettleNum());
             matchSettleScoreDto.setId(matchSettleScore.getId().toString());
             matchSettleScoreDto.setScoresPeriodFreeze(matchSettleScore.getSettleFreeze());
@@ -132,12 +125,19 @@ public class MatchSettleScoreAssemble {
             add2HTETSettleScore(settleScoreSearchDto.getStandardMatchId());
             list =matchSettleScoreRepository.getByStandardMatchIdAndEventCode(settleScoreSearchDto.getStandardMatchId(),settleScoreSearchDto.getEventCode());
         }
+//        Map<String, Integer> deleteStatusMap = new HashMap<>();
+//        Map<String, Integer> dataMismatchMap = new HashMap<>();
+//        mentionStatusHelper.obtainDetailInfo(settleScoreSearchDto, deleteStatusMap, dataMismatchMap);
         for (MatchSettleScore matchSettleScore : list) {
             MatchSettleScoreDto matchSettleScoreDto =new MatchSettleScoreDto();
             BeanUtils.copyProperties(matchSettleScore,matchSettleScoreDto);
             matchSettleScoreDto.setSettleNum(matchSettleScore.getSettleNum());
             matchSettleScoreDto.setId(matchSettleScore.getId().toString());
             matchSettleScoreDto.setScoresPeriodFreeze(matchSettleScore.getSettleFreeze());
+            //比分不一致
+//            String scoreIdKey = String.valueOf(matchSettleScore.getId());
+//            Integer dataMismatchStatus = dataMismatchMap.get(scoreIdKey);
+//            matchSettleScoreDto.setHasDataMismatchEvent(dataMismatchStatus != null ? dataMismatchStatus : 0);
             MatchEventInfoSettleUtils.checkInfoKey(matchSettleScoreDto);
             matchSettleScoreDtos.add(matchSettleScoreDto);
         }
@@ -157,17 +157,7 @@ public class MatchSettleScoreAssemble {
         matchSettleScoreHelper.setBkInScoreTag(matchSettleScoreDtos,settleScoreSearchDto.getStandardMatchId());
         //查询比分的倒计时秒数
         matchDelaySettleInfoHelper.setDelaySettleSecond(settleScoreSearchDto.getStandardMatchId(),matchSettleScoreDtos);
-
-        StandardMatchInfo standardMatchInfo = standardMatchInfoService.getItem(settleScoreSearchDto.getStandardMatchId());
-        //查询即时结算开关
-        boolean realtimeOnOff = basketballInSettleService.getRealtimeSwitchOfLevel(2L, standardMatchInfo.getStandardTournamentId());
-        if(com.baomidou.mybatisplus.core.toolkit.CollectionUtils.isNotEmpty(matchSettleScoreDtos)){
-            matchSettleScoreDtos.forEach(matchSettleScoreDto -> {
-                matchSettleScoreDto.setRealTimeOnOff(realtimeOnOff);
-            });
-        }
-
-        //查询回滚状态
+//        //查询回滚状态
         return matchSettleScoreDtos;
     }
 

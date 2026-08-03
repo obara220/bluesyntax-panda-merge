@@ -4,18 +4,24 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.panda.merge.constant.CommonConstant;
 import com.panda.merge.dto.CheckIsGreyDto;
+import com.panda.merge.mapper.MatchGrayIntervalMapper;
 import com.panda.merge.model.MatchEventInfo;
+import com.panda.merge.model.MatchGrayInterval;
+import com.panda.merge.model.MatchGrayIntervalExample;
 import com.panda.merge.model.MatchSettleTemplate;
 import com.panda.merge.service.ISettleTemplateService;
 import com.panda.merge.utils.SettleNumUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * 灰色区间
@@ -23,6 +29,9 @@ import java.util.Map;
 @Slf4j
 @Component
 public class GrayIntervalService {
+
+    @Autowired
+    MatchGrayIntervalMapper matchGrayIntervalMapper;
     @Autowired
     ISettleTemplateService settleTemplateService;
 
@@ -448,34 +457,34 @@ public class GrayIntervalService {
         return checkIsGreyDto;
     }
 
-//    /**
-//     *
-//     * @param timeType  灰色区间的类型
-//     * @param dataSourceCode
-//     * @param tournamentLevel
-//     * @param graySecond 默认灰色区间时间
-//     * @return
-//     */
-//    public Integer graySecondsByDataSource(String timeType , String dataSourceCode, Integer tournamentLevel, Integer graySecond) {
-//        Integer targetSeconds = graySecond;
-//        MatchGrayIntervalExample grayIntervalExample = new MatchGrayIntervalExample();
-//        grayIntervalExample.createCriteria().andTournamentLevelEqualTo(tournamentLevel);
-//        List<MatchGrayInterval> dbGrayIntervals = matchGrayIntervalMapper.selectByExample(grayIntervalExample);
-//        Map<String, MatchGrayInterval> dsgMap = Maps.newConcurrentMap();
-//        if ( !CollectionUtils.isEmpty(dbGrayIntervals) ) {
-//            dsgMap = dbGrayIntervals.stream().collect(Collectors.toMap(MatchGrayInterval::getDataSourceCode, Function.identity()));
-//        }
-//
-//        if ( null != dsgMap && dsgMap.size() > 0 && dsgMap.containsKey(dataSourceCode)) {
-//            if ( "min15Goal".equals(timeType) ) {
-//                targetSeconds = dsgMap.get(dataSourceCode).getMin15Goal();
-//            } else if ( "min5Goal".equals(timeType) ) {
-//                targetSeconds = dsgMap.get(dataSourceCode).getMin5Goal();
-//            } else if ( "min15Corner".equals(timeType) ) {
-//                targetSeconds = dsgMap.get(dataSourceCode).getMin15Corner();
-//            }
-//        }
-//        return targetSeconds;
-//    }
+    /**
+     *
+     * @param timeType  灰色区间的类型
+     * @param dataSourceCode
+     * @param tournamentLevel
+     * @param graySecond 默认灰色区间时间
+     * @return
+     */
+    public Integer graySecondsByDataSource(String timeType , String dataSourceCode, Integer tournamentLevel, Integer graySecond) {
+        Integer targetSeconds = graySecond;
+        MatchGrayIntervalExample grayIntervalExample = new MatchGrayIntervalExample();
+        grayIntervalExample.createCriteria().andTournamentLevelEqualTo(tournamentLevel);
+        List<MatchGrayInterval> dbGrayIntervals = matchGrayIntervalMapper.selectByExample(grayIntervalExample);
+        Map<String, MatchGrayInterval> dsgMap = Maps.newConcurrentMap();
+        if ( !CollectionUtils.isEmpty(dbGrayIntervals) ) {
+            dsgMap = dbGrayIntervals.stream().collect(Collectors.toMap(MatchGrayInterval::getDataSourceCode, Function.identity()));
+        }
+
+        if ( null != dsgMap && dsgMap.size() > 0 && dsgMap.containsKey(dataSourceCode)) {
+            if ( "min15Goal".equals(timeType) ) {
+                targetSeconds = dsgMap.get(dataSourceCode).getMin15Goal();
+            } else if ( "min5Goal".equals(timeType) ) {
+                targetSeconds = dsgMap.get(dataSourceCode).getMin5Goal();
+            } else if ( "min15Corner".equals(timeType) ) {
+                targetSeconds = dsgMap.get(dataSourceCode).getMin15Corner();
+            }
+        }
+        return targetSeconds;
+    }
 
 }

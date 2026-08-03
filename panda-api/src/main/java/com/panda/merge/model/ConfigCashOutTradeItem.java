@@ -32,8 +32,10 @@ public class ConfigCashOutTradeItem implements Serializable {
 
     @ApiModelProperty(value = "修改时间")
     private Long modifyTime;
-    @ApiModelProperty(value = "赛事级数据源")
+
+    @ApiModelProperty(value = "数据源编码")
     private String dataSourceCode;
+
     private static final long serialVersionUID = 1L;
 
     public Long getId() {

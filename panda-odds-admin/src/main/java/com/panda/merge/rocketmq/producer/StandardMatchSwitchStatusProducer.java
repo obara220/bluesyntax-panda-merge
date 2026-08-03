@@ -62,7 +62,7 @@ public class StandardMatchSwitchStatusProducer extends BaseProcessor {
      * @param sportId             运动ID
      * @param
      */
-    public void standardMatchSwitchStatus(String linkId, Long standardMatchInfoId, Integer status, String dataSourceCode, Long sportId, boolean isTrue,Integer advance) {
+    public void standardMatchSwitchStatus(String linkId, Long standardMatchInfoId, Integer status, String dataSourceCode, Long sportId, boolean isTrue, Integer advance) {
         //更新标准赛事 oddsLive
         StandardMatchInfo upStandardMatchInfo = new StandardMatchInfo();
         upStandardMatchInfo.setId(standardMatchInfoId);
@@ -92,14 +92,13 @@ public class StandardMatchSwitchStatusProducer extends BaseProcessor {
     }
 
     private static Request<StandardMatchSwitchStatusMessage> convert(String linkId, Long standardMatchInfoId, Integer status, String dataSourceCode,
-                                                                     String thirdMatchId, Integer advance) {
+                                                                     String thirdMatchId,Integer advance) {
         StandardMatchSwitchStatusMessage statusMessage = new StandardMatchSwitchStatusMessage();
         statusMessage.setStandardMatchId(standardMatchInfoId);
         statusMessage.setOddsLive(status);
         statusMessage.setDataSourceCode(dataSourceCode);
         statusMessage.setThirdMatchId(thirdMatchId);
         statusMessage.setAdvance(advance);
-
         Request<StandardMatchSwitchStatusMessage> requestMsg = new Request<>();
         requestMsg.setData(statusMessage);
         requestMsg.setLinkId(linkId);

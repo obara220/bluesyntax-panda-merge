@@ -32,6 +32,7 @@ import com.panda.merge.utils.MessageBuilderUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.dubbo.common.utils.CollectionUtils;
+import org.apache.rocketmq.common.ServiceThread;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -1056,6 +1057,10 @@ public class AbstractCalculationServiceImpl implements CalculationService {
             //足球按照栏位展示顺序
             for(int i = 1; i <= 18; i++) {
                 int finalI = i;
+                //不存全场阶段的日志
+                if(finalI==3 || finalI==7 || finalI==11 || finalI==15){
+                    continue;
+                }
                 List<StandardScoreDTO> allScores = scores.getScores().stream().filter(s -> s.getIndex() == finalI).collect(Collectors.toList());
                 if(!allScores.isEmpty()){
                     if(allScores.get(0).getHome()==null || allScores.get(0).getAway()==null){

@@ -11,6 +11,7 @@ import com.panda.merge.model.ThirdMatchInfo;
 import com.panda.merge.rocketmq.producer.CategoryCodeProducer;
 import com.panda.merge.service.ThirdMarketCategoryService;
 import com.panda.merge.service.ThirdMatchInfoService;
+import com.panda.merge.service.ThirdSportMarketCategoryService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.common.utils.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,7 @@ import springfox.documentation.spring.web.json.Json;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -38,6 +40,8 @@ public class CategoryCodeProcessor  extends BaseProcessor {
 
     @Autowired
     private ThirdMarketCategoryService thirdMarketCategoryService;
+    @Autowired
+    private ThirdSportMarketCategoryService thirdSportMarketCategoryService;
     /**
      * 处理三方赛事内部编码
      * @param request
@@ -121,27 +125,49 @@ public class CategoryCodeProcessor  extends BaseProcessor {
             log.info("::{}::processToApi 入参为空", linkId);
             return;
         }
-        log.info("::{}::processToApi 入参 thirdMatchId:{},详细信息：{}", linkId, thirdMatchInfo.getThirdMatchSourceId(), JSONUtil.toJsonStr(map));
-        //标准玩法转三方玩法
-        List<String> dataSourceReferences = null;
-        if (thirdMatchInfo.getDataSourceCode().equalsIgnoreCase(DataSourceCodeEnum.LS.getCode())){
-            dataSourceReferences = map.keySet().stream().map(thi->DataSourceCodeEnum.LS.getCode()+"-"+thi).collect(Collectors.toList());
-        }else if (thirdMatchInfo.getDataSourceCode().equalsIgnoreCase(DataSourceCodeEnum.TX.getCode())){
-            dataSourceReferences = map.keySet().stream().map(thi->DataSourceCodeEnum.TX.getCode()+"-"+thi).collect(Collectors.toList());
-        }else if (thirdMatchInfo.getDataSourceCode().equalsIgnoreCase(DataSourceCodeEnum.L02.getCode())){
-            dataSourceReferences = map.keySet().stream().map(thi->DataSourceCodeEnum.L02.getCode()+"-"+thi).collect(Collectors.toList());
-        }
-        if (dataSourceReferences == null || dataSourceReferences.isEmpty()){
-            log.info("::{}::processToApi 未找到赛事内部编码，请检查赛事ID是否正确 dataSourceReferences==null,thirdMatchId:{}", linkId,thirdMatchInfo.getThirdMatchSourceId());
+        log.info("::{}::processToApi 入参 thirdMatchId:{},sportId:{},详细信息：{}", linkId, thirdMatchInfo.getThirdMatchSourceId(), thirdMatchInfo.getSportId(), JSONUtil.toJsonStr(map));
+        String dataSourceCode = thirdMatchInfo.getDataSourceCode();
+        if (!DataSourceCodeEnum.LS.getCode().equalsIgnoreCase(dataSourceCode)
+                && !DataSourceCodeEnum.TX.getCode().equalsIgnoreCase(dataSourceCode)
+                && !DataSourceCodeEnum.L02.getCode().equalsIgnoreCase(dataSourceCode)) {
+            log.info("::{}::processToApi 不支持的数据源,thirdMatchId:{},dataSourceCode:{}", linkId, thirdMatchInfo.getThirdMatchSourceId(), dataSourceCode);
             return;
         }
-        List<ThirdMarketCategory> categoryList = thirdMarketCategoryService.getItemsByDataSourceAndReferenceIds(dataSourceReferences);
-        if (CollectionUtils.isEmpty(categoryList)){
-            log.info("::{}::processToApi 未找到赛事内部编码，请检查赛事ID是否正确 categoryList==null,thirdMatchId:{}", linkId,thirdMatchInfo.getThirdMatchSourceId());
+        Long sportId = thirdMatchInfo.getSportId();
+        if (sportId == null) {
+            log.info("::{}::processToApi 赛种为空,thirdMatchId:{}", linkId, thirdMatchInfo.getThirdMatchSourceId());
             return;
         }
-        //转三方玩法
-        Map<String,String> thirdCategoryMap = categoryList.stream().collect(Collectors.toMap(thi->thi.getThirdSourceId(),thi->map.get(thi.getReferenceId()),(oldValue,newValue)->newValue));
+        // 标准玩法 -> 三方玩法：必须带赛种；Redis 批量缓存，miss 才回源 DB
+        List<ThirdMarketCategory> categoryList = thirdSportMarketCategoryService.getItemsBySportReferenceIds(
+                dataSourceCode, sportId, new ArrayList<>(map.keySet()));
+        if (CollectionUtils.isEmpty(categoryList)) {
+            log.info("::{}::processToApi 未找到赛种玩法映射,thirdMatchId:{},sportId:{},standardCategoryIds:{}",
+                    linkId, thirdMatchInfo.getThirdMatchSourceId(), sportId, map.keySet());
+            return;
+        }
+        Map<Long, List<ThirdMarketCategory>> categoryByReferenceId = categoryList.stream()
+                .collect(Collectors.groupingBy(ThirdMarketCategory::getReferenceId));
+        Map<String, String> thirdCategoryMap = new LinkedHashMap<>();
+        map.forEach((standardCategoryId, internalCode) -> {
+            List<ThirdMarketCategory> categories = categoryByReferenceId.get(standardCategoryId);
+            if (CollectionUtils.isEmpty(categories)) {
+                log.info("::{}::processToApi 未找到当前数据源下赛种玩法映射,thirdMatchId:{},sportId:{},dataSourceCode:{},standardCategoryId:{}",
+                        linkId, thirdMatchInfo.getThirdMatchSourceId(), sportId, dataSourceCode, standardCategoryId);
+                return;
+            }
+            if (categories.size() > 1) {
+                log.warn("::{}::processToApi 赛种下标准玩法对应多个三方玩法,跳过不下发,thirdMatchId:{},sportId:{},dataSourceCode:{},standardCategoryId:{},thirdSourceIds:{}",
+                        linkId, thirdMatchInfo.getThirdMatchSourceId(), sportId, dataSourceCode, standardCategoryId,
+                        categories.stream().map(ThirdMarketCategory::getThirdSourceId).collect(Collectors.toList()));
+                return;
+            }
+            thirdCategoryMap.put(categories.get(0).getThirdSourceId(), internalCode);
+        });
+        if (thirdCategoryMap.isEmpty()) {
+            log.info("::{}::processToApi thirdCategoryMap为空,thirdMatchId:{},sportId:{}", linkId, thirdMatchInfo.getThirdMatchSourceId(), sportId);
+            return;
+        }
         Request<List<CategoryDataSourceCodeDTO>> categoryCodeRequest = convertCategoryCode(linkId,thirdMatchInfo,thirdCategoryMap,marketType);
         if (thirdMatchInfo.getDataSourceCode().equalsIgnoreCase(DataSourceCodeEnum.LS.getCode())){
             categoryCodeProducer.sendLCodeApiTOMQ(categoryCodeRequest);

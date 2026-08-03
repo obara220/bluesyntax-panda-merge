@@ -88,7 +88,6 @@ public class MatchOddWarningJob extends BaseProcessor {
                         redisService.hDel(oddsWarningKey, entry.getKey());
                         continue;
                     }
-                    standardMatchInfo.setMatchPeriodId(getMatchPeriod(standardMatchInfo.getId()));
                     //赛事未到LIVE状态、中场休息阶段 不下发
                     if (!standardMatchInfo.getMatchStatus().equals(MatchStatusEnum.Live.value) || Constant.FOOT_BALL_PERIOD_FILTER_WARNING.contains(standardMatchInfo.getMatchPeriodId())) {
                         String linkId = IdWorker.getId() + "_PERIOD_REST";
@@ -150,7 +149,7 @@ public class MatchOddWarningJob extends BaseProcessor {
                 objectMap.put("sign", false);
                 objectMap.put("time", TimeUtils.millsSecondsEast8ZoneGmt());
                 redisService.hSet(oddsWarningKey, Key, objectMap);
-                log.info("::{}::标准赛事ID:{},标准玩法ID:{},自动关盘玩法解除告警", linkId, standardMatchInfo.getId(), marketCategoryId);
+                //log.info("::{}::标准赛事ID:{},标准玩法ID:{},自动关盘玩法解除告警", linkId, standardMatchInfo.getId(), marketCategoryId);
             }
         }
     }

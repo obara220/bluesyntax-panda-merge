@@ -2684,6 +2684,76 @@ public class ThirdMatchPromotionChartExample {
             addCriterion("is_current_season not between", value1, value2, "isCurrentSeason");
             return (Criteria) this;
         }
+
+        public Criteria andZsRoundDescriptionIsNull() {
+            addCriterion("zs_round_description is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andZsRoundDescriptionIsNotNull() {
+            addCriterion("zs_round_description is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andZsRoundDescriptionEqualTo(String value) {
+            addCriterion("zs_round_description =", value, "zsRoundDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andZsRoundDescriptionNotEqualTo(String value) {
+            addCriterion("zs_round_description <>", value, "zsRoundDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andZsRoundDescriptionGreaterThan(String value) {
+            addCriterion("zs_round_description >", value, "zsRoundDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andZsRoundDescriptionGreaterThanOrEqualTo(String value) {
+            addCriterion("zs_round_description >=", value, "zsRoundDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andZsRoundDescriptionLessThan(String value) {
+            addCriterion("zs_round_description <", value, "zsRoundDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andZsRoundDescriptionLessThanOrEqualTo(String value) {
+            addCriterion("zs_round_description <=", value, "zsRoundDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andZsRoundDescriptionLike(String value) {
+            addCriterion("zs_round_description like", value, "zsRoundDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andZsRoundDescriptionNotLike(String value) {
+            addCriterion("zs_round_description not like", value, "zsRoundDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andZsRoundDescriptionIn(List<String> values) {
+            addCriterion("zs_round_description in", values, "zsRoundDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andZsRoundDescriptionNotIn(List<String> values) {
+            addCriterion("zs_round_description not in", values, "zsRoundDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andZsRoundDescriptionBetween(String value1, String value2) {
+            addCriterion("zs_round_description between", value1, value2, "zsRoundDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andZsRoundDescriptionNotBetween(String value1, String value2) {
+            addCriterion("zs_round_description not between", value1, value2, "zsRoundDescription");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

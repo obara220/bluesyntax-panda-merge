@@ -87,6 +87,7 @@ public class ThirdScoringScoresConsumer  extends AbstractSingleMessageMQConsumer
     }
     @Override
     public void processMessage(Request<StandardMatchSwitchStatusMessage> request) {
+        log.info("::THIRD_SCORING_CENTER_API,ThirdScoringScoresConsumer::下发滚球赔率:{}", request);
         log.info("ThirdScoringScoresConsumer MQ消费数据开始...{}",datacenterMergeSwitch);
         if (datacenterMergeSwitch && commonProducer.getDatacenterMatchIds(request.getData().getStandardMatchId().toString())) {
             //MQ消息转发给数据中心
@@ -126,7 +127,10 @@ public class ThirdScoringScoresConsumer  extends AbstractSingleMessageMQConsumer
             return;
         }
         MatchScoresInfo matchScoresInfo = matchScoreInfoRepository.selectByExample(thirdMatchInfo.getId(),SourceTypeEnum.LIVE_DATA.getCode());
-        if(matchScoresInfo==null){
+        if(matchScoresInfo!=null && matchScoresInfo.getPeriod()!=0 && StrUtil.isEmpty(matchScoresInfo.getScoresJson())){
+            log.info("::THIRD_SCORING_CENTER_API::赛事已存在阶段非未开赛,并且存在比分:{}",link);
+            return;
+        }else{
             matchScoresInfo =new  MatchScoresInfo();
             matchScoresInfo.setId(IdWorker.getId());
             matchScoresInfo.setDataSourceCode(standardSportMarketSell.getBusinessEvent());
@@ -141,15 +145,18 @@ public class ThirdScoringScoresConsumer  extends AbstractSingleMessageMQConsumer
             matchScoresInfo.setSportId(standardMatchInfo.getSportId());
             matchScoresInfo.setCreateTime(System.currentTimeMillis());
             matchScoresInfo.setModifyTime(matchScoresInfo.getCreateTime());
-        }
-        //初始化比分
-        if(StrUtil.isEmpty(matchScoresInfo.getScoresJson())){
             matchScoresInfo.setScoresJson(initSportScores(standardMatchInfo.getSportId()));
             matchScoreInfoRepository.updateScoresInfo(matchScoresInfo);
-        }else{
-            log.info("::THIRD_SCORING_CENTER_API::比分中心:SendInitMatchScoresConsumer-原数据源存在比分下发:{}",link);
-            return;
         }
+
+//        //初始化比分
+//        if(StrUtil.isEmpty(matchScoresInfo.getScoresJson())){
+//            matchScoresInfo.setScoresJson(initSportScores(standardMatchInfo.getSportId()));
+//            matchScoreInfoRepository.updateScoresInfo(matchScoresInfo);
+//        }else{
+//            log.info("::THIRD_SCORING_CENTER_API::比分中心:SendInitMatchScoresConsumer-原数据源存在比分下发:{}",link);
+//            return;
+//        }
         log.info("::THIRD_SCORING_CENTER_API::比分中心:SendInitMatchScoresConsumer-初始化比分完成，逻辑处理开始:{}",link);
         // 数据组装
         CommonStandardScoresDto commonScoresDto = messageBuilderUtils.buildCommonScoresDto(thirdMatchInfo, matchScoresInfo);

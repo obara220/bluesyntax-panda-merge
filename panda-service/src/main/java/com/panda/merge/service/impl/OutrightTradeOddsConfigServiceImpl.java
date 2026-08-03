@@ -5,6 +5,8 @@ import com.panda.merge.component.UUIdUtils;
 import com.panda.merge.config.RedisConfig;
 import com.panda.merge.dto.OutrightTradeOddsConfigDTO;
 import com.panda.merge.mapper.ConfigOutrightTradeOddsMapper;
+import com.panda.merge.model.ConfigOutrightTradeMarket;
+import com.panda.merge.model.ConfigOutrightTradeMarketExample;
 import com.panda.merge.model.ConfigOutrightTradeOdds;
 import com.panda.merge.model.ConfigOutrightTradeOddsExample;
 import com.panda.merge.service.OutrightTradeOddsConfigService;
@@ -18,6 +20,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * <Description> <br>
@@ -65,4 +69,26 @@ public class OutrightTradeOddsConfigServiceImpl implements OutrightTradeOddsConf
         }
         return configOutrightTradeOddsList.get(0);
     }
+
+    @Override
+    public List<ConfigOutrightTradeOdds> selectItems(Map<Long, Set<Long>> matchAndOddIdsMap) {
+        ConfigOutrightTradeOddsExample example = new ConfigOutrightTradeOddsExample();
+        for(Map.Entry<Long, Set<Long>> entry : matchAndOddIdsMap.entrySet()) {
+            example.or().andStandardMatchIdEqualTo(entry.getKey()).andStandardMarketOddsIdIn((List<Long>) entry.getValue());
+        }
+        return configOutrightTradeOddsMapper.selectByExample(example);
+    }
+
+    @Override
+    public List<ConfigOutrightTradeOdds> selectOddsTradeList(List<Long> oddsIds) {
+        ConfigOutrightTradeOddsExample example = new ConfigOutrightTradeOddsExample();
+        example.createCriteria().andStandardMarketOddsIdIn(oddsIds);
+        List<ConfigOutrightTradeOdds> configOutrightTradeOddsList = configOutrightTradeOddsMapper.selectByExample(example);
+        if( CollectionUtils.isEmpty(configOutrightTradeOddsList) ){
+            return null;
+        }
+        return configOutrightTradeOddsList;
+    }
+
+    
 }

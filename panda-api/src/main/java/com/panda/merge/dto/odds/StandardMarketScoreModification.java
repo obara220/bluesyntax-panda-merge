@@ -25,11 +25,11 @@ public interface StandardMarketScoreModification extends StandardMarketModificat
     default String score() {
         String homeScore = homeScore();
         if (StringUtils.isEmpty(homeScore)) {
-            return null;
+            return "0_0";
         }
         String awayScore = awayScore();
         if (StringUtils.isEmpty(awayScore)) {
-            return null;
+            return "0_0";
         }
         return homeScore() + "_" + awayScore();
     }
@@ -37,11 +37,11 @@ public interface StandardMarketScoreModification extends StandardMarketModificat
     default Integer scoreSum() {
         String homeScore = homeScore();
         if (StringUtils.isEmpty(homeScore)) {
-            return null;
+            return 0;
         }
         String awayScore = awayScore();
         if (StringUtils.isEmpty(awayScore)) {
-            return null;
+            return 0;
         }
         return Integer.parseInt(homeScore()) + Integer.parseInt(awayScore());
     }

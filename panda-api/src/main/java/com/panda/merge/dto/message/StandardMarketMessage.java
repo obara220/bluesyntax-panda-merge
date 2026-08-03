@@ -217,11 +217,20 @@ public class StandardMarketMessage implements StandardMarketScoreModification, S
      * 足球增加开盘时间-封、关盘/接拒  记录被修改的第三方状态
      */
     private Integer oldThirdMarketSourceStatus;
+    /**
+     * 初盘PA赋值
+     */
+    private String dataSourceCodePA;
 
     /**
      * 内部数据源
      */
     private String internalDataSourceCode;
+
+    /**
+     * AO特殊事件
+     */
+    private Integer eventType = 0;
 
     /**
      * 玩法类型 计算
@@ -255,6 +264,12 @@ public class StandardMarketMessage implements StandardMarketScoreModification, S
      * 0上架。1下架
      */
     private int isShelves = 0;
+
+    /**
+     * 玩法操盘方 0-pa,1-XTS
+     */
+    private int categoryRiskCode ;
+
 
     @Override
     public String homeScore() {

@@ -31,9 +31,6 @@ public class ThirdSportMarket implements Serializable {
     @ApiModelProperty(value = "盘口状态0-5.0:active,1:suspended,2:deactivated,3:settled,4:cancelled,5:handedOver")
     private Integer status;
 
-    @ApiModelProperty(value = "三方盘口源状态")
-    private Integer thirdMarketSourceStatus;
-
     @ApiModelProperty(value = "盘口阶段id.对应对应system_item_dict.value")
     private String scopeId;
 
@@ -81,6 +78,9 @@ public class ThirdSportMarket implements Serializable {
 
     private String extraInfo;
 
+    @ApiModelProperty(value = "三方盘口源状态")
+    private Integer thirdMarketSourceStatus;
+
     @ApiModelProperty(value = "TX坑位")
     private Integer offerLineId;
 
@@ -89,6 +89,9 @@ public class ThirdSportMarket implements Serializable {
 
     @ApiModelProperty(value = "内部数据源")
     private String internalDataSourceCode;
+
+    @ApiModelProperty(value = "AO特殊事件标识")
+    private Integer eventType;
 
     private static final long serialVersionUID = 1L;
 
@@ -162,14 +165,6 @@ public class ThirdSportMarket implements Serializable {
 
     public void setStatus(Integer status) {
         this.status = status;
-    }
-
-    public Integer getThirdMarketSourceStatus() {
-        return thirdMarketSourceStatus;
-    }
-
-    public void setThirdMarketSourceStatus(Integer thirdMarketSourceStatus) {
-        this.thirdMarketSourceStatus = thirdMarketSourceStatus;
     }
 
     public String getScopeId() {
@@ -308,6 +303,14 @@ public class ThirdSportMarket implements Serializable {
         this.extraInfo = extraInfo;
     }
 
+    public Integer getThirdMarketSourceStatus() {
+        return thirdMarketSourceStatus;
+    }
+
+    public void setThirdMarketSourceStatus(Integer thirdMarketSourceStatus) {
+        this.thirdMarketSourceStatus = thirdMarketSourceStatus;
+    }
+
     public Integer getOfferLineId() {
         return offerLineId;
     }
@@ -332,6 +335,14 @@ public class ThirdSportMarket implements Serializable {
         this.internalDataSourceCode = internalDataSourceCode;
     }
 
+    public Integer getEventType() {
+        return eventType;
+    }
+
+    public void setEventType(Integer eventType) {
+        this.eventType = eventType;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -347,7 +358,6 @@ public class ThirdSportMarket implements Serializable {
         sb.append(", marketType=").append(marketType);
         sb.append(", dataSourceCode=").append(dataSourceCode);
         sb.append(", status=").append(status);
-        sb.append(", thirdMarketSourceStatus=").append(thirdMarketSourceStatus);
         sb.append(", scopeId=").append(scopeId);
         sb.append(", nameCode=").append(nameCode);
         sb.append(", oddsTypeName=").append(oddsTypeName);
@@ -365,9 +375,11 @@ public class ThirdSportMarket implements Serializable {
         sb.append(", createTime=").append(createTime);
         sb.append(", modifyTime=").append(modifyTime);
         sb.append(", extraInfo=").append(extraInfo);
+        sb.append(", thirdMarketSourceStatus=").append(thirdMarketSourceStatus);
         sb.append(", offerLineId=").append(offerLineId);
         sb.append(", numberOfWinners=").append(numberOfWinners);
         sb.append(", internalDataSourceCode=").append(internalDataSourceCode);
+        sb.append(", eventType=").append(eventType);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

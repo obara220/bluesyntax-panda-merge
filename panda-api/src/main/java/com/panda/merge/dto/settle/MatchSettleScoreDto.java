@@ -106,8 +106,4 @@ public class MatchSettleScoreDto  extends AbstructMatchSettleDto {
      */
     private Long delayTimeSecond;
 
-    /**
-     * 即时开关是否开启
-     */
-    private Boolean realTimeOnOff;
 }

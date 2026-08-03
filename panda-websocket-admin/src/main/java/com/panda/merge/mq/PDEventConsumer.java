@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RocketMQMessageListener(topic = "PD_FOOTBALL_EVENT", consumerGroup = "scores-group-PDEventConsumer",consumeThreadMax = 2,
         consumeTimeout = 10000L,
-        messageModel = MessageModel.CLUSTERING)
+        messageModel = MessageModel.BROADCASTING)
 @DependsOn("mergeWebSocketApplication")
 public class PDEventConsumer implements RocketMQListener<Request<String>> {
     @Autowired
@@ -27,7 +27,6 @@ public class PDEventConsumer implements RocketMQListener<Request<String>> {
     public void onMessage(Request<String> request) {
 //        log.info("PD_FOOTBALL_EVENT_GET:{}",request.getData());
         pdSubcribe.sendPdEvent(request.getData());
-        log.info("PD_FOOTBALL_EVENT_GET_END:");
     }
 
 }

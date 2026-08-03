@@ -26,6 +26,12 @@
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger2</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.mapstruct</groupId>
+                    <artifactId>mapstruct</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>io.springfox</groupId>
@@ -52,6 +58,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jdbc</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.panda.merge</groupId>
+            <artifactId>panda-api</artifactId>
+        </dependency>
 
     </dependencies>
 
@@ -59,12 +69,12 @@
         <repository>
             <id>panda</id>
             <name>Releases</name>
-            <url>http://idc-pub-nexus.dbsportapixxxutikb.com/repository/panda/</url>
+            <url>http://idc-pub-nexus.sportxxxr1pub.com/repository/panda/</url>
         </repository>
         <snapshotRepository>
             <id>panda-snapshots</id>
             <name>panda-snapshots</name>
-            <url>http://idc-pub-nexus.dbsportapixxxutikb.com/repository/panda-snapshots/</url>
+            <url>http://idc-pub-nexus.sportxxxr1pub.com/repository/panda-snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
 

@@ -30,7 +30,7 @@ import java.util.List;
 @Component
 public class SpareMatchOrderCountConsumer {
     private static final String TOPIC = "MATCH_RESULT_ORDER_COUNT_INFO";
-    private static final String CONSUMER_GROUP = "scores_group_MATCH_RESULT_ORDER_COUNT_INFO";
+    private static final String CONSUMER_GROUP = "scores_group_MATCH_RESULT_ORDER_COUNT_INFO2";
 
     @Value("${slaveNamesrvAddr}")
     private String nameServers;
@@ -136,7 +136,7 @@ public class SpareMatchOrderCountConsumer {
                 return;
             }
             // 直接调用主消费者的处理方法（String类型消息）
-            matchOrderCountConsumer.onMessage(message);
+            matchOrderCountConsumer.onMessage(null);
         } catch (Exception e) {
             log.error("linkId=【{}】【备用-MQ,{}】大数据下发赛事注单数数据处理异常,Exception:", linkId, topic, e);
         } finally {

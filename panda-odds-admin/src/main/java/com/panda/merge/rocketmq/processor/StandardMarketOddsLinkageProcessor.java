@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -97,9 +98,9 @@ public class StandardMarketOddsLinkageProcessor {
         for (MarketOddsLinkageConfigMessage marketOddsLinkageConfigMessageDeputy : marketOddsLinkageConfigMessageListMapDeputy) {
             //副写入投注项主id,方便主流程直接获取到主赔率
             marketOddsLinkageConfigMessageDeputy.setParentStandardMarketOddsId(marketOddsLinkageConfigMessageListMain.getStandardMarketOddsId());
-            redisService.set(Constant.REDIS_KEY.RONGE_ODDS_LINKAGE_CONFIG + marketOddsLinkageConfigMessageDeputy.getStandardMarketOddsId(), marketOddsLinkageConfigMessageDeputy, RedisConfig.REDIS_MONTH_TIME);
+            redisService.set(Constant.REDIS_KEY.RONGE_ODDS_LINKAGE_CONFIG + marketOddsLinkageConfigMessageDeputy.getStandardMarketOddsId(), marketOddsLinkageConfigMessageDeputy,RedisConfig.REDIS_MONTH_TIME);
         }
-        redisService.set(Constant.REDIS_KEY.RONGE_ODDS_LINKAGE_CONFIG + marketOddsLinkageConfigMessageListMain.getStandardMarketOddsId(), marketOddsLinkageConfigMessageListMain, RedisConfig.REDIS_MONTH_TIME);
+        redisService.set(Constant.REDIS_KEY.RONGE_ODDS_LINKAGE_CONFIG + marketOddsLinkageConfigMessageListMain.getStandardMarketOddsId(), marketOddsLinkageConfigMessageListMain,RedisConfig.REDIS_MONTH_TIME);
 
         if (MarginCategoryConfig.STANDARD_OUTRIGHT_CATEGORY.contains(marketOddsLinkageConfigMessageListMain.getCategoryId())) {
             Set<String> mainMarketIds = new HashSet<>();

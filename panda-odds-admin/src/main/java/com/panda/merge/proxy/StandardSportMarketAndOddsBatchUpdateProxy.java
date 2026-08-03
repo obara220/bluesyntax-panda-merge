@@ -117,6 +117,23 @@ public class StandardSportMarketAndOddsBatchUpdateProxy {
             log.info("::{}::batchStandardOddsInsert，,标准盘口新增,批量接收数据处理出现异常:{}", linkId, e.getMessage());
             e.printStackTrace();
         }
+
+
+
+
+      /*  try {
+            standardSportMarketDao.insertList(standardSportMarketList);
+        } catch (DuplicateKeyException e) {
+            log.info("::{}::batchStandardMarketInsert，标准盘口批量新增：{}，出现主键冲突", linkId, JSONObject.toJSONString(standardSportMarketList), e);
+            //出现主键冲突，重新设置主键后，改为单条新增 ,要重新设置下缓存数据
+            for (StandardSportMarket standardSportMarket : standardSportMarketList) {
+                standardSportMarket.setId(UUIdUtils.getId());
+                standardSportMarketMapper.insert(standardSportMarket);
+                String key = RedisConfig.REDIS_KEY_DATABASE + "::StandardSportMarket:" + standardSportMarket.getStandardMatchInfoId() + "-" + standardSportMarket.getThirdMarketSourceId();
+                redisService.set(key, standardSportMarket);
+                log.info("::{}::batchStandardMarketInsert，标准盘口批量新增：{}，出现主键冲突后再次单条入库", linkId, JSONObject.toJSONString(standardSportMarket));
+            }
+        }*/
     }
 
     /**
@@ -293,6 +310,30 @@ public class StandardSportMarketAndOddsBatchUpdateProxy {
                 log.info("::{}::batchStandardOddsInsert，标准投注项tableShardingValue:{},批量新增出现异常:{}", linkId, tableShardingValue, e.getMessage());
                 e.printStackTrace();
             }
+
+
+
+           /* HintManager instance = HintManager.getInstance();
+            try {
+                instance.addTableShardingValue("standard_sport_market_odds", tableShardingValue);
+                instance.addDatabaseShardingValue("standard_sport_market_odds", "ds1");
+                log.info("::{}::batchStandardOddsInsert，标准投注项tableShardingValue:{},批量新增处理盘口:{}", linkId, tableShardingValue, standardSportMarketOdds.size());
+                standardSportMarketOddsDao.insertList(standardSportMarketOdds, tableShardingValue);
+            } catch (DuplicateKeyException e) {
+                instance.close();
+                log.info("::{}::batchStandardOddsInsert，标准投注项tableShardingValue:{},批量新增：{}，出现主键冲突", linkId, tableShardingValue, JSONObject.toJSONString(standardSportMarketOddsList), e);
+                //出现主键冲突，重新设置主键后，改为单条新增 ,要重新设置下缓存数据
+                for (StandardSportMarketOdds sportMarketOdds : standardSportMarketOdds) {
+                    sportMarketOdds.setId(UUIdUtils.getId());
+                    standardSportMarketOddsMapper.insert(sportMarketOdds);
+                    String key = RedisConfig.REDIS_KEY_DATABASE + "::StandardSportMarketOdds:" + sportMarketOdds.getId() + '-' + sportMarketOdds.getThirdOddsFieldSourceId();
+                    redisService.set(key, sportMarketOdds);
+                    log.info("::{}::batchStandardOddsInsert，标准投注项tableShardingValue:{},批量新增：{}，出现主键冲突后再次单条入库", linkId, tableShardingValue, JSONObject.toJSONString(sportMarketOdds));
+                }
+            } finally {
+                instance.close();
+                log.info("::{}::batchStandardOddsInsert，标准投注项tableShardingValue批量新增处理完成", linkId);
+            }*/
         }
     }
 
@@ -399,6 +440,18 @@ public class StandardSportMarketAndOddsBatchUpdateProxy {
                 log.info("::{}::batchStandardOddsUpdate，标准投注项tableShardingValue:{},批量修改处理盘口出现异常:{}", uuid, tableShardingValue, e.getMessage());
                 e.printStackTrace();
             }
+          /*  HintManager instance = HintManager.getInstance();
+            try {
+                instance.addTableShardingValue("standard_sport_market_odds", tableShardingValue);
+                instance.addDatabaseShardingValue("standard_sport_market_odds", "ds1");
+                log.info("::{}::batchStandardOddsUpdate，标准投注项tableShardingValue:{},批量修改处理盘口:{}", linkId, tableShardingValue, standardSportMarketOdds.size());
+                standardSportMarketOddsDao.upDataList(standardSportMarketOdds, tableShardingValue);
+            } catch (Exception e) {
+                log.info("::{}::batchStandardOddsUpdate，标准投注项tableShardingValue:{},批量修改出现异常", linkId, tableShardingValue, e);
+            } finally {
+                instance.close();
+                log.info("::{}::batchStandardOddsUpdate，标准投注项tableShardingValue批量修改处理完成", linkId);
+            }*/
         }
     }
 }

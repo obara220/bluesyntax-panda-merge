@@ -140,11 +140,11 @@ public interface IScoresCenterApi {
 
     /**
      * 标准比分下发到结算2.0
+     * 中断下发(或常规下发)
      * @param scoreCenter 赛事信息
      * @return
      */
     Response sendToSettlement(StandardScoreCenter scoreCenter);
-
 
     /**
      * 风控查询比分
@@ -152,6 +152,13 @@ public interface IScoresCenterApi {
      * @return
      */
     Response rcsQueryMatchScoresByMatchIds(Request<QueryMatchScoresParamDTO> request);
+
+    /**
+     * 区间比分是否校验
+     * @param checkSwitch
+     * @return
+     */
+    Response checkMinScores(ScoresCenterCheckSwitchDTO checkSwitch);
 
     /**
      * 区间比分是否校验

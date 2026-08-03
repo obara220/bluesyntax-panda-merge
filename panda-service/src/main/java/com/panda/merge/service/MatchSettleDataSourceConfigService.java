@@ -18,7 +18,4 @@ public interface MatchSettleDataSourceConfigService {
      * @return
      */
     Integer getTournamentLevelStatus(Long standardMatchId,String dataSourceCode,String eventCode);
-
-    Map<String, Integer> getTournamentLevelStatuses(Long standardMatchId, String dataSourceCode, List<String> eventCodes);
-
 }

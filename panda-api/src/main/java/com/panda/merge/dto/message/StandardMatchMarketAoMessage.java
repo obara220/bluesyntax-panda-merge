@@ -46,13 +46,15 @@ public class StandardMatchMarketAoMessage implements Serializable {
      */
     private Map<Long, ThirdMarketDTO> thirdMarketBallHeadMap;
     /**
-     * 三方数据源盘口球头 篮球
+     * 篮球三方数据源盘口球头 篮球
      */
     private Map<Long, List<ThirdMarketDTO>> thirdBasketballMarketBallHeadMap;
-
+    /**
+     * 三方数据源盘口球头，次要玩法
+     */
+    private Map<Long, ThirdMarketDTO> thirdBasketballMarketBallMainlyNotHeadMap;
     /**
      * 三方数据源集合
      */
     private Set<String> dataSourceCodes;
-
 }

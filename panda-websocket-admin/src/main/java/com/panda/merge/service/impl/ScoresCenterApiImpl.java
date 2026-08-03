@@ -88,7 +88,7 @@ public class ScoresCenterApiImpl implements IScoresCenterService {
             ObjectMapper objectMapper = new ObjectMapper();
             String key =objectMapper.writeValueAsString(matchIds);
             List<MatchScoresBetterDto> matchScoresBetterDtos = scoreSearchService.searchBetterListMatchScores(key,matchIds);
-//            log.info("searchListMatchScores的查询入参:{}, 返回结果:{}", JSON.toJSONString(matchIds), JSON.toJSONString(matchScoresBetterDtos));
+            log.info("searchListMatchScores的查询入参:{}, 返回结果:{}", JSON.toJSONString(matchIds), JSON.toJSONString(matchScoresBetterDtos));
 
             for (MatchScoresBetterDto matchScoresBetterDto : matchScoresBetterDtos) {
                 if(matchScoresBetterDto.getPeriodNow()==null||matchScoresBetterDto.getPeriodNow().equals(0l)){
@@ -110,6 +110,7 @@ public class ScoresCenterApiImpl implements IScoresCenterService {
 
             //检查比分版和赛事状态如果有问题则打印日志
 //            checkMatchStatus(list);
+            log.info("推送比分赛事状态和时间:{}", JSON.toJSONString(list));
             return list;
         }catch (Exception e){
             log.error("推送异常：",e);

@@ -107,7 +107,7 @@
     </if>
   </select>
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
-    select
+    select 
     <include refid="Base_Column_List" />
     from third_match_lineup
     where id = #{id,jdbcType=VARCHAR}
@@ -123,24 +123,24 @@
     </if>
   </delete>
   <insert id="insert" parameterType="com.panda.merge.model.ThirdMatchLineup">
-    insert into third_match_lineup (id, third_match_source_id, sport_id,
-                                    data_source_code, third_team_source_id, third_player_source_id,
-                                    third_player_name, third_player_pic_url, position,
-                                    shirt_number, substitute, modify_time,
-                                    create_time, home_away, position_name,
-                                    invalid, overall_ratings, third_player_en_name,
-                                    edit_status, home_formation, away_formation,
-                                    play_time, assist, rebound,
-                                    point)
-    values (#{id,jdbcType=VARCHAR}, #{thirdMatchSourceId,jdbcType=VARCHAR}, #{sportId,jdbcType=BIGINT},
-            #{dataSourceCode,jdbcType=VARCHAR}, #{thirdTeamSourceId,jdbcType=VARCHAR}, #{thirdPlayerSourceId,jdbcType=VARCHAR},
-            #{thirdPlayerName,jdbcType=VARCHAR}, #{thirdPlayerPicUrl,jdbcType=VARCHAR}, #{position,jdbcType=INTEGER},
-            #{shirtNumber,jdbcType=INTEGER}, #{substitute,jdbcType=INTEGER}, #{modifyTime,jdbcType=BIGINT},
-            #{createTime,jdbcType=BIGINT}, #{homeAway,jdbcType=INTEGER}, #{positionName,jdbcType=VARCHAR},
-            #{invalid,jdbcType=INTEGER}, #{overallRatings,jdbcType=VARCHAR}, #{thirdPlayerEnName,jdbcType=VARCHAR},
-            #{editStatus,jdbcType=INTEGER}, #{homeFormation,jdbcType=VARCHAR}, #{awayFormation,jdbcType=VARCHAR},
-            #{playTime,jdbcType=VARCHAR}, #{assist,jdbcType=VARCHAR}, #{rebound,jdbcType=VARCHAR},
-            #{point,jdbcType=VARCHAR})
+    insert into third_match_lineup (id, third_match_source_id, sport_id, 
+      data_source_code, third_team_source_id, third_player_source_id, 
+      third_player_name, third_player_pic_url, position, 
+      shirt_number, substitute, modify_time, 
+      create_time, home_away, position_name, 
+      invalid, overall_ratings, third_player_en_name, 
+      edit_status, home_formation, away_formation, 
+      play_time, assist, rebound, 
+      point)
+    values (#{id,jdbcType=VARCHAR}, #{thirdMatchSourceId,jdbcType=VARCHAR}, #{sportId,jdbcType=BIGINT}, 
+      #{dataSourceCode,jdbcType=VARCHAR}, #{thirdTeamSourceId,jdbcType=VARCHAR}, #{thirdPlayerSourceId,jdbcType=VARCHAR}, 
+      #{thirdPlayerName,jdbcType=VARCHAR}, #{thirdPlayerPicUrl,jdbcType=VARCHAR}, #{position,jdbcType=INTEGER}, 
+      #{shirtNumber,jdbcType=INTEGER}, #{substitute,jdbcType=INTEGER}, #{modifyTime,jdbcType=BIGINT}, 
+      #{createTime,jdbcType=BIGINT}, #{homeAway,jdbcType=INTEGER}, #{positionName,jdbcType=VARCHAR}, 
+      #{invalid,jdbcType=INTEGER}, #{overallRatings,jdbcType=VARCHAR}, #{thirdPlayerEnName,jdbcType=VARCHAR}, 
+      #{editStatus,jdbcType=INTEGER}, #{homeFormation,jdbcType=VARCHAR}, #{awayFormation,jdbcType=VARCHAR}, 
+      #{playTime,jdbcType=VARCHAR}, #{assist,jdbcType=VARCHAR}, #{rebound,jdbcType=VARCHAR}, 
+      #{point,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.panda.merge.model.ThirdMatchLineup">
     insert into third_match_lineup
@@ -391,30 +391,30 @@
   <update id="updateByExample" parameterType="map">
     update third_match_lineup
     set id = #{record.id,jdbcType=VARCHAR},
-    third_match_source_id = #{record.thirdMatchSourceId,jdbcType=VARCHAR},
-    sport_id = #{record.sportId,jdbcType=BIGINT},
-    data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
-    third_team_source_id = #{record.thirdTeamSourceId,jdbcType=VARCHAR},
-    third_player_source_id = #{record.thirdPlayerSourceId,jdbcType=VARCHAR},
-    third_player_name = #{record.thirdPlayerName,jdbcType=VARCHAR},
-    third_player_pic_url = #{record.thirdPlayerPicUrl,jdbcType=VARCHAR},
-    position = #{record.position,jdbcType=INTEGER},
-    shirt_number = #{record.shirtNumber,jdbcType=INTEGER},
-    substitute = #{record.substitute,jdbcType=INTEGER},
-    modify_time = #{record.modifyTime,jdbcType=BIGINT},
-    create_time = #{record.createTime,jdbcType=BIGINT},
-    home_away = #{record.homeAway,jdbcType=INTEGER},
-    position_name = #{record.positionName,jdbcType=VARCHAR},
-    invalid = #{record.invalid,jdbcType=INTEGER},
-    overall_ratings = #{record.overallRatings,jdbcType=VARCHAR},
-    third_player_en_name = #{record.thirdPlayerEnName,jdbcType=VARCHAR},
-    edit_status = #{record.editStatus,jdbcType=INTEGER},
-    home_formation = #{record.homeFormation,jdbcType=VARCHAR},
-    away_formation = #{record.awayFormation,jdbcType=VARCHAR},
-    play_time = #{record.playTime,jdbcType=VARCHAR},
-    assist = #{record.assist,jdbcType=VARCHAR},
-    rebound = #{record.rebound,jdbcType=VARCHAR},
-    point = #{record.point,jdbcType=VARCHAR}
+      third_match_source_id = #{record.thirdMatchSourceId,jdbcType=VARCHAR},
+      sport_id = #{record.sportId,jdbcType=BIGINT},
+      data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+      third_team_source_id = #{record.thirdTeamSourceId,jdbcType=VARCHAR},
+      third_player_source_id = #{record.thirdPlayerSourceId,jdbcType=VARCHAR},
+      third_player_name = #{record.thirdPlayerName,jdbcType=VARCHAR},
+      third_player_pic_url = #{record.thirdPlayerPicUrl,jdbcType=VARCHAR},
+      position = #{record.position,jdbcType=INTEGER},
+      shirt_number = #{record.shirtNumber,jdbcType=INTEGER},
+      substitute = #{record.substitute,jdbcType=INTEGER},
+      modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      home_away = #{record.homeAway,jdbcType=INTEGER},
+      position_name = #{record.positionName,jdbcType=VARCHAR},
+      invalid = #{record.invalid,jdbcType=INTEGER},
+      overall_ratings = #{record.overallRatings,jdbcType=VARCHAR},
+      third_player_en_name = #{record.thirdPlayerEnName,jdbcType=VARCHAR},
+      edit_status = #{record.editStatus,jdbcType=INTEGER},
+      home_formation = #{record.homeFormation,jdbcType=VARCHAR},
+      away_formation = #{record.awayFormation,jdbcType=VARCHAR},
+      play_time = #{record.playTime,jdbcType=VARCHAR},
+      assist = #{record.assist,jdbcType=VARCHAR},
+      rebound = #{record.rebound,jdbcType=VARCHAR},
+      point = #{record.point,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -500,29 +500,29 @@
   <update id="updateByPrimaryKey" parameterType="com.panda.merge.model.ThirdMatchLineup">
     update third_match_lineup
     set third_match_source_id = #{thirdMatchSourceId,jdbcType=VARCHAR},
-        sport_id = #{sportId,jdbcType=BIGINT},
-        data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
-        third_team_source_id = #{thirdTeamSourceId,jdbcType=VARCHAR},
-        third_player_source_id = #{thirdPlayerSourceId,jdbcType=VARCHAR},
-        third_player_name = #{thirdPlayerName,jdbcType=VARCHAR},
-        third_player_pic_url = #{thirdPlayerPicUrl,jdbcType=VARCHAR},
-        position = #{position,jdbcType=INTEGER},
-        shirt_number = #{shirtNumber,jdbcType=INTEGER},
-        substitute = #{substitute,jdbcType=INTEGER},
-        modify_time = #{modifyTime,jdbcType=BIGINT},
-        create_time = #{createTime,jdbcType=BIGINT},
-        home_away = #{homeAway,jdbcType=INTEGER},
-        position_name = #{positionName,jdbcType=VARCHAR},
-        invalid = #{invalid,jdbcType=INTEGER},
-        overall_ratings = #{overallRatings,jdbcType=VARCHAR},
-        third_player_en_name = #{thirdPlayerEnName,jdbcType=VARCHAR},
-        edit_status = #{editStatus,jdbcType=INTEGER},
-        home_formation = #{homeFormation,jdbcType=VARCHAR},
-        away_formation = #{awayFormation,jdbcType=VARCHAR},
-        play_time = #{playTime,jdbcType=VARCHAR},
-        assist = #{assist,jdbcType=VARCHAR},
-        rebound = #{rebound,jdbcType=VARCHAR},
-        point = #{point,jdbcType=VARCHAR}
+      sport_id = #{sportId,jdbcType=BIGINT},
+      data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
+      third_team_source_id = #{thirdTeamSourceId,jdbcType=VARCHAR},
+      third_player_source_id = #{thirdPlayerSourceId,jdbcType=VARCHAR},
+      third_player_name = #{thirdPlayerName,jdbcType=VARCHAR},
+      third_player_pic_url = #{thirdPlayerPicUrl,jdbcType=VARCHAR},
+      position = #{position,jdbcType=INTEGER},
+      shirt_number = #{shirtNumber,jdbcType=INTEGER},
+      substitute = #{substitute,jdbcType=INTEGER},
+      modify_time = #{modifyTime,jdbcType=BIGINT},
+      create_time = #{createTime,jdbcType=BIGINT},
+      home_away = #{homeAway,jdbcType=INTEGER},
+      position_name = #{positionName,jdbcType=VARCHAR},
+      invalid = #{invalid,jdbcType=INTEGER},
+      overall_ratings = #{overallRatings,jdbcType=VARCHAR},
+      third_player_en_name = #{thirdPlayerEnName,jdbcType=VARCHAR},
+      edit_status = #{editStatus,jdbcType=INTEGER},
+      home_formation = #{homeFormation,jdbcType=VARCHAR},
+      away_formation = #{awayFormation,jdbcType=VARCHAR},
+      play_time = #{playTime,jdbcType=VARCHAR},
+      assist = #{assist,jdbcType=VARCHAR},
+      rebound = #{rebound,jdbcType=VARCHAR},
+      point = #{point,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

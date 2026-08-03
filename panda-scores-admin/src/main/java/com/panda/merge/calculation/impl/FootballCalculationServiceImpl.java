@@ -9,6 +9,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.panda.merge.common.enums.*;
 import com.alibaba.fastjson.TypeReference;
 import com.panda.merge.common.enums.EventCodeEnum;
+import com.panda.merge.config.RedisConfig;
 import com.panda.merge.config.RedisService;
 import com.panda.merge.constant.*;
 import com.panda.merge.dto.*;
@@ -29,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -134,6 +136,18 @@ public class FootballCalculationServiceImpl extends AbstractCalculationServiceIm
 
     }
 
+    /**
+     * 公开方法：供 PD 下发流程调用控球率计算
+     * @param data 事件信息
+     * @param matchScoresInfo 比分数据
+     */
+    public void calcFootballEventTimePublic(MatchEventInfo data, MatchScoresInfo matchScoresInfo) {
+        try {
+            calcFootballEventTime(data, matchScoresInfo);
+        } catch (Exception e) {
+            log.error("PD事件控球率计算失败，linkId:{}", data.getLinkId(), e);
+        }
+    }
 
     /**
      * 计算足球控球率
@@ -146,107 +160,259 @@ public class FootballCalculationServiceImpl extends AbstractCalculationServiceIm
         Map<Long, FootballScores> allPeriodScores= JsonMapUtils.parseFootballMap(periodFootballScores);
         //全场(-1)比分
         FootballScores wholeSores= allPeriodScores.get(WHOLE_MATCH);
+        //阶段转换
+        changePeriodByExtryPeriodEvent(data);
         FootballScores periodSores= allPeriodScores.get(data.getMatchPeriodId());
         if(periodSores==null){
             periodSores = new FootballScores(data.getMatchPeriodId());
+            allPeriodScores.put(data.getMatchPeriodId(), periodSores);
+            log.info("{},calcFootballEventTime 加时赛阶段对象为空，新建periodSores,periodId={}",data.getLinkId(),data.getMatchPeriodId());
         }
         // 公共事件时间统计
         String eventCode = data.getEventCode();
         String homeAway = data.getHomeAway();
+
         //控球率阶段过滤
         if(!EffectScoresCode.FOOTBALL_POSSESSION_PERIOD.contains(data.getMatchPeriodId())){
-            log.info("::{}::当前事件不在控球率统计范围内，阶段不处理",data.getLinkId());
+            log.info("::{}::当前事件不在控球率统计范围内，阶段不处理,sportId={},periodId={},eventCode={}",data.getLinkId(),data.getSportId(),data.getMatchPeriodId(),eventCode);
             return;
         }
         //控球事件过滤
         if(!EffectScoresCode.FOOTBALL_POSSESSION_EVENT.contains(eventCode)){
-            log.info("::{}::当前事件不在控球率统计范围内，事件不处理",data.getLinkId());
+            log.info("::{}::当前事件不在控球率统计范围内，事件不处理,sportId={},periodId={},eventCode={}",data.getLinkId(),data.getSportId(),data.getMatchPeriodId(),eventCode);
             return;
         }
+        //设置rediskey
         String homeEventKey = "POSSESSION:HOME:EVENT:MATCHID:"+data.getThirdMatchId();
         String awayEventKey = "POSSESSION:AWAY:EVENT:MATCHID:"+data.getThirdMatchId();
         String publicEventKey = "POSSESSION:PUB:EVENT:MATCHID:"+data.getThirdMatchId();
-
         //获取此刻上一次的事件
+        log.info("{},calcFootballEventTime 开始计算控球率,thirdMatchId={},periodId={},eventCode={},homeAway={}",data.getLinkId(),data.getThirdMatchId(),data.getMatchPeriodId(),eventCode,homeAway);
         MatchEventInfo lastEvent = getLastEventTime(data,homeEventKey,awayEventKey,publicEventKey);
         if(lastEvent==null){
             log.info("{},更新控球率信息：lastEvent为空,HOME_KEY={},AWAY_KEY={},PUB_KEY={}",data.getLinkId(),homeEventKey,awayEventKey,publicEventKey);
             return;
         }
-        //断开/间隔时间
-        Long brokenTime = System.currentTimeMillis() - lastEvent.getCreateTime();
-        //超出5分钟未有事件下发
-        if(brokenTime>(5*1000*60)){
-            log.info("::{}::更新控球率信息：上一个事件间隔到此时超过5分钟，不计算主客队时间：currentTime={},lastEvent={}",data.getLinkId(),System.currentTimeMillis(),lastEvent);
-            //缓存事件
-            if(TeamTypeEnum.HOME.getCode().equals(homeAway)){
-                redisService.set(homeEventKey,data,7200);
-            }else if(TeamTypeEnum.AWAY.getCode().equals(homeAway)){
-                redisService.set(awayEventKey,data,7200);
-            }else{
-                redisService.set(publicEventKey,data,7200);
+        log.info("{},calcFootballEventTime lastEvent,periodId={},homeAway={},createTime={}",data.getLinkId(),lastEvent.getMatchPeriodId(),lastEvent.getHomeAway(),lastEvent.getCreateTime());
+
+        // ===== 核心修复：使用 secondsFromStart（比赛进行时间）代替 System.currentTimeMillis()（墙钟时间）=====
+        Long currentSecondsFromStart = data.getSecondsFromStart();
+        Long lastSecondsFromStart = lastEvent.getSecondsFromStart();
+        log.info("{},calcFootballEventTime 比赛时间:currentSecondsFromStart={},lastSecondsFromStart={}",data.getLinkId(),currentSecondsFromStart, lastSecondsFromStart);
+
+        if(!Objects.equals(lastEvent.getMatchPeriodId(), data.getMatchPeriodId())){
+            log.info("阶段变更，计算跨阶段控球时间：{},currentPeriod：{}，lastEvent:{}",data.getLinkId(),data.getMatchPeriodId(),lastEvent.getMatchPeriodId());
+            // 判断是否为休息间隙（中场休息、常规时间结束等），跳过间隙时间计算
+            boolean isBreakTransition = isBreakPeriodTransition(lastEvent.getMatchPeriodId(), data.getMatchPeriodId());
+            if (isBreakTransition) {
+                log.info("::{}::休息间隙阶段变更，跳过跨阶段控球间隙时间计算, lastPeriod={}, currentPeriod={}",
+                    data.getLinkId(), lastEvent.getMatchPeriodId(), data.getMatchPeriodId());
+                // 休息间隙：确保全场控球率 = 最后一个已处理阶段（7L）的控球率
+                // 防止因JSON反序列化差异导致全场 != 90分钟
+                FootballScores lastProcessedPeriod = allPeriodScores.get(lastEvent.getMatchPeriodId());
+                if (wholeSores != null && lastProcessedPeriod != null
+                        && lastProcessedPeriod.getPossessionTime() != null
+                        && lastProcessedPeriod.getPossessionTime().getHome() != null
+                        && lastProcessedPeriod.getPossessionTime().getAway() != null) {
+                    wholeSores.getPossessionTime().setHome(lastProcessedPeriod.getPossessionTime().getHome());
+                    wholeSores.getPossessionTime().setAway(lastProcessedPeriod.getPossessionTime().getAway());
+                    // 重新计算全场百分比，保证和=100%
+                    int wholeHome = wholeSores.getPossessionTime().getHome();
+                    int wholeAway = wholeSores.getPossessionTime().getAway();
+                    int wholeTotal = wholeHome + wholeAway;
+                    if (wholeTotal > 0) {
+                        BigDecimal onehundred = new BigDecimal("100");
+                        BigDecimal wholeHomePct = new BigDecimal(wholeHome).divide(new BigDecimal(wholeTotal), 2, RoundingMode.HALF_UP).multiply(onehundred);
+                        wholeSores.getBallPossessionPercentage().setHome(wholeHomePct.intValue());
+                        wholeSores.getBallPossessionPercentage().setAway(100 - wholeHomePct.intValue());
+                    }
+                    log.info("::{}::休息间隙阶段变更，同步全场控球率=最后阶段{}控球率, home={}, away={}",
+                        data.getLinkId(), lastEvent.getMatchPeriodId(), wholeHome, wholeAway);
+                }
+                // 重置新阶段的控球时间为0，确保独立累积不受旧数据影响
+                if (periodSores != null && periodSores.getPossessionTime() != null) {
+                    periodSores.getPossessionTime().setHome(0);
+                    periodSores.getPossessionTime().setAway(0);
+                    log.info("::{}::休息间隙阶段变更，重置阶段{}控球时间为0", data.getLinkId(), data.getMatchPeriodId());
+                }
+                // 缓存当前事件，后续同阶段事件继续计算
+                cacheCurrentEvent(data, homeEventKey, awayEventKey, publicEventKey);
+                // 保存数据确保新阶段对象持久化
+                matchScoresInfo.setScoresJson(JSONObject.toJSONString(allPeriodScores));
+                matchScoresInfo.setModifyTime(System.currentTimeMillis());
+                return;
+            } else {
+                // 非休息间隙的正常阶段变更（如41->42加时赛阶段间），仍计算间隙时间
+                if (currentSecondsFromStart != null && lastSecondsFromStart != null) {
+                    Integer transitionPossessionTime = (int)(currentSecondsFromStart - lastSecondsFromStart);
+                    log.info("::{}::阶段变更控球时间差（比赛时间）：{}s",data.getLinkId(),transitionPossessionTime);
+                    if(transitionPossessionTime > 0){
+                        if(TeamTypeEnum.HOME.getCode().equals(lastEvent.getHomeAway())){
+                            buildPossessionDataByGameTime(wholeSores,transitionPossessionTime,TeamTypeEnum.HOME.getCode(), data.getLinkId(),data.getMatchPeriodId(),allPeriodScores,periodSores,currentSecondsFromStart);
+                        }else if(TeamTypeEnum.AWAY.getCode().equals(lastEvent.getHomeAway())){
+                            buildPossessionDataByGameTime(wholeSores,transitionPossessionTime,TeamTypeEnum.AWAY.getCode(), data.getLinkId(),data.getMatchPeriodId(),allPeriodScores,periodSores,currentSecondsFromStart);
+                        }else{
+                            buildPossessionDataByGameTime(wholeSores,transitionPossessionTime,"PUBLIC", data.getLinkId(),data.getMatchPeriodId(),allPeriodScores,periodSores,currentSecondsFromStart);
+                        }
+                    }else{
+                        log.info("::{}::阶段变更控球时间差<=0，不计算,transitionPossessionTime={}",data.getLinkId(),transitionPossessionTime);
+                    }
+                }else{
+                    log.info("::{}::阶段变更：secondsFromStart为空，跳过跨阶段控球计算",data.getLinkId());
+                }
             }
+            //缓存当前事件，后续同阶段事件继续计算
+            cacheCurrentEvent(data, homeEventKey, awayEventKey, publicEventKey);
             return;
         }
-        log.info("::{}::更新控球率信息：上一个事件：homeAway={},createTime={}",data.getLinkId(),lastEvent.getHomeAway(),lastEvent.getCreateTime());
-
-        //距离上一个home事件的时间差，汇总home总控球时间
-        Integer possessionTime = (int)(System.currentTimeMillis() - lastEvent.getCreateTime());
-        log.info("::{}::更新控球率信息：控球事件时间差：{}，上一个事件：{}",data.getLinkId(),possessionTime,lastEvent.getHomeAway());
-        if(TeamTypeEnum.HOME.getCode().equals(lastEvent.getHomeAway())){
-            buildPossessionData(wholeSores,possessionTime,TeamTypeEnum.HOME.getCode(), data.getLinkId());
-        }else if(TeamTypeEnum.AWAY.getCode().equals(lastEvent.getHomeAway())){
-            buildPossessionData(wholeSores,possessionTime,TeamTypeEnum.AWAY.getCode(), data.getLinkId());
+        //同阶段：使用比赛时间差计算控球时长
+        if (currentSecondsFromStart != null && lastSecondsFromStart != null) {
+            Integer possessionTime = (int)(currentSecondsFromStart - lastSecondsFromStart);
+            log.info("::{}::更新控球率信息：控球事件比赛时间差：{}s，上一个事件：{}",data.getLinkId(),possessionTime,lastEvent.getHomeAway());
+            if(possessionTime > 0){
+                if(TeamTypeEnum.HOME.getCode().equals(lastEvent.getHomeAway())){
+                    buildPossessionDataByGameTime(wholeSores,possessionTime,TeamTypeEnum.HOME.getCode(), data.getLinkId(),data.getMatchPeriodId(),allPeriodScores,periodSores,currentSecondsFromStart);
+                }else if(TeamTypeEnum.AWAY.getCode().equals(lastEvent.getHomeAway())){
+                    buildPossessionDataByGameTime(wholeSores,possessionTime,TeamTypeEnum.AWAY.getCode(), data.getLinkId(),data.getMatchPeriodId(),allPeriodScores,periodSores,currentSecondsFromStart);
+                }else{
+                    buildPossessionDataByGameTime(wholeSores,possessionTime,"PUBLIC", data.getLinkId(),data.getMatchPeriodId(),allPeriodScores,periodSores,currentSecondsFromStart);
+                }
+            }else{
+                log.info("::{}::控球事件比赛时间差<=0，不计算,possessionTime={}",data.getLinkId(),possessionTime);
+            }
         }else{
-            buildPossessionData(wholeSores,possessionTime,"PUBLIC", data.getLinkId());
+            log.info("::{}::更新控球率信息：secondsFromStart为空，跳过计算",data.getLinkId());
         }
+
         log.info("::{}::更新控球率信息：{} 计算结果==时间：{}，控球率：{}",data.getLinkId(),lastEvent.getHomeAway(),
                 wholeSores.getPossessionTime(),wholeSores.getBallPossessionPercentage());
-        if(TeamTypeEnum.HOME.getCode().equals(homeAway)){
-            redisService.set(homeEventKey,data,7200);
-        }else if(TeamTypeEnum.AWAY.getCode().equals(homeAway)){
-            redisService.set(awayEventKey,data,7200);
-        }else{
-            redisService.set(publicEventKey,data,7200);
-        }
+        cacheCurrentEvent(data, homeEventKey, awayEventKey, publicEventKey);
         matchScoresInfo.setScoresJson(JSONObject.toJSONString(allPeriodScores));
         matchScoresInfo.setModifyTime(System.currentTimeMillis());
 //        matchScoreInfoRepository.updateScoresInfo(matchScoresInfo);
     }
 
-    private void buildPossessionData(FootballScores wholeSores,Integer possessionTime,String homeAway,String linkId){
+    /**
+     * 基于比赛时间（secondsFromStart）计算控球率
+     * 核心设计：
+     * 1. 使用 secondsFromStart（比赛进行时间）计算时间差，消除休息间隙污染
+     * 2. 全场控球率：home% + away% = 100%（通过让away=100-home保证）
+     * 3. 阶段控球率：每个阶段独立维护自己的累积值，阶段间不继承
+     * 4. 补时阶段全部计入对应半场
+     * 5. 加时赛(41/42)独立累加
+     */
+    private void buildPossessionDataByGameTime(FootballScores wholeSores, Integer possessionTime,
+                                     String homeAway, String linkId, Long matchPeriodId,
+                                     Map<Long, FootballScores> allPeriodScores, FootballScores periodSores,
+                                     Long currentSecondsFromStart) {
+        if(periodSores==null){
+            return;
+        }
+
+        // ===== 全场控球率更新 =====
         Integer awayAllTime = wholeSores.getPossessionTime().getAway();
         Integer homeAllTime = wholeSores.getPossessionTime().getHome();
+
         if(TeamTypeEnum.HOME.getCode().equals(homeAway)){
             homeAllTime += possessionTime;
         }else if(TeamTypeEnum.AWAY.getCode().equals(homeAway)){
             awayAllTime += possessionTime;
-        }else{
-            //上一个公共事件，不计算主客队控球时长
         }
-        log.info("{},更新控球率信息1：控球时长：home={},away={}，控球率：home={}，away={}",linkId,homeAllTime,awayAllTime,
-                wholeSores.getBallPossessionPercentage().getHome(),wholeSores.getBallPossessionPercentage().getAway());
-        //添加控球时间，保存入库
+        // PUBLIC事件不改变控球时长
+
+        log.info("{},buildPossessionDataByGameTime 入场:homeAway={},possessionTime(s)={},matchPeriodId={}",linkId,homeAway,possessionTime,matchPeriodId);
+        log.info("{},buildPossessionDataByGameTime 更新前全场控球时长(s):home={},away={}",linkId,wholeSores.getPossessionTime().getHome(),wholeSores.getPossessionTime().getAway());
+
+        //添加控球时间，保存入库-全场
         wholeSores.getPossessionTime().setHome(homeAllTime);
         wholeSores.getPossessionTime().setAway(awayAllTime);
 
-        //控球率客A% =  事件持续时间A /  (事件持续时间H + 事件持续时间A )* 100 //控球率主H% = 事件持续时间H / (事件持续时间H + 事件持续时间A )* 100
-        BigDecimal homeTime = new BigDecimal(homeAllTime+"");
-        BigDecimal awayTime = new BigDecimal(awayAllTime+"");
-        BigDecimal homeAndAway = homeTime.add(awayTime);
-        if(homeAndAway.compareTo(BigDecimal.ZERO)==0){
-            log.info("{},更新控球率信息：控球时长0",linkId);
+        //控球率计算-全场：基于home和away的绝对值计算，保证和=100%
+        int wholeHome = wholeSores.getPossessionTime().getHome();
+        int wholeAway = wholeSores.getPossessionTime().getAway();
+        int wholeTotal = wholeHome + wholeAway;
+        if(wholeTotal == 0){
+            log.info("{},buildPossessionDataByGameTime 全场控球时长0,homeAllTime={},awayAllTime={}",linkId,homeAllTime,awayAllTime);
             return;
         }
+        // 先计算主队百分比，客队=100-主队，保证和为100%
         BigDecimal onehundred = new BigDecimal("100");
-        BigDecimal possessionHome = homeTime.divide(homeAndAway,2,4).multiply(onehundred);
-        BigDecimal possessionAway = awayTime.divide(homeAndAway,2,4).multiply(onehundred);
-//        int possessionHome = homeAllTime / (homeAllTime + awayAllTime) * 100;
-//        int possessionAway = awayAllTime / (homeAllTime + awayAllTime) * 100;
-        wholeSores.getBallPossessionPercentage().setHome(possessionHome.intValue());
-        wholeSores.getBallPossessionPercentage().setAway(possessionAway.intValue());
-        log.info("{},更新控球率信息2：控球时长：{}-{}，控球率：{}-{}",linkId,homeAllTime,awayAllTime,
+        BigDecimal wholeHomePct = new BigDecimal(wholeHome).divide(new BigDecimal(wholeTotal), 2, RoundingMode.HALF_UP).multiply(onehundred);
+        int wholeHomeInt = wholeHomePct.intValue();
+        wholeSores.getBallPossessionPercentage().setHome(wholeHomeInt);
+        wholeSores.getBallPossessionPercentage().setAway(100 - wholeHomeInt);
+        log.info("{},buildPossessionDataByGameTime 全场控球率:home={}%,away={}%(保证和=100%)",linkId,wholeHomeInt,100 - wholeHomeInt);
+
+        // ===== 阶段控球率：每个阶段独立累积 =====
+        // 从当前阶段对象获取已有的累积值
+        Integer prevPeriodHome = periodSores.getPossessionTime() != null ? periodSores.getPossessionTime().getHome() : null;
+        Integer prevPeriodAway = periodSores.getPossessionTime() != null ? periodSores.getPossessionTime().getAway() : null;
+        log.info("{},buildPossessionDataByGameTime 阶段当前控球时长(s):home={},away={}",linkId,prevPeriodHome,prevPeriodAway);
+
+        // 每次事件累加当前时间差到阶段累积值
+        Integer addHome, addAway;
+        if (TeamTypeEnum.HOME.getCode().equals(homeAway)) {
+            addHome = (prevPeriodHome != null ? prevPeriodHome : 0) + possessionTime;
+            addAway = (prevPeriodAway != null ? prevPeriodAway : 0);
+        } else if (TeamTypeEnum.AWAY.getCode().equals(homeAway)) {
+            addHome = (prevPeriodHome != null ? prevPeriodHome : 0);
+            addAway = (prevPeriodAway != null ? prevPeriodAway : 0) + possessionTime;
+        } else {
+            addHome = (prevPeriodHome != null ? prevPeriodHome : 0);
+            addAway = (prevPeriodAway != null ? prevPeriodAway : 0);
+        }
+
+        //更新阶段控球时长
+        periodSores.getPossessionTime().setHome(addHome);
+        periodSores.getPossessionTime().setAway(addAway);
+
+        //阶段控球率：保证 home% + away% = 100%
+        int periodHome = periodSores.getPossessionTime().getHome();
+        int periodAway = periodSores.getPossessionTime().getAway();
+        int periodTotal = periodHome + periodAway;
+        if (periodTotal > 0) {
+            BigDecimal periodHomePct = new BigDecimal(periodHome).divide(new BigDecimal(periodTotal), 2, RoundingMode.HALF_UP).multiply(onehundred);
+            periodSores.getBallPossessionPercentage().setHome(periodHomePct.intValue());
+            periodSores.getBallPossessionPercentage().setAway(100 - periodHomePct.intValue());
+            log.info("{},buildPossessionDataByGameTime 阶段控球率:home={}%,away={}%(保证和=100%),累计(s)={}-{}",linkId,
+                periodHomePct.intValue(), 100 - periodHomePct.intValue(), periodHome, periodAway);
+        }else{
+            log.info("{},buildPossessionDataByGameTime 阶段控球时长为0",linkId);
+        }
+
+        log.info("{},buildPossessionDataByGameTime 更新后全场控球时长(s):home={},away={}，控球率:home={}%,away={}%",linkId,
+                wholeSores.getPossessionTime().getHome(),wholeSores.getPossessionTime().getAway(),
                 wholeSores.getBallPossessionPercentage().getHome(),wholeSores.getBallPossessionPercentage().getAway());
+    }
+
+    /**
+     * 判断是否为休息间隙阶段变更（中场休息、常规时间结束等）
+     * 这类间隙的时间不应计入任何一方的控球时间
+     *
+     * @param lastPeriod 上一阶段ID
+     * @param currentPeriod 当前阶段ID
+     * @return true=休息间隙，应跳过间隙时间计算
+     */
+    private boolean isBreakPeriodTransition(Long lastPeriod, Long currentPeriod) {
+        // 6->7: 上半场 -> 下半场（中场休息）
+        if (lastPeriod == 6L && currentPeriod == 7L) {
+            return true;
+        }
+        // 7->41: 下半场 -> 加时赛第一阶段（常规时间结束，间隙非控球）
+        if (lastPeriod == 7L && currentPeriod == 41L) {
+            return true;
+        }
+        // 7->42: 下半场 -> 加时赛第二阶段
+        if (lastPeriod == 7L && currentPeriod == 42L) {
+            return true;
+        }
+        // 6->41: 上半场 -> 加时赛第一阶段（罕见，同样非控球间隙）
+        if (lastPeriod == 6L && currentPeriod == 41L) {
+            return true;
+        }
+        // 注意：41->42（加时赛第一阶段->第二阶段）保持原有逻辑
+        // 因为加时赛半场之间的间隙较小，可能是真实的控球时间差
+        return false;
     }
 
     /**
@@ -263,7 +429,6 @@ public class FootballCalculationServiceImpl extends AbstractCalculationServiceIm
         Object hasPublicEvent = redisService.get(publicEventKey);
         if (null != hasHomeEvent) {
             MatchEventInfo dh = JSONUtil.toBean(JSONUtil.toJsonStr(hasHomeEvent), MatchEventInfo.class);
-//            MatchEventInfo dh = (MatchEventInfo) hasHomeEvent;
             homeTime = dh.getCreateTime();
         } else {
             if (TeamTypeEnum.HOME.getCode().equals(data.getHomeAway())) {
@@ -272,7 +437,6 @@ public class FootballCalculationServiceImpl extends AbstractCalculationServiceIm
         }
         if (null != hasAwayEvent) {
             MatchEventInfo da = JSONUtil.toBean(JSONUtil.toJsonStr(hasAwayEvent), MatchEventInfo.class);
-//            MatchEventInfo da = (MatchEventInfo) hasAwayEvent;
             awayTime = da.getCreateTime();
         } else {
             if (TeamTypeEnum.AWAY.getCode().equals(data.getHomeAway())) {
@@ -281,7 +445,6 @@ public class FootballCalculationServiceImpl extends AbstractCalculationServiceIm
         }
         if (null != hasPublicEvent) {
             MatchEventInfo dp = JSONUtil.toBean(JSONUtil.toJsonStr(hasPublicEvent), MatchEventInfo.class);
-//            MatchEventInfo dp = (MatchEventInfo) hasPublicEvent;
             pubTime = dp.getCreateTime();
         } else {
             if (StrUtil.isEmpty(data.getHomeAway()) || "none".equals(data.getHomeAway())) {
@@ -292,20 +455,31 @@ public class FootballCalculationServiceImpl extends AbstractCalculationServiceIm
         //获取最后一个事件的时间和主客队
         MatchEventInfo lastEvent = new MatchEventInfo();
         if (homeTime >= awayTime && homeTime >= pubTime) {
-//            lastEvent = (MatchEventInfo) hasHomeEvent;
             lastEvent = JSONUtil.toBean(JSONUtil.toJsonStr(hasHomeEvent), MatchEventInfo.class);
             log.info("{}:更新控球率信息，获取上一个事件:home:{},{}", data.getLinkId(), homeTime, lastEvent);
         } else if (awayTime >= homeTime && awayTime >= pubTime) {
-//            lastEvent = (MatchEventInfo) hasAwayEvent;
             lastEvent = JSONUtil.toBean(JSONUtil.toJsonStr(hasAwayEvent), MatchEventInfo.class);
             log.info("{}:更新控球率信息，获取上一个事件:away:{},{}", data.getLinkId(), awayTime, lastEvent);
         } else {
-//            lastEvent = (MatchEventInfo) hasPublicEvent;
             lastEvent = JSONUtil.toBean(JSONUtil.toJsonStr(hasPublicEvent), MatchEventInfo.class);
             log.info("{}:更新控球率信息，获取上一个事件:away:{},{}", data.getLinkId(), hasPublicEvent, lastEvent);
         }
         return lastEvent;
 
+    }
+
+    /**
+     * 缓存当前控球事件到Redis（抽取公共方法）
+     */
+    private void cacheCurrentEvent(MatchEventInfo data, String homeEventKey, String awayEventKey, String publicEventKey) {
+        String homeAway = data.getHomeAway();
+        if(TeamTypeEnum.HOME.getCode().equals(homeAway)){
+            redisService.set(homeEventKey, data, 7200);
+        }else if(TeamTypeEnum.AWAY.getCode().equals(homeAway)){
+            redisService.set(awayEventKey, data, 7200);
+        }else{
+            redisService.set(publicEventKey, data, 7200);
+        }
     }
     /**
      * 调整,适配阶段ID
@@ -399,20 +573,17 @@ public class FootballCalculationServiceImpl extends AbstractCalculationServiceIm
     private void delete15MinsScores(MatchScoresInfo matchScoresInfo, MatchEventInfo data) {
         try {
             MatchEventInfo oldMatchInfo = super.getOldMatchInfoByCancel(data);
+            log.info("::{}::删除事件1oldMatchInfo:{}",data.getLinkId(),oldMatchInfo);
+
             if (oldMatchInfo == null) {
                 //原有事件不存在的不取消事件
                 oldMatchInfo = data;
             }
-            String scoresEventKey = "MATCH_SCORES_EVENT_ID:"+data.getThirdMatchId()+"_"+data.getThirdEventId();
-            Object obj = redisService.get(scoresEventKey);
-            if(obj!=null){
-                MatchEventInfo scoreEvent = (MatchEventInfo) obj;
-                if(scoreEvent.getSecondsFromStart()!=null && scoreEvent.getSecondsFromStart()>0){
-                    oldMatchInfo.setSecondsFromStart(scoreEvent.getSecondsFromStart());
-                }
-            }
+            data.setMatchPeriodId(oldMatchInfo.getMatchPeriodId());
+            log.info("::{}::删除事件2oldMatchInfo:{}",data.getLinkId(),oldMatchInfo);
             //3.计算15分钟阶段
             Long period15 = SportPeriodConstant.FootballPeriod.get15MinPeriod(oldMatchInfo.getMatchPeriodId(), oldMatchInfo.getSecondsFromStart());
+            log.info("::{}::删除事件period15:{}",data.getLinkId(),period15);
             if (period15 == null) {
                 return;
             }
@@ -440,7 +611,7 @@ public class FootballCalculationServiceImpl extends AbstractCalculationServiceIm
 //            matchScoreInfoRepository.updateScoresInfo(matchScoresInfo);
             save15MinScores(matchScoresInfo, matchScoresInfo.getThirdMatchId());
         }catch (Exception e){
-            
+
             log.error(":处理数据发生异常:", e);
         }
     }
@@ -459,6 +630,7 @@ public class FootballCalculationServiceImpl extends AbstractCalculationServiceIm
             }
             //3.计算5分钟阶段
             Long period5 = SportPeriodConstant.FootballPeriod.get5MinPeriod(oldMatchInfo.getMatchPeriodId(), oldMatchInfo.getSecondsFromStart());
+            log.info("::{}::删除事件period5:{}",data.getLinkId(),period5);
             if (period5 == null) {
                 return;
             }
@@ -485,7 +657,6 @@ public class FootballCalculationServiceImpl extends AbstractCalculationServiceIm
             //15分钟已经下发过
             //save15MinScores(matchScoresInfo, matchScoresInfo.getThirdMatchId());
         }catch (Exception e){
-            
             log.error(":处理数据发生异常:", e);
         }
     }
@@ -546,7 +717,7 @@ public class FootballCalculationServiceImpl extends AbstractCalculationServiceIm
         //主客队相反标识 通过复制对象 绕开变更
         MatchScoresInfo matchScoreInfoCP=new MatchScoresInfo();
         BeanUtils.copyProperties(matchScoreInfo,matchScoreInfoCP);
-        scoresService.changeHomeAway(matchScoreInfoCP,null);
+//        scoresService.changeHomeAway(matchScoreInfoCP,null);
         JSONObject periodFootballScores = JSONObject.parseObject(matchScoreInfoCP.getScoresJson());
         if (ObjectUtils.isEmpty(periodFootballScores)) {
             return;
@@ -638,11 +809,13 @@ public class FootballCalculationServiceImpl extends AbstractCalculationServiceIm
                     log.info("点球进球事件+++++++++++，{},====,{}",data.getLinkId(),wholeSores.getPenaltyAwarded());
                     if(ConstantSystem.HOME.equals(data.getHomeAway())){
                         wholeSores.getPenaltyAwarded().setHome(wholeSores.getPenaltyAwarded().getHome()+1);
+                        periodScores.getPenaltyAwarded().setHome(wholeSores.getPenaltyAwarded().getHome()+1);
                     }else if(ConstantSystem.AWAY.equals(data.getHomeAway())){
                         wholeSores.getPenaltyAwarded().setAway(wholeSores.getPenaltyAwarded().getAway()+1);
+                        periodScores.getPenaltyAwarded().setAway(wholeSores.getPenaltyAwarded().getAway()+1);
                     }
                     //缓存当前点球进球事件，以防下次下发扣回进球取消
-                    redisService.set("GOAL_" + data.getThirdMatchId()+"_"+data.getDataSourceCode(), 1, 300);
+                    redisService.set("GOAL_PENALTY_" + data.getThirdMatchId() + "_" +data.getThirdEventId(), data.getHomeAway(), 7200);
                 }else if("penalty_missed".equals(redisPenaltyCode) ||
                         "canceled_penalty".equals(redisPenaltyCode)||
                         "canceled_var_penalty".equals(redisPenaltyCode)){
@@ -669,6 +842,14 @@ public class FootballCalculationServiceImpl extends AbstractCalculationServiceIm
             if("goal".equals(data.getEventCode())){
                 periodScores.getGoal().setHome(data.getT1());
                 periodScores.getGoal().setAway(data.getT2());
+                matchScoresInfo.setScoresJson(JSONObject.toJSONString(allPeriodScores));
+            }
+            //点球大战黄牌/红牌：阶段50比分与全场比分同步累加（与常规赛卡牌累加方式一致）
+            if("yellow_card".equals(data.getEventCode()) || "red_card".equals(data.getEventCode())){
+                periodScores.addEventScores(data.getEventCode(), data.getHomeAway());
+                wholeSores.addEventScores(data.getEventCode(), data.getHomeAway());
+                periodScores.countFaCard();
+                wholeSores.countFaCard();
                 matchScoresInfo.setScoresJson(JSONObject.toJSONString(allPeriodScores));
             }
             log.info("updateScores,单条事件逻辑处理,linkId="+data.getLinkId()+",点球大战处理结束");
@@ -700,7 +881,7 @@ public class FootballCalculationServiceImpl extends AbstractCalculationServiceIm
             MatchEventInfo lastEvent = null;
             Object obj = redisService.get(scoreEventKey);
             if(obj!=null){
-                lastEvent = (MatchEventInfo) obj;
+                lastEvent = JSONUtil.toBean(JSONUtil.toJsonStr(obj), MatchEventInfo.class);
             }
             if(lastEvent==null){
                 log.info("获取修改时间的目标事件失败，数据异常或缓存已过期,linkId={}，{} ",data.getLinkId(),scoreEventKey);
@@ -985,28 +1166,32 @@ public class FootballCalculationServiceImpl extends AbstractCalculationServiceIm
         redisService.set(deleteEventKey,data,7200);
 
         String scoresEventKey = "MATCH_SCORES_EVENT_ID:"+data.getThirdMatchId()+"_"+data.getExtraInfo();
-        if(!redisService.hasKey(scoresEventKey)){
+        Object obj = redisService.get(scoresEventKey);
+        if(obj==null){
             log.info("检测到未消费被删除事件，删除事件不处理,linkId:{}，被删除事件id:{}",data.getLinkId(),scoresEventKey);
             return;
+        }else {
+            MatchEventInfo scoreEvent = JSONUtil.toBean(JSONUtil.toJsonStr(obj), MatchEventInfo.class);
+            if(data.getMatchPeriodId().equals(scoreEvent.getMatchPeriodId())){
+                //阶段相同,走原删除逻辑
+                delete15MinsScores(matchScoresInfo,data);
+                delete5MinsScores(matchScoresInfo,data);
+                deleteScores(matchScoresInfo,data,isReissue,false);
+            }else{
+                log.info("跨阶段删除事件canleEvent,linkId::{}::,当前事件阶段:{},被删除事件阶段:{}",data.getLinkId(),data.getMatchPeriodId(),scoreEvent.getMatchPeriodId());
+                //跨阶段删除事件,删除目标事件比分
+                delete15MinsScores(matchScoresInfo,data);
+                delete5MinsScores(matchScoresInfo,data);
+                deleteScores(matchScoresInfo,data,isReissue,true);
+            }
         }
-        //删除点球事件，删除判定为点球的redis数据
-        String key = "PENALTY_EVENT_" + data.getThirdMatchId()+"_"+data.getDataSourceCode();
-        if("penalty_awarded".equals(data.getEventCode()) ){
-            redisService.del(key);
-            return;
-        }
-        delete15MinsScores(matchScoresInfo,data);
-        delete5MinsScores(matchScoresInfo,data);
-        deleteScores(matchScoresInfo,data,isReissue);
-        //上面84170转换了阶段，处理了上半场比分，变更回原来的阶段，用来下发
-        //不变更阶段，只修改比分
-//        if("1".equals(data.getAddition5())){
-//            data.setMatchPeriodId(periodId);
-//        }
+
+
+
 
     }
 
-    private void deleteScores(MatchScoresInfo matchScoresInfo, MatchEventInfo data,Boolean isReissue)throws Exception  {
+    private void deleteScores(MatchScoresInfo matchScoresInfo, MatchEventInfo data,Boolean isReissue,Boolean isChangePeriod)throws Exception  {
         log.info("删除事件canleEvent，score-center:linkId::{}::",data.getLinkId());
 
         JSONObject periodFootballScores = JSONObject.parseObject(matchScoresInfo.getScoresJson());
@@ -1020,13 +1205,17 @@ public class FootballCalculationServiceImpl extends AbstractCalculationServiceIm
         if(data.getMatchPeriodId() == null){
             return;
         }
-//        //1.先取消全局
-//        CommonItem commonItem= wholeSores.getEventScores(data.getEventCode());
-//        CommonItem oldItem= oldSores.getEventScores(data.getEventCode());
-//        if(commonItem==null||oldItem==null){
-//            log.error("canleEvent 当前取消事件还未被统计:commonItem==null||oldItem==null EventCode:"+data.getEventCode()+"事件ID:"+data.getThirdEventId());
-//            throw new Exception("当前取消事件还未被统计:commonItem==null||oldItem==null |EventCode："+data.getEventCode());
-//        }
+        
+        if(data.getMatchPeriodId().equals(50L)
+                && ("yellow_card".equals(data.getEventCode()) || "red_card".equals(data.getEventCode()))){
+            oldSores.deleteEventScores(data.getEventCode(), data.getHomeAway());
+            wholeSores.deleteEventScores(data.getEventCode(), data.getHomeAway());
+            oldSores.countFaCard();
+            wholeSores.countFaCard();
+            matchScoresInfo.setScoresJson(JSONObject.toJSONString(allPeriodScores));
+            matchScoresInfo.setModifyTime(System.currentTimeMillis());
+            return;
+        }
         log.info("{},删除事件前阶段比分：{}",data.getLinkId(),oldSores);
         log.info("{},删除事件前全局比分：{}",data.getLinkId(),wholeSores);
         boolean isAddScores =isAddScores(data);
@@ -1034,29 +1223,38 @@ public class FootballCalculationServiceImpl extends AbstractCalculationServiceIm
             wholeSores.deleteEventScores(data.getEventCode(),data.getHomeAway());
             oldSores.deleteEventScores(data.getEventCode(),data.getHomeAway());
         }else {
-            wholeSores.setFieldByCancelEventCode( data.getThirdMatchId(),data.getEventCode(), data.getT1(), data.getT2());
             //计算阶段值 下半场=全场-上半场 等
-            wholeSores.doCalculation( data.getThirdMatchId(),data, allPeriodScores,isReissue);
+            wholeSores.doCalculation( data.getThirdMatchId(),data, allPeriodScores,isReissue, isChangePeriod);
         }
-
         if(EventCodeEnum.GOAL.code.equals(data.getEventCode())){
-            String key = "GOAL_" + data.getThirdMatchId()+"_"+data.getDataSourceCode();
-//            String penaltyKey = "PENALTY_EVENT_" + data.getThirdMatchId()+"_"+data.getDataSourceCode();
-//            if(redisService.get(penaltyKey)!=null){
-                //存在点球进球
-                if(redisService.get(key)!=null){
-                    //扣回点球进球比分
-                    if(TeamTypeEnum.HOME.getCode().equals(data.getHomeAway())){
-                        wholeSores.getPenaltyAwarded().setHome(wholeSores.getPenaltyAwarded().getHome()-1);
-                    }else if(TeamTypeEnum.AWAY.getCode().equals(data.getHomeAway())){
-                        wholeSores.getPenaltyAwarded().setAway(wholeSores.getPenaltyAwarded().getAway()-1);
-                    }else{
-                        log.info("删除点球进球：无主客队：{}",data.getLinkId());
+            String penaltyGoalKey = "GOAL_PENALTY_" + data.getThirdMatchId()+"_"+data.getExtraInfo();
+            Object scoredByObj = redisService.get(penaltyGoalKey);
+            if(scoredByObj != null){
+                //扣回点球进球比分（按缓存中记录的得分方扣回，而不是当前删除事件的归属方）
+                String scoredBy = scoredByObj.toString();
+                if(TeamTypeEnum.HOME.getCode().equals(scoredBy)){
+                    wholeSores.getPenaltyAwarded().setHome(wholeSores.getPenaltyAwarded().getHome()-1);
+                    oldSores.getPenaltyAwarded().setHome(oldSores.getPenaltyAwarded().getHome()-1);
+                    if(wholeSores.getPenaltyAwarded().getHome()<0){
+                        wholeSores.getPenaltyAwarded().setHome(0);
                     }
+                    if(oldSores.getPenaltyAwarded().getHome()<0){
+                        oldSores.getPenaltyAwarded().setHome(0);
+                    }
+                }else if(TeamTypeEnum.AWAY.getCode().equals(scoredBy)){
+                    wholeSores.getPenaltyAwarded().setAway(wholeSores.getPenaltyAwarded().getAway()-1);
+                    oldSores.getPenaltyAwarded().setAway(oldSores.getPenaltyAwarded().getAway()-1);
+                    if(wholeSores.getPenaltyAwarded().getAway()<0){
+                        wholeSores.getPenaltyAwarded().setAway(0);
+                    }
+                    if(oldSores.getPenaltyAwarded().getAway()<0){
+                        oldSores.getPenaltyAwarded().setAway(0);
+                    }
+                }else{
+                    log.info("删除点球进球：缓存中无主客队：{}",data.getLinkId());
                 }
-                redisService.del(key);
-//                redisService.del(penaltyKey);
-//            }
+                redisService.del(penaltyGoalKey);
+            }
         }
         //入库保存
         if((data.getEventCode().equals("goal")|| data.getEventCode().equals("penalty_missed") )&&data.getMatchPeriodId().equals(50L)){
@@ -1407,6 +1605,7 @@ public class FootballCalculationServiceImpl extends AbstractCalculationServiceIm
         standScores.setShotOn(soresSource.getShotOn());
         standScores.setShotOff(soresSource.getShotOff());
         standScores.setShot(soresSource.getShot());
+        standScores.setPenaltyAwarded(soresSource.getPenaltyAwarded());
 
     }
     private void setPeriodScores(MatchEventInfo data,
@@ -1947,6 +2146,17 @@ public class FootballCalculationServiceImpl extends AbstractCalculationServiceIm
         dto.setBusinessEvent(match.getBusinessEvent());
         dto.setRelatedDataSourceCoderList(matchInfo.getRelatedDataSourceCoderList());
         dto.setPreId(match.getId());
+        String redisKey = "scores:min:check:switch:"+standardMatchId;
+        Object obj = redisService.get(redisKey);
+        if(obj!=null){
+            dto.setMinScoresCheck((Boolean)obj);
+        }else{
+            //默认打开
+            dto.setMinScoresCheck(true);
+            redisService.set(redisKey,true, RedisConfig.REDIS_DEFAULT_TIME);
+        }
+
+
         //查询标准比分
         StandardMatchScores standardMatchScores = scoresRedisHelp.getCatchStandScoreByMatchId(standardMatchId);
 
@@ -2118,6 +2328,10 @@ public class FootballCalculationServiceImpl extends AbstractCalculationServiceIm
             fifteenMinScores.setAwayYellowCard(null);
             fifteenMinScores.setHomeRedCard(null);
             fifteenMinScores.setAwayRedCard(null);
+            fifteenMinScores.setGoalSwitch(1);
+            fifteenMinScores.setCornerSwitch(1);
+            fifteenMinScores.setYellowSwitch(1);
+            fifteenMinScores.setRedSwitch(1);
             minScore.add(fifteenMinScores);
         }
         centerStand.setMinute15Scores(minScore);
@@ -2723,10 +2937,18 @@ public class FootballCalculationServiceImpl extends AbstractCalculationServiceIm
         if(rtnFlag!=0){
             return Response.failed(rtnFlag.toString());
         }
-        //编辑校验
-        Integer editFlag = checkEditMinScores(scores);
-        if(editFlag!=0){
-            return Response.failed(editFlag.toString());
+        String redisKey = "scores:min:check:switch:"+scores.getStandardMatchId();
+        Object obj = redisService.get(redisKey);
+        log.info("比分编辑过滤区间比分校验：{},{}",scores.getStandardMatchId(),obj);
+        if(obj!=null && !(Boolean)obj ){
+            log.info("比分编辑过滤区间比分校验：{},{}",scores.getStandardMatchId(),obj);
+        }else{
+            log.info("比分编辑过滤区间比分校验：{},{}",scores.getStandardMatchId(),obj);
+            //编辑校验
+            Integer editFlag = checkEditMinScores(scores);
+            if(editFlag!=0){
+                return Response.failed(editFlag.toString());
+            }
         }
         //常规赛比分
         for(StandardScoreDTO score :editScores){

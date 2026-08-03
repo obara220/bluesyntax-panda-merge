@@ -9,6 +9,9 @@ import com.panda.merge.dto.Request;
 import com.panda.merge.dto.ThirdMarketDTO;
 import com.panda.merge.dto.ThirdMatchInfoDetail;
 import com.panda.merge.dto.ThirdMatchMarketDTO;
+import com.panda.merge.dto.message.StandardMatchMarketAoMessage;
+import com.panda.merge.model.StandardMatchInfo;
+import com.panda.merge.model.ThirdMatchInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.producer.SendCallback;
 import org.apache.rocketmq.client.producer.SendResult;
@@ -93,4 +96,44 @@ public class SendThirdCacheMarketOddsProducer {
         }
     }
 
+
+
+    /**
+     * 下发A0球头三方赔率
+     *
+     * @param linkId
+     * @param thirdMatchInfo
+     * @param standardMatchInfo
+     * @param marketBallHeadMap
+     * @param dataSourceCode
+     * @param dataSourceTime
+     * @return
+     */
+    public void sendThirdBallHeadMarketAoAsync(String linkId, ThirdMatchInfo thirdMatchInfo, StandardMatchInfo standardMatchInfo, Map<Long, ThirdMarketDTO> marketBallHeadMap, String dataSourceCode, Long dataSourceTime) {
+        StandardMatchMarketAoMessage standardMatchMarketMessage = new StandardMatchMarketAoMessage();
+        standardMatchMarketMessage.setStandardMatchInfoId(standardMatchInfo.getId());
+        standardMatchMarketMessage.setThirdMatchInfoId(thirdMatchInfo.getThirdMatchSourceId());
+        standardMatchMarketMessage.setDataSourceCode(dataSourceCode);
+        standardMatchMarketMessage.setThirdMarketBallHeadMap(marketBallHeadMap);
+        standardMatchMarketMessage.setSportId(standardMatchInfo.getSportId());
+
+        Request<StandardMatchMarketAoMessage> request = new Request<>();
+        request.setData(standardMatchMarketMessage);
+        request.setLinkId(linkId);
+        request.setDataSourceTime(dataSourceTime);
+        MessageBuilder<Request<StandardMatchMarketAoMessage>> builder = MessageBuilder.withPayload(request).setHeader(MessageConst.PROPERTY_KEYS, linkId);
+        log.info("::{}::开始组装三方AO球头赔率消息并下发,topic:THIRD_MARKET_BALL_HEAD,request:{}", linkId, JSON.toJSONString(request));
+        //第一个参数表示topic:tag
+        rocketMqTemplate.asyncSend("THIRD_MARKET_BALL_HEAD:" + standardMatchMarketMessage.getStandardMatchInfoId(), builder.build(), new SendCallback() {
+            @Override
+            public void onSuccess(SendResult sendResult) {
+                log.info("::{}::,send successful", linkId);
+            }
+
+            @Override
+            public void onException(Throwable throwable) {
+                log.error("::{}::TOPIC={}，send fail; ", linkId, "THIRD_MARKET_BALL_HEAD", throwable);
+            }
+        });
+    }
 }

@@ -12,7 +12,7 @@ public enum MarketControlStatusEnum {
 
     // 控制状态 盘口不再参与后续状态校验
     VALIDATED(61),
-    // 控制状态 盘口状态不在变更,
+    // 控制状态 盘口状态不在变更
     FINAL(62);
 
     public final Integer code;

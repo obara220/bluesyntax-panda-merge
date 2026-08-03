@@ -5,6 +5,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.nacos.api.config.annotation.NacosValue;
 import com.panda.merge.annotation.ConsumerSwitch;
+import com.panda.merge.common.BaseProcessor;
 import com.panda.merge.common.enums.Constant;
 import com.panda.merge.config.RedisService;
 import com.panda.merge.constant.ConstantSystem;
@@ -57,6 +58,9 @@ public class StandardMatchBatchRefreshCacheConsumer implements RocketMQListener<
     @Resource
     private DataCenterProducer<List<Long>> dataCenterProducer;
 
+    @Autowired
+    private BaseProcessor baseProcessor;
+
     @Override
     public void onMessage(Request<List<Long>> request) {
         if (!realtimeSwitch) {
@@ -85,7 +89,7 @@ public class StandardMatchBatchRefreshCacheConsumer implements RocketMQListener<
             //刷新开赛时间缓存
             String matchBeginKey = Constant.REDIS_KEY.RONGHE_THIRD_PER_MARKET;
             String updatedKey = redisService.genNewHashKey(matchBeginKey, standardMatchInfo.getId().toString(), ConstantSystem.BUCKET_QUANTITY_SIXTY_FOUR);
-            redisService.hSet(updatedKey, standardMatchInfo.getId().toString(), standardMatchInfo.getBeginTime(),Integer.MAX_VALUE);
+            redisService.hSet(updatedKey, standardMatchInfo.getId().toString(), standardMatchInfo.getBeginTime(),baseProcessor.marketCacheTime(standardMatchInfo.getBeginTime()));
         }
         if (CollectionUtil.isEmpty(standardIds)) {
             log.info("【"+ PROJECT_ID_NOREALTIME +" ："+ STANDARD_MATCH_BATCH_REFRESH+"】【::"+request.getLinkId()+"::】需要刷新的开售信息为空！");

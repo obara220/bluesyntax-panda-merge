@@ -21,4 +21,17 @@ public interface StandardSportMarketDao {
     List<StandardSportMarket> getMarketByMatchIdList(@Param("standardMatchIdList") List<Long> standardMatchIdList);
 
     StandardSportMarket getMarketByRelationId(Long relationMarketId);
+
+    /**
+     * 批量创建
+     */
+    int insertList(@Param("list") List<StandardSportMarket> standardSportMarkets);
+
+    /**
+     * 批量修改
+     * @param standardSportMarkets
+     * @return
+     */
+    int upDataList(@Param("list") List<StandardSportMarket> standardSportMarkets);
+
 }

@@ -1806,7 +1806,19 @@ alter table third_sport_tournament
     add match_type int(4) default 1 null comment '赛事类型（默认1）1：普通赛事、2：电竞赛事';
 
 
+-- 优化单:94733 0910已经发上生产
+INSERT INTO `third_sport_type`(`name_code`, `third_sport_id`, `data_source_code`, `reference_id`, `introduction`, `remark`, `create_time`, `modify_time`)
+VALUES (14, '9', 'SK', 14, '联合式橄榄球', '联合式橄榄球', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000);
 
 
+-- 4193  【S01】【数据源】S01数据源重启-第二期 0918已经发上生产
+delete from third_sport_type where data_source_code = 'SR';
 
+
+-- 4185需求杯赛淘汰赛新增失效字段
+ALTER TABLE third_match_promotion_chart ADD COLUMN `match_id` VARCHAR(50) NOT NULL COMMENT '源赛事ID';
+ALTER TABLE third_match_promotion_chart ADD COLUMN `invalid` tinyint(4) NULL DEFAULT 0 COMMENT '是否失效(0:否,1:是)';
+
+ALTER TABLE third_match_promotion_chart MODIFY `team1_score` varchar(20) DEFAULT NULL COMMENT '队伍1得分1(5)表示 全场:点球大战)';
+ALTER TABLE third_match_promotion_chart MODIFY `team2_score` varchar(20) DEFAULT NULL COMMENT '队伍2得分1(5)表示 全场:点球大战)';
 

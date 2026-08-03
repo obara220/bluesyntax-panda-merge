@@ -31,7 +31,7 @@ public class GetRedisCacheMapJob extends IJobHandler {
      */
     @Override
     public ReturnT<String> execute(String param){
-        log.info("【GetRedisCacheMapJob 根据传入key值获取hash缓存】 处理开始,入参: {}",param);
+        //log.info("【GetRedisCacheMapJob 根据传入key值获取hash缓存】 处理开始,入参: {}",param);
         XxlJobLogger.log("【GetRedisCacheMapJob 根据传入key值获取hash缓存】 处理开始,入参: {}",param);
         try {
             if(StringUtils.isNotBlank(param)){
@@ -42,15 +42,15 @@ public class GetRedisCacheMapJob extends IJobHandler {
                 String hashKey = parMap.get("hashKey");
                 if(StringUtils.isNotBlank(hashKey)){
                     Object item = redisService.hGet(rediskey, hashKey);
-                    log.info("【GetRedisCacheMapJob 根据传入hashKey获取缓存】 val：{}",item);
+                    //log.info("【GetRedisCacheMapJob 根据传入hashKey获取缓存】 val：{}",item);
                     XxlJobLogger.log("【GetRedisCacheMapJob 根据传入hashKey获取缓存】 val：{}",item);
                 }
                 if(StringUtils.isNotBlank(rediskey)){
                     Map<Object, Object> resMap = redisService.hGetAll(rediskey);
-                    log.info("【GetRedisCacheMapJob 根据传入key值获取hash缓存】 key：{},总条数：{}",rediskey,resMap.size());
+                    //log.info("【GetRedisCacheMapJob 根据传入key值获取hash缓存】 key：{},总条数：{}",rediskey,resMap.size());
                     XxlJobLogger.log("【GetRedisCacheMapJob 根据传入key值获取hash缓存】 key：{},总条数：{}",rediskey,resMap.size());
                     for (Object key: resMap.keySet()) {
-                        log.info("【GetRedisCacheMapJob 根据传入key值获取hash缓存】 key：{},val：{}",key,resMap.get(key));
+                        //log.info("【GetRedisCacheMapJob 根据传入key值获取hash缓存】 key：{},val：{}",key,resMap.get(key));
                         XxlJobLogger.log("【GetRedisCacheMapJob 根据传入key值获取hash缓存】 key：{},val：{}",key,resMap.get(key));
                     }
                 }
@@ -58,14 +58,14 @@ public class GetRedisCacheMapJob extends IJobHandler {
                 String delHashKey = parMap.get("delHashKey");
                 if(StringUtils.isNotBlank(delHashKey)){
                     redisService.del(delHashKey);
-                    log.info("【CleanRedisCachJob 根据传入key值清除hash缓存】 成功清除单条hash缓存");
+                    //log.info("【CleanRedisCachJob 根据传入key值清除hash缓存】 成功清除单条hash缓存");
                     XxlJobLogger.log("【CleanRedisCachJob 根据传入key值清除hash缓存】 成功清除单条hash缓存");
                 }
                 //hash集合大Key
                 String delRediskey = parMap.get("delRediskey");
                 if(StringUtils.isNotBlank(delRediskey)){
                     redisService.del(delRediskey);
-                    log.info("【CleanRedisCachJob 根据传入key值清除hash缓存】 成功清除hash集合缓存");
+                    //log.info("【CleanRedisCachJob 根据传入key值清除hash缓存】 成功清除hash集合缓存");
                     XxlJobLogger.log("【CleanRedisCachJob 根据传入key值清除hash缓存】 成功清除hash集合缓存");
                 }
             }
@@ -73,7 +73,7 @@ public class GetRedisCacheMapJob extends IJobHandler {
             log.error("【GetRedisCacheMapJob 根据传入key值获取hash缓存】 Exception:", e);
             XxlJobLogger.log("【GetRedisCacheMapJob 根据传入key值获取hash缓存】 Exception:"+e.getMessage());
         }
-        log.info("【GetRedisCacheMapJob 根据传入key值获取hash缓存】 处理结束");
+        //log.info("【GetRedisCacheMapJob 根据传入key值获取hash缓存】 处理结束");
         XxlJobLogger.log("【GetRedisCacheMapJob 根据传入key值获取hash缓存】 处理结束");
         return ReturnT.SUCCESS;
     }

@@ -68,7 +68,7 @@ public class ThirdSportTournamentProcessor extends BaseProcessor {
         stopWatch.start();
         Response response = Response.success();
         try{
-            log.info("【"+ PROJECT_ID_NOREALTIME+" ："+ THIRD_TOURNAMENT_API+"】【::"+request.getLinkId()+"::】第三方联赛数据接收开始...");
+            log.info("【"+ PROJECT_ID_NOREALTIME +" ："+ PROJECT_ID_NOREALTIME+" ："+ THIRD_TOURNAMENT_API+"】【::"+request.getLinkId()+"::】第三方联赛数据接收开始...");
             //简单校验,主要判断linkId和Data不能为空,条数上限为1
             simpleValidateParam(request,THIRD_TOURNAMENT_API,1);
             //获取联赛参数列表
@@ -97,7 +97,7 @@ public class ThirdSportTournamentProcessor extends BaseProcessor {
                             stopWatch.getTotalTimeMillis(),Integer.parseInt(String.valueOf(response.getCode())),response.getMsg())
             );
         }
-        log.info("【"+PROJECT_ID_NOREALTIME+" ："+ THIRD_TOURNAMENT_API+"】【"+request.getDataSourceCode()+" ::"+request.getLinkId()+"::】第三方联赛数据处理结束,返回结果 ：{}" ,JSON.toJSONString(response));
+        log.info("【"+ PROJECT_ID_NOREALTIME +" ："+PROJECT_ID_NOREALTIME+" ："+ THIRD_TOURNAMENT_API+"】【"+request.getDataSourceCode()+" ::"+request.getLinkId()+"::】第三方联赛数据处理结束,返回结果 ：{}" ,JSON.toJSONString(response));
         return response;
     }
 

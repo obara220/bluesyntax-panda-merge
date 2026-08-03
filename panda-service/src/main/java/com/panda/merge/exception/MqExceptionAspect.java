@@ -30,7 +30,7 @@
 //@Data
 //public class MqExceptionAspect {
 //
-////    @Value("${mq.warn.broker.on}")
+////    @Value("${mq.warn.broker.on:0}")
 //    private Integer MQ_WARN_BROKER=1;
 //    @Autowired
 //    MQWarnService mqWarnService;

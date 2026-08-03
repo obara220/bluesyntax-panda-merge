@@ -344,7 +344,10 @@ public class StandardMatchInfoBO implements Serializable {
      */
     private String linkMatchInfoId;
 
-
+    /**
+     * 重播赛事Code
+     */
+    private String replayMatchCode;
     /**
      * 赛事状态源
      */

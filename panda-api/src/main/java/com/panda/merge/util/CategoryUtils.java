@@ -67,6 +67,8 @@ public class CategoryUtils {
 
     public static List<Long> CATEGORY_3648_ADD2 = Arrays.asList(3700007L, 3700008L, 3700009L, 3700010L);
 
+    public static List<Long> CATEGORY_PAIQIU = Arrays.asList(4300265L);
+
 
     public static String SPLIT_LINE = " - ";
 
@@ -268,6 +270,7 @@ public class CategoryUtils {
         addAll(ICEBALL_CATEGORY_ADD1);
         addAll(FOOTBALL_CATEGORY_ADD1);
         addAll(CATEGORY_3648_ADD1);
+        //addAll(CATEGORY_PAIQIU);
     }};
 
     /**
@@ -279,6 +282,7 @@ public class CategoryUtils {
         addAll(CATEGORY_700_ADD1_ADD2);
         addAll(TABLETENNIS_AND_BADMINTON_CATEGORY_ADD1_ADD2);
         addAll(VOLLEYBALL_CATEGORY_ADD1_AND2);
+        addAll(CATEGORY_PAIQIU);
     }};
 
     /**

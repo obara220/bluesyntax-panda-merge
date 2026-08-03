@@ -8,6 +8,7 @@ import com.panda.merge.config.RedisService;
 import com.panda.merge.dto.TradeCategoryAutoDiffConfigItemDTO;
 import com.panda.merge.mapper.ConfigCategoryAutoDiffTradeMapper;
 import com.panda.merge.model.ConfigCategoryAutoDiffTrade;
+import com.panda.merge.model.ConfigCategoryAutoDiffTradeExample;
 import com.panda.merge.model.StandardMatchInfo;
 import com.panda.merge.service.ConfigCategoryAutoDiffTradeService;
 import com.panda.merge.service.StandardMatchInfoService;
@@ -49,11 +50,39 @@ public class ConfigCategoryAutoDiffTradeServiceImpl implements ConfigCategoryAut
         swCalculate.start("数据库查询玩法自动水差耗时");
         Map<Long,ConfigCategoryAutoDiffTrade> configDiffTradeMap =(Map<Long, ConfigCategoryAutoDiffTrade>) redisService.hGet(REDIS_KEY_GATEGORY + matchId, categoryId +"");
         if(CollectionUtils.isEmpty(configDiffTradeMap)){
-            return null;
+            ConfigCategoryAutoDiffTradeExample example = new ConfigCategoryAutoDiffTradeExample();
+            example.createCriteria()
+                .andStandardMatchIdEqualTo(matchId)
+                .andStandardCategoryIdEqualTo(categoryId)
+                .andChildStandardCategoryIdEqualTo(childCategoryId);
+            List<ConfigCategoryAutoDiffTrade> list = configCategoryAutoDiffTradeMapper.selectByExample(example);
+            if(CollectionUtils.isEmpty(list)){
+                return null;
+            }
+            ConfigCategoryAutoDiffTrade categoryAutoDiffTrade = list.get(0);
+            Map<Long,ConfigCategoryAutoDiffTrade> newConfigDiffMap = new HashMap<>();
+            newConfigDiffMap.put(childCategoryId, categoryAutoDiffTrade);
+            redisService.hSet(REDIS_KEY_GATEGORY + matchId, categoryId + "", newConfigDiffMap, RedisConfig.REDIS_MY_TIME);
+            swCalculate.stop();
+            log.info("::{}::Redis缓存为空，从DB查询玩法水差耗时{}ms,标准玩法id={},子玩法id={},diffValue={}" , linkId, swCalculate.getTotalTimeMillis(), categoryId, childCategoryId, categoryAutoDiffTrade.getDiffValue());
+            return categoryAutoDiffTrade;
         }
         ConfigCategoryAutoDiffTrade categoryAutoDiffTrade = configDiffTradeMap.get(childCategoryId);
+        if(categoryAutoDiffTrade == null){
+            ConfigCategoryAutoDiffTradeExample example = new ConfigCategoryAutoDiffTradeExample();
+            example.createCriteria()
+                .andStandardMatchIdEqualTo(matchId)
+                .andStandardCategoryIdEqualTo(categoryId)
+                .andChildStandardCategoryIdEqualTo(childCategoryId);
+            List<ConfigCategoryAutoDiffTrade> list = configCategoryAutoDiffTradeMapper.selectByExample(example);
+            if(!CollectionUtils.isEmpty(list)){
+                categoryAutoDiffTrade = list.get(0);
+                configDiffTradeMap.put(childCategoryId, categoryAutoDiffTrade);
+                redisService.hSet(REDIS_KEY_GATEGORY + matchId, categoryId + "", configDiffTradeMap, RedisConfig.REDIS_MY_TIME);
+            }
+        }
         swCalculate.stop();
-        log.info("::{}::数据库查询玩法自动水差耗时{}ms,标准玩法id={},子玩法id：{}" , linkId, swCalculate.getTotalTimeMillis(),categoryId,childCategoryId);
+        log.info("::{}::数据库查询玩法水差耗时{}ms,标准玩法id={},子玩法id={},diffValue={}" , linkId, swCalculate.getTotalTimeMillis(), categoryId, childCategoryId, categoryAutoDiffTrade != null ? categoryAutoDiffTrade.getDiffValue() : "null");
         return categoryAutoDiffTrade;
     }
 
@@ -83,13 +112,20 @@ public class ConfigCategoryAutoDiffTradeServiceImpl implements ConfigCategoryAut
 
     @Override
     public ConfigCategoryAutoDiffTrade updata(ConfigCategoryAutoDiffTrade diffTrade) {
+        configCategoryAutoDiffTradeMapper.updateByPrimaryKey(diffTrade);
         Map<Long,ConfigCategoryAutoDiffTrade> configDiffMap = new HashMap<>();
-        configDiffMap = (Map<Long, ConfigCategoryAutoDiffTrade>) redisService.hGet(REDIS_KEY_GATEGORY+diffTrade.getStandardMatchId(),diffTrade.getStandardCategoryId()+"");
+        Object cached = redisService.hGet(REDIS_KEY_GATEGORY+diffTrade.getStandardMatchId(),diffTrade.getStandardCategoryId()+"");
+        if(cached != null){
+            configDiffMap = (Map<Long, ConfigCategoryAutoDiffTrade>) cached;
+        }
         configDiffMap.put(diffTrade.getChildStandardCategoryId(),diffTrade);
         StandardMatchInfo standMatchInfo = standardMatchInfoService.getItem(diffTrade.getStandardMatchId());
         Long expireTime = baseProcessor.marketCacheTime(standMatchInfo.getBeginTime());
         redisService.hSet(REDIS_KEY_GATEGORY+diffTrade.getStandardMatchId(),diffTrade.getStandardCategoryId()+"",
                 configDiffMap,expireTime);
+        log.info("更新玩法水差配置成功,matchId={},categoryId={},childCategoryId={},diffValue={}", 
+            diffTrade.getStandardMatchId(), diffTrade.getStandardCategoryId(), 
+            diffTrade.getChildStandardCategoryId(), diffTrade.getDiffValue());
         return diffTrade;
     }
     @Override
@@ -98,14 +134,14 @@ public class ConfigCategoryAutoDiffTradeServiceImpl implements ConfigCategoryAut
         if(!CollectionUtils.isEmpty(objectObjectMap)){
             Set<String> allCategoryIds = objectObjectMap.keySet();
             redisService.hDel(REDIS_KEY_GATEGORY + matchId,allCategoryIds.toArray());
-            log.info("::{}::标准赛事ID:{},清除玩法水差配置成功,赛事下全清,KEY:{}", linkId, matchId, objectObjectMap);
+            //log.info("::{}::标准赛事ID:{},清除玩法水差配置成功,赛事下全清,KEY:{}", linkId, matchId, objectObjectMap);
         }
     }
     @Override
     public void delDiffByMatchIdAndCategoryList(String linkId, Long matchId, List<Long> categoryList) {
         for (Long categoryId : categoryList ) {
             Map<Long,ConfigCategoryAutoDiffTrade> configDiffTradeMap = (Map<Long, ConfigCategoryAutoDiffTrade>) redisService.hGet(REDIS_KEY_GATEGORY + matchId, categoryId + "");
-            log.info("::{}::标准赛事ID:{},categoryId:{},清除玩法水差配置成功,KEY:{}", linkId, matchId,categoryId, configDiffTradeMap);
+            //log.info("::{}::标准赛事ID:{},categoryId:{},清除玩法水差配置成功,KEY:{}", linkId, matchId,categoryId, configDiffTradeMap);
         }
         redisService.hDel(REDIS_KEY_GATEGORY + matchId,categoryList.toArray());
     }

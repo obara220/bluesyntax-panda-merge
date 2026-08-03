@@ -95,7 +95,6 @@ public class ThirdMarketBallHeadProcessor extends BaseProcessor {
             String dataSourceCode = oddsWrapperList.get(0).getDataSourceCode();
             String prefixKey = Constant.REDIS_KEY.THIRD_MARKET_HEAD + oddsWrapperList.get(0).getStandardSourceId() + "_" + dataSourceCode;
             StandardMatchInfoDetail standardMatchInfo = standardMatchInfoBasedIdMap.get(oddsWrapperList.get(0).getStandardSourceId());
-            standardMatchInfo.setMatchPeriodId(getMatchPeriod(standardMatchInfo.getId()));
             ThirdMatchInfo thirdMatchInfo = finalThirdMatchInfoAOMap.get(oddsWrapperList.get(0).getStandardSourceId());
             Long dataSourceTime = oddsWrapperList.get(0).getDataSourceTime();
             for (Map.Entry<Long, List<OddsWrapper<ThirdMarketDTO>>> entry : thirdMarketsDataMap.entrySet()) {

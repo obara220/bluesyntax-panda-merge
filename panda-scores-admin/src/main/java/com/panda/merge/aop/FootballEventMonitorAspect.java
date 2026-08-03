@@ -329,7 +329,12 @@ public class FootballEventMonitorAspect {
                     if (thirdMatchIds.contains(String.valueOf(thirdMatchId))) {
                         for (MatchEventInfoDTO matchEventInfoDTO : monitor.getThirdMatchInfo()) {
                             if (matchEventInfoDTO.getAddition8().equals(String.valueOf(thirdMatchId)) && operatorName.equals(matchEventInfoDTO.getRemark())) {
-                                matchEventInfoDTO.setEventTime(eventCurrentTime);
+                                // 20s内的PD事件下发不应触发offline：使用AOP执行时刻刷新eventTime，
+                                // 避免ACTION_MONITER_KEY中残留的旧时间戳被回写导致JOB误判
+                                Long refreshedEventTime = (eventCurrentTime != null && eventCurrentTime > currentTime)
+                                        ? eventCurrentTime
+                                        : currentTime;
+                                matchEventInfoDTO.setEventTime(refreshedEventTime);
                                 if (pauseStatus == 1) {
                                     // 时间走表时，把addition4置为1
                                     matchEventInfoDTO.setAddition4(String.valueOf(TimeStatusEnum.CONTINUE.getDesc()));

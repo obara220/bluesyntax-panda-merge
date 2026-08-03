@@ -13,7 +13,7 @@ public class ResDiscountOddsDTO implements Serializable {
 
     @ApiModelProperty(value = "投注项原始赔率.单位:0.0001")
     private Integer originalOddsValue;
-
+    @ApiModelProperty(value = "投注项id")
     private Long oddsId;
 
 }

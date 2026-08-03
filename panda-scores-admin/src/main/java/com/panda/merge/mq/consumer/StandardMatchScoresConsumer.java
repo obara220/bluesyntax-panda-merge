@@ -204,7 +204,7 @@ public class StandardMatchScoresConsumer extends AbstractSingleMessageMQConsumer
         MatchEventInfoMessage matchEventInfoMessage = new MatchEventInfoMessage();
         processorMathcEvent(matchEventInfoMessage, response, businessEvent, data,eventCode);
         matchEventInfoMessage.setSportId(Long.valueOf(sportIdStr));
-        matchEventInfoMessage.setMatchPeriodId(matchInfo.getMatchPeriodId());
+        matchEventInfoMessage.setMatchPeriodId(data.getPeriodId());
         matchEventInfoMessage.setSecondsFromStart(data.getSecondFromStart()+2);
         matchEventInfoMessage.setHomeAway(data.getHomeAway());
 
@@ -288,7 +288,7 @@ public class StandardMatchScoresConsumer extends AbstractSingleMessageMQConsumer
         matchEventInfoMessage.setThirdEventId("PA_Event:"+ UUIdUtils.getId());
         matchEventInfoMessage.setExtrainfo("score-auto");
         matchEventInfoMessage.setRemark("比分变更自动触发");
-        matchEventInfoMessage.setAddition5(request.getAddition5());
+        matchEventInfoMessage.setAddition5("1");
     }
 
     /**
@@ -303,7 +303,7 @@ public class StandardMatchScoresConsumer extends AbstractSingleMessageMQConsumer
         request.setLinkId(linkId);
         MessageBuilder<Request<MatchEventInfoMessage> > builder = MessageBuilder.withPayload(request)
                 .setHeader(MessageConst.PROPERTY_KEYS, linkId);
-        //通知预售开售赛事完赛
+        //检查备用MQ赛事ID配置
         boolean spareMqFlag = getSpareMqFlag(matchId+"");
         if (pandaDataMqGatewayevent == 2 && spareMqFlag) {
             String dataSourceCode = matchEventInfoDTO.getDataSourceCode();

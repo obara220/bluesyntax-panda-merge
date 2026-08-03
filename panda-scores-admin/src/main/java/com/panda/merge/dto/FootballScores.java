@@ -3,10 +3,10 @@ package com.panda.merge.dto;
 import com.alibaba.fastjson.JSONObject;
 import com.panda.merge.annotation.ScoresProperty;
 import com.panda.merge.common.enums.EventCodeEnum;
+import com.panda.merge.common.enums.TeamTypeEnum;
 import com.panda.merge.constant.SportPeriodConstant;
 import com.panda.merge.constant.TeamTypeConstant;
 import com.panda.merge.model.MatchEventInfo;
-import com.panda.merge.utils.JsonMapUtils;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
@@ -354,7 +354,7 @@ public class FootballScores extends  AbstractSportScores{
 //        return  false;
     }
 
-    public  CommonItem doCalculation(Long thirdMatchId,MatchEventInfo data , Map<Long, FootballScores> periodFootballScores ,Boolean isReissue)  {
+    public  CommonItem doCalculation(Long thirdMatchId,MatchEventInfo data , Map<Long, FootballScores> periodFootballScores ,Boolean isReissue,Boolean isChangePeriod)  {
         String eventCode = data.getEventCode();
         Long period = data.getMatchPeriodId();
         FootballScores periodScore= periodFootballScores.get(data.getMatchPeriodId());
@@ -395,7 +395,7 @@ public class FootballScores extends  AbstractSportScores{
             Long periodDelete= SportPeriodConstant.FootballPeriod.WHOLE_PERIODS[i];
             FootballScores periodDeleteScores=periodFootballScores.get(periodDelete);
             if(periodDeleteScores==null){
-                 periodDeleteScores=new FootballScores(periodDelete);
+                periodDeleteScores=new FootballScores(periodDelete);
                 periodFootballScores.put(periodDelete,periodDeleteScores);
                 log.info("事件periodDeleteScores 阶段找不到:"+periodDelete);
             }
@@ -408,75 +408,265 @@ public class FootballScores extends  AbstractSportScores{
         }
         log.info(" 阶段比分计算doCalculation: thirdMatchId:{} ,eventCode:{},after: home:{},away:{}",
                 thirdMatchId,eventCode,periodItem.getHome(),periodItem.getAway());
+        if(isChangePeriod){
+            log.info("doCalculation,切换阶段,linkId={}，全场角球：{},全场进球：{},全场红牌：{},全场黄牌：{}",
+                    data.getLinkId(),this.corner,this.goal,this.redCard,this.yellowCard);
+            log.info("doCalculation,切换阶段:{},linkId={}，当前阶段角球：{},当前阶段进球：{},当前阶段红牌：{},当前阶段黄牌：{}",
+                    data.getMatchPeriodId(),data.getLinkId(),periodScores.corner,periodScores.goal,periodScores.redCard,periodScores.yellowCard);
+            if(EventCodeEnum.CORNER.code.equals(eventCode)){
+                if(TeamTypeEnum.HOME.code.equals(data.getHomeAway())){
+                    periodScore.corner.setHome(periodScore.corner.getHome()-1);
+                    if((periodScore.corner.getHome()<0)){
+                        periodScore.corner.setHome(0);
+                    }
+                }else if(TeamTypeEnum.AWAY.code.equals(data.getHomeAway())){
+                    periodScore.corner.setAway(periodScore.corner.getAway()-1);
+                    if((periodScore.corner.getAway()<0)){
+                        periodScore.corner.setAway(0);
+                    }
+                }
+                //全场
+                this.corner.setHome(data.getT1());
+                this.corner.setAway(data.getT2());
+                log.info("setFieldByEventCode,角球统计,linkId="+data.getLinkId()+"，当前阶段角球："+periodScores.corner+"，全场角球："+this.corner);
+            }
+            if(EventCodeEnum.GOAL.code.equals(data.getEventCode()) && period!=50L){
+                if(TeamTypeEnum.HOME.code.equals(data.getHomeAway())){
+                    periodScore.goal.setHome(periodScore.goal.getHome()-1);
+                    if((periodScore.goal.getHome()<0)){
+                        periodScore.goal.setHome(0);
+                    }
+                }else if(TeamTypeEnum.AWAY.code.equals(data.getHomeAway())){
+                    periodScore.goal.setAway(periodScore.goal.getAway()-1);
+                    if((periodScore.goal.getAway()<0)){
+                        periodScore.goal.setAway(0);
+                    }
+                }
+                //全场
+                this.goal.setHome(data.getT1());
+                this.goal.setAway(data.getT2());
+                log.info("setFieldByEventCode,进球统计,linkId="+data.getLinkId()+"，当前阶段进球："+periodScores.goal+"，全场角球："+this.goal);
+            }
+            if(EventCodeEnum.RED_CARD.code.equals(data.getEventCode())){
+                if(TeamTypeEnum.HOME.code.equals(data.getHomeAway())){
+                    periodScore.redCard.setHome(periodScore.redCard.getHome()-1);
+                    if((periodScore.redCard.getHome()<0)){
+                        periodScore.redCard.setHome(0);
+                    }
+                }else if(TeamTypeEnum.AWAY.code.equals(data.getHomeAway())){
+                    periodScore.redCard.setAway(periodScore.redCard.getAway()-1);
+                    if((periodScore.redCard.getAway()<0)){
+                        periodScore.redCard.setAway(0);
+                    }
+                }
+                //全场
+                this.redCard.setHome(data.getT1());
+                this.redCard.setAway(data.getT2());
+                log.info("setFieldByEventCode,红牌统计,linkId="+data.getLinkId()+"，当前阶段红牌："+periodScores.redCard+"，全场红牌："+this.redCard);
+                //全场比分罚牌计算
+                this.countFaCard();
+                //罚牌计算
+                countFaCard();
+            }
+            if(EventCodeEnum.YELLOW_CARD.code.equals(data.getEventCode())){
+                if(TeamTypeEnum.HOME.code.equals(data.getHomeAway())){
+                    periodScore.yellowCard.setHome(periodScore.yellowCard.getHome()-1);
+                    if((periodScore.yellowCard.getHome()<0)){
+                        periodScore.yellowCard.setHome(0);
+                    }
+                }else if(TeamTypeEnum.AWAY.code.equals(data.getHomeAway())){
+                    periodScore.yellowCard.setAway(periodScore.yellowCard.getAway()-1);
+                    if((periodScore.yellowCard.getAway()<0)){
+                        periodScore.yellowCard.setAway(0);
+                    }
+                }
+                //全场
+                this.yellowCard.setHome(data.getT1());
+                this.yellowCard.setAway(data.getT2());
+                log.info("setFieldByEventCode,黄牌统计,linkId="+data.getLinkId()+"，当前阶段黄牌："+periodScores.yellowCard+"，全场黄牌："+this.yellowCard);
+                //全场比分罚牌计算
+                this.countFaCard();
+                //罚牌计算
+                countFaCard();
+            }
+            log.info("doCalculation,切换阶段,linkId={}，全场角球：{},全场进球：{},全场红牌：{},全场黄牌：{}",data.getLinkId(),this.corner,this.goal,this.redCard,this.yellowCard);
+            log.info("doCalculation,切换阶段:{},linkId={}，当前阶段角球：{},当前阶段进球：{},当前阶段红牌：{},当前阶段黄牌：{}",
+                    data.getMatchPeriodId(),data.getLinkId(),periodScores.corner,periodScores.goal,periodScores.redCard,periodScores.yellowCard);
+        }else{
+            if(EventCodeEnum.CORNER.code.equals(eventCode)){
+                if(isReissue){
+                    if(data.getFirstT1()==null || data.getFirstT2()==null){
+                        if(TeamTypeEnum.HOME.code.equals(data.getHomeAway())){
+                            periodScore.corner.setHome(periodScore.corner.getHome()-1);
+                            if((periodScore.corner.getHome()<0)){
+                                periodScore.corner.setHome(0);
+                            }
+                        }else if(TeamTypeEnum.AWAY.code.equals(data.getHomeAway())){
+                            periodScore.corner.setAway(periodScore.corner.getAway()-1);
+                            if((periodScore.corner.getAway()<0)){
+                                periodScore.corner.setAway(0);
+                            }
+                        }
+                    }else if(data.getFirstT1()<this.corner.getHome() || data.getFirstT2()<this.corner.getAway()){
+                        log.info("setFieldByEventCode,，已消费到更大的比分数据，本次不处理，linkId="+data.getLinkId()+"，当前阶段角球："+this.corner+"，全场角球："+periodScore.corner);
+                        return periodItem;
+                    }
+                }
+                if(data.getFirstT1()==null || data.getFirstT2()==null){
+                    if(TeamTypeEnum.HOME.code.equals(data.getHomeAway())){
+                        periodScore.corner.setHome(periodScore.corner.getHome()-1);
+                        if((periodScore.corner.getHome()<0)){
+                            periodScore.corner.setHome(0);
+                        }
+                    }else if(TeamTypeEnum.AWAY.code.equals(data.getHomeAway())){
+                        periodScore.corner.setAway(periodScore.corner.getAway()-1);
+                        if((periodScore.corner.getAway()<0)){
+                            periodScore.corner.setAway(0);
+                        }
+                    }
+                }else{
+                    //当前阶段
+                    periodScore.corner.setHome(data.getFirstT1());
+                    periodScore.corner.setAway(data.getFirstT2());
+                }
+                //全场
+                this.corner.setHome(data.getT1());
+                this.corner.setAway(data.getT2());
+                log.info("setFieldByEventCode,角球统计,linkId="+data.getLinkId()+"，当前阶段角球："+periodScore.corner+"，全场角球："+periodScore.corner);
+            }
+            if(EventCodeEnum.GOAL.code.equals(data.getEventCode()) && period!=50L){
+                if(isReissue){
+                    if(data.getFirstT1()==null || data.getFirstT2()==null){
+                        if(TeamTypeEnum.HOME.code.equals(data.getHomeAway())){
+                            periodScore.goal.setHome(periodScore.goal.getHome()-1);
+                            if((periodScore.goal.getHome()<0)){
+                                periodScore.goal.setHome(0);
+                            }
+                        }else if(TeamTypeEnum.AWAY.code.equals(data.getHomeAway())){
+                            periodScore.goal.setAway(periodScore.goal.getAway()-1);
+                            if((periodScore.goal.getAway()<0)){
+                                periodScore.goal.setAway(0);
+                            }
+                        }
+                    }else if(data.getFirstT1()<this.goal.getHome() || data.getFirstT2()<this.goal.getAway()){
+                        log.info("setFieldByEventCode,，已消费到更大的比分数据，本次不处理，linkId="+data.getLinkId()+"，当前阶段进球："+this.goal+"，全场进球："+periodScore.goal);
+                        return periodItem;
+                    }
+                }
+                if(data.getFirstT1()==null || data.getFirstT2()==null){
+                    if(TeamTypeEnum.HOME.code.equals(data.getHomeAway())){
+                        periodScore.goal.setHome(periodScore.goal.getHome()-1);
+                        if((periodScore.goal.getHome()<0)){
+                            periodScore.goal.setHome(0);
+                        }
+                    }else if(TeamTypeEnum.AWAY.code.equals(data.getHomeAway())){
+                        periodScore.goal.setAway(periodScore.goal.getAway()-1);
+                        if((periodScore.goal.getAway()<0)){
+                            periodScore.goal.setAway(0);
+                        }
+                    }
+                }else{
+                    //当前阶段
+                    periodScore.goal.setHome(data.getFirstT1());
+                    periodScore.goal.setAway(data.getFirstT2());
+                }
+                //全场
+                this.goal.setHome(data.getT1());
+                this.goal.setAway(data.getT2());
+                log.info("setFieldByEventCode,进球统计,linkId="+data.getLinkId()+"，当前阶段进球："+periodScore.goal+"，全场进球："+this.goal);
+            }
+            if(EventCodeEnum.RED_CARD.code.equals(data.getEventCode())){
+                if(isReissue){
+                    if(data.getFirstT1()==null || data.getFirstT2()==null){
+                        if(TeamTypeEnum.HOME.code.equals(data.getHomeAway())){
+                            periodScore.redCard.setHome(periodScore.redCard.getHome()-1);
+                            if((periodScore.redCard.getHome()<0)){
+                                periodScore.redCard.setHome(0);
+                            }
+                        }else if(TeamTypeEnum.AWAY.code.equals(data.getHomeAway())){
+                            periodScore.redCard.setAway(periodScore.redCard.getAway()-1);
+                            if((periodScore.redCard.getAway()<0)){
+                                periodScore.redCard.setAway(0);
+                            }
+                        }
+                    }else if(data.getFirstT1()<this.redCard.getHome() || data.getFirstT2()<this.redCard.getAway()){
+                        log.info("setFieldByEventCode,，已消费到更大的比分数据，本次不处理，linkId="+data.getLinkId()+"，当前阶段红牌："+this.redCard+"，全场红牌："+this.redCard);
+                        return periodItem;
+                    }
+                }
+                if(data.getFirstT1()==null || data.getFirstT2()==null){
+                    if(TeamTypeEnum.HOME.code.equals(data.getHomeAway())){
+                        periodScore.redCard.setHome(periodScore.redCard.getHome()-1);
+                        if((periodScore.redCard.getHome()<0)){
+                            periodScore.redCard.setHome(0);
+                        }
+                    }else if(TeamTypeEnum.AWAY.code.equals(data.getHomeAway())){
+                        periodScore.redCard.setAway(periodScore.redCard.getAway()-1);
+                        if((periodScore.redCard.getAway()<0)){
+                            periodScore.redCard.setAway(0);
+                        }
+                    }
+                }else{
+                    //当前阶段
+                    periodScore.redCard.setHome(data.getFirstT1());
+                    periodScore.redCard.setAway(data.getFirstT2());
+                }
+                //全场
+                this.redCard.setHome(data.getT1());
+                this.redCard.setAway(data.getT2());
+                log.info("setFieldByEventCode,红牌统计,linkId="+data.getLinkId()+"，当前阶段红牌："+this.redCard+"，全场红牌："+this.redCard);
+                //全场比分罚牌计算
+                this.countFaCard();
+                //罚牌计算
+                countFaCard();
+            }
+            if(EventCodeEnum.YELLOW_CARD.code.equals(data.getEventCode())){
+                if(isReissue){
+                    if(data.getFirstT1()==null || data.getFirstT2()==null){
+                        if(TeamTypeEnum.HOME.code.equals(data.getHomeAway())){
+                            periodScore.yellowCard.setHome(periodScore.yellowCard.getHome()-1);
+                            if((periodScore.yellowCard.getHome()<0)){
+                                periodScore.yellowCard.setHome(0);
+                            }
+                        }else if(TeamTypeEnum.AWAY.code.equals(data.getHomeAway())){
+                            periodScore.yellowCard.setAway(periodScore.yellowCard.getAway()-1);
+                            if((periodScore.yellowCard.getAway()<0)){
+                                periodScore.yellowCard.setAway(0);
+                            }
+                        }
+                    }else if(data.getFirstT1()<this.yellowCard.getHome() || data.getFirstT2()<this.yellowCard.getAway()){
+                        log.info("setFieldByEventCode,，已消费到更大的比分数据，本次不处理，linkId="+data.getLinkId()+"，当前阶段黄牌："+this.yellowCard+"，全场黄牌："+this.yellowCard);
+                        return periodItem;
+                    }
+                }
+                if(data.getFirstT1()==null || data.getFirstT2()==null){
+                    if(TeamTypeEnum.HOME.code.equals(data.getHomeAway())){
+                        periodScore.yellowCard.setHome(periodScore.yellowCard.getHome()-1);
+                        if((periodScore.yellowCard.getHome()<0)){
+                            periodScore.yellowCard.setHome(0);
+                        }
+                    }else if(TeamTypeEnum.AWAY.code.equals(data.getHomeAway())){
+                        periodScore.yellowCard.setAway(periodScore.yellowCard.getAway()-1);
+                        if((periodScore.yellowCard.getAway()<0)){
+                            periodScore.yellowCard.setAway(0);
+                        }
+                    }
+                }else{
+                    //当前阶段
+                    periodScore.redCard.setHome(data.getFirstT1());
+                    periodScore.redCard.setAway(data.getFirstT2());
+                }
+                //全场
+                this.yellowCard.setHome(data.getT1());
+                this.yellowCard.setAway(data.getT2());
+                log.info("setFieldByEventCode,黄牌统计,linkId="+data.getLinkId()+"，当前阶段黄牌："+this.yellowCard+"，全场黄牌："+this.yellowCard);
+                //全场比分罚牌计算
+                this.countFaCard();
+                //罚牌计算
+                countFaCard();
+            }
+        }
 
-        if(EventCodeEnum.CORNER.code.equals(eventCode)){
-            if(isReissue){
-                if(data.getFirstT1()<this.corner.getHome() || data.getFirstT2()<this.corner.getAway()){
-                    log.info("setFieldByEventCode,，已消费到更大的比分数据，本次不处理，linkId="+data.getLinkId()+"，当前阶段角球："+this.corner+"，全场角球："+this.corner);
-                    return periodItem;
-                }
-            }
-            //当前阶段
-            periodScore.corner.setHome(data.getFirstT1()!=null?data.getFirstT1():periodScore.corner.getHome());
-            periodScore.corner.setAway(data.getFirstT2()!=null?data.getFirstT2():periodScore.corner.getAway());
-            //全场
-            this.corner.setHome(data.getT1());
-            this.corner.setAway(data.getT2());
-            log.info("setFieldByEventCode,角球统计,linkId="+data.getLinkId()+"，当前阶段角球："+this.corner+"，全场角球："+this.corner);
-        }
-        if(EventCodeEnum.GOAL.code.equals(data.getEventCode()) && period!=50L){
-            if(isReissue){
-                if(data.getFirstT1()<this.goal.getHome() || data.getFirstT2()<this.goal.getAway()){
-                    log.info("setFieldByEventCode,，已消费到更大的比分数据，本次不处理，linkId="+data.getLinkId()+"，当前阶段进球："+this.goal+"，全场进球："+this.corner);
-                    return periodItem;
-                }
-            }
-            //当前阶段
-            periodScore.goal.setHome(data.getFirstT1()!=null?data.getFirstT1():periodScore.goal.getHome());
-            periodScore.goal.setAway(data.getFirstT2()!=null?data.getFirstT2():periodScore.goal.getAway());
-            //全场
-            this.goal.setHome(data.getT1());
-            this.goal.setAway(data.getT2());
-            log.info("setFieldByEventCode,进球统计,linkId="+data.getLinkId()+"，当前阶段进球："+this.goal+"，全场进球："+this.goal);
-        }
-        if(EventCodeEnum.RED_CARD.code.equals(data.getEventCode())){
-            if(isReissue){
-                if(data.getFirstT1()<this.redCard.getHome() || data.getFirstT2()<this.redCard.getAway()){
-                    log.info("setFieldByEventCode,，已消费到更大的比分数据，本次不处理，linkId="+data.getLinkId()+"，当前阶段红牌："+this.redCard+"，全场红牌："+this.redCard);
-                    return periodItem;
-                }
-            }
-            //当前阶段
-            periodScore.redCard.setHome(data.getFirstT1()!=null?data.getFirstT1():periodScore.redCard.getHome());
-            periodScore.redCard.setAway(data.getFirstT2()!=null?data.getFirstT2():periodScore.redCard.getAway());
-            //全场
-            this.redCard.setHome(data.getT1());
-            this.redCard.setAway(data.getT2());
-            log.info("setFieldByEventCode,红牌统计,linkId="+data.getLinkId()+"，当前阶段红牌："+this.redCard+"，全场红牌："+this.redCard);
-            //全场比分罚牌计算
-            this.countFaCard();
-            //罚牌计算
-            countFaCard();
-        }
-        if(EventCodeEnum.YELLOW_CARD.code.equals(data.getEventCode())){
-            if(isReissue){
-                if(data.getFirstT1()<this.yellowCard.getHome() || data.getFirstT2()<this.yellowCard.getAway()){
-                    log.info("setFieldByEventCode,，已消费到更大的比分数据，本次不处理，linkId="+data.getLinkId()+"，当前阶段黄牌："+this.yellowCard+"，全场黄牌："+this.yellowCard);
-                    return periodItem;
-                }
-            }
-            //当前阶段
-            periodScore.yellowCard.setHome(data.getFirstT1()!=null?data.getFirstT1():periodScore.yellowCard.getHome());
-            periodScore.yellowCard.setAway(data.getFirstT2()!=null?data.getFirstT2():periodScore.yellowCard.getAway());
-            //全场
-            this.yellowCard.setHome(data.getT1());
-            this.yellowCard.setAway(data.getT2());
-            log.info("setFieldByEventCode,黄牌统计,linkId="+data.getLinkId()+"，当前阶段黄牌："+this.yellowCard+"，全场黄牌："+this.yellowCard);
-            //全场比分罚牌计算
-            this.countFaCard();
-            //罚牌计算
-            countFaCard();
-        }
 
         return periodItem;
     }
@@ -528,7 +718,7 @@ public class FootballScores extends  AbstractSportScores{
                 }
 
             } catch (Exception e) {
-
+                
                 String msg = "FootballScoresDto" + ";" + filedName + ":统计出错";
             }
         }
@@ -565,7 +755,8 @@ public class FootballScores extends  AbstractSportScores{
                         }
                         CommonItem commonItem = (CommonItem)field.get(this);
                         CommonItem wholeItem = (CommonItem)field.get(wholeScore);
-                        log.info(data.getLinkId()+" thirdMatchId:{} ,eventCode:{},before: home:{},away:{}",data.getThirdMatchId(),data.getEventCode(),wholeItem.getHome(),wholeItem.getAway());
+                        log.info(data.getLinkId()+" set15MinuteFieldByEventCode 修改15分钟比分 thirdMatchId:{} ,eventCode:{},before: commonItem:{},wholeItem:{}",
+                                data.getThirdMatchId(),data.getEventCode(),commonItem.doCountScoreStr(),wholeItem.doCountScoreStr());
                         //求差值
                         Integer addH = data.getT1()-wholeItem.getHome();
                         Integer addW = data.getT2()-wholeItem.getAway();
@@ -591,7 +782,8 @@ public class FootballScores extends  AbstractSportScores{
                             }
                             commonItem.setAway(commonItem.getAway()+addW);
                         }
-                        log.info(data.getLinkId()+"{} set15MinuteFieldByEventCode 修改15分钟比分 thirdMatchId:{} ,eventCode:{},after: home:{},away:{}",data.getLinkId(),data.getThirdMatchId(),data.getEventCode(),commonItem.getHome(),commonItem.getAway());
+                        log.info(data.getLinkId()+"{} set15MinuteFieldByEventCode 修改15分钟比分 thirdMatchId:{} ,eventCode:{},after: commonItem:{},wholeItem:{}",
+                                data.getLinkId(),data.getThirdMatchId(),data.getEventCode(),commonItem.doCountScoreStr(),commonItem.doCountScoreStr());
                         return  true;
                     }
                 }
@@ -631,6 +823,7 @@ public class FootballScores extends  AbstractSportScores{
                         //求差值
                         Integer addH = data.getT1()-wholeItem.getHome();
                         Integer addW = data.getT2()-wholeItem.getAway();
+
                         if(commonItem.getHome()+addH<0){
                             commonItem.setHome(0);
                         }else {
@@ -658,10 +851,10 @@ public class FootballScores extends  AbstractSportScores{
                     }
                 }
             }catch (IllegalAccessException e) {
-
+                
                 log.error(":处理数据发生异常:", e);
             } catch (Exception e) {
-
+                
                 log.error(":处理数据发生异常:", e);
             }
         }

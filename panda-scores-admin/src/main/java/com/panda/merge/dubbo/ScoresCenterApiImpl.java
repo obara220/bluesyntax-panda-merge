@@ -44,6 +44,7 @@ import com.panda.merge.service.ThirdMatchInfoService;
 import com.panda.merge.util.CategoryUtils;
 import com.panda.merge.utils.BaseBallScoresUtils;
 import com.panda.merge.utils.JsonMapUtils;
+import com.panda.merge.constant.SportPeriodConstant;
 import com.panda.merge.utils.MessageBuilderUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -55,17 +56,27 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.panda.merge.advertise.common.Constant.MATCH_ADVERTIS_EVENT_STATUS;
-import static com.panda.merge.constant.ConstantSystem.*;
+import static com.panda.merge.advertise.common.Constant.*;
+import static com.panda.merge.calculation.impl.FootballCalculationServiceImpl.getScores;
+import static com.panda.merge.common.enums.Constant.MATCH_FOOTBALL_TIME_STATUS;
+import static com.panda.merge.config.RedisConfig.REDIS_WEEK_TIME;
+import static com.panda.merge.constant.ConstantSystem.SCORES_EVENT_OPERATE;
+import static com.panda.merge.constant.ConstantSystem.THIRD_MATCH_EVENT_INFO_API;
+import static com.panda.merge.constant.ConstantSystem.VAR_EVENT_OPERATE;
 import static com.panda.merge.dto.Response.failed;
 
 /**
@@ -74,6 +85,8 @@ import static com.panda.merge.dto.Response.failed;
 @Service
 @DubboService
 @Slf4j
+@RestController
+@RequestMapping("/pdMatch/scoreCenter")
 public class ScoresCenterApiImpl implements IScoresCenterApi {
     @NacosValue(value = "${panda.data.mq.gateway.event:1}", autoRefreshed = true)
     private int pandaDataMqGatewayevent;
@@ -530,7 +543,7 @@ public class ScoresCenterApiImpl implements IScoresCenterApi {
         for (MatchScoresBetterDto score : scores) {
             if(StringUtils.isNotEmpty(score.getMatchId())&&standardIdList.contains(Long.parseLong(score.getMatchId()))){
                 //主客队相反
-                scoresService.changeHomeAway(score);
+//                scoresService.changeHomeAway(score);
             }
         }
         return scores;
@@ -676,6 +689,53 @@ public class ScoresCenterApiImpl implements IScoresCenterApi {
             Response kickOffEvent = matchFootballBallAdvertiseApi.kickOffEventCheck(eventOperationDto.getThirdMatchId(), eventOperationDto.getLanguage());
             if (kickOffEvent != null) {
                 return kickOffEvent;
+            }
+        }
+        String eventCode = eventOperationDto.getEventCode();
+        String extraInfo = eventOperationDto.getExtraInfo();
+        Long thirdMatchIdForVar = eventOperationDto.getThirdMatchId();
+        boolean isZsLanguage = "zs".equals(eventOperationDto.getLanguage());
+        final String homeAwayVarAll = "all";
+        final String varPossibleCacheKey = homeAwayVarAll + PDEventCodeEnum.POSSIBLE_VIDEO_ASSISTANT_REFEREE.getEventCode() + thirdMatchIdForVar;
+
+        if (PDEventCodeEnum.POSSIBLE_VIDEO_ASSISTANT_REFEREE.getEventCode().equals(eventCode)) {
+            if (redisService.get(varPossibleCacheKey) != null) {
+                return Response.failed(isZsLanguage ? "请刷新或点击确认或取消按钮" : "please refresh or click affirm or cancel button");
+            }
+            Response<MatchScoreAndTimeVo> earlyMatchResp = commonAdvertiseService.checkMatchScoreAndTimeCreateApi(thirdMatchIdForVar);
+            if (!earlyMatchResp.isSuccess()) {
+                log.info("::{}::【addVarEvent:" + VAR_EVENT_OPERATE + "】【::" + eventOperationDto.getLinkedId() + "::】开售处理后补发比分开始", eventOperationDto.getLinkedId());
+                return Response.failed("参数有误!");
+            }
+            if (!SportPeriodConstant.FootballPeriod.contans(earlyMatchResp.getData().getMatchTimeInfo().getPeriod())) {
+                return Response.failed("赛事不在开打阶段");
+            }
+            Long periodIdEarly = earlyMatchResp.getData().getMatchTimeInfo().getPeriod();
+            Long periodScoreEarly = earlyMatchResp.getData().getMatchScoresInfo().getPeriod();
+            if (50 == periodIdEarly || 50 == periodScoreEarly) {
+                return Response.failed(isZsLanguage ? "当前阶段禁止该操作，请刷新或切换赛事" : "Disallow the action at this stage,pls refresh or change match");
+            }
+            redisService.set(varPossibleCacheKey, varPossibleCacheKey);
+        }
+        if ("video_assistant_referee_over".equals(eventCode) && StringUtils.isBlank(extraInfo)) {
+            if (redisService.get(varPossibleCacheKey) == null) {
+                return Response.failed(isZsLanguage ? "请刷新或重新点击VAR按钮" : "please refresh or click VAR button again");
+            }
+            redisService.del(varPossibleCacheKey);
+        }
+        if ("canceled_video_assistant_referee".equals(eventCode) && StringUtils.isBlank(extraInfo)) {
+            if (redisService.get(varPossibleCacheKey) == null) {
+                return Response.failed(isZsLanguage ? "请刷新或重新点击VAR按钮" : "please refresh or click VAR button again");
+            }
+            // 清除所有可能的VAR缓存key，共4个
+            Set<String> deleteKeys = new HashSet<>(Arrays.asList(
+                varPossibleCacheKey,
+                homeAwayVarAll + PDEventCodeEnum.POSSIBLE_VAR_RED_CARD.getEventCode() + thirdMatchIdForVar,
+                homeAwayVarAll + PDEventCodeEnum.POSSIBLE_VAR_PENALTY.getEventCode() + thirdMatchIdForVar,
+                homeAwayVarAll + PDEventCodeEnum.POSSIBLE_VAR_GOAL.getEventCode() + thirdMatchIdForVar));
+            deleteKeys.removeIf(Objects::isNull);
+            if (!deleteKeys.isEmpty()) {
+                redisService.delete(deleteKeys);
             }
         }
         if ("video_assistant_referee_over".equals(eventOperationDto.getEventCode()) || "canceled_video_assistant_referee".equals(eventOperationDto.getEventCode())) {
@@ -1612,7 +1672,6 @@ public class ScoresCenterApiImpl implements IScoresCenterApi {
             return null;
         }
         //支持标准比分中心的赛种
-        List<Long> STANDARC_SCORE_SPORTIDS = new ArrayList<>(Arrays.asList(1L,2L,5L,8L,9L,10L));
         //风控测传的长ID
         List<Long> matchIds =  request.getData().getMatchIds();
         List<MatchScoresBetterDto> scores = new ArrayList<>();
@@ -1634,7 +1693,7 @@ public class ScoresCenterApiImpl implements IScoresCenterApi {
             }
         }
         //支持标准比分中心的赛种，比分保存在standard_match_scores表，其余赛种保存至match_scores_info表
-        if(STANDARC_SCORE_SPORTIDS.contains(standardScores.get(0).getSportId())){
+        if(DataSourceConstant.STANDARC_SCORE_SPORTIDS.contains(standardScores.get(0).getSportId())){
             List<StandardMatchScores> scoreList = standardMatchScoresMapper.queryScoresByMatchIds(matchIds);
             if(scoreList==null || scoreList.isEmpty()){
                 return Response.success(scores);
@@ -1790,7 +1849,12 @@ public class ScoresCenterApiImpl implements IScoresCenterApi {
         return Response.success();
     }
 
-
+    /**
+     * 校验阶段比分是否完整
+     * @param standardMatchScores
+     * @param matchInfo
+     * @return
+     */
     private Boolean checkScore(StandardMatchScores standardMatchScores, StandardMatchInfo matchInfo) {
         Integer matchLength = matchInfo.getMatchLength();
         if(matchLength==null){
@@ -2199,9 +2263,6 @@ public class ScoresCenterApiImpl implements IScoresCenterApi {
 
         //4.封装事件信息
         MatchEventInfoMessage matchEventInfoMessage = processorInjuryTimeEvent(response, businessEvent, matchDto);
-        Long peroid = processMatchPeriodId(response.getData().getMatchTimeInfo().getPeriod());
-//        String key = standardSportMarketSell.getMatchInfoId()+"_"+peroid+"injury_time";
-//        redisService.set(key,"injury_time", 2*60*60);
         //5.事件下发到实时服务
         sendMatchEventMessage(matchEventInfoMessage, matchDto.getLinkedId(),standerdId);
         } catch (InterruptedException e) {
@@ -2210,34 +2271,6 @@ public class ScoresCenterApiImpl implements IScoresCenterApi {
         return  Response.success();
     }
 
-    /**
-     * 阶段转换
-     * @param matchPeriodId
-     * @return
-     */
-    private Long processMatchPeriodId(Long matchPeriodId) {
-        //上半场+中场休息
-        if (6L == matchPeriodId || 31L == matchPeriodId) {
-            return 6L;
-        }
-        //下半场+下半场结束+等待加时开始
-        if (7L == matchPeriodId || 8L == matchPeriodId || 32L == matchPeriodId) {
-            return 7L;
-        }
-        //加时上半场开始+加时上半场结束即中场休息
-        if (41L == matchPeriodId || 33L == matchPeriodId) {
-            return 41L;
-        }
-        //加时下半场开始+加时下半场结束
-        if (42L == matchPeriodId || 43L == matchPeriodId) {
-            return 42L;
-        }
-        //等待点球大战+点球大战开始+点球大战结束
-        if (34L == matchPeriodId || 50L == matchPeriodId || 120L == matchPeriodId) {
-            return 50L;
-        }
-        return matchPeriodId;
-    }
     /**
      * 组装下发消息
      * @param response
@@ -2279,7 +2312,8 @@ public class ScoresCenterApiImpl implements IScoresCenterApi {
         Integer secondsMatchStart =response.getData().getStandardMatchInfo().getSecondsMatchStart();
         MatchTimeInfo matchTimeInfo = response.getData().getMatchTimeInfo();
         if(matchTimeInfo.getSecondFromStart()!=null && matchTimeInfo.getSecondFromStart()!=0){
-            matchEventInfoMessage.setSecondsFromStart(matchTimeInfo.getSecondFromStart());
+            Long times = matchTimeInfo.getSecondFromStart() + (System.currentTimeMillis() - matchTimeInfo.getEventTime()) / 1000;
+            matchEventInfoMessage.setSecondsFromStart(times);
         }else{
             Long times  = Long.parseLong(secondsMatchStart.toString());
             matchEventInfoMessage.setSecondsFromStart(times);
@@ -2300,6 +2334,8 @@ public class ScoresCenterApiImpl implements IScoresCenterApi {
         matchEventInfoMessage.setIsErrorEndEvent(0);
         matchEventInfoMessage.setSportId(thirdMatchInfo.getSportId());
         matchEventInfoMessage.setRemark(request.getOperatorName());
+        //手动补时事件添加ad5=2,下游过滤该事件的走时（A01,客户端）
+        matchEventInfoMessage.setAddition5("2");
         return matchEventInfoMessage;
     }
 
@@ -2314,7 +2350,7 @@ public class ScoresCenterApiImpl implements IScoresCenterApi {
         matchEventInfoMessage.setHomeAway("none");
         matchEventInfoMessage.setMatchPeriodId(standardMatchInfo.getMatchPeriodId());
         Integer secondsMatchStart =standardMatchInfo.getSecondsMatchStart();
-        log.info("接口获取比赛进行时长：{},标准赛事表：",request.getMatchId(),secondsMatchStart);
+        log.info("接口获取比赛进行时长：{},标准赛事表：{}",request.getMatchId(),secondsMatchStart);
 //        if(secondsMatchStart!=null){
 //            Long times  = Long.parseLong(secondsMatchStart.toString());
 //            matchEventInfoMessage.setSecondsFromStart(times);
@@ -2327,12 +2363,12 @@ public class ScoresCenterApiImpl implements IScoresCenterApi {
             matchEventInfoMessage.setT2(matchScoresInfo.getT2());
             MatchTimeInfo matchTimeInfo = timeInfoRepository.selectByPrimaryKey(matchScoresInfo.getId());
             if(matchTimeInfo!=null && matchTimeInfo.getSecondFromStart()!=null){
-                log.info("接口获取比赛进行时长：{},赛事时间表：",request.getMatchId(),matchTimeInfo.getSecondFromStart());
+                log.info("接口获取比赛进行时长：{},赛事时间表：{}",request.getMatchId(),matchTimeInfo.getSecondFromStart());
                 Long times = matchTimeInfo.getSecondFromStart() + (System.currentTimeMillis() - matchTimeInfo.getEventTime()) / 1000;
                 matchEventInfoMessage.setSecondsFromStart(times);
             }else{
                 Long times  = Long.parseLong(secondsMatchStart.toString());
-                log.info("接口获取比赛进行时长：{},标准赛事表：",request.getMatchId(),matchTimeInfo.getSecondFromStart());
+                log.info("接口获取比赛进行时长：{},标准赛事表：{}",request.getMatchId(),matchTimeInfo.getSecondFromStart());
                 matchEventInfoMessage.setSecondsFromStart(times);
             }
         }else{
@@ -2806,6 +2842,38 @@ public class ScoresCenterApiImpl implements IScoresCenterApi {
         return periods;
     }
 
+    @Override
+    public Response checkMinScores(ScoresCenterCheckSwitchDTO checkSwitch) {
+        log.info("修改区间比分校验开关:{}",checkSwitch);
+        String redisKey = "scores:min:check:switch:"+checkSwitch.getMatchId();
+        //缓存一天，24小时后失效
+        redisService.set(redisKey,checkSwitch.getMinScoresCheck(),RedisConfig.REDIS_DEFAULT_TIME);
+
+        log.info("修改区间比分校验开关,保存操作日志:{}",checkSwitch);
+        Integer showStatus = checkSwitch.getMinScoresCheck()?1:0;
+        MatchScoresCenterLog matchScoresCenterLog = new MatchScoresCenterLog();
+        String matchManageId = checkSwitch.getMatchManageId();
+        matchScoresCenterLog.setMatchManageId(matchManageId);
+        matchScoresCenterLog.setOperateId(matchManageId);
+        matchScoresCenterLog.setOperateName("");
+        matchScoresCenterLog.setOperateParaName(OperateLogTypeEnum.MINUTES_SCORES_CHECK_SWITCH.getCode() + "");
+        matchScoresCenterLog.setOperateType(OperateLogTypeEnum.MINUTES_SCORES_CHECK_SWITCH.getCode() + "");
+        matchScoresCenterLog.setOperateRearText(String.valueOf(showStatus));
+        showStatus++;
+        String before = String.valueOf(new StringBuffer(Integer.toBinaryString(showStatus)).reverse().toString().charAt(0));
+        matchScoresCenterLog.setOperateForwText(before);
+        matchScoresCenterLog.setMatchManageId(matchManageId);
+        matchScoresCenterLog.setOperateModule(OperateLogTypeEnum.SCORES_SETTLE_10038.getCode() + "");
+        matchScoresCenterLog.setOperateUserName(checkSwitch.getOperatorName());
+        matchScoresCenterLog.setIpAddress(checkSwitch.getIpAddress());
+        matchScoresCenterLog.setOperateMatchId(matchManageId);
+        matchScoresCenterLog.setCreateTime(System.currentTimeMillis());
+        matchScoresCenterLog.setModifyTime(System.currentTimeMillis());
+        matchScoresCenterLogMapper.insert(matchScoresCenterLog);
+
+
+        return Response.success();
+    }
 
     @Override
     public Response updateScoreShowStatus(StandardScoreCenterDTO scoreCenterDto) {

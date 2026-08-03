@@ -1,5 +1,6 @@
 package com.panda.merge.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.panda.merge.advertise.dto.MatchScoreAndTimeVo;
 import com.panda.merge.advertise.service.BasketBallAdvertiseService;
@@ -8,9 +9,9 @@ import com.panda.merge.advertise.utils.MatchPeriodUtils;
 import com.panda.merge.calculation.CalculationService;
 import com.panda.merge.calculation.impl.*;
 import com.panda.merge.common.BaseProcessor;
+import com.panda.merge.common.enums.DataSourceCodeEnum;
 import com.panda.merge.common.utils.IdWorker;
 import com.panda.merge.config.RedisService;
-import com.panda.merge.constant.RepositoryConstant;
 import com.panda.merge.constant.SourceTypeEnum;
 import com.panda.merge.constant.SportPeriodWholeArrayEnum;
 import com.panda.merge.constant.SportTypeEnum;
@@ -18,18 +19,15 @@ import com.panda.merge.dto.BasketballScores;
 import com.panda.merge.dto.FootballScores;
 import com.panda.merge.dto.TennisScores;
 import com.panda.merge.dto.scores.MatchScoresBetterDto;
-import com.panda.merge.mapper.MatchScoresInfoMapper;
-import com.panda.merge.mapper.MatchScoresSourceTypeMapper;
-import com.panda.merge.mapper.MatchTimeInfoMapper;
-import com.panda.merge.mapper.MatchTimeInfoMapper;
-import com.panda.merge.mapper.ThirdMatchInfoMapper;
 import com.panda.merge.model.*;
+import com.panda.merge.mq.message.CommonStandardScoresDto;
 import com.panda.merge.repository.*;
 import com.panda.merge.service.IScoresService;
 import com.panda.merge.service.ThirdMatchInfoService;
+import com.panda.merge.snooker.dto.SnookerV2Scores;
 import com.panda.merge.utils.JsonMapUtils;
-import com.panda.merge.utils.MessageGZIP;
 import com.panda.merge.utils.SpringUtils;
+import com.panda.merge.volleyball.dto.VolleyballV2Scores;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,12 +37,9 @@ import org.springframework.util.StopWatch;
 
 import java.time.Instant;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static com.panda.merge.constant.RepositoryConstant.MATCH_SCORES_INFO;
-import static com.panda.merge.constant.RepositoryConstant.MATCH_TIME_INFO;
 import static com.panda.merge.constant.SportPeriodConstant.SportPeriod.WHOLE_MATCH;
 
 
@@ -64,6 +59,8 @@ public class ScoresServiceImpl implements IScoresService {
 //    MatchTimeInfoMapper matchTimeInfoMapper;
     @Autowired
     BasketBallAdvertiseService basketBallAdvertiseService;
+//    @Autowired
+//    IScoresService scoresService;
     @Autowired
     BaseProcessor baseProcessor;
     @Autowired
@@ -84,8 +81,8 @@ public class ScoresServiceImpl implements IScoresService {
     private ScoresRedisHelp scoresRedisHelp;
     @Autowired
     CommonAdvertiseService commonAdvertiseService;
-//    @Autowired
-//    PdMatchInfoRepository pdMatchInfoRepository;
+    @Autowired
+    PdMatchInfoRepository pdMatchInfoRepository;
     @Autowired
     ThirdMatchInfoService thirdMatchInfoService;
 
@@ -270,7 +267,7 @@ public class ScoresServiceImpl implements IScoresService {
             if(standardSportMarketSell.getBusinessEvent().equals(matchScoresInfo.getDataSourceCode())){
                 return true;
             }else {
-                log.info("{}checkStandardScore 校验事件源不匹配，BusinessEvent={}，matchScoresInfo.getDataSourceCode()={}",
+                log.info("checkStandardScore 校验事件源不匹配，BusinessEvent={}，matchScoresInfo.getDataSourceCode()={}，{}",
                         thirdMatchInfo.getReferenceId(),standardSportMarketSell.getBusinessEvent(),matchScoresInfo.getDataSourceCode());
                 return false;
             }
@@ -371,26 +368,27 @@ public class ScoresServiceImpl implements IScoresService {
         //只有足球才做主客队相反
         try {
             if (standardScore != null && standardScore.getSportId().equals(1L)) {
-                //只有UOF比分才 要主客队互换
-                if (standardScore.getDataSourceType().equals(SourceTypeEnum.UOF.getCode().toString())) {
-                        if (standardScore.getHomeAwayOpposite() != null && 1 == standardScore.getHomeAwayOpposite()) {
-                            Integer t1 = standardScore.getT1();
-                            Integer t2 = standardScore.getT2();
-                            Integer periodT1 = standardScore.getPeriodT1();
-                            Integer periodT2 = standardScore.getPeriodT2();
-                            standardScore.setPeriodT1(periodT2);
-                            standardScore.setPeriodT2(periodT1);
-                            standardScore.setT1(t2);
-                            standardScore.setT2(t1);
-                            if (StringUtils.isNotEmpty(standardScore.getScoresJson())) {
-                                JSONObject periodFootballScores = JSONObject.parseObject(standardScore.getScoresJson());
-                                Map<Long, FootballScores> allPeriodScores = JsonMapUtils.parseFootballMap(periodFootballScores);
-                                for (FootballScores value : allPeriodScores.values()) {
-                                    value.changeHomeAwayScore();
-                                }
-                                standardScore.setScoresJson(JSONObject.toJSONString(allPeriodScores));
-                            }
+                boolean pdSourceCode = standardScore.getDataSourceCode().equals(DataSourceCodeEnum.PD.code) && !standardScore.getDataSourceCode().equals(DataSourceCodeEnum.PD2.code);
+                if(!pdSourceCode){
+                    return;
+                }
+                if (standardScore.getHomeAwayOpposite() != null && 1 == standardScore.getHomeAwayOpposite()) {
+                    Integer t1 = standardScore.getT1();
+                    Integer t2 = standardScore.getT2();
+                    Integer periodT1 = standardScore.getPeriodT1();
+                    Integer periodT2 = standardScore.getPeriodT2();
+                    standardScore.setPeriodT1(periodT2);
+                    standardScore.setPeriodT2(periodT1);
+                    standardScore.setT1(t2);
+                    standardScore.setT2(t1);
+                    if (StringUtils.isNotEmpty(standardScore.getScoresJson())) {
+                        JSONObject periodFootballScores = JSONObject.parseObject(standardScore.getScoresJson());
+                        Map<Long, FootballScores> allPeriodScores = JsonMapUtils.parseFootballMap(periodFootballScores);
+                        for (FootballScores value : allPeriodScores.values()) {
+                            value.changeHomeAwayScore();
                         }
+                        standardScore.setScoresJson(JSONObject.toJSONString(allPeriodScores));
+                    }
                 }
             }
         }catch (Exception e){
@@ -405,25 +403,22 @@ public class ScoresServiceImpl implements IScoresService {
         //只有足球才做主客队相反
         try {
             if (matchScoresInfo != null && matchScoresInfo.getSportId().equals(1L)) {
-                //只有UOF比分才需要主客队互换  事件比分不需要
-                if (matchScoresInfo.getDataSourceType().equals(SourceTypeEnum.UOF.getCode().toString())) {
-                    if (thirdMatchInfo.getHomeAwayOpposite() != null && 1 == thirdMatchInfo.getHomeAwayOpposite()) {
-                        Integer t1 = matchScoresInfo.getT1();
-                        Integer t2 = matchScoresInfo.getT2();
-                        Integer periodT1 = matchScoresInfo.getPeriodT1();
-                        Integer periodT2 = matchScoresInfo.getPeriodT2();
-                        matchScoresInfo.setPeriodT1(periodT2);
-                        matchScoresInfo.setPeriodT2(periodT1);
-                        matchScoresInfo.setT1(t2);
-                        matchScoresInfo.setT2(t1);
-                        if (StringUtils.isNotEmpty(matchScoresInfo.getScoresJson())) {
-                            JSONObject periodFootballScores = JSONObject.parseObject(matchScoresInfo.getScoresJson());
-                            Map<Long, FootballScores> allPeriodScores = JsonMapUtils.parseFootballMap(periodFootballScores);
-                            for (FootballScores value : allPeriodScores.values()) {
-                                value.changeHomeAwayScore();
-                            }
-                            matchScoresInfo.setScoresJson(JSONObject.toJSONString(allPeriodScores));
+                if (thirdMatchInfo.getHomeAwayOpposite() != null && 1 == thirdMatchInfo.getHomeAwayOpposite()) {
+                    Integer t1 = matchScoresInfo.getT1();
+                    Integer t2 = matchScoresInfo.getT2();
+                    Integer periodT1 = matchScoresInfo.getPeriodT1();
+                    Integer periodT2 = matchScoresInfo.getPeriodT2();
+                    matchScoresInfo.setPeriodT1(periodT2);
+                    matchScoresInfo.setPeriodT2(periodT1);
+                    matchScoresInfo.setT1(t2);
+                    matchScoresInfo.setT2(t1);
+                    if (StringUtils.isNotEmpty(matchScoresInfo.getScoresJson())) {
+                        JSONObject periodFootballScores = JSONObject.parseObject(matchScoresInfo.getScoresJson());
+                        Map<Long, FootballScores> allPeriodScores = JsonMapUtils.parseFootballMap(periodFootballScores);
+                        for (FootballScores value : allPeriodScores.values()) {
+                            value.changeHomeAwayScore();
                         }
+                        matchScoresInfo.setScoresJson(JSONObject.toJSONString(allPeriodScores));
                     }
                 }
             }
@@ -471,7 +466,7 @@ public class ScoresServiceImpl implements IScoresService {
         StandardMatchInfo standardMatchInfo = null;
         if (null != thirdMatchInfo && null != thirdMatchInfo.getReferenceId() && thirdMatchInfo.getReferenceId() > 0){
 //            standardMatchInfo = standardMatchInfoMapper.selectByPrimaryKey(thirdMatchInfo.getReferenceId());
-            standardMatchInfo = standardMatchInfoRepository.selectStandardMatchPrimaryKey(thirdMatchInfo.getReferenceId());
+            standardMatchInfo = pdMatchInfoRepository.getStandardMatchInfo(thirdMatchInfo.getReferenceId(), null);
         }
 //        MatchScoresInfoExample matchScoresInfoExample = new MatchScoresInfoExample();
 //        matchScoresInfoExample.createCriteria().andThirdMatchIdEqualTo(thirdMatchInfo.getId());
@@ -479,7 +474,7 @@ public class ScoresServiceImpl implements IScoresService {
 //        if(virtualRelations.size()!=0){
 //            return virtualRelations.get(0);
 //        }
-        MatchScoresInfo virtualRelation = matchScoresInfoRepository.selectByExample(thirdMatchInfo.getId(), SourceTypeEnum.LIVE_DATA.getCode());
+        MatchScoresInfo virtualRelation = pdMatchInfoRepository.getMatchScoresInfo(thirdMatchInfo.getId(), SourceTypeEnum.LIVE_DATA.getCode(), null);
         if (!ObjectUtils.isEmpty(virtualRelation)) {
             return virtualRelation;
         }
@@ -529,9 +524,19 @@ public class ScoresServiceImpl implements IScoresService {
             TennisScores tennisScores = new TennisScores();
             periodFootballScores.put(WHOLE_MATCH,tennisScores);
             matchScoresInfo.setScoresJson(JSONObject.toJSONString(periodFootballScores));
+        } else if(thirdMatchInfo.getSportId().equals(7l)){
+            Map<Long, SnookerV2Scores> periodSnookerScores = new HashMap<>();
+            SnookerV2Scores snookerV2Scores = new SnookerV2Scores();
+            periodSnookerScores.put(WHOLE_MATCH,snookerV2Scores);
+            matchScoresInfo.setScoresJson(JSONObject.toJSONString(periodSnookerScores));
+        } else if(thirdMatchInfo.getSportId().equals(9l)){
+            Map<Long, VolleyballV2Scores> periodVolleyballScores = new HashMap<>();
+            VolleyballV2Scores volleyballV2Scores = new VolleyballV2Scores();
+            periodVolleyballScores.put(WHOLE_MATCH, volleyballV2Scores);
+            matchScoresInfo.setScoresJson(JSONObject.toJSONString(periodVolleyballScores));
         }
 //        matchScoresInfoMapper.insert(matchScoresInfo);
-        matchScoresInfoRepository.updateScoresInfo(matchScoresInfo);
+        pdMatchInfoRepository.addMatchScoresInfo(matchScoresInfo, null);
 
 //        MatchScoresSourceType matchScoresSourceType = matchScoresSourceTypeMapper.selectByPrimaryKey(matchScoresInfo.getThirdMatchId());
         MatchScoresSourceType matchScoresSourceType = matchScoresSourceTypeRepository.selectSourceSourceTypeByThirdMatchId(matchScoresInfo.getThirdMatchId());
@@ -552,7 +557,7 @@ public class ScoresServiceImpl implements IScoresService {
         matchTimeInfo.setCreateTime(System.currentTimeMillis());
         matchTimeInfo.setModifyTime(System.currentTimeMillis());
         matchTimeInfo.setDataSourceType(matchScoresInfo.getDataSourceType());
-        matchTimeInfo.setTimeGo(1);
+        matchTimeInfo.setTimeGo(0);
         matchTimeInfo.setThirdMatchId(matchScoresInfo.getThirdMatchId());
         matchTimeInfo.setPeriod(0l);
         matchTimeInfo.setSecondFromStart(0l);
@@ -584,7 +589,7 @@ public class ScoresServiceImpl implements IScoresService {
             matchTimeInfo.setMatchLengthJson(setMatchLengthJson.toJSONString());
         }
 //        matchTimeInfoMapper.insert(matchTimeInfo);
-        matchTimeInfoRepository.updateByPrimaryKey(matchTimeInfo);
+        pdMatchInfoRepository.addMatchTimeInfo(matchTimeInfo, null);
         stopWatch.stop();
         log.info("ScoresServiceImpl-createPDMatchScoresInfo-耗时={}, thirdMatchId={}", stopWatch.getTotalTimeMillis(),thirdMatchInfo.getId());
         return matchScoresInfo;
@@ -647,7 +652,7 @@ public class ScoresServiceImpl implements IScoresService {
         matchTimeInfo.setCreateTime(matchScoresInfo.getCreateTime());
         matchTimeInfo.setModifyTime(matchScoresInfo.getModifyTime());
         matchTimeInfo.setDataSourceType(matchScoresInfo.getDataSourceType());
-        matchTimeInfo.setTimeGo(1);
+        matchTimeInfo.setTimeGo(0);
         matchTimeInfo.setThirdMatchId(matchScoresInfo.getThirdMatchId());
         matchTimeInfo.setPeriod(matchScoresInfo.getPeriod());
         matchTimeInfo.setSecondFromStart(matchScoresInfo.getSecondsMatchStart());
@@ -656,9 +661,9 @@ public class ScoresServiceImpl implements IScoresService {
         matchTimeInfo.setRemainingTime(matchScoresInfo.getRemainingTime());
         matchTimeInfo.setEventTime(matchScoresInfo.getEventTime());
         matchTimeInfo.setRoundType(roundType);
+        log.info("initMatchTimeInfoByMatchScoresInfo:{}", matchScoresInfo);
         //如果是 网球 5则需要初始化局制
-        if (matchScoresInfo.getSportId().equals(5L)) {
-
+        if (SportTypeEnum.TENNIS.getValue().equals(matchScoresInfo.getSportId())) {
             if (matchTimeInfo.getMatchLength() == null || matchTimeInfo.getMatchLength() == 0) {
                 matchTimeInfo.setMatchLength(1);
             }
@@ -679,6 +684,58 @@ public class ScoresServiceImpl implements IScoresService {
             matchTimeInfo.setMatchLengthJson(setMatchLengthJson.toJSONString());
         }
         matchTimeInfoRepository.updateByPrimaryKey(matchTimeInfo);
+    }
+
+    @Override
+    public void changePDHomeAwayScores(StandardMatchScores scores, ThirdMatchInfo thirdMatchInfo) {
+        //只有足球才做主客队相反
+        try {
+            if (scores != null && scores.getSportId().equals(1L) ) {
+                boolean pdSourceCode = scores.getDataSourceCode().equals(DataSourceCodeEnum.PD.code) || scores.getDataSourceCode().equals(DataSourceCodeEnum.PD2.code);
+                if(!pdSourceCode){
+                    return;
+                }
+                if (thirdMatchInfo.getHomeAwayOpposite() != null && 1 == thirdMatchInfo.getHomeAwayOpposite()) {
+                    if (scores.getScoreJson()!=null) {
+                        JSONObject periodFootballScores = JSONObject.parseObject(scores.getScoreJson());
+                        Map<Long, FootballScores> allPeriodScores = JsonMapUtils.parseFootballMap(periodFootballScores);
+                        for (FootballScores value : allPeriodScores.values()) {
+                            value.changeHomeAwayScore();
+                        }
+                        log.info("changeHomeAway：{}",periodFootballScores.toJSONString());
+                        scores.setScoreJson(periodFootballScores.toJSONString());
+                    }
+                }
+            }
+        }catch (Exception e){
+            log.error("changeHomeAway error:",e);
+        }
+    }
+    @Override
+    public void changePDHomeAwayScores(MatchScoresInfo scores, ThirdMatchInfo thirdMatchInfo) {
+
+        //只有足球才做主客队相反
+        try {
+            if (scores != null && scores.getSportId().equals(1L) ) {
+                boolean pdSourceCode = scores.getDataSourceCode().equals(DataSourceCodeEnum.PD.code) || scores.getDataSourceCode().equals(DataSourceCodeEnum.PD2.code);
+                if(!pdSourceCode){
+                    return;
+                }
+                if (thirdMatchInfo.getHomeAwayOpposite() != null && 1 == thirdMatchInfo.getHomeAwayOpposite()) {
+                    if (scores.getScoresJson()!=null) {
+                        JSONObject periodFootballScores = JSONObject.parseObject(scores.getScoresJson());
+                        Map<Long, FootballScores> allPeriodScores = JsonMapUtils.parseFootballMap(periodFootballScores);
+                        for (FootballScores value : allPeriodScores.values()) {
+                            value.changeHomeAwayScore();
+                        }
+                        log.info("changeHomeAway：{}",JSONObject.toJSONString(allPeriodScores));
+                        scores.setScoresJson(JSONObject.toJSONString(allPeriodScores));
+                    }
+                }
+            }
+        }catch (Exception e){
+            log.error("changeHomeAway error:",e);
+        }
     }
 
     @Override

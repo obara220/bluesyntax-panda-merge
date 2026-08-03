@@ -2,8 +2,11 @@ package com.panda.merge.controller;
 
 import com.panda.merge.api.SystemMarketPreApi;
 import com.panda.merge.common.enums.Constant;
+import com.panda.merge.common.enums.DataSourceCodeEnum;
+import com.panda.merge.common.utils.IdWorker;
 import com.panda.merge.config.RedisService;
 import com.panda.merge.dto.Response;
+import com.panda.merge.rocketmq.producer.SystemSrSwitchProducer;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +29,8 @@ public class SystemMarketPreController {
     private SystemMarketPreApi systemMarketPreApi;
     @Autowired
     private RedisService redisService;
+    @Autowired
+    private SystemSrSwitchProducer systemSrSwitchProducer;
 
     /**
      * 前端摸板{SR:开/关，AO:开/关}  1/0
@@ -45,9 +50,10 @@ public class SystemMarketPreController {
     @PostMapping("/SearchSystemPreResult")
     @ApiOperation(value = "根据三方盘口源id推送关盘", httpMethod = "POST")
     public Response SearchSystemPreResult() {
+        String linkId = IdWorker.get32UUID();
         log.info("【SystemMarketPreController ：SearchSystemPreResult】成功接受请求!");
         String SystemThirdMarketPreParams = Constant.REDIS_KEY.SYSTEM_THIRD_MARKET_PRE_PARAMS;
-        Map maps = redisService.hGetAll(SystemThirdMarketPreParams);
+        Map<String,Integer> maps = redisService.hGetAll(SystemThirdMarketPreParams);
         if (maps.isEmpty()) {
             Map<String, Integer> paramsMap = new HashMap<>();
             paramsMap.put("SR", 0);
@@ -55,6 +61,7 @@ public class SystemMarketPreController {
             redisService.hSetAll(SystemThirdMarketPreParams, paramsMap);
             return Response.success(maps);
         }
+        systemSrSwitchProducer.sendSystemSrSwitchMessage(linkId, maps.get(DataSourceCodeEnum.SR.code));
         return Response.success(maps);
     }
 }

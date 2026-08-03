@@ -113,7 +113,7 @@ public class StandardMatchEventConsumer implements RocketMQListener<Request<List
      * */
     @Override
     public void onMessage(Request<List<MatchEventInfo>> mq) {
-        log.info("数据中心开关datacenterSettleSwitch:"+datacenterSettleSwitch);
+
         log.info("数据中心MATCH_EVENT_INFO_TO_RISK分流Id:"+datacenterSettleId);
         if(datacenterSettleSwitch|| commonProducer.getDatacenterMatchIds(mq.getData().get(0).getStandardMatchId().toString())){
             log.info("Link::{}::MATCH_EVENT_INFO_TO_RISK数据中心分流Id::{}::",mq.getLinkId(),mq.getData().get(0).getStandardMatchId());
@@ -140,8 +140,9 @@ public class StandardMatchEventConsumer implements RocketMQListener<Request<List
         redisService.set(prefixSettleScoreKey, "True",7200);
         mq.getData().forEach(t->t.setLinkId(linkId));
         MatchEventInfo eventInfo =mq.getData().get(0);
-        if(eventInfo.getDataSourceCode().equals("RC")||eventInfo.getDataSourceCode().equals("TS")||eventInfo.getDataSourceCode().equals("N02")){
-            log.info("linkId::{}::StandardMatchEventConsumer 数据源RC/V02/N02不处理", linkId);
+        // 109585 【生产】【产品】篮球结算2.0不接收N01,N02,N03事件与页面不展示比分
+        if(eventInfo.getDataSourceCode().equals("RC")||eventInfo.getDataSourceCode().equals("TS")||eventInfo.getDataSourceCode().equals("N02")||eventInfo.getDataSourceCode().equals("N03")||eventInfo.getDataSourceCode().equals("N01")){
+            log.info("linkId::{}::StandardMatchEventConsumer 数据源RC/V02/N02/N01/N03不处理", linkId);
             return;
         }
         if ("lost_connection".equals(eventInfo.getEventCode()) && (eventInfo.getDataSourceCode().equals("KO")||eventInfo.getDataSourceCode().equals("BG")
@@ -200,7 +201,8 @@ public class StandardMatchEventConsumer implements RocketMQListener<Request<List
             // 如果断连，可以在这里决定是否继续处理
 
             //编码过滤 不符合则取下一个
-            if (!EffectScoresCode.chargeEffectScores(matchEventInfo.getSportId(), matchEventInfo.getEventCode()) && !"match_status".equals(matchEventInfo.getEventCode())) {
+            if (!EffectScoresCode.chargeEffectScores(matchEventInfo.getSportId(), matchEventInfo.getEventCode())
+                    && !"match_status".equals(matchEventInfo.getEventCode())) {
                 log.info("linkId::{}::eventId:{} 编码不符合不处理", linkId, matchEventInfo.getThirdMatchId());
                 continue;
             }

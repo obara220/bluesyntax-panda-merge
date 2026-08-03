@@ -70,10 +70,10 @@ public class A99ThirdMatchMarketProcessor extends BaseProcessor {
                 //校验是否是4480需求中的24个玩法
                 List<ThirdMarketDTO> marketList = new ArrayList<>();
                 for (ThirdMarketDTO thirdMatchMarketDTO : e.getData().getMarketList()) {
-                    if (thirdMatchMarketDTO.getStatus() != 0) {
-                        //只缓存开盘的盘口
-                        continue;
-                    }
+//                    if (thirdMatchMarketDTO.getStatus() != 0) {
+//                        //只缓存开盘的盘口
+//                        continue;
+//                    }
                     log.info("百家赔批量拉取开始2:a99ParamConfig.getThirdMarketCategorySourceIds():{},getThirdMarketCategorySourceId:{}",a99ParamConfig.getThirdMarketCategorySourceIds(),thirdMatchMarketDTO.getThirdMarketCategorySourceId());
                     if (a99ParamConfig.getThirdMarketCategorySourceIds().contains(thirdMatchMarketDTO.getThirdMarketCategorySourceId())) {
                         marketList.add(thirdMatchMarketDTO);

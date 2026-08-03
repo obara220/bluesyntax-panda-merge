@@ -1,16 +1,10 @@
 package com.panda.merge.common;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.map.MapUtil;
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.panda.merge.bo.I18nItemBO;
 import com.panda.merge.common.enums.*;
-import com.panda.merge.common.utils.EntityEqualsUtils;
 import com.panda.merge.common.utils.TimeUtils;
-import com.panda.merge.component.UUIdUtils;
 import com.panda.merge.config.RedisConfig;
 import com.panda.merge.config.RedisService;
 import com.panda.merge.constant.ConstantSystem;
@@ -20,7 +14,6 @@ import com.panda.merge.dto.message.StandardMarketDataMessage;
 import com.panda.merge.dto.message.StandardMarketOddsDataMessage;
 import com.panda.merge.dto.message.StandardMatchMarketPreResultMessage;
 import com.panda.merge.exception.ApiException;
-import com.panda.merge.exception.Asserts;
 import com.panda.merge.model.*;
 import com.panda.merge.service.*;
 import lombok.extern.slf4j.Slf4j;
@@ -93,77 +86,6 @@ public class BaseBatchProcessor {
     private ConfigMarketOddsStatusService configMarketOddsStatusService;
     @Autowired
     private ConfigCashOutTradeItemService configCashOutTradeItemService;
-    /**
-     * 简单判断请求参数格式是否正确，主要判断linkId和Data不能为空和条数限制
-     * @param  request      请求参数
-     * @param  key          缓存标识
-     * @param  dataMaxSize  请求参数中data最大条数，可为空
-     * */
-    public <T> void simpleValidateParam(Request<List<T>> request, String key, Integer dataMaxSize) {
-        if (Strings.isNullOrEmpty(request.getLinkId())) {
-            throw new ApiException(PandaErrorCodeEnum.REQUEST_NO_LINKID.getErrorMsg());
-        }
-        //校验LinkId和缓存中是否重复
-        validateLinkId(key,request);
-        if (CollectionUtils.isEmpty(request.getData())) {
-            throw new ApiException(PandaErrorCodeEnum.REQUEST_NO_DATA.getErrorMsg());
-        }
-        //超过n条数据，拒绝处理
-        if (!Objects.isNull(dataMaxSize) && request.getData().size() > dataMaxSize) {
-            throw new ApiException(PandaErrorCodeEnum.REQUEST_DATA_LIMIT.getErrorMsg().replace("maxSize",dataMaxSize+""));
-        }
-    }
-
-    /**
-     * 判断请求数据源种类是否为空和超长
-     * @param  dataSourceCodes      请求参数中数据源种类列表
-     * */
-    public <T> DataSource simpleValidateDataSourceCodes(Request<List<T>> request,Set<String> dataSourceCodes) {
-        if(CollectionUtils.isEmpty(dataSourceCodes)){
-            throw new ApiException(PandaErrorCodeEnum.DATASOURCE_IS_NOTNULL.getErrorMsg());
-        }
-        if(dataSourceCodes.size() > ONE){
-            throw new ApiException(PandaErrorCodeEnum.DATASOURCE_LIMIT.getErrorMsg().replace("maxSize",String.valueOf(ONE)));
-        }
-        //当前数据源类型
-        String dataSourceCode = dataSourceCodes.iterator().next();
-        request.setDataSourceCode(dataSourceCode);
-        DataSource dataSource = dataSourceService.getItemByCode(request.getDataSourceCode());
-        if(null == dataSource){
-            throw new ApiException(PandaErrorCodeEnum.DATASOURCE_NO_CHECK.getErrorMsg().replace("dataSourceCode",dataSourceCode));
-        }
-        return dataSource;
-    }
-
-    /**
-     * 判断请求数据源种类是否为空和超长
-     * @param  dataSourceCode      请求参数中数据源种类
-     * */
-    public DataSource simpleValidateDataSourceCode(Request request,String dataSourceCode) {
-        if(StringUtils.isBlank(dataSourceCode)){
-            throw new ApiException(PandaErrorCodeEnum.DATASOURCE_IS_NOTNULL.getErrorMsg());
-        }
-        request.setDataSourceCode(dataSourceCode);
-        DataSource dataSource = dataSourceService.getItemByCode(request.getDataSourceCode());
-        if(null == dataSource){
-            throw new ApiException(PandaErrorCodeEnum.DATASOURCE_NO_CHECK.getErrorMsg().replace("dataSourceCode",dataSourceCode));
-        }
-        return dataSource;
-    }
-
-    /**
-     * 检查是否还是在处理历史数据
-     * false：历史开售的数据，true：新开售的数据
-     * @param standardMatchId
-     * @param marketType
-     * @return
-     */
-    public boolean checkHistoryData(Long standardMatchId,Integer marketType)
-    {
-        String categoryRedisKey = Constant.REDIS_KEY.RONGHE_MARKET_CATEGORY_SELL + standardMatchId+"_"+marketType;
-        Map<String,String> stringHashMap = redisService.hGetAll(categoryRedisKey);
-        return MapUtil.isEmpty(stringHashMap);
-    }
 
     public boolean supportA99(String linkId,Long matchId,Integer marketType,Long categoryId){
         String key = marketType==1?Constant.REDIS_KEY.RONGHE_A99_PRE_MATCH_IDS:Constant.REDIS_KEY.RONGHE_A99_LIVE_MATCH_IDS;
@@ -251,313 +173,6 @@ public class BaseBatchProcessor {
             return oddsWrapper;
         }).collect(Collectors.toList());
     }
-
-    /**
-     * 入参多语言国际化入参校验并返回需要的国际化语言
-     * @param   i18nItems  多语言列表
-     * @param   resLogo    返回标识（需要返回什么类型语言）
-     * */
-    public I18nItemDTO validateI18nItemDTOs(List<I18nItemDTO> i18nItems, String resLogo) {
-        if(CollectionUtils.isEmpty(i18nItems)){
-            Asserts.validateListForEmpty(i18nItems,PandaErrorCodeEnum.I18NS_IS_NOTNULL.getErrorMsg());
-        }
-        for (I18nItemDTO i18nItemDTO: i18nItems) {
-            //校验国际化语言类型、文字内容
-            Asserts.validateStringForEmpty(i18nItemDTO.getLanguageType(), PandaErrorCodeEnum.I18N_LANGUAGE_TYPE.getErrorMsg());
-            Asserts.validateStringForEmpty(i18nItemDTO.getText(), PandaErrorCodeEnum.I18N_TEXT.getErrorMsg());
-        }
-        //语言类型和对象关系
-        Map<String, I18nItemDTO> languageType2Obj = i18nItems.stream().collect(Collectors.toMap(thi -> thi.getLanguageType().toLowerCase(), thi -> thi, (oldValue, newValue) -> newValue));
-        //英文国际化（不能为空）
-        I18nItemDTO enI18nItemDTO = languageType2Obj.get(LanguageTypeEnum.en.name());
-        Asserts.validateObjectForEmpty(enI18nItemDTO, PandaErrorCodeEnum.I18N_EN.getErrorMsg());
-        //英文不能为空，中文国际化(可为空)
-        I18nItemDTO resI18nItemDTO = languageType2Obj.get(resLogo);
-        return Objects.isNull(resI18nItemDTO) ? enI18nItemDTO : resI18nItemDTO;
-    }
-
-
-    /**
-     * 将i18nItemDTOList转换为语言类型和内容的关系
-     * @param i18nItemDTOList
-     * @return
-     */
-    public Map<String,String> getLanguageType2Text(List<I18nItemDTO> i18nItemDTOList) {
-        Map<String, I18nItemDTO> languageType2Obj = i18nItemDTOList.stream().collect(Collectors.toMap(I18nItemDTO::getLanguageType, i -> i, (oldValue, newValue) -> newValue));
-        //获取全部多语言类型
-        List<LanguageType> languageTypeList = languageTypeService.getLanguageTypeList();
-        Map<String,String> languageType2Text  = new LinkedHashMap<>(16);
-        for (LanguageType language : languageTypeList) {
-            String text = "";
-            I18nItemDTO i18nItemDTO1 = languageType2Obj.get(language.getLanguageType());
-            if (null != i18nItemDTO1) {
-                text = i18nItemDTO1.getText();
-            }
-            languageType2Text.put(language.getLanguageType(),text);
-        }
-        return languageType2Text;
-    }
-
-    /**
-     * 将i18nItemDTOList转换为语言类型和内容的关系，并转换为JSON字符串
-     * @param i18nItemDTOList
-     * @return
-     */
-    public String getLanguageType2Text2Json(List<I18nItemDTO> i18nItemDTOList) {
-        return JSON.toJSONString(getLanguageType2Text(i18nItemDTOList));
-    }
-
-    /**
-     * 获取商业数据源或非商业数据源code列表
-     * @param commerce 是否是商业来源的数据. 1: 商业来源;0:非商业
-     * */
-    public List<String> getDataSourceCodes(Integer commerce){
-        return dataSourceService.getItemList().stream().filter(obj->obj.getCommerce().equals(commerce)).map(obj -> obj.getCode()).collect(Collectors.toList());
-    }
-
-    /**
-     * 根据唯一键(数据源+运动类型+三方数据源区域ID)获取三方区域信息
-     * @param dataSourceCode      数据来源
-     * @param standardSportId     标准运动类型
-     * @param thirdSportRegionId  三方数据源区域ID
-     * */
-    public ThirdSportRegion getThirdSportRegionByUniqueStr(String dataSourceCode,Long standardSportId,String thirdSportRegionId){
-        Map<String, ThirdSportRegion> unique2Item = thirdSportRegionService.getUnique2ItemByDataSourceCode(dataSourceCode);
-        if(CollectionUtils.isEmpty(unique2Item)){
-            return null;
-        }
-        //拼接唯一标识
-        String id = dataSourceCode+FIX+DataSourceCodeEnum.getRegionSportIdByCode(dataSourceCode,standardSportId)+FIX+thirdSportRegionId;
-        return unique2Item.get(id);
-    }
-
-    /**
-     * 获取并设值需要编辑的球员区域
-     * @param upThirdRegionId2Obj  需要编辑的三方区域
-     * @param dataSourceCode       数据来源
-     * @param standardSportId      标准运动类型
-     * @param thirdSportRegionId   三方数据源区域ID
-     * @param sportRegionName      三方数据源区域名称
-     * */
-    public ThirdSportRegion getThirdSportRegion(Map<String, ThirdSportRegion> upThirdRegionId2Obj,String dataSourceCode,Long standardSportId,String thirdSportRegionId,String sportRegionName){
-        //获取库中存在的区域
-        ThirdSportRegion oldThirdSportRegion = getThirdSportRegionByUniqueStr(dataSourceCode, standardSportId, thirdSportRegionId);
-        ThirdSportRegion thirdSportRegion = new ThirdSportRegion();
-        if(Objects.isNull(oldThirdSportRegion)){
-            Long regionSportId = DataSourceCodeEnum.getRegionSportIdByCode(dataSourceCode, standardSportId);
-            thirdSportRegion.setId(dataSourceCode+FIX+regionSportId+FIX+thirdSportRegionId);
-            thirdSportRegion.setSportId(regionSportId);
-            if(DataSourceCodeEnum.getOnlyDzMatchCodeList().contains(dataSourceCode)) {
-                //默认电子联盟
-                thirdSportRegion.setReferenceId(15L);
-            }else{
-                //默认世界
-                thirdSportRegion.setReferenceId(1L);
-            }
-            thirdSportRegion.setThirdRegionId(thirdSportRegionId);
-            thirdSportRegion.setDataSourceCode(dataSourceCode);
-            thirdSportRegion.setCreateTime(TimeUtils.millsSecondsEast8ZoneGmt());
-        }else{
-            BeanUtils.copyProperties(oldThirdSportRegion, thirdSportRegion);
-            if(DataSourceCodeEnum.getOnlyDzMatchCodeList().contains(dataSourceCode)) {
-                //默认电子联盟
-                thirdSportRegion.setReferenceId(15L);
-            }
-            thirdSportRegion.setCreateTime(null);
-        }
-        thirdSportRegion.setIntroduction(sportRegionName);
-        thirdSportRegion.setModifyTime(TimeUtils.millsSecondsEast8ZoneGmt());
-        if(StringUtils.isNotBlank(thirdSportRegionId) && StringUtils.isNotBlank(sportRegionName)){
-            if(!EntityEqualsUtils.equalsIsObjToString(thirdSportRegion,oldThirdSportRegion)){
-                upThirdRegionId2Obj.put(thirdSportRegion.getSportId()+FIX+thirdSportRegionId,thirdSportRegion);
-            }
-        }
-        return thirdSportRegion;
-    }
-
-    /**
-     * 筛选出需要新增或入库的多语言列表并返回NameCode
-     * @param languageInternationList  需要新增或修改的多语言列表
-     * @param i18nList                 本次传入的单个nameCode多语言列表
-     * @param dataSource               数据来源对象
-     * @param oldNameCode              当前多语言nameCode
-     */
-    public Long processLanguageNameCode(List<LanguageInternation> languageInternationList, List<I18nItemDTO> i18nList, DataSource dataSource, Long oldNameCode,String linkId) {
-        //本次传入多语言信息
-        Map<String, I18nItemDTO> languageType2I18nItemDTO = i18nList.stream().collect(Collectors.toMap(I18nItemDTO::getLanguageType, thi -> thi));
-        //库中单个nameCode的多语言类型和对象的关联
-        Map<String, LanguageInternation> oldLanguageType2Obj = new LinkedHashMap<>();
-        //如果nameCode为空或为0，需要重新生成nameCode
-        if(Objects.isNull(oldNameCode) || oldNameCode == 0) {
-            oldNameCode = UUIdUtils.getId();
-        }else{
-            oldLanguageType2Obj = languageInternationService.getLanguageType2Item(dataSource.getCode(), oldNameCode);
-        }
-        //获取全部多语言类型
-        List<LanguageType> languageTypeList = languageTypeService.getLanguageTypeList();
-        for (LanguageType language : languageTypeList) {
-            //库中多语言
-            LanguageInternation oldLanguageInternation = oldLanguageType2Obj.get(language.getLanguageType());
-            //本次传入多语言
-            I18nItemDTO i18nItemDTO = languageType2I18nItemDTO.get(language.getLanguageType());
-            if(null == oldLanguageInternation && null == i18nItemDTO){
-                continue;
-            }
-            LanguageInternation languageInternation = new LanguageInternation();
-            if(null != i18nItemDTO){
-                BeanUtils.copyProperties(i18nItemDTO, languageInternation);
-                if(StringUtils.isBlank(languageInternation.getText())){
-                    continue;
-                }
-            }else{
-                if(StringUtils.isBlank(oldLanguageInternation.getText())){
-                    languageInternationService.delItem(oldLanguageInternation,linkId);
-                    continue;
-                }
-                //上次有该类型多语言，本次该类型多语言已经不存在，覆盖库中的多语言名称（或者删除）
-                BeanUtils.copyProperties(oldLanguageInternation, languageInternation);
-                languageInternation.setText("");
-            }
-            setLanguageInternation(oldLanguageInternation,languageInternation,oldNameCode,dataSource.getCode());
-            if(!EntityEqualsUtils.equalsIsObjToString(languageInternation,oldLanguageInternation)){
-                languageInternation.setModifyTime(TimeUtils.millsSecondsEast8ZoneGmt());
-                languageInternationList.add(languageInternation);
-            }
-        }
-        return oldNameCode;
-    }
-
-    /**
-     * 筛选出需要新增或入库的多语言列表并返回NameCode
-     * @param oldLanguageType2Obj      库中单个nameCode的多语言类型和对象的关联
-     * @param i18nList                 本次传入的单个nameCode多语言列表
-     * @param dataSource               数据来源对象
-     * @param oldNameCode              当前多语言nameCode
-     */
-    public Map<String, LanguageInternation> processLanguageNameCode(Map<String, LanguageInternation> oldLanguageType2Obj, List<I18nItemDTO> i18nList, DataSource dataSource, Long oldNameCode,String linkId) {
-        Map<String, LanguageInternation> upLanguageType2Obj = new LinkedHashMap<>();
-        //本次传入多语言信息
-        Map<String, I18nItemDTO> languageType2I18nItemDTO = i18nList.stream().collect(Collectors.toMap(I18nItemDTO::getLanguageType, thi -> thi));
-        //获取全部多语言类型
-        List<LanguageType> languageTypeList = languageTypeService.getLanguageTypeList();
-        for (LanguageType language : languageTypeList) {
-            //库中多语言
-            LanguageInternation oldLanguageInternation = oldLanguageType2Obj.get(language.getLanguageType());
-            //本次传入多语言
-            I18nItemDTO i18nItemDTO = languageType2I18nItemDTO.get(language.getLanguageType());
-            if(null == oldLanguageInternation && null == i18nItemDTO){
-//                log.info("linkId:{},传入多语言和数据库中多语言为空,跳过不处理!nameCode:{},dataSourceCode:{},LanguageType:{}",linkId,oldNameCode,dataSource.getCode(),language.getLanguageType());
-                continue;
-            }
-            LanguageInternation languageInternation = new LanguageInternation();
-            if(null != i18nItemDTO){
-                BeanUtils.copyProperties(i18nItemDTO, languageInternation);
-                if(StringUtils.isBlank(languageInternation.getText())){
-                    log.info("linkId:{},传入text信息为空!nameCode:{},dataSourceCode:{},LanguageType:{}",linkId,oldNameCode,dataSource.getCode(),language.getLanguageType());
-                    continue;
-                }
-            }else{
-                if(null != oldLanguageInternation && StringUtils.isBlank(oldLanguageInternation.getText())){
-                    languageInternationService.delItem(oldLanguageInternation,linkId);
-                    oldLanguageType2Obj.remove(language.getLanguageType());
-                    log.info("linkId:{},库中多语言text信息为空,需要删除!nameCode:{},dataSourceCode:{},LanguageType:{}",linkId,oldNameCode,dataSource.getCode(),language.getLanguageType());
-                }
-                //上次有该类型多语言，本次该类型多语言已经不存在，调整为不处理该数据,需要人工去编辑或者刷脚本
-//                BeanUtils.copyProperties(oldLanguageInternation, languageInternation);
-//                languageInternation.setText("");
-                continue;
-            }
-            setLanguageInternation(oldLanguageInternation,languageInternation,oldNameCode,dataSource.getCode());
-            //如果和数据库数据一致 标记无需修改，修改时间设置为空
-            if(EntityEqualsUtils.equalsIsObjToString(languageInternation,oldLanguageInternation)){
-                languageInternation.setModifyTime(null);
-            }else{
-                languageInternation.setModifyTime(TimeUtils.millsSecondsEast8ZoneGmt());
-            }
-            upLanguageType2Obj.put(language.getLanguageType(),languageInternation);
-        }
-        return upLanguageType2Obj;
-    }
-
-    /**
-     *为多语言对象设置属性
-     * @param oldLanguageInternation     库中多语言信息
-     * @param languageInternation        需要修改的多语言信息
-     * @param oldNameCode
-     * @param dataSourceCode
-     * */
-    private void setLanguageInternation(LanguageInternation oldLanguageInternation,LanguageInternation languageInternation,Long oldNameCode,String dataSourceCode){
-        // 不存在，insert
-        if (Objects.isNull(oldLanguageInternation)) {
-            languageInternation.setId(UUIdUtils.getId());
-            languageInternation.setCreateTime(TimeUtils.millsSecondsEast8ZoneGmt());
-        }else{
-            languageInternation.setCreateTime(null);
-            languageInternation.setFlag(oldLanguageInternation.getFlag());
-            languageInternation.setId(oldLanguageInternation.getId());
-        }
-        languageInternation.setNameCode(oldNameCode);
-        languageInternation.setDataSourceCode(dataSourceCode);
-    }
-
-    /**
-     * 转换多语言列表
-     * */
-    public<T> List<I18nItemBO> getI18nItemBOList(List<T> languageList){
-        List<I18nItemBO> i18nList = new LinkedList<>();
-        if(!CollectionUtils.isEmpty(languageList)){
-            for (T item: languageList) {
-                I18nItemBO i18nItemBO = new I18nItemBO();
-                BeanUtils.copyProperties(item, i18nItemBO);
-                i18nList.add(i18nItemBO);
-            }
-        }
-        return i18nList;
-    }
-
-
-    /**
-     * 转换多语言列表
-     * */
-    public<T> List<I18nItemBO> getI18nItemBOList(JSONObject languages){
-        List<I18nItemBO> i18nList = new LinkedList<>();
-        if(!CollectionUtils.isEmpty(languages)){
-            for (String languageType: languages.keySet()) {
-                I18nItemBO i18nItemBO = new I18nItemBO();
-                i18nItemBO.setLanguageType(languageType);
-                i18nItemBO.setText(languages.getString(languageType));
-                i18nList.add(i18nItemBO);
-            }
-        }
-        return i18nList;
-    }
-
-
-    /**
-     * 获取(中文 & 英文)名称国际化数据
-     * @param  name             中文名称
-     * @param  engName          英文名称
-     * @return list             组装后国际化数据列表
-     */
-    public List<I18nItemDTO> getI18nItemDTOList(String name, String engName){
-        I18nItemDTO zsI18nItemDTO = getI18nItemDTO(LanguageTypeEnum.zs, name);
-        I18nItemDTO enI18nItemDTO = getI18nItemDTO(LanguageTypeEnum.en, engName);
-        return Lists.newArrayList(zsI18nItemDTO,enI18nItemDTO);
-    }
-
-    /**
-     * 创建指定语言国际化对象
-     * @param languageType   语言类型
-     * @param name          名称
-     * @return
-     */
-    public I18nItemDTO getI18nItemDTO(LanguageTypeEnum languageType, String name) {
-        I18nItemDTO i18nItemDTO = new I18nItemDTO();
-        i18nItemDTO.setLanguageType(languageType.name());
-        i18nItemDTO.setText(name);
-        return i18nItemDTO;
-    }
-
 
     /**
      * 根据配置的几阶段，获取该玩法的准确关盘时间
@@ -895,7 +510,7 @@ public class BaseBatchProcessor {
                             log.info("::{}::推送三方赛事给下游缓存标准赛事开赛时间,标准赛事ID:{},开赛时间:{},开售赛事状态源:{}",
                                     linkId, standardMatchInfo.getId(), item.getBeginTime(), matchStatusSourceCode);
                             String updatedKey = redisService.genNewHashKey(matchBeginStr, standardMatchInfo.getId().toString(), ConstantSystem.BUCKET_QUANTITY_SIXTY_FOUR);
-                            redisService.hSet(updatedKey, standardMatchInfo.getId().toString(), item.getBeginTime(),Integer.MAX_VALUE);
+                            redisService.hSet(updatedKey, standardMatchInfo.getId().toString(), item.getBeginTime(),marketCacheTime(item.getBeginTime()));
                         }else{
                             log.info("::{}::推送三方赛事给下游缓存标准赛事开赛时间,大于7天后时间不入缓存,标准赛事ID:{},开赛时间:{},开售赛事状态源:{}",
                                     linkId, standardMatchInfo.getId(), item.getBeginTime(), matchStatusSourceCode);
@@ -937,7 +552,7 @@ public class BaseBatchProcessor {
                     log.info("::{}::模板缓存标准赛事开赛时间,标准赛事ID:{},开赛时间:{},赛事状态源:{}",
                             linkId, standardMatchInfo.getId(), refreshStandardMatchInfo.getBeginTime(), sportMarketSellServiceItem.getMatchStatusSourceCode());
                     String updatedKey = redisService.genNewHashKey(matchBeginStr, standardMatchInfo.getId().toString(), ConstantSystem.BUCKET_QUANTITY_SIXTY_FOUR);
-                    redisService.hSet(updatedKey, standardMatchInfo.getId().toString(), refreshStandardMatchInfo.getBeginTime(),Integer.MAX_VALUE);
+                    redisService.hSet(updatedKey, standardMatchInfo.getId().toString(), refreshStandardMatchInfo.getBeginTime(),marketCacheTime(refreshStandardMatchInfo.getBeginTime()));
                 }else {
                     log.info("::{}::模板缓存标准赛事开赛时间,大于7天后时间不入缓存,标准赛事ID:{},开赛时间:{},赛事状态源:{}",
                             linkId, standardMatchInfo.getId(), standardMatchInfo.getBeginTime(), sportMarketSellServiceItem.getMatchStatusSourceCode());
@@ -1167,27 +782,5 @@ public class BaseBatchProcessor {
         standardMarketDataMessage.setMarketOddsList(standardMarketOddsDataMessages);
         return standardMarketDataMessage;
     }
-
-
-    /**
-     * BC事件相关特殊处理 优化单：42254
-     * */
-    public Boolean bcEventProcessor(String linkId,StandardMatchInfo standardMatchInfo,ThirdMatchInfo oldThirdMatchInfo) {
-        //bc事件相关特殊处理 402优化单
-        if(DataSourceCodeEnum.BC.getCode().equals(oldThirdMatchInfo.getDataSourceCode())){
-            Integer liveOddBusiness = 1;
-            if(null != standardMatchInfo){
-                liveOddBusiness = standardMatchInfo.getLiveOddBusiness();
-            }
-            //如果BC不支持滚球或者标准赛事不支持滚球 则不需要接入事件
-            if(ZERO.equals(oldThirdMatchInfo.getLiveOddSupport()) || ZERO.equals(liveOddBusiness)){
-                log.info("::{}::process2MatchEvent，当前三方赛事不支持滚球不需要接入事件数据，三方数据源赛事id:{},数据来源：{},是否支持滚球：{},{}",
-                        linkId,oldThirdMatchInfo.getThirdMatchSourceId(),oldThirdMatchInfo.getDataSourceCode(),oldThirdMatchInfo.getLiveOddSupport(),liveOddBusiness);
-                return false;
-            }
-        }
-        return true;
-    }
-
 
 }

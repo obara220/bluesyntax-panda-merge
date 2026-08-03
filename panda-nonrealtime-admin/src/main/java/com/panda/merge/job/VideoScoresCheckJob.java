@@ -88,7 +88,7 @@ public class VideoScoresCheckJob extends IJobHandler {
     @Override
     public ReturnT<String> execute(String param) {
         long currentTime = System.currentTimeMillis();
-        log.info("【VideoScoresCheck 定时查询数据库中含动画滚球赛事校验比分:{}】 处理开始,入参: {}", currentTime, param);
+        //log.info("【VideoScoresCheck 定时查询数据库中含动画滚球赛事校验比分:{}】 处理开始,入参: {}", currentTime, param);
         XxlJobLogger.log("【VideoScoresCheck 定时查询数据库中含动画滚球赛事校验比分:{}】 处理开始,入参: {}", currentTime, param);
         try {
             Map<String, String> parMap = JSON.parseObject(param, Map.class);
@@ -101,7 +101,7 @@ public class VideoScoresCheckJob extends IJobHandler {
             if (!CollectionUtils.isEmpty(standardMatchInfoList)) {
                 getThirdMatchInfoList(standardMatchInfoList, currentTime, parMap.get("type"));
             } else {
-                log.info("【VideoScoresCheck 定时查询数据库中含动画滚球赛事校验比分:{}】 当前赛种{}滚球中的标准赛事为空!", currentTime, sportIds);
+                //log.info("【VideoScoresCheck 定时查询数据库中含动画滚球赛事校验比分:{}】 当前赛种{}滚球中的标准赛事为空!", currentTime, sportIds);
                 XxlJobLogger.log("【VideoScoresCheck 定时查询数据库中含动画滚球赛事校验比分:{}】 当前赛种{}滚球中的标准赛事为空!", currentTime, sportIds);
             }
 
@@ -109,7 +109,7 @@ public class VideoScoresCheckJob extends IJobHandler {
             log.error("【VideoScoresCheck 定时查询数据库中含动画滚球赛事校验比分执行异常:" + currentTime + "】 Exception:", e);
             XxlJobLogger.log("【VideoScoresCheck 定时查询数据库中含动画滚球赛事校验比分执行异常:" + currentTime + "】 Exception:" + e.getMessage());
         }
-        log.info("【VideoScoresCheck 定时查询数据库中含动画滚球赛事校验比分:{}】 处理结束", currentTime);
+        //log.info("【VideoScoresCheck 定时查询数据库中含动画滚球赛事校验比分:{}】 处理结束", currentTime);
         XxlJobLogger.log("【VideoScoresCheck 定时查询数据库中含动画滚球赛事校验比分:{}】 处理结束", currentTime);
         return ReturnT.SUCCESS;
     }
@@ -149,12 +149,12 @@ public class VideoScoresCheckJob extends IJobHandler {
                 String animationCode = item.getAnimationCode();
                 String animationCodeOld = (String) redisService.get("ANIMATION_DOWN:" + standardMatchId);
                 if(StringUtils.isNotBlank(animationCodeOld)){
-                    log.info("【VideoScoresCheck 定时查询数据库中含动画滚球赛事校验比分: 当前动画源:{}, 原始动画源:{}", animationCode, animationCodeOld);
+                    //log.info("【VideoScoresCheck 定时查询数据库中含动画滚球赛事校验比分: 当前动画源:{}, 原始动画源:{}", animationCode, animationCodeOld);
                     animationCode = animationCodeOld;
                 }
                 //事件源
                 String businessEvent = item.getBusinessEvent();
-                log.info("【VideoScoresCheck 定时查询数据库中含动画滚球赛事校验比分:{}】 开售的标准赛事:{},事件源{},动画源{}", currentTime, standardMatchId, businessEvent, animationCode);
+                //log.info("【VideoScoresCheck 定时查询数据库中含动画滚球赛事校验比分:{}】 开售的标准赛事:{},事件源{},动画源{}", currentTime, standardMatchId, businessEvent, animationCode);
                 XxlJobLogger.log("【VideoScoresCheck 定时查询数据库中含动画滚球赛事校验比分:{}】 开售的标准赛事:{},事件源{},动画源{}", currentTime, standardMatchId, businessEvent, animationCode);
                 try {
                     Map<String, ThirdMatchInfo> dataSourceCode2ThirdMatchInfo = new HashMap<>();
@@ -165,7 +165,7 @@ public class VideoScoresCheckJob extends IJobHandler {
                     ThirdMatchInfo animationItem = dataSourceCode2ThirdMatchInfo.get(animationCode);
                     ThirdMatchInfo eventItem = dataSourceCode2ThirdMatchInfo.get(businessEvent);
                     if (null == animationItem || null == eventItem) {
-                        log.info("【VideoScoresCheck 定时查询数据库中含动画滚球赛事校验比分:{}】 标准赛事:{}对应的事件源{}或者动画源{}的三方赛事为空!", currentTime, standardMatchId, businessEvent, animationCode);
+                        //log.info("【VideoScoresCheck 定时查询数据库中含动画滚球赛事校验比分:{}】 标准赛事:{}对应的事件源{}或者动画源{}的三方赛事为空!", currentTime, standardMatchId, businessEvent, animationCode);
                         XxlJobLogger.log("【VideoScoresCheck 定时查询数据库中含动画滚球赛事校验比分:{}】 标准赛事:{}对应的事件源{}或者动画源{}的三方赛事为空!", currentTime, standardMatchId, businessEvent, animationCode);
                     } else {
                         eventMatchId2animationMatchId.put(eventItem.getId(), animationItem.getId());
@@ -180,7 +180,7 @@ public class VideoScoresCheckJob extends IJobHandler {
             }
             checkMatchScores(eventMatchId2animationMatchId, thirdMatchId2StandaId, sid2DataSourceCode, currentTime, thirdMatchDataSourceCode, type);
         } else {
-            log.info("【VideoScoresCheck 定时查询数据库中含动画滚球赛事校验比分:{}】 标准赛事列表:{}，开售状态：{} 对应的开售信息为空!", currentTime, standardMatchIds, Constant.STANDARD_MATCH_SELL.SELL_STATUS.SOLD);
+            //log.info("【VideoScoresCheck 定时查询数据库中含动画滚球赛事校验比分:{}】 标准赛事列表:{}，开售状态：{} 对应的开售信息为空!", currentTime, standardMatchIds, Constant.STANDARD_MATCH_SELL.SELL_STATUS.SOLD);
             XxlJobLogger.log("【VideoScoresCheck 定时查询数据库中含动画滚球赛事校验比分:{}】 标准赛事列表:{}，开售状态：{} 对应的开售信息为空!", currentTime, standardMatchIds, Constant.STANDARD_MATCH_SELL.SELL_STATUS.SOLD);
         }
     }
@@ -240,7 +240,7 @@ public class VideoScoresCheckJob extends IJobHandler {
                 //动画源比分
                 MatchScoresInfo animationScores = thirdMatchId2MatchScores.get(animationMatchId);
                 if (null == eventMatchScores || null == animationScores) {
-                    log.info("【VideoScoresCheck 定时查询数据库中含" + dataSourceCode + "动画滚球赛事校验比分:{}】 标准赛事ID:{},动画源赛事ID{},事件源赛事ID{},比分事件为空!", currentTime, standardMatchId, animationMatchId, eventMatchId);
+                    //log.info("【VideoScoresCheck 定时查询数据库中含" + dataSourceCode + "动画滚球赛事校验比分:{}】 标准赛事ID:{},动画源赛事ID{},事件源赛事ID{},比分事件为空!", currentTime, standardMatchId, animationMatchId, eventMatchId);
                     XxlJobLogger.log("【VideoScoresCheck 定时查询数据库中含" + dataSourceCode + "动画滚球赛事校验比分:{}】 标准赛事ID:{},动画源赛事ID{},事件源赛事ID{},比分事件为空!", currentTime, standardMatchId, animationMatchId, eventMatchId);
                 } else {
                     JSONObject eventJson = parseJsonObject(eventMatchScores.getScoresJson());
@@ -253,10 +253,10 @@ public class VideoScoresCheckJob extends IJobHandler {
                         JSONObject obj2 = animationJson.getJSONObject(eventCode);
                         if (!compareJsonObjects(obj1, obj2)) {
                             flag = true;
-                            log.info("【VideoScoresCheck 定时查询数据库中含" + dataSourceCode + "动画滚球赛事校验比分:{}】 compareJsonObjects 标准赛事ID:{},事件编码：{}比分不一致,标准比分：{},动画源比分:{}", currentTime, standardMatchId, eventCode, obj1, obj2);
+                            //log.info("【VideoScoresCheck 定时查询数据库中含" + dataSourceCode + "动画滚球赛事校验比分:{}】 compareJsonObjects 标准赛事ID:{},事件编码：{}比分不一致,标准比分：{},动画源比分:{}", currentTime, standardMatchId, eventCode, obj1, obj2);
                             XxlJobLogger.log("【VideoScoresCheck 定时查询数据库中含" + dataSourceCode + "动画滚球赛事校验比分:{}】 compareJsonObjects 标准赛事ID:{},事件编码：{}比分不一致,标准比分：{},动画源比分:{}", currentTime, standardMatchId, eventCode, obj1, obj2);
                         } else {
-                            log.info("【VideoScoresCheck 定时查询数据库中含" + dataSourceCode + "动画滚球赛事校验比分:{}】 标准赛事ID:{},事件编码：{}比分一致,标准比分：{},动画源比分:{}", currentTime, standardMatchId, eventCode, obj1, obj2);
+                            //log.info("【VideoScoresCheck 定时查询数据库中含" + dataSourceCode + "动画滚球赛事校验比分:{}】 标准赛事ID:{},事件编码：{}比分一致,标准比分：{},动画源比分:{}", currentTime, standardMatchId, eventCode, obj1, obj2);
                             XxlJobLogger.log("【VideoScoresCheck 定时查询数据库中含" + dataSourceCode + "动画滚球赛事校验比分:{}】 标准赛事ID:{},事件编码：{}比分一致,标准比分：{},动画源比分:{}", currentTime, standardMatchId, eventCode, obj1, obj2);
                         }
                     }
@@ -266,13 +266,13 @@ public class VideoScoresCheckJob extends IJobHandler {
                     String openKey = "CHECK_SCORE_OPEN_VIDEO:" + standardMatchId;
                     //处理动画上、下架数据
                     Object keyValObj = getObject(type, flag, openKey, dataSourceCode2OpenSids, dataSourceCode, standardMatchId, closeKey, dataSourceCode2Sids);
-                    log.info("【VideoScoresCheck 定时查询数据库中含" + dataSourceCode + "动画滚球赛事校验比分:{}】 标准赛事ID:{},比分是否一致：{},缓存中次数：{},需要下架的数据条数:{},需要上架的数据条数:{}",
-                            currentTime, standardMatchId, flag,keyValObj,dataSourceCode2Sids.keySet(),dataSourceCode2OpenSids.keySet());
+                    //log.info("【VideoScoresCheck 定时查询数据库中含" + dataSourceCode + "动画滚球赛事校验比分:{}】 标准赛事ID:{},比分是否一致：{},缓存中次数：{},需要下架的数据条数:{},需要上架的数据条数:{}",
+//                            currentTime, standardMatchId, flag,keyValObj,dataSourceCode2Sids.keySet(),dataSourceCode2OpenSids.keySet());
                     XxlJobLogger.log("【VideoScoresCheck 定时查询数据库中含" + dataSourceCode + "动画滚球赛事校验比分:{}】 标准赛事ID:{},比分是否不一致：{},缓存中次数：{},需要下架的数据条数:{},需要上架的数据条数:{}",
                             currentTime, standardMatchId, flag,keyValObj,dataSourceCode2Sids.keySet(),dataSourceCode2OpenSids.keySet());
                 }
             }
-            log.info("【VideoScoresCheck 定时查询数据库中含动画滚球赛事校验比分:{}】 需要下架的数据条数:{},需要上架的数据条数:{}", currentTime, dataSourceCode2Sids.values().size(),dataSourceCode2OpenSids.values().size());
+            //log.info("【VideoScoresCheck 定时查询数据库中含动画滚球赛事校验比分:{}】 需要下架的数据条数:{},需要上架的数据条数:{}", currentTime, dataSourceCode2Sids.values().size(),dataSourceCode2OpenSids.values().size());
             XxlJobLogger.log("【VideoScoresCheck 定时查询数据库中含动画滚球赛事校验比分:{}】 需要下架的数据条数:{},需要上架的数据条数:{}", currentTime, dataSourceCode2Sids.values().size(),dataSourceCode2OpenSids.values().size());
             //需要自动下架的动画
             for (String dataSourceCode : dataSourceCode2Sids.keySet()) {
@@ -290,7 +290,7 @@ public class VideoScoresCheckJob extends IJobHandler {
                 pushCheckMatchScores(dataSourceCode2OpenSids.get(dataSourceCode), currentTime, dataSourceCode, ONE);
             }
         } else {
-            log.info("【VideoScoresCheck 定时查询数据库中含动画滚球赛事校验比分:{}】 传入事件源三方赛事ID和动画源三方赛事ID关系为空!", currentTime);
+            //log.info("【VideoScoresCheck 定时查询数据库中含动画滚球赛事校验比分:{}】 传入事件源三方赛事ID和动画源三方赛事ID关系为空!", currentTime);
             XxlJobLogger.log("【VideoScoresCheck 定时查询数据库中含动画滚球赛事校验比分:{}】 传入事件源三方赛事ID和动画源三方赛事ID关系为空!", currentTime);
         }
     }
@@ -374,7 +374,7 @@ public class VideoScoresCheckJob extends IJobHandler {
         request.setData(jsonObject);
         MessageBuilder<Request<JSONObject>> requestMessageBuilder = MessageBuilder.withPayload(request).setHeader(MessageConst.PROPERTY_KEYS, request.getLinkId());
         rocketMqTemplate.send(request.getDataType() + ":" + currentTime, requestMessageBuilder.build());
-        log.info("【VideoScoresCheck 定时查询数据库中含" + dataSourceCode + "动画滚球赛事校验比分:{}】 通知赛程下架或上架动画源完成,status：{}（0:下架，1:上架）,topic:{},request:{}", currentTime,status, request.getDataType(), JSON.toJSONString(request));
+        //log.info("【VideoScoresCheck 定时查询数据库中含" + dataSourceCode + "动画滚球赛事校验比分:{}】 通知赛程下架或上架动画源完成,status：{}（0:下架，1:上架）,topic:{},request:{}", currentTime,status, request.getDataType(), JSON.toJSONString(request));
         XxlJobLogger.log("VideoScoresCheck 定时查询数据库中含" + dataSourceCode + "动画滚球赛事校验比分:{}】 通知赛程下架或上架动画源完成,status：{}（0:下架，1:上架）,topic:{},request:{}", currentTime,status, request.getDataType(), JSON.toJSONString(request));
     }
 

@@ -4,6 +4,8 @@ import com.panda.merge.dto.OutrightTradeProbabilityConfigDTO;
 import com.panda.merge.model.ConfigOutrightTradeProbability;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * <Description> <br>
@@ -42,6 +44,8 @@ public interface OutrightTradeProbabilityConfigService {
      * @return
      */
     ConfigOutrightTradeProbability selectItem(Long standardMatchId, Long standardMarketOddsId);
+
+    List<ConfigOutrightTradeProbability> selectItems(Map<Long, Set<Long>> matchAndOddIdsMap);
 
     /**
      * 根据盘口获取投注项概率差列表

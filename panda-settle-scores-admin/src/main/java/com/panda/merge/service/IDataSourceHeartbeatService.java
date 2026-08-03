@@ -18,10 +18,10 @@ public interface IDataSourceHeartbeatService {
      * 查询数据商心跳配置时间（秒）
      * @param dataSourceCode 数据商编码
      * @param sportId 球种ID
-     * @param tournamentLevel 联赛等级
+     * @param standardMatchId 标准赛事id
      * @return 心跳配置时间（秒），如果未配置返回null
      */
-    Integer getHeartbeatConfigSeconds(String dataSourceCode, Long sportId, Integer tournamentLevel);
+    Integer getHeartbeatConfigSeconds(String dataSourceCode, Long sportId, Long standardMatchId);
     
     /**
      * 判断数据商是否断连并更新连接状态（比赛维度）

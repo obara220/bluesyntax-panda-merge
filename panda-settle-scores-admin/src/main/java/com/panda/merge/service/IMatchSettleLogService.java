@@ -72,7 +72,7 @@ public interface IMatchSettleLogService {
      * @param grayIntervalDto
      * @param dbGray
      */
-//    void updateDataSourceGrayIntervalLog(DataSourceGrayIntervalDto grayIntervalDto, MatchGrayInterval dbGray,List<MatchSettleOperateLogEntity> operateLogEntityList );
+    void updateDataSourceGrayIntervalLog(DataSourceGrayIntervalDto grayIntervalDto, MatchGrayInterval dbGray,List<MatchSettleOperateLogEntity> operateLogEntityList );
 
    /**
     * 更新联赛等级对应的结算数据源的开关列表
@@ -161,8 +161,8 @@ public interface IMatchSettleLogService {
  void spOddsResultAddLog(EditMatchSettleSPOddsDto editMatchSettleSPOddsDto,MatchSettleSpOdds oddsBefore, MatchSettleSpOdds odds, StandardMatchInfo standardMatchInfo, String type, List<MatchSettleOperateLogEntity> operateLogEntityList);
 
  void spOddsResultAddLog(EditMatchSettleSPOddsDto editMatchSettleSPOddsDto, MatchSettleSpOddsEntity oddsBefore, MatchSettleSpOddsEntity odds, StandardMatchInfo standardMatchInfo, String type, List<MatchSettleOperateLogEntity> operateLogEntityList);
-
  void editBasketBallRealTimeConfigLog(LimitSwitchDto oldConfig, LimitSwitchDto newConfig, SettleTimeLimitDto dto, List<MatchSettleOperateLogEntity> willSaveOperateLogList) ;
+
 
     void editBasketBallTimeLimitConfigLog(LimitSwitchDto oldConfig, LimitSwitchDto newConfig, SettleTimeLimitDto dto,List<MatchSettleOperateLogEntity> matchSettleOperateLogEntityList);
  void editBasketBallSetUpConfigLog(LimitSwitchDto oldConfig,LimitSwitchDto newConfig,SettleTimeLimitDto dto, List<MatchSettleOperateLogEntity> matchSettleOperateLogEntityList);

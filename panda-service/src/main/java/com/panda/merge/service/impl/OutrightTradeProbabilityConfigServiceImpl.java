@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * <Description> <br>
@@ -64,6 +66,15 @@ public class OutrightTradeProbabilityConfigServiceImpl implements OutrightTradeP
             return null;
         }
         return configOutrightTradeProbabilityList.get(0);
+    }
+
+    @Override
+    public List<ConfigOutrightTradeProbability> selectItems(Map<Long, Set<Long>> matchAndOddIdsMap) {
+        ConfigOutrightTradeProbabilityExample example = new ConfigOutrightTradeProbabilityExample();
+        for(Map.Entry<Long, Set<Long>> entry : matchAndOddIdsMap.entrySet()) {
+            example.or().andStandardMatchIdEqualTo(entry.getKey()).andStandardMarketOddsIdIn((List<Long>) entry.getValue());
+        }
+        return configOutrightTradeProbabilityMapper.selectByExample(example);
     }
 
     @Override

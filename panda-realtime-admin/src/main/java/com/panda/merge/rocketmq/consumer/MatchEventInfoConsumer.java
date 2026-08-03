@@ -43,8 +43,10 @@ public class MatchEventInfoConsumer implements RocketMQListener<MessageExt> {
     @Override
     public void onMessage(MessageExt ext) {
          if (!realtimeSwitch && !realtimeEventSwitch) {
-             dataCenterProducer.send(ext,THIRD_MATCH_EVENT_INFO_API);
-             return;
+             if (dataCenterProducer.checkForward(ext,THIRD_MATCH_EVENT_INFO_API)) {
+                 dataCenterProducer.send(ext,THIRD_MATCH_EVENT_INFO_API);
+                 return;
+             }
          }
         matchEventInfoProcessor.putMatchEventInfo(ext,false);
     }

@@ -32,7 +32,7 @@ import java.util.List;
 @Component
 public class SpareMatchFreezeSettlePdLogConsumer {
     private static final String TOPIC = "OSMC_CONSOLE_FREEZE";
-    private static final String CONSUMER_GROUP = "scores-group-OSMC_CONSOLE_FREEZE";
+    private static final String CONSUMER_GROUP = "scores-group-OSMC_CONSOLE_FREEZE2";
 
     @Value("${slaveNamesrvAddr}")
     private String nameServers;

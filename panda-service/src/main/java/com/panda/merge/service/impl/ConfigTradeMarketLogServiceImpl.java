@@ -8,6 +8,7 @@ import com.panda.merge.model.ConfigTradeMarketLog;
 import com.panda.merge.service.ConfigTradeMarketLogService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 /**
@@ -25,7 +26,8 @@ public class ConfigTradeMarketLogServiceImpl implements ConfigTradeMarketLogServ
     private ConfigTradeMarketLogMapper configTradeMarketLogMapper;
 
     @Override
-    public ConfigTradeMarketLog create(String linkId, TradeMarketConfigDTO tradeMarketConfigDTO) {
+    @Async("LogRecordExecutor")
+    public void create(String linkId, TradeMarketConfigDTO tradeMarketConfigDTO) {
         ConfigTradeMarketLog configTradeMarketLog = new ConfigTradeMarketLog();
         BeanUtils.copyProperties(tradeMarketConfigDTO, configTradeMarketLog);
         configTradeMarketLog.setLinkId(linkId);
@@ -33,6 +35,6 @@ public class ConfigTradeMarketLogServiceImpl implements ConfigTradeMarketLogServ
         configTradeMarketLog.setModifyTime(TimeUtils.millsSecondsEast8ZoneGmt());
         configTradeMarketLog.setCreateTime(TimeUtils.millsSecondsEast8ZoneGmt());
         configTradeMarketLogMapper.insertSelective(configTradeMarketLog);
-        return configTradeMarketLog;
+      //  return configTradeMarketLog;
     }
 }

@@ -35,6 +35,12 @@ public interface CategoryOppositeConfig {
             put(82L,80L);
             put(78L,92L);
             put(92L,78L);
+            //新增 玩法互换
+            put(115L,116L);
+            put(123L,124L);
+            put(1100471L,1100472L);
+            put(1100473L,1100474L);
+            put(1100476L,1100477L);
         }};
         public static List<Long> CATEGORY_TYPE_2 = Arrays.asList(3L,
                 4L,113L,306L,128L,1100414L,1100406L,
@@ -50,7 +56,18 @@ public interface CategoryOppositeConfig {
                 113L,306L,128L,1100414L,1100406L,
                 119L,311L,129L,1100415L,1100408L,
                 121L,308L,130L,1100416L,1100409L);
-        public static List<Long> CATEGORY_TYPE_6 = Arrays.asList(27L,29L);
+        //135L
+        //136L
+        //1100462L
+        //1100475L
+        //1100478L
+        //1100479L
+        //1100480L
+        //1100481L
+        //1100482L
+        //1100483------交换投注项
+        public static List<Long> CATEGORY_TYPE_6 = Arrays.asList(27L,29L,135L,136L,1100462L,1100475L,1100478L,1100479L,1100480L,1100481L,1100482L,1100483L);
+
         public static List<Long> CATEGORY_TYPE_7 = Arrays.asList(7L,20L,74L,103L);
         public static List<Long> CATEGORY_TYPE_8 = Arrays.asList(103L);
         public static List<Long> CATEGORY_TYPE_9 = Arrays.asList(2L,12L,14L,15L,16L,18L,23L,24L,26L,31L,34L,42L,68L,73L,75L,76L,102L,108L,109L,110L,114L,117L,118L,122L,127L,131L,133L,134L

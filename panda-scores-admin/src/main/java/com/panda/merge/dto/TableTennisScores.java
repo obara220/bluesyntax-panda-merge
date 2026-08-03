@@ -39,10 +39,6 @@ public class TableTennisScores extends  AbstractSportScores{
 //                log.info(" {} ,消费顺序有问题", data.getLinkId());
 //                return;
 //            }
-            if(data.getFirstT1()==null || data.getFirstT2()==null){
-                log.info(" {} ,数据异常，比分事件无阶段比分。", data.getLinkId());
-                return;
-            }
             if(data.getFirstT1()<setScore.getHome() || data.getFirstT2()<setScore.getAway()){
                 log.info(" {} ,消费顺序有问题，已存在数据：{}，事件数据：{}:{}", data.getLinkId(),setScore.doCountScoreStr(),data.getFirstT1(),data.getFirstT2());
                 return;

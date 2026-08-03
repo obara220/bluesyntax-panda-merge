@@ -1,6 +1,7 @@
 package com.panda.merge.common.utils;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 /**
  * 使用double运算，容易丢失精度。
@@ -212,5 +213,28 @@ public class BigDecimalUtils {
     public static int scaleNum(double value1) {
         BigDecimal num = BigDecimal.valueOf(value1);
         return num.scale();
+    }
+
+    /**
+     * 马来赔规整为2位小数（Double 入参，消除二进制浮点噪声）。
+     */
+    public static BigDecimal normalizeMalayOddsDecimal(Double malayOddsValue) {
+        if (malayOddsValue == null) {
+            return null;
+        }
+        if (malayOddsValue == 0) {
+            return BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+        }
+        return new BigDecimal(Double.toString(malayOddsValue)).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    /**
+     * 马来赔规整为2位小数（BigDecimal 入参）。
+     */
+    public static BigDecimal normalizeMalayOddsDecimal(BigDecimal malayOddsValue) {
+        if (malayOddsValue == null) {
+            return null;
+        }
+        return malayOddsValue.setScale(2, RoundingMode.HALF_UP);
     }
 }

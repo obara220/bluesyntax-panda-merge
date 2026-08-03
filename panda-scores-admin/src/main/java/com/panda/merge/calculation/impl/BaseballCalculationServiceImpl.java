@@ -1,6 +1,7 @@
 package com.panda.merge.calculation.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.panda.merge.common.enums.DataSourceCodeEnum;
 import com.panda.merge.constant.SportPeriodConstant;
 import com.panda.merge.dto.BaseballScores;
 import com.panda.merge.dto.MatchStatisticsInfoDTO;
@@ -68,6 +69,7 @@ public class BaseballCalculationServiceImpl extends AbstractCalculationServiceIm
 //            matchScoreInfoRepository.updateScoresInfo(matchScoresInfo);
         }
         if(!SportPeriodConstant.BaseballPeriod.contans(data.getMatchPeriodId())){
+            log.info("::{}::阶段校验不通过:{}",data.getLinkId(),data.getMatchPeriodId());
             return;
         }
         if(wholeSores==null|| data.getMatchPeriodId()==null){
@@ -181,6 +183,10 @@ public class BaseballCalculationServiceImpl extends AbstractCalculationServiceIm
             log.error("createMatchStatistics data:null");
             return;
         }
+        if(DataSourceCodeEnum.SR.code.equals(data.getDataSourceCode()) && data.getPeriod()==999L){
+            log.info("::保存赛事统计比分,棒球统计比分暂不处理999的比分变更:{}",data);
+            return;
+        }
         //1.得到阶段map 转化的
         JSONObject periodBasketballScores = JSONObject.parseObject(matchScoresInfo.getScoresJson());
         Map<Long, BaseballScores> allPeriodScores= JsonMapUtils.parseBaseballMap(periodBasketballScores);
@@ -195,7 +201,7 @@ public class BaseballCalculationServiceImpl extends AbstractCalculationServiceIm
         Long[] periodArr =    new Long[]{ 402L,  404L,  406L,  408L, 410L, 412L,
                 414L,  416L,  418L,  42010L, 42011L, 42012L, 42013L,
                 42014L, 42015L, 42016L,  42017L,42018L, 42019L,
-                42020L};
+                42020L,419L,420L};
         for (MatchStatisticsInfoDetailDTO dto : data.getMatchStatisticsInfoDetailList()) {
 
             if(dto.getCode().equals("match_score")){

@@ -129,7 +129,7 @@ public class ThirdMarketCategoryFieldServiceImpl implements ThirdMarketCategoryF
         if(CollectionUtils.isEmpty(requiredCallItems)){
             return result;
         }
-
+        log.info("2724,查询三方投注项模版数据库：{}", requiredCallItems);
         // Obtaining remained data from mysql
         ThirdMarketCategoryFieldExample example = new ThirdMarketCategoryFieldExample();
         for(String item : requiredCallItems) {

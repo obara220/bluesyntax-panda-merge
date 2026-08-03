@@ -6,6 +6,7 @@ import com.panda.merge.dto.Request;
 import com.panda.merge.model.MatchStatisticsInfo;
 import com.panda.merge.model.StandardMatchInfo;
 import com.panda.merge.rocketmq.producer.DataCenterProducer;
+import com.panda.merge.rocketmq.producer.StandardMatchInfoProducer;
 import com.panda.merge.service.StandardMatchInfoService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.spring.annotation.RocketMQMessageListener;
@@ -14,9 +15,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StopWatch;
+
 import javax.annotation.Resource;
-import static com.panda.merge.constant.ConstantSystem.CONSUME_NONREALTIME_GROUP;
-import static com.panda.merge.constant.ConstantSystem.DATA_STANDARD_MATCH_INFO_DB;
+
+import static com.panda.merge.constant.ConstantSystem.*;
 
 /**
  * 标准赛事赛事信息异步修改入库
@@ -42,6 +44,9 @@ public class StandardMatchInfo2DbConsumer implements RocketMQListener<Request<St
     @Resource
     private DataCenterProducer<StandardMatchInfo> dataCenterProducer;
 
+    @Resource
+    private StandardMatchInfoProducer standardMatchInfoProducer;
+
     @Override
     public void onMessage(Request<StandardMatchInfo> request) {
         if (!realtimeSwitch) {
@@ -54,6 +59,7 @@ public class StandardMatchInfo2DbConsumer implements RocketMQListener<Request<St
         log.info("linkId=【{}】【DATA_STANDARD_MATCH_INFO_DB】消费标准赛事赛事信息异步修改入库开始,赛事ID={}", request.getLinkId(),matchInfo.getId());
         try {
             standardMatchInfoService.updateByPrimaryKeySelective(matchInfo,request.getLinkId());
+            standardMatchInfoProducer.pushStandardMatchModify(request.getLinkId(), matchInfo);
         } catch (Exception e) {
             log.error("linkId=【" + request.getLinkId() + "】【DATA_STANDARD_MATCH_INFO_DB】消费标准赛事赛事信息异步修改入库异常,Exception:", e);
         }finally {

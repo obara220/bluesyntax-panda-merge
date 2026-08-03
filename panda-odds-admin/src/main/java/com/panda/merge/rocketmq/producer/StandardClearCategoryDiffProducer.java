@@ -34,6 +34,7 @@ public class StandardClearCategoryDiffProducer {
         diffMessage.setSportId(standardMatchInfo.getSportId());
         diffMessage.setBeginTime(standardMatchInfo.getBeginTime());
         diffMessage.setGlobalId(linkId);
+        diffMessage.setChangeDataSource(true);
 
         MessageBuilder<RcsClearDiffMessage> builder = MessageBuilder.withPayload(diffMessage)
                 .setHeader(MessageConst.PROPERTY_KEYS, linkId);

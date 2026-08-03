@@ -4,7 +4,9 @@ import com.panda.merge.model.ThirdMatchPromotionChart;
 import com.panda.merge.model.ThirdMatchPromotionChartExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public interface ThirdMatchPromotionChartMapper {
     long countByExample(ThirdMatchPromotionChartExample example);
 

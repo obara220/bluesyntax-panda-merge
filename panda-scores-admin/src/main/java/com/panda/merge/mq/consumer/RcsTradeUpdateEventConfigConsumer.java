@@ -1,13 +1,20 @@
 package com.panda.merge.mq.consumer;
 
+import cn.hutool.core.lang.TypeReference;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.alibaba.nacos.api.config.annotation.NacosValue;
 import com.panda.merge.component.UUIdUtils;
+import com.panda.merge.config.RedisConfig;
+import com.panda.merge.config.RedisService;
+import com.panda.merge.constant.SourceTypeEnum;
 import com.panda.merge.dto.Request;
 import com.panda.merge.model.*;
 import com.panda.merge.mq.message.MatchEventInfoMessage;
+import com.panda.merge.mq.message.RcsTradeUpdateEventConfig;
+import com.panda.merge.mq.message.RcsTradeUpdateEventConfigDTO;
 import com.panda.merge.mq.producer.CommonProducer;
 import com.panda.merge.mq.spare.SpareBaseProducer;
 import com.panda.merge.repository.MatchTimeInfoRepository;
@@ -110,31 +117,33 @@ public class RcsTradeUpdateEventConfigConsumer implements RocketMQListener<Strin
             Long matchId = jsonObject.getLong("matchId");
             Long secondFormStar = jsonObject.getLong("secondFormStar");
             Long matchPeriodId = jsonObject.getLong("matchPeriodId");
+            String dataSourceCode = jsonObject.getStr("dataSourceCode");
             List<String> events = jsonArray.toList(String.class);
             log.info("{}，RCS_EVENT_PLAY_SET_SEAL_TMAX事件集合:{}",linkId,events);
             if(events==null || events.isEmpty()){
                 return;
             }
             //1.5秒后执行校验 下发事件
-            executorService.schedule(() ->    checkEndSendEvent(matchId, events, linkId,secondFormStar,matchPeriodId), 1500, TimeUnit.MILLISECONDS);
+            executorService.schedule(() ->    checkEndSendEvent(matchId, events, linkId,secondFormStar,matchPeriodId,dataSourceCode), 1500, TimeUnit.MILLISECONDS);
             log.info("{}，RCS_EVENT_PLAY_SET_SEAL_TMAX下发事件结束",linkId);
         }catch(Exception e){
             log.error("RCS_EVENT_PLAY_SET_SEAL_TMAX下发事件 异常:",e);
         }
     }
 
-    private void checkEndSendEvent(Long matchId, List<String> events, String linkId,Long secondFormStar,Long matchPeriodId) {
+    private void checkEndSendEvent(Long matchId, List<String> events, String linkId,Long secondFormStar,Long matchPeriodId,String dataSourceCode) {
         StandardMatchInfo matchInfo =  standardMatchInfoService.getItem(matchId);
         if(matchInfo==null){
             log.info("{}，RCS_EVENT_PLAY_SET_SEAL_TMAX下发事件失败：无标准赛事信息",linkId);
             return;
         }
-        StandardSportMarketSell sell = standardSportMarketSellService.getItem(matchId);
-        if(sell==null){
-            log.info("{}，RCS_EVENT_PLAY_SET_SEAL_TMAX下发事件失败：无开售信息",linkId);
-            return;
-        }
-        ThirdMatchInfo thirdMatchInfo = thirdMatchInfoService.getItem(matchId,sell.getBusinessEvent());
+//        StandardSportMarketSell sell = standardSportMarketSellService.getItem(matchId);
+//        if(sell==null){
+//            log.info("{}，RCS_EVENT_PLAY_SET_SEAL_TMAX下发事件失败：无开售信息",linkId);
+//            return;
+//        }
+        //下发对应事件源的tmax
+        ThirdMatchInfo thirdMatchInfo = thirdMatchInfoService.getItem(matchId,dataSourceCode);
         if(thirdMatchInfo==null){
             log.info("{}，RCS_EVENT_PLAY_SET_SEAL_TMAX下发事件失败：无三方赛事信息",linkId);
             return;
@@ -164,11 +173,23 @@ public class RcsTradeUpdateEventConfigConsumer implements RocketMQListener<Strin
             for(String str:eventCodes){
                 //封装事件信息
                 MatchEventInfoMessage matchEventInfoMessage = new MatchEventInfoMessage();
-                processorMathcEvent(matchEventInfoMessage, matchInfo, sell,thirdMatchInfo,linkId+"_"+str);
+                matchEventInfoMessage.setCanceled(0);//未取消
+                matchEventInfoMessage.setSourceType("1"); //常规事件
+                matchEventInfoMessage.setEventTime(System.currentTimeMillis());
+                matchEventInfoMessage.setCopyLinkId(linkId+"_"+str);
+                matchEventInfoMessage.setThirdMatchSourceId(thirdMatchInfo.getThirdMatchSourceId());
+                matchEventInfoMessage.setIsErrorEndEvent(0);
+                matchEventInfoMessage.setThirdEventId("PA_Event:"+ UUIdUtils.getId());
+                matchEventInfoMessage.setExtrainfo("reject-auto");
+                matchEventInfoMessage.setRemark("玩法集封盘拒单事件");
+                matchEventInfoMessage.setSportId(matchInfo.getSportId());
+                matchEventInfoMessage.setMatchPeriodId(matchInfo.getMatchPeriodId());
+                matchEventInfoMessage.setAddition5("1");
                 //因为事件延迟1.5秒下发，所以新增的事件这里需要+2秒，减少误差
                 matchEventInfoMessage.setSecondsFromStart(secondFormStar+2);
                 matchEventInfoMessage.setMatchPeriodId(matchPeriodId);
                 matchEventInfoMessage.setEventCode(str);
+                matchEventInfoMessage.setDataSourceCode(dataSourceCode);
                 sendMatchEventMessage(matchEventInfoMessage,matchId);
             }
         }else{
@@ -216,9 +237,9 @@ public class RcsTradeUpdateEventConfigConsumer implements RocketMQListener<Strin
         return spareMatchIds.contains(standardMatchId);
     }
 
-    private void processorMathcEvent(MatchEventInfoMessage matchEventInfoMessage, StandardMatchInfo matchInfo, StandardSportMarketSell sell, ThirdMatchInfo thirdMatchInfo,String linkId) {
+    private void processorMathcEvent(MatchEventInfoMessage matchEventInfoMessage, StandardMatchInfo matchInfo, ThirdMatchInfo thirdMatchInfo,String linkId) {
         matchEventInfoMessage.setCanceled(0);//未取消
-        matchEventInfoMessage.setDataSourceCode(sell.getBusinessEvent());
+//        matchEventInfoMessage.setDataSourceCode(sell.getBusinessEvent());
         matchEventInfoMessage.setSourceType("1"); //常规事件
         matchEventInfoMessage.setEventTime(System.currentTimeMillis());
         matchEventInfoMessage.setCopyLinkId(linkId);

@@ -1,6 +1,7 @@
 package com.panda.merge.rocketmq.processor;
 
 
+import com.panda.merge.common.enums.EventCodeEnum;
 import com.panda.merge.common.enums.MatchPeriodForMatchOverEnum;
 import com.panda.merge.constant.ConstantSystem;
 import com.panda.merge.dto.MatchEventInfoDTO;
@@ -22,6 +23,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -81,6 +83,14 @@ public class LiveMatchOverProcessor {
         example.createCriteria().andStandardMatchIdEqualTo(request.getData().getMatchId()).andDataSourceCodeEqualTo(businessEventCode)
                 .andMatchPeriodIdEqualTo(MatchPeriodForMatchOverEnum.Ended999.value);
         List<MatchEventInfo> matchEventInfos = matchEventInfoMapper.selectByExample(example);
+
+        if (org.apache.commons.collections.CollectionUtils.isNotEmpty(matchEventInfos) && matchEventInfos.size()>1) {
+            matchEventInfos = matchEventInfos.stream()
+                    .filter(event -> EventCodeEnum.MATCH_STATUS.code.equals(event.getEventCode()))
+                    .sorted(Comparator.comparing(MatchEventInfo::getEventTime))
+                    .limit(1)
+                    .collect(Collectors.toList());
+        }
 //        List<MatchEventInfo> matchEventInfos = matchEventInfoService.getItemByStandardMatchIdAndDataSoureCode(request.getData().getMatchId(), businessEventCode);
         if (CollectionUtils.isEmpty(matchEventInfos)) {
             log.info("【::" + request.getLinkId() + "::】非常规结束赛事完赛,没有找到完赛999事件不予处理,赛事id:{}，商业数据源编码：{}",standardMatchInfo.getId(),businessEventCode);
@@ -102,6 +112,7 @@ public class LiveMatchOverProcessor {
             matchEventInfoDTO.setSourceType(String.valueOf(matchEventInfo.getSourceType()));
             matchEventInfoDTO.setThirdMatchSourceId(matchEventInfo.getThirdMatchSourceId());
             matchEventInfoDTO.setIsErrorEndEvent(ConstantSystem.ONE);
+            matchEventInfoDTO.setDeleteNotFilterFlag(true);
             matchEventInfoDTOS.add(matchEventInfoDTO);
         }
         matchEventInfoProcessor.process2MatchEvent(request,matchEventInfoDTOS,thirdMatchSourceId,businessEventCode);

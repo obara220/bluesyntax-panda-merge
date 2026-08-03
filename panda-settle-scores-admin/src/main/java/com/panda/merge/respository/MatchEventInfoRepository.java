@@ -5,6 +5,7 @@ import com.panda.merge.config.RedisService;
 import com.panda.merge.mapper.MatchEventInfoMapper;
 import com.panda.merge.model.MatchEventInfo;
 import com.panda.merge.model.MatchEventInfoExample;
+import com.panda.merge.v2.check.IMatchSettleBatchCheckService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,9 @@ public class MatchEventInfoRepository {
     @Autowired
     private MatchEventInfoMapper matchEventInfoMapper;
 
+    @Autowired
+    IMatchSettleBatchCheckService matchSettleBatchCheckService;
+
 
     public List<MatchEventInfo> getMatchEventInfoCaseOne(Long thirdMatchId,String extraInfo,String dataSourceCode,Long sportId) {
         String key = MATCH_EVENT_INFO+thirdMatchId+"_"+extraInfo+"_"+dataSourceCode+"_"+sportId;
@@ -48,6 +52,7 @@ public class MatchEventInfoRepository {
             log.info("matcheventInfo1: {}", matchEventInfos);
             if (!CollectionUtils.isEmpty(matchEventInfos)){
                 try{
+                    matchSettleBatchCheckService.changeHomeAway(matchEventInfos);
                     redisService.set(key,JSONObject.toJSON(matchEventInfos),REDIS_TWELVE_TIME);
                 }catch (Exception e){
                     log.error("MatchEventInfo:redis写入异常getMatchEventInfoCaseOne：key=[{}]MatchSettleFactorCheckInfo[{}]", key,JSONObject.toJSON(matchEventInfos), e);
@@ -93,6 +98,7 @@ public class MatchEventInfoRepository {
                         .andDataSourceCodeEqualTo(dataSourceCode).andIdNotEqualTo(id).andEventTimeLessThanOrEqualTo(eventTime).andSourceTypeEqualTo(1);
                 matchEventInfos =matchEventInfoMapper.selectByExample(eventInfoExample);
                 log.info("matcheventInfo2: {}", matchEventInfos);
+                matchSettleBatchCheckService.changeHomeAway(matchEventInfos);
                 redisService.set(key,JSONObject.toJSON(matchEventInfos),REDIS_TWELVE_TIME);
             }catch (Exception e){
                 log.error("MatchEventInfo:redis写入异常getMatchEventInfoCaseOne：key=[{}]MatchSettleFactorCheckInfo[{}]", key,JSONObject.toJSON(matchEventInfos), e);

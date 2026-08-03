@@ -119,6 +119,9 @@ public class MatchPeriodUtils {
     }
 
     public static Long getFootBallPeriodTime(Integer matchLenth,Long period){
+        if(matchLenth==null){
+            matchLenth = 0;
+        }
         //根据当前阶段判断时间
 
         if(period.equals(7L)){

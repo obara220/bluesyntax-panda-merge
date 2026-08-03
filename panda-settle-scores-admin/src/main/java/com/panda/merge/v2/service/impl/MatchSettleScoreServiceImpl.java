@@ -477,6 +477,7 @@ public class MatchSettleScoreServiceImpl implements IMatchSettleScoreService {
 
     @Override
     public void updateMatchFifteenMinGraySettleFactor(Long standardMatchId,String settleNum) {
+        log.info("updateMatchFifteenMinGraySettleFactor param standardMatchId::{},settleNum::{}",standardMatchId,settleNum);
         try {
             //1,判断是否是上,下的6个15分钟区间
             String fifteenSettleNum = grayIntervalServiceHelper.fifteenMinSettleNumMap.get(settleNum);
@@ -522,6 +523,7 @@ public class MatchSettleScoreServiceImpl implements IMatchSettleScoreService {
     }
 
     public void endEventSettleByScore(MatchSettleScore matchSettleScore) {
+        log.info("endEventSettleByScore param::{}",matchSettleScore);
         //0.事件编码分类
         List<String> eventCodes = EndEventUtils.eventCodesFootballByEventCode(matchSettleScore.getEventCode());
         if(eventCodes.size()==0){
@@ -587,6 +589,7 @@ public class MatchSettleScoreServiceImpl implements IMatchSettleScoreService {
 
     @Override
     public Response querySettleType(Long StandardMatchId) {
+        log.info("querySettleType param::{}",StandardMatchId);
         //1.查询结算信息
         MatchSettleInfoEntity matchSettleInfo = matchSettleInfoRepository.getMatchSettleInfo(StandardMatchId);
         if (matchSettleInfo == null || matchSettleInfo.getSettleType()==1) {
@@ -884,6 +887,7 @@ public class MatchSettleScoreServiceImpl implements IMatchSettleScoreService {
 
     @Override
     public Response confirmBringInScore(BasketBallPutInJsonDto basketBallPutInJsonDto) {
+        log.info("confirmBringInScore param::{}",basketBallPutInJsonDto);
         String key ="StandardMatchScoreConsumer:"+basketBallPutInJsonDto.getStandardMatchId();
 
         if (redisService.tryLock(key, key, 2, 5)) {
@@ -1639,6 +1643,7 @@ public class MatchSettleScoreServiceImpl implements IMatchSettleScoreService {
 
     @Override
     public Response confirmBringInScoreV2(BasketBallPutInJsonDto basketBallPutInJsonDto) {
+        log.info("confirmBringInScoreV2 param::{}",basketBallPutInJsonDto);
         String key ="StandardMatchScoreConsumer:"+basketBallPutInJsonDto.getStandardMatchId();
 
         if (redisService.tryLock(key, key, 2, 5)) {

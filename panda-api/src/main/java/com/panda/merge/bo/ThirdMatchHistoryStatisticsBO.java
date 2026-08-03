@@ -11,6 +11,7 @@ import java.util.List;
  * @since   2021年2月9日15:52:11
  */
 @Data
+//@ToString(exclude = {"tournamentIl8nList","homeTeamNameIl8nList","awayTeamNameIl8nList"})
 public class ThirdMatchHistoryStatisticsBO implements Serializable{
 
 	private static final long serialVersionUID = 1L;

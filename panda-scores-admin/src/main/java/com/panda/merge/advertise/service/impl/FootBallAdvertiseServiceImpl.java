@@ -272,12 +272,14 @@ public class FootBallAdvertiseServiceImpl implements FootBallAdvertiseService {
         Integer infoTimeGo = timeInfo.getTimeGo();
         MatchTimeInfo matchTimeInfo = pdMatchInfoRepository.getMatchTimeInfo(data.getMatchTimeInfo().getThirdMatchId(), SourceTypeEnum.LIVE_DATA.getCode(), null);
         if ( !Objects.isNull(matchTimeInfo) ) {
-            if ( null == matchTimeInfo.getTimeGo() || !infoTimeGo.equals(matchTimeInfo.getTimeGo())) {
+            if ( null == matchTimeInfo.getTimeGo() || !Objects.equals(infoTimeGo, matchTimeInfo.getTimeGo())) {
                 matchTimeInfo.setTimeGo(infoTimeGo);
             }
-            if ( !infoPeriod.equals(matchTimeInfo.getPeriod()) ) {
+            if ( !Objects.equals(infoPeriod, matchTimeInfo.getPeriod()) ) {
                 matchTimeInfo.setPeriod(infoPeriod);
             }
+        } else {
+            matchTimeInfo = timeInfo;
         }
 //        MatchScoresInfo matchScoresInfo =data.getMatchScoresInfo();
         MatchScoresInfo matchScoresInfo =pdMatchInfoRepository.getMatchScoresInfoByPrimaryKey(data.getMatchScoresInfo().getId(), null);
@@ -317,7 +319,9 @@ public class FootBallAdvertiseServiceImpl implements FootBallAdvertiseService {
         }
         log.info("足球报球板事件时间，thirdMatchId={},matchTime-startTimeSecond={},secondFromStart={},eventTime={}",
                 matchTimeInfo.getThirdMatchId(),startTimeSecond,matchTimeInfo.getSecondFromStart(),matchTimeInfo.getEventTime());
-        pdMatchAdvertiseVo.setMatchManageId(data.getStandardMatchInfo().getMatchManageId());
+        if (data.getStandardMatchInfo() != null) {
+            pdMatchAdvertiseVo.setMatchManageId(data.getStandardMatchInfo().getMatchManageId());
+        }
         pdMatchAdvertiseVo.setMatchTime(startTimeSecond);
         //比分计算
         FootBallScoreVo footBallScoreVo = footBallScoreService.transforScore(matchScoresInfo);
@@ -348,6 +352,9 @@ public class FootBallAdvertiseServiceImpl implements FootBallAdvertiseService {
         footballMatchCount(matchScoresInfo, pdMatchAdvertiseVo);
 
         MatchTimeInfo timeStatusDto = footballDashboardAdvertiseApi.getMatchTimeInfoUpdated(matchTimeInfo.getThirdMatchId());
+        if (timeStatusDto == null) {
+            timeStatusDto = matchTimeInfo;
+        }
         timeStatusDto.setSecondFromStart(startTimeSecond);
         pdMatchAdvertiseVo.setInjuryAndtimeStatus(timeStatusDto);
 
@@ -750,21 +757,25 @@ public class FootBallAdvertiseServiceImpl implements FootBallAdvertiseService {
     }
 
     private Integer countHasPeriod(MatchScoreAndTimeVo data) {
-        if(data.getMatchTimeInfo().getPeriod().equals(0l)||
-                data.getMatchTimeInfo().getPeriod().equals(6l)||
-                data.getMatchTimeInfo().getPeriod().equals(7l)||
-                data.getMatchTimeInfo().getPeriod().equals(31l)||
-                data.getMatchTimeInfo().getPeriod().equals(100l)){
+        Long period = data.getMatchTimeInfo().getPeriod();
+        if (period == null) {
+            period = 0L;
+        }
+        if(period.equals(0l)||
+                period.equals(6l)||
+                period.equals(7l)||
+                period.equals(31l)||
+                period.equals(100l)){
             return 1;
-        }else if(data.getMatchTimeInfo().getPeriod().equals(32L)||
-                data.getMatchTimeInfo().getPeriod().equals(41L)||
-                data.getMatchTimeInfo().getPeriod().equals(33L)||
-                data.getMatchTimeInfo().getPeriod().equals(42L)||
-                data.getMatchTimeInfo().getPeriod().equals(110L)){
+        }else if(period.equals(32L)||
+                period.equals(41L)||
+                period.equals(33L)||
+                period.equals(42L)||
+                period.equals(110L)){
             return 2;
-        }else if(data.getMatchTimeInfo().getPeriod().equals(34l)||
-                data.getMatchTimeInfo().getPeriod().equals(50l)||
-                data.getMatchTimeInfo().getPeriod().equals(120l)){
+        }else if(period.equals(34l)||
+                period.equals(50l)||
+                period.equals(120l)){
             return 3;
         }else{
             JSONObject periodFootballScores = JSONObject.parseObject(data.getMatchScoresInfo().getScoresJson());

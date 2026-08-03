@@ -130,7 +130,19 @@ public interface ISettleCenterApi {
      */
     Response setFiveMinSwitch(MatchSettleFiveMinSwitchDTO dto);
 
+    /**
+     * 设置数据商灰色区间
+     * @param grayIntervalDtoList
+     * @return
+     */
+    Response setDataSourceGrayInterval(List<DataSourceGrayIntervalDto> grayIntervalDtoList);
 
+    /**
+     * 根据联赛等级查询数据商的灰色区间列表
+     * @param dto
+     * @return
+     */
+    Response getGrayIntervalByTournamentLevel(DataSourceGrayIntervalDto dto);
 
     /**
      * 根据球种类型获取对于的结算数据源的开关

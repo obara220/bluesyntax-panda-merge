@@ -72,7 +72,7 @@ public class CleanMatchScoresDataJob extends IJobHandler {
         Integer matchNum = 50;
         String methodName = "cleanMatchScoresData";
         try {
-            log.info("【" + methodName + " 清理比分相关数据】 开始,入参：{}", param);
+            //log.info("【" + methodName + " 清理比分相关数据】 开始,入参：{}", param);
             XxlJobLogger.log("【" + methodName + "清理比分相关数据】 开始,入参：{}", param);
             if (StringUtils.isNotBlank(param)) {
                 JSONObject jsonObj = JSON.parseObject(param);
@@ -87,7 +87,7 @@ public class CleanMatchScoresDataJob extends IJobHandler {
                 }
                 //dayNum天前的时间戳
                 Long dayDateTime = System.currentTimeMillis() - dayNum * 24 * 60 * 60 * 1000L;
-                log.info("【" + methodName + " 清理赛事相关数据】 业务处理开始,入参：{},dayDateTime:{}", jsonObj, dayDateTime);
+                //log.info("【" + methodName + " 清理赛事相关数据】 业务处理开始,入参：{},dayDateTime:{}", jsonObj, dayDateTime);
                 XxlJobLogger.log("【" + methodName + " 清理赛事相关数据】 业务处理开始,入参：{},dayDateTime:{}", jsonObj, dayDateTime);
 
                 switch (methodName) {
@@ -120,7 +120,7 @@ public class CleanMatchScoresDataJob extends IJobHandler {
                         deleteB02ScoreSourceLogs(dayDateTime);
                         break;
                     default:
-                        log.info("【" + methodName + " 清理赛事相关数据】 default");
+                        //log.info("【" + methodName + " 清理赛事相关数据】 default");
                         XxlJobLogger.log("【" + methodName + " 清理赛事相关数据】 default");
                         break;
                 }
@@ -129,7 +129,7 @@ public class CleanMatchScoresDataJob extends IJobHandler {
             log.error("【" + methodName + " 清理赛事相关数据】 异常,Exception:", e);
             XxlJobLogger.log("【" + methodName + " 清理赛事相关数据】 异常,Exception:" + e.getMessage());
         }
-        log.info("【" + methodName + " 清理赛事相关数据】 结束");
+        //log.info("【" + methodName + " 清理赛事相关数据】 结束");
         XxlJobLogger.log("【" + methodName + " 清理赛事相关数据】 结束");
         return ReturnT.SUCCESS;
 
@@ -139,24 +139,24 @@ public class CleanMatchScoresDataJob extends IJobHandler {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         String linkId = StringUtils.join(dayDateTime, "_clean_B02_source_type_");
-        log.info("::" + linkId + "::,deleteB02ScoreSourceLogs,定时B02比分通道切换记录，dayDateTime：{}", dayDateTime);
+        //log.info("::" + linkId + "::,deleteB02ScoreSourceLogs,定时B02比分通道切换记录，dayDateTime：{}", dayDateTime);
         try {
             B02ScoresSourceDTO dto = new B02ScoresSourceDTO();
             dto.setCreateTime(dayDateTime);
             int matchScoresNums = b02ScoresSourceMapper.delete(dto);
-            log.info("::" + linkId + "::,deleteB02ScoreSourceLogs,定时B02比分通道切换记录 时间: {},条数：{}", dayDateTime,matchScoresNums);
+            //log.info("::" + linkId + "::,deleteB02ScoreSourceLogs,定时B02比分通道切换记录 时间: {},条数：{}", dayDateTime,matchScoresNums);
         } catch (Exception e) {
-            log.info("::" + linkId + "::,deleteB02ScoreSourceLogs,定时B02比分通道切换记录执行异常，Exception:", e);
+            //log.info("::" + linkId + "::,deleteB02ScoreSourceLogs,定时B02比分通道切换记录执行异常，Exception:", e);
         }
         stopWatch.stop();
-        log.info("::" + linkId + "::,deleteB02ScoreSourceLogs,定时B02比分通道切换记录，用时{}毫秒", stopWatch.getTotalTimeMillis());
+        //log.info("::" + linkId + "::,deleteB02ScoreSourceLogs,定时B02比分通道切换记录，用时{}毫秒", stopWatch.getTotalTimeMillis());
     }
 
     private void deleteMatchScoresInfo(Long dayDateTime, Integer matchNum) {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         String linkId = StringUtils.join(dayDateTime, "_clean_match_score_info_");
-        log.info("::" + linkId + "::,deleteMatchScoresInfo,定时清理三方比分信息开始，dayDateTime：{}，matchNum：{}", dayDateTime, matchNum);
+        //log.info("::" + linkId + "::,deleteMatchScoresInfo,定时清理三方比分信息开始，dayDateTime：{}，matchNum：{}", dayDateTime, matchNum);
         try {
             MatchScoresInfoExample matchScoresInfoExample=new MatchScoresInfoExample();
             matchScoresInfoExample.createCriteria().andCreateTimeLessThanOrEqualTo(dayDateTime);
@@ -165,28 +165,28 @@ public class CleanMatchScoresDataJob extends IJobHandler {
             List<MatchScoresInfo> dataList = matchScoresInfoMapper.selectByExample(matchScoresInfoExample);
             if (!CollectionUtils.isEmpty(dataList)) {
                 int size = dataList.size();
-                log.info("::" + linkId + "::,deleteMatchScoresInfo,定时清理三方比分信息开始历史数据条数：{}", size);
+                //log.info("::" + linkId + "::,deleteMatchScoresInfo,定时清理三方比分信息开始历史数据条数：{}", size);
                 List<MatchScoresInfo> matchScoresList = size > matchNum ? dataList.subList(0, matchNum) : dataList;
                 List<Long> ids = matchScoresList.stream().map(MatchScoresInfo::getId).collect(Collectors.toList());
-                log.info("::" + linkId + "::,deleteMatchScoresInfo,定时清理比分三方赛事ID：{}", ids);
+                //log.info("::" + linkId + "::,deleteMatchScoresInfo,定时清理比分三方赛事ID：{}", ids);
                 MatchScoresInfoExample deleteMatchScoresInfoExample=new MatchScoresInfoExample();
                 deleteMatchScoresInfoExample.createCriteria().andIdIn(ids);
                 int matchScoresNums = matchScoresInfoMapper.deleteByExample(deleteMatchScoresInfoExample);
-                log.info("::" + linkId + "::,deleteMatchScoresInfo,定时清理matchScoresInfo id: {},条数：{}", ids,matchScoresNums);
+                //log.info("::" + linkId + "::,deleteMatchScoresInfo,定时清理matchScoresInfo id: {},条数：{}", ids,matchScoresNums);
 
             }
         } catch (Exception e) {
-            log.info("::" + linkId + "::,deleteMatchScoresInfo,定时清理三方比分信息执行异常，Exception:", e);
+            //log.info("::" + linkId + "::,deleteMatchScoresInfo,定时清理三方比分信息执行异常，Exception:", e);
         }
         stopWatch.stop();
-        log.info("::" + linkId + "::,deleteMatchScoresInfo,定时清理三方比分表，用时{}毫秒", stopWatch.getTotalTimeMillis());
+        //log.info("::" + linkId + "::,deleteMatchScoresInfo,定时清理三方比分表，用时{}毫秒", stopWatch.getTotalTimeMillis());
     }
 
     private void deleteMatchScoresEventInfo(Long dayDateTime, Integer matchNum) {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         String linkId = StringUtils.join(dayDateTime, "_clean_match_score_event_info_");
-        log.info("::" + linkId + "::,deleteMatchScoresEventInfo,定时清理结算历史信息开始，dayDateTime：{}，matchNum：{}", dayDateTime, matchNum);
+        //log.info("::" + linkId + "::,deleteMatchScoresEventInfo,定时清理结算历史信息开始，dayDateTime：{}，matchNum：{}", dayDateTime, matchNum);
         int matchScoreEventNums = 0;
         try {
             MatchScoresEventInfoExample matchScoresEventInfoExample= new MatchScoresEventInfoExample();
@@ -196,53 +196,53 @@ public class CleanMatchScoresDataJob extends IJobHandler {
             List<MatchScoresEventInfo> dataList = matchScoresEventInfoMapper.selectByExample(matchScoresEventInfoExample);
             if (!CollectionUtils.isEmpty(dataList)) {
                 int size = dataList.size();
-                log.info("::" + linkId + "::,deleteMatchScoresEventInfo,定时清理赛事数据源类型历史数据条数：{}", size);
+                //log.info("::" + linkId + "::,deleteMatchScoresEventInfo,定时清理赛事数据源类型历史数据条数：{}", size);
                 List<MatchScoresEventInfo> matchSourceList = size > matchNum ? dataList.subList(0, matchNum) : dataList;
                 List<Long> ids = matchSourceList.stream().map(MatchScoresEventInfo::getId).collect(Collectors.toList());
                 if(!ids.isEmpty()){
                     MatchScoresEventInfoExample deleteMatchScoresEventInfoExample= new MatchScoresEventInfoExample();
                     deleteMatchScoresEventInfoExample.createCriteria().andIdIn(ids);
                     matchScoreEventNums = matchScoresEventInfoMapper.deleteByExample(deleteMatchScoresEventInfoExample);
-                    log.info("::" + linkId + "::,deleteMatchScoresEventInfo,定时清理MatchScoresEventInfo三方赛事源id: ,条数：{}",matchScoreEventNums);
+                    //log.info("::" + linkId + "::,deleteMatchScoresEventInfo,定时清理MatchScoresEventInfo三方赛事源id: ,条数：{}",matchScoreEventNums);
                 }
             }
         } catch (Exception e) {
-            log.info("::" + linkId + "::,deleteMatchScoresEventInfo,删除比分事件表数据执行异常，Exception:", e);
+            //log.info("::" + linkId + "::,deleteMatchScoresEventInfo,删除比分事件表数据执行异常，Exception:", e);
         }
         stopWatch.stop();
-        log.info("::" + linkId + "::,deleteMatchScoresEventInfo,定时清理三方赛事数据源类型表，用时{}毫秒,删除{}条数据", stopWatch.getTotalTimeMillis(), matchScoreEventNums);
+        //log.info("::" + linkId + "::,deleteMatchScoresEventInfo,定时清理三方赛事数据源类型表，用时{}毫秒,删除{}条数据", stopWatch.getTotalTimeMillis(), matchScoreEventNums);
     }
 
     private void deleteStandMatchScore(Long dayDateTime) {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         String linkId = StringUtils.join(dayDateTime, "_clean_match_score_by_stand_");
-        log.info("::" + linkId + "::,deleteStandMatchScore,定时清理综合球种标准比分历史数据开始，dayDateTime：{}", dayDateTime);
+        //log.info("::" + linkId + "::,deleteStandMatchScore,定时清理综合球种标准比分历史数据开始，dayDateTime：{}", dayDateTime);
         try {
             //标准比分
             StandardMatchScoresExample standardMatchScoresExample = new StandardMatchScoresExample();
             standardMatchScoresExample.createCriteria().andCreateTimeLessThanOrEqualTo(dayDateTime);
             int scoreNums = standardMatchScoresMapper.deleteByExample(standardMatchScoresExample);
-            log.info("::" + linkId + "::,deleteStandMatchScore,定时清理standardMatchScores标准赛事id: {},条数：{}", scoreNums,scoreNums);
+            //log.info("::" + linkId + "::,deleteStandMatchScore,定时清理standardMatchScores标准赛事id: {},条数：{}", scoreNums,scoreNums);
 
             //标准比分日志
             MatchScoresCenterLogExample matchScoresCenterLogExample = new MatchScoresCenterLogExample();
             matchScoresCenterLogExample.createCriteria().andCreateTimeLessThanOrEqualTo(dayDateTime);
             int scoreLogNums = matchScoresCenterLogMapper.deleteByExample(matchScoresCenterLogExample);
-            log.info("::" + linkId + "::,deleteStandMatchScore,定时清理MatchScoresCenterLog 标准赛事id: {},条数：{}", scoreLogNums,scoreLogNums);
+            //log.info("::" + linkId + "::,deleteStandMatchScore,定时清理MatchScoresCenterLog 标准赛事id: {},条数：{}", scoreLogNums,scoreLogNums);
 
         } catch (Exception e) {
-            log.info("::" + linkId + "::,deleteStandMatchScore,定时根据标准赛事ID清理结算历史数据执行异常，Exception:", e);
+            //log.info("::" + linkId + "::,deleteStandMatchScore,定时根据标准赛事ID清理结算历史数据执行异常，Exception:", e);
         }
         stopWatch.stop();
-        log.info("::" + linkId + "::,deleteStandMatchScore,定时清理standardMatchScores综合球种标准比分{}毫秒", stopWatch.getTotalTimeMillis());
+        //log.info("::" + linkId + "::,deleteStandMatchScore,定时清理standardMatchScores综合球种标准比分{}毫秒", stopWatch.getTotalTimeMillis());
     }
 
     private void deleteMatchScoresPdLogs(Long dayDateTime,Integer matchNum) {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         String linkId = StringUtils.join(dayDateTime, "_clean_match_score_pd_log_");
-        log.info("::" + linkId + "::,deleteMatchScoresPdLogs,定时清理报球板日志开始，dayDateTime：{}，matchNum:{}", dayDateTime,matchNum);
+        //log.info("::" + linkId + "::,deleteMatchScoresPdLogs,定时清理报球板日志开始，dayDateTime：{}，matchNum:{}", dayDateTime,matchNum);
         try {
             MatchScoresPdLogExample matchScoresPdLogExample= new MatchScoresPdLogExample();
             matchScoresPdLogExample.createCriteria().andCreateTimeLessThanOrEqualTo(dayDateTime);
@@ -251,7 +251,7 @@ public class CleanMatchScoresDataJob extends IJobHandler {
             List<MatchScoresPdLog> dataList = matchScoresPdLogMapper.selectByExample(matchScoresPdLogExample);
             if (!CollectionUtils.isEmpty(dataList)) {
                 int size = dataList.size();
-                log.info("::" + linkId + "::,deleteMatchScoresPdLogs,定时清理报球板日志数据条数：{}", size);
+                //log.info("::" + linkId + "::,deleteMatchScoresPdLogs,定时清理报球板日志数据条数：{}", size);
                 List<MatchScoresPdLog> logList = size > matchNum ? dataList.subList(0, matchNum) : dataList;
                 List<String> matchManageIds = logList.stream().map(MatchScoresPdLog::getMatchManageId).collect(Collectors.toList());
                 if(!matchManageIds.isEmpty()){
@@ -259,35 +259,35 @@ public class CleanMatchScoresDataJob extends IJobHandler {
                         MatchScoresPdLogExample deleteMatchScoresPdLogExample= new MatchScoresPdLogExample();
                         deleteMatchScoresPdLogExample.createCriteria().andMatchManageIdIn(matchManageIds);
                         int matchScorePdLogsNums = matchScoresPdLogMapper.deleteByExample(deleteMatchScoresPdLogExample);
-                        log.info("::" + linkId + "::,deleteMatchScoresPdLogs,定时清理报球板日志 标准赛事ID: {},条数：{}", matchManageIds,matchScorePdLogsNums);
+                        //log.info("::" + linkId + "::,deleteMatchScoresPdLogs,定时清理报球板日志 标准赛事ID: {},条数：{}", matchManageIds,matchScorePdLogsNums);
                     } catch (Exception e) {
                         log.error("::" + linkId + "::deleteMatchScoresPdLogs,定时清理报球板日志执行异常 ,Exception:", e);
                     }
                 }
             }
         } catch (Exception e) {
-            log.info("::" + linkId + "::,deleteMatchScoresPdLogs,定时清理报球板日志执行异常，Exception:", e);
+            //log.info("::" + linkId + "::,deleteMatchScoresPdLogs,定时清理报球板日志执行异常，Exception:", e);
         }
         stopWatch.stop();
-        log.info("::" + linkId + "::,deleteMatchScoresPdLogs,定时清理报球板日志执行用时{}毫秒", stopWatch.getTotalTimeMillis());
+        //log.info("::" + linkId + "::,deleteMatchScoresPdLogs,定时清理报球板日志执行用时{}毫秒", stopWatch.getTotalTimeMillis());
     }
     private void deleteMatchSettleResult(Long dayDateTime) {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         String linkId = StringUtils.join(dayDateTime, "_clean_match_settle_result_");
-        log.info("::" + linkId + "::,deleteMatchSettleResult,定时清理结算赛果历史数据开始，dayDateTime：{}", dayDateTime);
+        //log.info("::" + linkId + "::,deleteMatchSettleResult,定时清理结算赛果历史数据开始，dayDateTime：{}", dayDateTime);
         try {
             //结算赛果
             MatchSettleResultExample matchSettleResultExample = new MatchSettleResultExample();
             matchSettleResultExample.createCriteria().andCreateTimeLessThanOrEqualTo(dayDateTime);
             int settleResultNum = matchSettleResultMapper.deleteByExample(matchSettleResultExample);
-            log.info("::" + linkId + "::,deleteMatchSettleResult,定时清理standardMatchScores 条数：{}", settleResultNum);
+            //log.info("::" + linkId + "::,deleteMatchSettleResult,定时清理standardMatchScores 条数：{}", settleResultNum);
 
         } catch (Exception e) {
-            log.info("::" + linkId + "::,deleteMatchSettleResult,定时清理结算赛果历史数据执行异常，Exception:", e);
+            //log.info("::" + linkId + "::,deleteMatchSettleResult,定时清理结算赛果历史数据执行异常，Exception:", e);
         }
         stopWatch.stop();
-        log.info("::" + linkId + "::,deleteMatchSettleResult,定时清理结算赛果历史数据 执行用时{}毫秒", stopWatch.getTotalTimeMillis());
+        //log.info("::" + linkId + "::,deleteMatchSettleResult,定时清理结算赛果历史数据 执行用时{}毫秒", stopWatch.getTotalTimeMillis());
     }
 
     /**
@@ -299,7 +299,7 @@ public class CleanMatchScoresDataJob extends IJobHandler {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         String linkId = StringUtils.join(dayDateTime, "_clean_match_score_by_third");
-        log.info("::" + linkId + "::,deleteScoreInfoDataByThirdMatchInfo,定时清理结算历史信息开始，dayDateTime：{}，matchNum：{}", dayDateTime, matchNum);
+        //log.info("::" + linkId + "::,deleteScoreInfoDataByThirdMatchInfo,定时清理结算历史信息开始，dayDateTime：{}，matchNum：{}", dayDateTime, matchNum);
         try {
             MatchTimeInfoExample matchTimeInfoExample=new MatchTimeInfoExample();
             matchTimeInfoExample.createCriteria().andCreateTimeLessThanOrEqualTo(dayDateTime);
@@ -308,7 +308,7 @@ public class CleanMatchScoresDataJob extends IJobHandler {
             List<MatchTimeInfo> timeList = matchTimeInfoMapper.selectByExample(matchTimeInfoExample);
             if (!CollectionUtils.isEmpty(timeList)) {
                 int size = timeList.size();
-                log.info("::" + linkId + "::,deleteScoreInfoDataByThirdMatchInfo,定时清理赛事时间表信息表历史数据条数：{}", size);
+                //log.info("::" + linkId + "::,deleteScoreInfoDataByThirdMatchInfo,定时清理赛事时间表信息表历史数据条数：{}", size);
                 List<MatchTimeInfo> matchTimeList = size > matchNum ? timeList.subList(0, matchNum) : timeList;
                 if(!matchTimeList.isEmpty()){
                     List<Long> thirdMatchIds = matchTimeList.stream().map(MatchTimeInfo::getThirdMatchId).collect(Collectors.toList());
@@ -316,20 +316,20 @@ public class CleanMatchScoresDataJob extends IJobHandler {
                         MatchTimeInfoExample deleteMatchTimeInfoExample=new MatchTimeInfoExample();
                         deleteMatchTimeInfoExample.createCriteria().andThirdMatchIdIn(thirdMatchIds);
                         int matchTimeNums = matchTimeInfoMapper.deleteByExample(deleteMatchTimeInfoExample);
-                        log.info("::" + linkId + "::,deleteScoreInfoDataByThirdMatchInfo,定时清理matchTimeInfo三方赛事id: {},条数：{}", thirdMatchIds,matchTimeNums);
+                        //log.info("::" + linkId + "::,deleteScoreInfoDataByThirdMatchInfo,定时清理matchTimeInfo三方赛事id: {},条数：{}", thirdMatchIds,matchTimeNums);
 
                         MatchScoresSourceTypeExample matchSourceTypeExample= new MatchScoresSourceTypeExample();
                         matchSourceTypeExample.createCriteria().andThirdMatchIdIn(thirdMatchIds);
                         int sourceTypeNum = matchScoresSourceTypeMapper.deleteByExample(matchSourceTypeExample);
-                        log.info("::" + linkId + "::,deleteScoreInfoDataByThirdMatchInfo,定时清理MatchScoresSourceType三方赛事id: {},条数：{}", thirdMatchIds,sourceTypeNum);
+                        //log.info("::" + linkId + "::,deleteScoreInfoDataByThirdMatchInfo,定时清理MatchScoresSourceType三方赛事id: {},条数：{}", thirdMatchIds,sourceTypeNum);
                     }
                 }
             }
         } catch (Exception e) {
-            log.info("::" + linkId + "::,deleteScoreInfoDataByThirdMatchInfo,定时根据根据三方赛事ID清理比分历史数据执行异常，Exception:", e);
+            //log.info("::" + linkId + "::,deleteScoreInfoDataByThirdMatchInfo,定时根据根据三方赛事ID清理比分历史数据执行异常，Exception:", e);
         }
         stopWatch.stop();
-        log.info("::" + linkId + "::,deleteScoreInfoDataByThirdMatchInfo,定时根据三方赛事ID清理历史数据执行用时{}毫秒", stopWatch.getTotalTimeMillis());
+        //log.info("::" + linkId + "::,deleteScoreInfoDataByThirdMatchInfo,定时根据三方赛事ID清理历史数据执行用时{}毫秒", stopWatch.getTotalTimeMillis());
     }
 
 }

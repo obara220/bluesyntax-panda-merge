@@ -77,7 +77,7 @@ public class IceHockeyAdvertiseServiceImpl implements IceHockeyAdvertiseService 
 //            try {
 //                Thread.sleep(700);
 //            } catch (InterruptedException e) {
-//
+//                
 //            }
 //        }
         Long remainTime =0l;
@@ -95,7 +95,7 @@ public class IceHockeyAdvertiseServiceImpl implements IceHockeyAdvertiseService 
             try {
                 Thread.sleep(500);
             } catch (InterruptedException e) {
-
+                
             }
             commonEventService.changeMatchPeriodEvent(data,32L,0L,remainTime, currentTime, matchScoreCommonVo, linkId,userName);
         }
@@ -271,7 +271,7 @@ public class IceHockeyAdvertiseServiceImpl implements IceHockeyAdvertiseService 
             // 6.发送MQ且记录事件
             eventProducer.sendPDEventInfo(matchEventInfoDTO);
         } catch (InterruptedException e) {
-
+            
         }
         matchScoreAndTimeVo.getMatchTimeInfo().setTimeGo(1);
         matchTimeInfoMapper.updateByPrimaryKey(  matchScoreAndTimeVo.getMatchTimeInfo());
@@ -320,6 +320,7 @@ public class IceHockeyAdvertiseServiceImpl implements IceHockeyAdvertiseService 
 
     private IceHockeyScoreVo transforScore(MatchScoresInfo matchScoresInfo) {
         IceHockeyScoreVo iceHockeyScoreVo = new IceHockeyScoreVo();
+        log.info("{},报球板冰球比分1:{}",matchScoresInfo.getThirdMatchId(),matchScoresInfo.getScoresJson());
         if(StringUtils.isEmpty(matchScoresInfo.getScoresJson()) ) {
             Map<Long, IceHockeyScores> periodIceHockeyScores = new HashMap<>();
             IceHockeyScores iceHockeyScores = new IceHockeyScores(0l);
@@ -329,10 +330,10 @@ public class IceHockeyAdvertiseServiceImpl implements IceHockeyAdvertiseService 
             matchScoresInfo.setT2(iceHockeyScores.getMatchScore().getAway());
             matchScoresInfoMapper.updateByPrimaryKey(matchScoresInfo);
         }
-
+        log.info("{},报球板冰球比分2:{}",matchScoresInfo.getThirdMatchId(),matchScoresInfo.getScoresJson());
         Map<Long, IceHockeyScores> allPeriodScores = scoreUtils.periodJson( matchScoresInfo.getScoresJson(), IceHockeyScores.class);
         IceHockeyScores wholeSores= allPeriodScores.get(WHOLE_MATCH);
-
+        log.info("{},报球板冰球比分3,-1比分:{}",matchScoresInfo.getThirdMatchId(),wholeSores);
         //whole
         if(wholeSores!=null){
             iceHockeyScoreVo.setWhole(wholeSores.getMatchScore());
@@ -360,6 +361,7 @@ public class IceHockeyAdvertiseServiceImpl implements IceHockeyAdvertiseService 
         }
         iceHockeyScoreVo.setBigFa(wholeSores.getSuspensionBig());
         iceHockeyScoreVo.setSmallFa(wholeSores.getSuspensionSmall());
+        log.info("{},报球板冰球比分4,冰球比分:{}",matchScoresInfo.getThirdMatchId(),iceHockeyScoreVo);
         return iceHockeyScoreVo;
     }
 

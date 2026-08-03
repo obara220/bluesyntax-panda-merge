@@ -88,6 +88,18 @@ public class OutrightTradeTypeConfigServiceImpl implements OutrightTradeTypeConf
         return tradeTypeMap;
     }
 
+
+    @Override
+    public List<ConfigOutrightTradeType> getTradeTypeList( List<Long> marketIds) {
+        ConfigOutrightTradeTypeExample example = new ConfigOutrightTradeTypeExample();
+        example.createCriteria().andStandardMarketIdIn(marketIds);
+        List<ConfigOutrightTradeType> configOutrightTradeTypeList = configOutrightTradeTypeMapper.selectByExample(example);
+        if( CollectionUtils.isEmpty(configOutrightTradeTypeList)){
+            return null;
+        }
+        return configOutrightTradeTypeList;
+    }
+
     @Override
     public List<ConfigOutrightTradeType> getTradeTypeList(Long standardMatchId, List<Long> marketIds, Integer tradeType) {
         ConfigOutrightTradeTypeExample example = new ConfigOutrightTradeTypeExample();

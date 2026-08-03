@@ -63,12 +63,10 @@ public interface MarketCategorySellService {
      */
     List<MarketCategorySell> getItemByDataSourceCodeAndMarketType(Long matchId, String dataSourceCode, String marketType);
 
-
     /**
      *  赛事   + 类型
      * @param matchId
      * @return
      */
     List<MarketCategorySell> getItemByMarketType(Long matchId, String marketType);
-
 }

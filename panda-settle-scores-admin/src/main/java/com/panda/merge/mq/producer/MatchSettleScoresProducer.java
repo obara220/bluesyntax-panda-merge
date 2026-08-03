@@ -2,6 +2,9 @@ package com.panda.merge.mq.producer;
 
 import com.alibaba.fastjson.JSON;
 
+import com.panda.merge.config.RedisConfig;
+import com.panda.merge.config.RedisService;
+import com.panda.merge.constant.CommonConstant;
 import com.panda.merge.constant.SportPeriodConstant;
 import com.panda.merge.dto.MatchSettleEventMessage;
 import com.panda.merge.dto.MatchSettleScoreMessage;
@@ -26,6 +29,8 @@ public class MatchSettleScoresProducer {
 
     @Autowired
     private RocketMQTemplate rocketMqTemplate;
+    @Autowired
+    private RedisService redisService;
 
     private static List<String> list = Arrays.asList("1028", "1029", "1030");
     //结算下半场阶段修改
@@ -35,6 +40,11 @@ public class MatchSettleScoresProducer {
 
     //赛事级别重跑结算比分
     public void sendMatchSettleScores(MatchSettleScoreMessage matchSettleScore) {
+        String redisKey = CommonConstant.MATCH_SETTLE_SCORE_COUNT+matchSettleScore.getId();
+        if (redisService.get(redisKey) != null) {
+            return;
+        }
+        redisService.set(redisKey, 1, RedisConfig.REDIS_FOUR_SECOND);
         if(settelNum2H.contains(matchSettleScore.getSettleNum())){
             matchSettleScore.setPeriodId(8l);
         }
@@ -101,6 +111,11 @@ public class MatchSettleScoresProducer {
 
 
     public void sendMatchSettleScores(MatchSettleScore matchSettleScore) {
+        String redisKey = CommonConstant.MATCH_SETTLE_SCORE_COUNT+matchSettleScore.getId();
+        if (redisService.get(redisKey) != null) {
+            return;
+        }
+        redisService.set(redisKey, 1, RedisConfig.REDIS_FOUR_SECOND);
         if(settelNum2H.contains(matchSettleScore.getSettleNum())){
             matchSettleScore.setPeriodId(8l);
         }
@@ -119,6 +134,11 @@ public class MatchSettleScoresProducer {
     }
 
     public void sendMatchSettleScores(MatchSettleScore matchSettleScore, int delayLevel) {
+        String redisKey = CommonConstant.MATCH_SETTLE_SCORE_COUNT+matchSettleScore.getId();
+        if (redisService.get(redisKey) != null) {
+            return;
+        }
+        redisService.set(redisKey, 1, RedisConfig.REDIS_FOUR_SECOND);
         if(settelNum2H.contains(matchSettleScore.getSettleNum())){
             matchSettleScore.setPeriodId(8l);
         }
@@ -187,5 +207,25 @@ public class MatchSettleScoresProducer {
                 .setHeader(MessageConst.PROPERTY_KEYS,matchSettleEventMessage.getStandardMatchId()+"_"+matchSettleEventMessage.getSettleNum());
         rocketMqTemplate.send("MATCH_SETTLE_EVENT:" + matchSettleEventMessage.getStandardMatchId(), builder.build());
         log.info("::{}::开始组装赛事比分信息并下发,topic:MATCH_SETTLE_EVENT,request={}", matchSettleEventMessage.getId(), JSON.toJSONString(reqMessage));
+    }
+
+    public void sendSyncMQMessage(MatchSettleScore matchSettleScore) {
+        if(settelNum2H.contains(matchSettleScore.getSettleNum())){
+            matchSettleScore.setPeriodId(8l);
+        }
+        if(settelNum2ET.contains(matchSettleScore.getSettleNum())){
+            matchSettleScore.setPeriodId(43l);
+        }
+        MatchSettleScoreMessage matchSettleScoreMessage = new MatchSettleScoreMessage();
+        BeanUtils.copyProperties(matchSettleScore,matchSettleScoreMessage);
+        Request<MatchSettleScoreMessage> reqMessage = new Request<>();
+        reqMessage.setLinkId(matchSettleScoreMessage.getStandardMatchId()+"_"+matchSettleScoreMessage.getSettleNum());
+        reqMessage.setData(matchSettleScoreMessage);
+        MessageBuilder<Request<MatchSettleScoreMessage>> builder = MessageBuilder.withPayload(reqMessage)
+                .setHeader(MessageConst.PROPERTY_KEYS, matchSettleScoreMessage.getStandardMatchId()+"_"+matchSettleScoreMessage.getSettleNum());
+
+        rocketMqTemplate.syncSend("MATCH_SETTLE_SCORES:" + matchSettleScoreMessage.getStandardMatchId(),  builder.build(),5000,5);
+
+
     }
 }

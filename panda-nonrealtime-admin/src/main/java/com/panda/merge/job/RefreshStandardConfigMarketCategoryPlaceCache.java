@@ -32,7 +32,7 @@ public class RefreshStandardConfigMarketCategoryPlaceCache extends IJobHandler {
 
     @Override
     public ReturnT<String> execute(String params) {
-        log.info("【RefreshStandardConfigMarketCategoryPlace】 处理开始");
+        //log.info("【RefreshStandardConfigMarketCategoryPlace】 处理开始");
         XxlJobLogger.log("RefreshStandardConfigMarketCategoryPlace】 处理开始");
         String[] arr = params.split(",");
         if (arr.length < 3) {
@@ -48,9 +48,9 @@ public class RefreshStandardConfigMarketCategoryPlaceCache extends IJobHandler {
                 refreshMarketStatus();
                 break;
             default:
-                log.info("【RefreshStandardConfigMarketCategoryPlace】 It is in the default!");
+                //log.info("【RefreshStandardConfigMarketCategoryPlace】 It is in the default!");
         }
-        log.info("【RefreshStandardConfigMarketCategoryPlace】 处理结束");
+        //log.info("【RefreshStandardConfigMarketCategoryPlace】 处理结束");
         XxlJobLogger.log("RefreshStandardConfigMarketCategoryPlace】 处理结束");
         return ReturnT.SUCCESS;
     }
@@ -78,15 +78,19 @@ public class RefreshStandardConfigMarketCategoryPlaceCache extends IJobHandler {
         StandardMatchInfoExample example = new StandardMatchInfoExample();
         example.createCriteria().andMatchOverEqualTo(YesNoEnum.N.value);
         List<StandardMatchInfo> standardMatchInfos = standardMatchInfoMapper.selectByExample(example);
-        log.info("【RefreshStandardConfigMarketCategoryPlace】 处理开始条数:{}", standardMatchInfos.size());
+        //log.info("【RefreshStandardConfigMarketCategoryPlace】 处理开始条数:{}", standardMatchInfos.size());
         for (StandardMatchInfo standardMatchInfo : standardMatchInfos) {
-            String cacheScoresKey = Constant.REDIS_KEY.RONGHE_STANDARD_MARKET_PLACE + standardMatchInfo.getId();
-            Object obj = redisService.hGetAll(cacheScoresKey);
-            if (ObjectUtil.isNotEmpty(obj)) {
-                Map<String, ConfigMarketCategoryPlace> marketCategoryPlaceMap = (Map<String, ConfigMarketCategoryPlace>) obj;
-                redisService.hSetAllBasedBucket(cacheScoresKey, ConstantSystem.BUCKET_QUANTITY_SIXTY_FOUR, marketCategoryPlaceMap, RedisConfig.REDIS_WEEK_TIME);
+            String redisKey = Constant.REDIS_KEY.RONGHE_STANDARD_MARKET_PLACE + standardMatchInfo.getId();
+            try {
+                Object obj = redisService.hGetAllBasedBucketOld(redisKey, ConstantSystem.BUCKET_QUANTITY_SIXTY_FOUR);
+                if (ObjectUtil.isNotEmpty(obj)) {
+                    Map<String, ConfigMarketCategoryPlace> marketCategoryPlaceMap = (Map<String, ConfigMarketCategoryPlace>) obj;
+                    redisService.hSetAllBasedBucket(redisKey, ConstantSystem.BUCKET_QUANTITY_SIXTY_FOUR, marketCategoryPlaceMap, RedisConfig.REDIS_WEEK_TIME);
+                }
+            } catch (Exception e) {
+                log.error(redisKey + "：【RefreshStandardConfigMarketCategoryPlace】 出现异常忽略:{}", e);
             }
         }
-        log.info("【RefreshStandardConfigMarketCategoryPlace】 处理完成:{}", standardMatchInfos.size());
+        //log.info("【RefreshStandardConfigMarketCategoryPlace】 处理完成:{}", standardMatchInfos.size());
     }
 }

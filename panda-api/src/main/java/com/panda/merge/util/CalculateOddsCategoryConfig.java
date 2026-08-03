@@ -28,4 +28,9 @@ public class CalculateOddsCategoryConfig {
      * 球类
      */
     public static List<Long> SOPRT_TYPE = Arrays.asList(1L,2L,3L,4L,5L,6L,7L,8L,9L,10L);
+
+    /*
+     * 信用等级玩法独赢
+     */
+    public static Long WIN_ALONE=37L;
 }

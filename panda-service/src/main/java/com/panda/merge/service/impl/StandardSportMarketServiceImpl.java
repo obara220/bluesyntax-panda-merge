@@ -243,7 +243,7 @@ public class StandardSportMarketServiceImpl implements StandardSportMarketServic
         if (obj == null || StringUtils.isEmpty(obj.toString())) {
             relationMarketId = MD5Utils.getLongByMD5(redisKey);//UUIdUtils.getId();
         } else {
-            relationMarketId = Long.valueOf(obj.toString());
+            relationMarketId = Long.valueOf(redisService.get(redisKey).toString());
         }
         redisService.set(redisKey, relationMarketId.toString(), RedisConfig.REDIS_MONTH_TIME);
         return relationMarketId;
@@ -264,7 +264,7 @@ public class StandardSportMarketServiceImpl implements StandardSportMarketServic
         if (obj == null || StringUtils.isEmpty(obj.toString())) {
             relationMarketId = MD5Utils.getLongByMD5(redisKey);//UUIdUtils.getId();
         } else {
-            relationMarketId = Long.valueOf(obj.toString());
+            relationMarketId = Long.valueOf(redisService.get(redisKey).toString());
         }
         redisService.set(redisKey, relationMarketId.toString(), RedisConfig.REDIS_MONTH_TIME);
         return relationMarketId;
@@ -286,7 +286,7 @@ public class StandardSportMarketServiceImpl implements StandardSportMarketServic
         if (obj == null || StringUtils.isEmpty(obj.toString())) {
             relationMarketId = MD5Utils.getLongByMD5(redisKey);//UUIdUtils.getId();
         } else {
-            relationMarketId = Long.valueOf(obj.toString());
+            relationMarketId = Long.valueOf(redisService.get(redisKey).toString());
         }
         redisService.set(redisKey, relationMarketId.toString(), RedisConfig.REDIS_MONTH_TIME);
         return relationMarketId.toString();

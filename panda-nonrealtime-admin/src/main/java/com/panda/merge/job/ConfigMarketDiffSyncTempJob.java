@@ -75,14 +75,14 @@ public class ConfigMarketDiffSyncTempJob extends IJobHandler {
         StandardMatchInfoExample example = new StandardMatchInfoExample();
         example.createCriteria().andMatchOverEqualTo(YesNoEnum.N.value);
         List<StandardMatchInfo> standardMatchInfos = standardMatchInfoMapper.selectByExample(example);
-        log.info("::{}::【initSyncDiffConfig】:{} 处理开始条数:{}", linkId, params, standardMatchInfos.size());
+        //log.info("::{}::【initSyncDiffConfig】:{} 处理开始条数:{}", linkId, params, standardMatchInfos.size());
         try {
             List<Long> matchIds = standardMatchInfos.stream().map(StandardMatchInfo::getId).collect(Collectors.toList());
-            log.info("::{}::initSyncDiffConfig::{}::获取到标准赛事条数：：{}", linkId, REDIS_KEY_GATEGORY, matchIds.size());
+            //log.info("::{}::initSyncDiffConfig::{}::获取到标准赛事条数：：{}", linkId, REDIS_KEY_GATEGORY, matchIds.size());
             ConfigCategoryAutoDiffTradeExample configCategoryAutoDiffTradeExample = new ConfigCategoryAutoDiffTradeExample();
             configCategoryAutoDiffTradeExample.createCriteria().andStandardMatchIdIn(matchIds);
             List<ConfigCategoryAutoDiffTrade> categoryConfigList = configCategoryAutoDiffTradeMapper.selectByExample(configCategoryAutoDiffTradeExample);
-            log.info("::{}::initSyncDiffConfig::{}::根据标准赛事id获取到配置条数：：{}", linkId, REDIS_KEY_GATEGORY, categoryConfigList.size());
+            //log.info("::{}::initSyncDiffConfig::{}::根据标准赛事id获取到配置条数：：{}", linkId, REDIS_KEY_GATEGORY, categoryConfigList.size());
             TradeCategoryAutoDiffConfigItemDTO itemDTO = new TradeCategoryAutoDiffConfigItemDTO();
             for (ConfigCategoryAutoDiffTrade categoryAutoDiffTrade : categoryConfigList) {
                 itemDTO.setOddType(categoryAutoDiffTrade.getOddsType());
@@ -91,14 +91,14 @@ public class ConfigMarketDiffSyncTempJob extends IJobHandler {
                 itemDTO.setChildStandardCategoryId(categoryAutoDiffTrade.getChildStandardCategoryId());
                 configCategoryAutoDiffTradeService.create(categoryAutoDiffTrade.getLinkId(), itemDTO, categoryAutoDiffTrade.getStandardMatchId(), categoryAutoDiffTrade.getOperaterId());
             }
-            log.info("::{}::initSyncDiffConfig::{}::配置同步缓存完成，耗时：：{}", linkId, REDIS_KEY_GATEGORY, System.currentTimeMillis() - startTime);
+            //log.info("::{}::initSyncDiffConfig::{}::配置同步缓存完成，耗时：：{}", linkId, REDIS_KEY_GATEGORY, System.currentTimeMillis() - startTime);
             redisService.set(REDIS_KEY_GATEGORY, "配置同步结束：startTime:" + startTime + ",结束时间：" + System.currentTimeMillis() + ", 耗时：" + (System.currentTimeMillis() - startTime) + ", 标准赛事条数：" + matchIds.size() + ", 配置条数：" + categoryConfigList.size());
 
-            log.info("::{}::initSyncDiffConfig::{}::开始执行水差配置！", linkId, REDIS_KEY_MARKET);
+            //log.info("::{}::initSyncDiffConfig::{}::开始执行水差配置！", linkId, REDIS_KEY_MARKET);
             ConfigMarketAutoDiffTradeExample configMarketAutoDiffTradeExample = new ConfigMarketAutoDiffTradeExample();
             configMarketAutoDiffTradeExample.createCriteria().andStandardMatchIdIn(matchIds);
             List<ConfigMarketAutoDiffTrade> configMarketAutoDiffTrades = configMarketAutoDiffTradeMapper.selectByExample(configMarketAutoDiffTradeExample);
-            log.info("::{}::initSyncDiffConfig::{}::根据标准赛事id获取到配置条数：：{}", linkId, REDIS_KEY_MARKET, configMarketAutoDiffTrades.size());
+            //log.info("::{}::initSyncDiffConfig::{}::根据标准赛事id获取到配置条数：：{}", linkId, REDIS_KEY_MARKET, configMarketAutoDiffTrades.size());
             for (ConfigMarketAutoDiffTrade diffTrade : configMarketAutoDiffTrades) {
                 TradeMarketAutoDiffConfigItemDTO marketItemDTO = new TradeMarketAutoDiffConfigItemDTO();
                 marketItemDTO.setMarketId(diffTrade.getStandardMarketId());
@@ -107,13 +107,13 @@ public class ConfigMarketDiffSyncTempJob extends IJobHandler {
                 marketItemDTO.setOddType(diffTrade.getOddsType());
                 configMarketAutoDiffTradeService.create(diffTrade.getLinkId(), marketItemDTO, diffTrade.getStandardMatchId(), diffTrade.getOperaterId());
             }
-            log.info("::{}::initSyncDiffConfig::{}::配置同步缓存完成，耗时：：{}", linkId, REDIS_KEY_MARKET, System.currentTimeMillis() - startTime);
+            //log.info("::{}::initSyncDiffConfig::{}::配置同步缓存完成，耗时：：{}", linkId, REDIS_KEY_MARKET, System.currentTimeMillis() - startTime);
 
-            log.info("::{}::initSyncDiffConfig::{}::开始执行球头水差配置！", linkId, REDIS_KEY_PLACENUM);
+            //log.info("::{}::initSyncDiffConfig::{}::开始执行球头水差配置！", linkId, REDIS_KEY_PLACENUM);
             ConfigPlacenumAutoDiffTradeExample configPlacenumAutoDiffTradeExample = new ConfigPlacenumAutoDiffTradeExample();
             configPlacenumAutoDiffTradeExample.createCriteria().andStandardMatchIdIn(matchIds);
             List<ConfigPlacenumAutoDiffTrade> list = configPlacenumAutoDiffTradeMapper.selectByExample(configPlacenumAutoDiffTradeExample);
-            log.info("::{}::initSyncDiffConfig::{}::根据标准赛事id获取到配置条数：：{}", linkId, REDIS_KEY_PLACENUM, list.size());
+            //log.info("::{}::initSyncDiffConfig::{}::根据标准赛事id获取到配置条数：：{}", linkId, REDIS_KEY_PLACENUM, list.size());
             for (ConfigPlacenumAutoDiffTrade diffTrade : list) {
                 TradePlaceNumAutoDiffConfigItemDTO configItemDTO = new TradePlaceNumAutoDiffConfigItemDTO();
                 configItemDTO.setChildStandardCategoryId(diffTrade.getChildStandardCategoryId());
@@ -123,20 +123,20 @@ public class ConfigMarketDiffSyncTempJob extends IJobHandler {
                 configItemDTO.setOddType(diffTrade.getOddsType());
                 configPlaceNumAutoDiffTradeService.create(diffTrade.getLinkId(), configItemDTO, diffTrade.getStandardMatchId(), diffTrade.getOperaterId());
             }
-            log.info("::{}::initSyncDiffConfig::{}::配置同步缓存完成，耗时：：{}", linkId, REDIS_KEY_PLACENUM, System.currentTimeMillis() - startTime);
+            //log.info("::{}::initSyncDiffConfig::{}::配置同步缓存完成，耗时：：{}", linkId, REDIS_KEY_PLACENUM, System.currentTimeMillis() - startTime);
 
-            log.info("::{}::initSyncDiffConfig::{}::开始执行球头水差配置！", linkId, REDIS_KEY_MARGIN_GAP);
+            //log.info("::{}::initSyncDiffConfig::{}::开始执行球头水差配置！", linkId, REDIS_KEY_MARGIN_GAP);
             ConfigMarketMarginGapExample configMarketMarginExample = new ConfigMarketMarginGapExample();
             configMarketMarginExample.createCriteria().andMatchIdIn(matchIds);
             List<ConfigMarketMarginGap> configMarketMarginGaps = configMarketMarginGapMapper.selectByExample(configMarketMarginExample);
-            log.info("::{}::initSyncDiffConfig::{}::根据标准赛事id获取到配置条数：：{}", linkId, REDIS_KEY_MARGIN_GAP, configMarketMarginGaps.size());
+            //log.info("::{}::initSyncDiffConfig::{}::根据标准赛事id获取到配置条数：：{}", linkId, REDIS_KEY_MARGIN_GAP, configMarketMarginGaps.size());
             if (!CollectionUtils.isEmpty(configMarketMarginGaps) && configMarketMarginGaps.size() > 0) {
                 Map<Long, List<ConfigMarketMarginGap>> collect = configMarketMarginGaps.stream().collect(Collectors.groupingBy(ConfigMarketMarginGap::getMatchId));
                 collect.forEach((key, value) -> {
                     configMarketMarginGapService.insertList("sync", key, value);
                 });
             }
-            log.info("::{}::initSyncDiffConfig::盘口状态配置！", linkId);
+            //log.info("::{}::initSyncDiffConfig::盘口状态配置！", linkId);
             for (StandardMatchInfo standardMatchInfo : standardMatchInfos) {
                 String redisKey = Constant.REDIS_KEY.RONGHE_STANDARD_MARKET_PLACE + standardMatchInfo.getId();
                 try {
@@ -149,14 +149,14 @@ public class ConfigMarketDiffSyncTempJob extends IJobHandler {
                     log.error(linkId + "::" + redisKey + "：【initSyncDiffConfig】 出现异常忽略:", e);
                 }
             }
-            log.info("::{}::initSyncDiffConfig::盘口状态配置处理完成！", linkId);
+            //log.info("::{}::initSyncDiffConfig::盘口状态配置处理完成！", linkId);
 
         } catch (Exception e) {
             log.error("::" + linkId + "::【initSyncDiffConfig 配置同步缓存失败】 Exception:", e);
             XxlJobLogger.log(linkId + "::【GetRedisCacheJob 根据传入key值获取缓存】 Exception:" + e.getMessage());
         }
-        log.info("::{}::initSyncDiffConfig::{}::配置同步缓存完成，耗时：：{}", linkId, REDIS_KEY_MARGIN_GAP, System.currentTimeMillis() - startTime);
-        log.info("::{}::【initSyncDiffConfig】 处理结束", linkId);
+        //log.info("::{}::initSyncDiffConfig::{}::配置同步缓存完成，耗时：：{}", linkId, REDIS_KEY_MARGIN_GAP, System.currentTimeMillis() - startTime);
+        //log.info("::{}::【initSyncDiffConfig】 处理结束", linkId);
         XxlJobLogger.log(linkId + "::initSyncDiffConfig】 处理结束");
         return ReturnT.SUCCESS;
     }

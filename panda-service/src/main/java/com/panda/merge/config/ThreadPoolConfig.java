@@ -1,5 +1,6 @@
 package com.panda.merge.config;
 
+import cn.hutool.core.thread.ThreadFactoryBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -7,8 +8,7 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-import java.util.concurrent.RejectedExecutionHandler;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.*;
 
 @Slf4j
 @EnableAsync
@@ -131,7 +131,7 @@ public class ThreadPoolConfig {
         //配置核心线程数
         executor.setCorePoolSize(128);
         //配置最大线程数
-        executor.setMaxPoolSize(256);
+        executor.setMaxPoolSize(1024);
         //配置队列大小
         executor.setQueueCapacity(512);
         // 设置线程活跃时间（秒）
@@ -154,7 +154,7 @@ public class ThreadPoolConfig {
         //配置核心线程数
         executor.setCorePoolSize(32);
         //配置最大线程数
-        executor.setMaxPoolSize(256);
+        executor.setMaxPoolSize(1024);
         //告警任务对实时要求不严格，队列适当扩大
         executor.setQueueCapacity(1024);
         // 设置线程活跃时间（秒）
@@ -216,7 +216,7 @@ public class ThreadPoolConfig {
         //配置核心线程数
         executor.setCorePoolSize(128);
         //配置最大线程数
-        executor.setMaxPoolSize(256);
+        executor.setMaxPoolSize(512);
         //配置队列大小
         executor.setQueueCapacity(512);
         // 设置线程活跃时间（秒）
@@ -273,13 +273,6 @@ public class ThreadPoolConfig {
         executor.setMaxPoolSize(128);
         //配置队列大小
         executor.setQueueCapacity(256);
-        executor.setThreadFactory(r -> {
-            Thread thread = new Thread(r);
-            thread.setUncaughtExceptionHandler((t, e) -> log.error("ProcessTradeSystem task {} uncaughtException  ",
-                                                                   t.getName(),
-                                                                   e));
-            return thread;
-        });
         // 设置线程活跃时间（秒）
         //executor.setKeepAliveSeconds(60);
         //配置线程池中的线程的名称前缀
@@ -298,11 +291,11 @@ public class ThreadPoolConfig {
     public TaskExecutor getProcessOddsByPandaThreadPool() {
         ThreadPoolTaskExecutor executor = new VisiableThreadPoolTaskExecutor();
         //配置核心线程数
-        executor.setCorePoolSize(128);
+        executor.setCorePoolSize(512);
         //配置最大线程数
-        executor.setMaxPoolSize(256);
+        executor.setMaxPoolSize(2048);
         //配置队列大小
-        executor.setQueueCapacity(512);
+        executor.setQueueCapacity(1024);
         // 设置线程活跃时间（秒）
         //executor.setKeepAliveSeconds(60);
         //配置线程池中的线程的名称前缀
@@ -412,7 +405,7 @@ public class ThreadPoolConfig {
         //配置核心线程数
         executor.setCorePoolSize(128);
         //配置最大线程数
-        executor.setMaxPoolSize(256);
+        executor.setMaxPoolSize(1024);
         //配置队列大小
         executor.setQueueCapacity(512);
         // 设置线程活跃时间（秒）
@@ -478,11 +471,11 @@ public class ThreadPoolConfig {
     public TaskExecutor getThirdAndStandardMarketProcess() {
         ThreadPoolTaskExecutor executor = new VisiableThreadPoolTaskExecutor();
         //配置核心线程数
-        executor.setCorePoolSize(128);
+        executor.setCorePoolSize(64);
         //配置最大线程数
-        executor.setMaxPoolSize(256);
+        executor.setMaxPoolSize(128);
         //配置队列大小
-        executor.setQueueCapacity(512);
+        executor.setQueueCapacity(256);
         // 设置线程活跃时间（秒）
         //executor.setKeepAliveSeconds(60);
         //配置线程池中的线程的名称前缀
@@ -548,28 +541,6 @@ public class ThreadPoolConfig {
     }
 
 
-    /** 去db三方盘口 入库线程 */
-    @Bean("thirdMarketInsertAndUpdate")
-    public TaskExecutor getThirdMarketInsertAndUpdateProcess() {
-        ThreadPoolTaskExecutor executor = new VisiableThreadPoolTaskExecutor();
-        //配置核心线程数
-        executor.setCorePoolSize(128);
-        //配置最大线程数
-        executor.setMaxPoolSize(256);
-        //配置队列大小
-        executor.setQueueCapacity(512);
-        // 设置线程活跃时间（秒）
-        //executor.setKeepAliveSeconds(60);
-        //配置线程池中的线程的名称前缀
-        executor.setThreadNamePrefix("ThreadPool-thirdMarketInsertAndUpdate-");
-        //当任务数量超过MaxPoolSize和QueueCapacity时使用的策略，该策略指不在新线程中执行任务，而是有调用者所在的线程来执行
-        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
-        // 等待所有任务结束后再关闭线程池
-        executor.setWaitForTasksToCompleteOnShutdown(true);
-        //线程池初始化
-        executor.initialize();
-        return executor;
-    }
     /** 去db三方盘口赔率 入库线程 */
     @Bean("thirdMarketOddsInsertAndUpdate")
     public TaskExecutor getThirdMarketOddsInsertAndUpdateProcess() {
@@ -608,6 +579,28 @@ public class ThreadPoolConfig {
         //executor.setKeepAliveSeconds(60);
         //配置线程池中的线程的名称前缀
         executor.setThreadNamePrefix("ThreadPool-standardMarketInsertAndUpdate-");
+        //当任务数量超过MaxPoolSize和QueueCapacity时使用的策略，该策略指不在新线程中执行任务，而是有调用者所在的线程来执行
+        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+        // 等待所有任务结束后再关闭线程池
+        executor.setWaitForTasksToCompleteOnShutdown(true);
+        //线程池初始化
+        executor.initialize();
+        return executor;
+    }
+    /** 去db标准盘口赔率 入库线程 */
+    @Bean("standardMarketOddsInsertAndUpdate")
+    public TaskExecutor getStandardMarketOddsInsertAndUpdateProcess() {
+        ThreadPoolTaskExecutor executor = new VisiableThreadPoolTaskExecutor();
+        //配置核心线程数
+        executor.setCorePoolSize(128);
+        //配置最大线程数
+        executor.setMaxPoolSize(256);
+        //配置队列大小
+        executor.setQueueCapacity(512);
+        // 设置线程活跃时间（秒）
+        //executor.setKeepAliveSeconds(60);
+        //配置线程池中的线程的名称前缀
+        executor.setThreadNamePrefix("ThreadPool-standardMarketOddsInsertAndUpdate-");
         //当任务数量超过MaxPoolSize和QueueCapacity时使用的策略，该策略指不在新线程中执行任务，而是有调用者所在的线程来执行
         executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
         // 等待所有任务结束后再关闭线程池
@@ -673,9 +666,9 @@ public class ThreadPoolConfig {
         return executor;
     }
 
-    /** 去db标准盘口赔率 入库线程 */
-    @Bean("standardMarketOddsInsertAndUpdate")
-    public TaskExecutor getStandardMarketOddsInsertAndUpdateProcess() {
+    /** 百家赔盘口异步处理 */
+    @Bean("ProcessAllStandardMarketThreadPool")
+    public TaskExecutor ProcessAllStandardMarketThreadPool() {
         ThreadPoolTaskExecutor executor = new VisiableThreadPoolTaskExecutor();
         //配置核心线程数
         executor.setCorePoolSize(128);
@@ -683,8 +676,10 @@ public class ThreadPoolConfig {
         executor.setMaxPoolSize(256);
         //配置队列大小
         executor.setQueueCapacity(512);
+        // 设置线程活跃时间（秒）
+        //executor.setKeepAliveSeconds(60);
         //配置线程池中的线程的名称前缀
-        executor.setThreadNamePrefix("ThreadPool-standardMarketOddsInsertAndUpdate-");
+        executor.setThreadNamePrefix("ThreadPool-ProcessAllStandardMarketThreadPool-");
         //当任务数量超过MaxPoolSize和QueueCapacity时使用的策略，该策略指不在新线程中执行任务，而是有调用者所在的线程来执行
         executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
         // 等待所有任务结束后再关闭线程池
@@ -694,6 +689,29 @@ public class ThreadPoolConfig {
         return executor;
     }
 
+
+    /** 去db三方盘口 入库线程 */
+    @Bean("thirdMarketInsertAndUpdate")
+    public TaskExecutor getThirdMarketInsertAndUpdateProcess() {
+        ThreadPoolTaskExecutor executor = new VisiableThreadPoolTaskExecutor();
+        //配置核心线程数
+        executor.setCorePoolSize(128);
+        //配置最大线程数
+        executor.setMaxPoolSize(256);
+        //配置队列大小
+        executor.setQueueCapacity(512);
+        // 设置线程活跃时间（秒）
+        //executor.setKeepAliveSeconds(60);
+        //配置线程池中的线程的名称前缀
+        executor.setThreadNamePrefix("ThreadPool-thirdMarketInsertAndUpdate-");
+        //当任务数量超过MaxPoolSize和QueueCapacity时使用的策略，该策略指不在新线程中执行任务，而是有调用者所在的线程来执行
+        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+        // 等待所有任务结束后再关闭线程池
+        executor.setWaitForTasksToCompleteOnShutdown(true);
+        //线程池初始化
+        executor.initialize();
+        return executor;
+    }
 
     /** 赔率联动触发 */
     @Bean("sendMarketOddsLinkageThreadPool")
@@ -715,7 +733,6 @@ public class ThreadPoolConfig {
         executor.initialize();
         return executor;
     }
-
 
 
     /** 系统关盘异步线程池*/
@@ -763,6 +780,14 @@ public class ThreadPoolConfig {
         executor.setWaitForTasksToCompleteOnShutdown(true);
         //线程池初始化
         executor.initialize();
+        return executor;
+    }
+
+    /** 赛事重播*/
+    @Bean("ReplayMatchThreadPool")
+    public ScheduledExecutorService getReplayMatchThreadPool() {
+        ThreadFactory threadFactory = new ThreadFactoryBuilder().setNamePrefix("ThreadPool-replayMatch-event").build();
+        ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(32, threadFactory);
         return executor;
     }
 

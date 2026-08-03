@@ -10,38 +10,72 @@
     <property name="maxHistory" value="3"/>
     <!--配置控制台打印的log-->
     <appender name="consoleLog" class="ch.qos.logback.core.ConsoleAppender">
-        <!--<layout class="ch.qos.logback.classic.PatternLayout">
-            <pattern>[%date{yyyy-MM-dd HH:mm:ss}] [%-5level] [%logger:%line] -%mdc{client} %msg%n</pattern>
-        </layout>-->
-        <encoder charset="UTF-8" class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
-            <providers>
-                <pattern>
-                    <pattern>
-                        {
-                        "date": "%d{yyyy-MM-dd HH:mm:ss.SSS}"
-                        ,"app": "${app}"
-                        ,"env": "${env}"
-                        <!--日志级别-->
-                        ,"logLevel": "%level"
-                        <!--线程名称-->
-                        ,"thread": "%thread"
-                        <!--进程ID-->
-                        ,"pid": "${PID:-}"
-                        <!--类名-->
-                        ,"class": "%logger{40}"
-                        <!--方法名-->
-                        ,"method": "%method"
-                        <!--当前行-->
-                        ,"line": "%line"
-                        <!--日志打印的信息-->
-                        ,"message": "%message"
-                        <!--堆栈异常信息-->
-                        ,"statck_trace":"%exception"
-                        }
-                    </pattern>
-                </pattern>
-            </providers>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="org.apache.skywalking.apm.toolkit.log.logback.v1.x.TraceIdPatternLogbackLayout">
+                <Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%tid] [%X{tracelogId}] [%thread] %-5level %logger{36} #-# %msg%n</Pattern>
+            </layout>
         </encoder>
+        <!--        <encoder charset="UTF-8" class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">-->
+        <!--            <providers>-->
+        <!--                <pattern>-->
+        <!--                    <pattern>-->
+        <!--                        {-->
+        <!--                        "date": "%d{yyyy-MM-dd HH:mm:ss.SSS}"-->
+        <!--                        ,"app": "${app}"-->
+        <!--                        ,"env": "${env}"-->
+        <!--                        &lt;!&ndash;日志级别&ndash;&gt;-->
+        <!--                        ,"logLevel": "%level"-->
+        <!--                        &lt;!&ndash;线程名称&ndash;&gt;-->
+        <!--                        ,"thread": "%thread"-->
+        <!--                        &lt;!&ndash;进程ID&ndash;&gt;-->
+        <!--                        ,"pid": "${PID:-}"-->
+        <!--                        &lt;!&ndash;类名&ndash;&gt;-->
+        <!--                        ,"class": "%logger{40}"-->
+        <!--                        &lt;!&ndash;方法名&ndash;&gt;-->
+        <!--                        ,"method": "%method"-->
+        <!--                        &lt;!&ndash;当前行&ndash;&gt;-->
+        <!--                        ,"line": "%line"-->
+        <!--                        &lt;!&ndash;日志打印的信息&ndash;&gt;-->
+        <!--                        ,"message": "%message"-->
+        <!--                        &lt;!&ndash;堆栈异常信息&ndash;&gt;-->
+        <!--                        ,"statck_trace":"%exception"-->
+        <!--                        }-->
+        <!--                    </pattern>-->
+        <!--                </pattern>-->
+        <!--            </providers>-->
+        <!--        </encoder>-->
+<!--        <encoder charset="UTF-8" class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">-->
+<!--            <providers>-->
+<!--                <pattern>-->
+<!--                    <pattern>-->
+<!--                        {-->
+<!--                        "date": "%d{yyyy-MM-dd HH:mm:ss.SSS}"-->
+<!--                        ,"app": "${app}"-->
+<!--                        ,"env": "${env}"-->
+<!--                        &lt;!&ndash;日志级别&ndash;&gt;-->
+<!--                        ,"logLevel": "%level"-->
+<!--                        &lt;!&ndash;线程名称&ndash;&gt;-->
+<!--                        ,"thread": "%thread"-->
+<!--                        &lt;!&ndash;进程ID&ndash;&gt;-->
+<!--                        ,"pid": "${PID:-}"-->
+<!--                        &lt;!&ndash;类名&ndash;&gt;-->
+<!--                        ,"class": "%logger{40}"-->
+<!--                        &lt;!&ndash;方法名&ndash;&gt;-->
+<!--                        ,"method": "%method"-->
+<!--                        &lt;!&ndash;当前行&ndash;&gt;-->
+<!--                        ,"line": "%line"-->
+<!--                        &lt;!&ndash;日志打印的信息&ndash;&gt;-->
+<!--                        ,"message": "%message"-->
+<!--                        &lt;!&ndash;堆栈异常信息&ndash;&gt;-->
+<!--                        ,"statck_trace":"%exception"-->
+<!--                        }-->
+<!--                    </pattern>-->
+<!--                </pattern>-->
+<!--            </providers>-->
+<!--        </encoder>-->
     </appender>
 
     <!--自定义配置-->
@@ -51,35 +85,42 @@
         </filter>
         <!--定义日志输出的路径-->
         <file>${log_dir}/panda-realtime-admin.log</file>
-        <encoder charset="UTF-8" class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
-            <providers>
-                <pattern>
-                    <pattern>
-                        {
-                        "date": "%d{yyyy-MM-dd HH:mm:ss.SSS}"
-                        ,"app": "${app}"
-                        ,"env": "${env}"
-                        <!--日志级别-->
-                        ,"logLevel": "%level"
-                        <!--线程名称-->
-                        ,"thread": "%thread"
-                        <!--进程ID-->
-                        ,"pid": "${PID:-}"
-                        <!--类名-->
-                        ,"class": "%logger{40}"
-                        <!--方法名-->
-                        ,"method": "%method"
-                        <!--当前行-->
-                        ,"line": "%line"
-                        <!--日志打印的信息-->
-                        ,"message": "%message"
-                        <!--堆栈异常信息-->
-                        ,"statck_trace":"%exception"
-                        }
-                    </pattern>
-                </pattern>
-            </providers>
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="org.apache.skywalking.apm.toolkit.log.logback.v1.x.TraceIdPatternLogbackLayout">
+                <Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%tid] [%X{tracelogId}] [%thread] %-5level %logger{36} #-# %msg%n</Pattern>
+            </layout>
         </encoder>
+
+<!--        <encoder charset="UTF-8" class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">-->
+<!--            <providers>-->
+<!--                <pattern>-->
+<!--                    <pattern>-->
+<!--                        {-->
+<!--                        "date": "%d{yyyy-MM-dd HH:mm:ss.SSS}"-->
+<!--                        ,"app": "${app}"-->
+<!--                        ,"env": "${env}"-->
+<!--                        &lt;!&ndash;日志级别&ndash;&gt;-->
+<!--                        ,"logLevel": "%level"-->
+<!--                        &lt;!&ndash;线程名称&ndash;&gt;-->
+<!--                        ,"thread": "%thread"-->
+<!--                        &lt;!&ndash;进程ID&ndash;&gt;-->
+<!--                        ,"pid": "${PID:-}"-->
+<!--                        &lt;!&ndash;类名&ndash;&gt;-->
+<!--                        ,"class": "%logger{40}"-->
+<!--                        &lt;!&ndash;方法名&ndash;&gt;-->
+<!--                        ,"method": "%method"-->
+<!--                        &lt;!&ndash;当前行&ndash;&gt;-->
+<!--                        ,"line": "%line"-->
+<!--                        &lt;!&ndash;日志打印的信息&ndash;&gt;-->
+<!--                        ,"message": "%message"-->
+<!--                        &lt;!&ndash;堆栈异常信息&ndash;&gt;-->
+<!--                        ,"statck_trace":"%exception"-->
+<!--                        }-->
+<!--                    </pattern>-->
+<!--                </pattern>-->
+<!--            </providers>-->
+<!--        </encoder>-->
+
         <!--滚动策略，按天输出日志-->
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!--设置文件保存路径，timeBasedFileNamingAndTriggeringPolicy标签时，这里的%i要加上，不然会导致运行报错-->
@@ -97,35 +138,40 @@
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>ERROR</level>
         </filter>
-        <encoder charset="UTF-8" class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
-            <providers>
-                <pattern>
-                    <pattern>
-                        {
-                        "date": "%d{yyyy-MM-dd HH:mm:ss.SSS}"
-                        ,"app": "${app}"
-                        ,"env": "${env}"
-                        <!--日志级别-->
-                        ,"logLevel": "%level"
-                        <!--线程名称-->
-                        ,"thread": "%thread"
-                        <!--进程ID-->
-                        ,"pid": "${PID:-}"
-                        <!--类名-->
-                        ,"class": "%logger{40}"
-                        <!--方法名-->
-                        ,"method": "%method"
-                        <!--当前行-->
-                        ,"line": "%line"
-                        <!--日志打印的信息-->
-                        ,"message": "%message"
-                        <!--堆栈异常信息-->
-                        ,"statck_trace":"%exception"
-                        }
-                    </pattern>
-                </pattern>
-            </providers>
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="org.apache.skywalking.apm.toolkit.log.logback.v1.x.TraceIdPatternLogbackLayout">
+                <Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%tid] [%X{tracelogId}] [%thread] %-5level %logger{36} #-# %msg%n</Pattern>
+            </layout>
         </encoder>
+<!--        <encoder charset="UTF-8" class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">-->
+<!--            <providers>-->
+<!--                <pattern>-->
+<!--                    <pattern>-->
+<!--                        {-->
+<!--                        "date": "%d{yyyy-MM-dd HH:mm:ss.SSS}"-->
+<!--                        ,"app": "${app}"-->
+<!--                        ,"env": "${env}"-->
+<!--                        &lt;!&ndash;日志级别&ndash;&gt;-->
+<!--                        ,"logLevel": "%level"-->
+<!--                        &lt;!&ndash;线程名称&ndash;&gt;-->
+<!--                        ,"thread": "%thread"-->
+<!--                        &lt;!&ndash;进程ID&ndash;&gt;-->
+<!--                        ,"pid": "${PID:-}"-->
+<!--                        &lt;!&ndash;类名&ndash;&gt;-->
+<!--                        ,"class": "%logger{40}"-->
+<!--                        &lt;!&ndash;方法名&ndash;&gt;-->
+<!--                        ,"method": "%method"-->
+<!--                        &lt;!&ndash;当前行&ndash;&gt;-->
+<!--                        ,"line": "%line"-->
+<!--                        &lt;!&ndash;日志打印的信息&ndash;&gt;-->
+<!--                        ,"message": "%message"-->
+<!--                        &lt;!&ndash;堆栈异常信息&ndash;&gt;-->
+<!--                        ,"statck_trace":"%exception"-->
+<!--                        }-->
+<!--                    </pattern>-->
+<!--                </pattern>-->
+<!--            </providers>-->
+<!--        </encoder>-->
         <!--滚动策略 按天生成日志-->
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!--路径-->
@@ -135,6 +181,10 @@
         </rollingPolicy>
     </appender>
 
+    <logger name="org.apache.rocketmq" level="INFO" additivity="false">
+        <appender-ref ref="consoleLog"/>
+        <appender-ref ref="fileInfoLog"/>
+    </logger>
 
     <!--输出Sql-->
     <!--<logger name="com.panda.merge.mapper" level="DEBUG"></logger>

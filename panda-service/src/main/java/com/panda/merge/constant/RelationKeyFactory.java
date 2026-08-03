@@ -119,9 +119,12 @@ public class RelationKeyFactory {
                     .append("_")
                     .append(addition2.replace(".0", ""))
                     .append(addition5.replace(".0", ""));
-        } else if ((categoryId >= 1109000L && categoryId <= 1109999L) ||
+        }else if ((categoryId >= 1109000L && categoryId <= 1109999L) ||
                 (categoryId >= 3109000L && categoryId <= 3109999L)) {
             redisKey.append(standardMatchId).append("_").append(categoryId).append("_");
+            if (!StringUtils.isEmpty(addition1)) {
+                redisKey.append(addition1.replace(".0", ""));
+            }
         } else {
             throw new ApiException("生成统一盘口id出错,玩法id:" + categoryId);
         }
@@ -206,6 +209,9 @@ public class RelationKeyFactory {
             redisKey.append(standardMatchId)
                     .append("_").append(categoryId)
                     .append("_");
+            if (!StringUtils.isEmpty(addition1)) {
+                redisKey.append(addition1.replace(".0", ""));
+            }
         }else {
             throw new ApiException(linkId + ":生成统一盘口id出错,玩法id:" + categoryId);
         }

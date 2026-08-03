@@ -1,0 +1,422 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.mapper.ReplayStandardMatchInfoMapper">
+  <resultMap id="BaseResultMap" type="com.panda.merge.model.ReplayStandardMatchInfo">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="standard_match_id" jdbcType="BIGINT" property="standardMatchId" />
+    <result column="standard_tournament_id" jdbcType="BIGINT" property="standardTournamentId" />
+    <result column="sync_status" jdbcType="TINYINT" property="syncStatus" />
+    <result column="replay_count" jdbcType="INTEGER" property="replayCount" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="modify_time" jdbcType="BIGINT" property="modifyTime" />
+    <result column="replay_number" jdbcType="INTEGER" property="replayNumber" />
+    <result column="replay_match_count" jdbcType="INTEGER" property="replayMatchCount" />
+    <result column="match_event_count" jdbcType="INTEGER" property="matchEventCount" />
+    <result column="odds_count" jdbcType="INTEGER" property="oddsCount" />
+    <result column="match_result_count" jdbcType="INTEGER" property="matchResultCount" />
+    <result column="match_status_count" jdbcType="INTEGER" property="matchStatusCount" />
+    <result column="replay_begin_time" jdbcType="BIGINT" property="replayBeginTime" />
+    <result column="last_time_replay_end_time" jdbcType="BIGINT" property="lastTimeReplayEndTime" />
+    <result column="replay_status" jdbcType="TINYINT" property="replayStatus" />
+    <result column="replay_delay_seconds" jdbcType="INTEGER" property="replayDelaySeconds" />
+    <result column="sub_sync_status" jdbcType="VARCHAR" property="subSyncStatus" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, standard_match_id, standard_tournament_id, sync_status, replay_count, create_time, 
+    modify_time, replay_number, replay_match_count, match_event_count, odds_count, match_result_count, 
+    match_status_count, replay_begin_time, last_time_replay_end_time, replay_status, 
+    replay_delay_seconds, sub_sync_status
+  </sql>
+  <select id="selectByExample" parameterType="com.panda.merge.model.ReplayStandardMatchInfoExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from replay_standard_match_info
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from replay_standard_match_info
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from replay_standard_match_info
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.panda.merge.model.ReplayStandardMatchInfoExample">
+    delete from replay_standard_match_info
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.panda.merge.model.ReplayStandardMatchInfo">
+    insert into replay_standard_match_info (id, standard_match_id, standard_tournament_id, 
+      sync_status, replay_count, create_time, 
+      modify_time, replay_number, replay_match_count, 
+      match_event_count, odds_count, match_result_count, 
+      match_status_count, replay_begin_time, last_time_replay_end_time, 
+      replay_status, replay_delay_seconds, sub_sync_status
+      )
+    values (#{id,jdbcType=BIGINT}, #{standardMatchId,jdbcType=BIGINT}, #{standardTournamentId,jdbcType=BIGINT}, 
+      #{syncStatus,jdbcType=TINYINT}, #{replayCount,jdbcType=INTEGER}, #{createTime,jdbcType=BIGINT}, 
+      #{modifyTime,jdbcType=BIGINT}, #{replayNumber,jdbcType=INTEGER}, #{replayMatchCount,jdbcType=INTEGER}, 
+      #{matchEventCount,jdbcType=INTEGER}, #{oddsCount,jdbcType=INTEGER}, #{matchResultCount,jdbcType=INTEGER}, 
+      #{matchStatusCount,jdbcType=INTEGER}, #{replayBeginTime,jdbcType=BIGINT}, #{lastTimeReplayEndTime,jdbcType=BIGINT}, 
+      #{replayStatus,jdbcType=TINYINT}, #{replayDelaySeconds,jdbcType=INTEGER}, #{subSyncStatus,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.panda.merge.model.ReplayStandardMatchInfo">
+    insert into replay_standard_match_info
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="standardMatchId != null">
+        standard_match_id,
+      </if>
+      <if test="standardTournamentId != null">
+        standard_tournament_id,
+      </if>
+      <if test="syncStatus != null">
+        sync_status,
+      </if>
+      <if test="replayCount != null">
+        replay_count,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="modifyTime != null">
+        modify_time,
+      </if>
+      <if test="replayNumber != null">
+        replay_number,
+      </if>
+      <if test="replayMatchCount != null">
+        replay_match_count,
+      </if>
+      <if test="matchEventCount != null">
+        match_event_count,
+      </if>
+      <if test="oddsCount != null">
+        odds_count,
+      </if>
+      <if test="matchResultCount != null">
+        match_result_count,
+      </if>
+      <if test="matchStatusCount != null">
+        match_status_count,
+      </if>
+      <if test="replayBeginTime != null">
+        replay_begin_time,
+      </if>
+      <if test="lastTimeReplayEndTime != null">
+        last_time_replay_end_time,
+      </if>
+      <if test="replayStatus != null">
+        replay_status,
+      </if>
+      <if test="replayDelaySeconds != null">
+        replay_delay_seconds,
+      </if>
+      <if test="subSyncStatus != null">
+        sub_sync_status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="standardMatchId != null">
+        #{standardMatchId,jdbcType=BIGINT},
+      </if>
+      <if test="standardTournamentId != null">
+        #{standardTournamentId,jdbcType=BIGINT},
+      </if>
+      <if test="syncStatus != null">
+        #{syncStatus,jdbcType=TINYINT},
+      </if>
+      <if test="replayCount != null">
+        #{replayCount,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null">
+        #{modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="replayNumber != null">
+        #{replayNumber,jdbcType=INTEGER},
+      </if>
+      <if test="replayMatchCount != null">
+        #{replayMatchCount,jdbcType=INTEGER},
+      </if>
+      <if test="matchEventCount != null">
+        #{matchEventCount,jdbcType=INTEGER},
+      </if>
+      <if test="oddsCount != null">
+        #{oddsCount,jdbcType=INTEGER},
+      </if>
+      <if test="matchResultCount != null">
+        #{matchResultCount,jdbcType=INTEGER},
+      </if>
+      <if test="matchStatusCount != null">
+        #{matchStatusCount,jdbcType=INTEGER},
+      </if>
+      <if test="replayBeginTime != null">
+        #{replayBeginTime,jdbcType=BIGINT},
+      </if>
+      <if test="lastTimeReplayEndTime != null">
+        #{lastTimeReplayEndTime,jdbcType=BIGINT},
+      </if>
+      <if test="replayStatus != null">
+        #{replayStatus,jdbcType=TINYINT},
+      </if>
+      <if test="replayDelaySeconds != null">
+        #{replayDelaySeconds,jdbcType=INTEGER},
+      </if>
+      <if test="subSyncStatus != null">
+        #{subSyncStatus,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.panda.merge.model.ReplayStandardMatchInfoExample" resultType="java.lang.Long">
+    select count(*) from replay_standard_match_info
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update replay_standard_match_info
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.standardMatchId != null">
+        standard_match_id = #{record.standardMatchId,jdbcType=BIGINT},
+      </if>
+      <if test="record.standardTournamentId != null">
+        standard_tournament_id = #{record.standardTournamentId,jdbcType=BIGINT},
+      </if>
+      <if test="record.syncStatus != null">
+        sync_status = #{record.syncStatus,jdbcType=TINYINT},
+      </if>
+      <if test="record.replayCount != null">
+        replay_count = #{record.replayCount,jdbcType=INTEGER},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.modifyTime != null">
+        modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.replayNumber != null">
+        replay_number = #{record.replayNumber,jdbcType=INTEGER},
+      </if>
+      <if test="record.replayMatchCount != null">
+        replay_match_count = #{record.replayMatchCount,jdbcType=INTEGER},
+      </if>
+      <if test="record.matchEventCount != null">
+        match_event_count = #{record.matchEventCount,jdbcType=INTEGER},
+      </if>
+      <if test="record.oddsCount != null">
+        odds_count = #{record.oddsCount,jdbcType=INTEGER},
+      </if>
+      <if test="record.matchResultCount != null">
+        match_result_count = #{record.matchResultCount,jdbcType=INTEGER},
+      </if>
+      <if test="record.matchStatusCount != null">
+        match_status_count = #{record.matchStatusCount,jdbcType=INTEGER},
+      </if>
+      <if test="record.replayBeginTime != null">
+        replay_begin_time = #{record.replayBeginTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.lastTimeReplayEndTime != null">
+        last_time_replay_end_time = #{record.lastTimeReplayEndTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.replayStatus != null">
+        replay_status = #{record.replayStatus,jdbcType=TINYINT},
+      </if>
+      <if test="record.replayDelaySeconds != null">
+        replay_delay_seconds = #{record.replayDelaySeconds,jdbcType=INTEGER},
+      </if>
+      <if test="record.subSyncStatus != null">
+        sub_sync_status = #{record.subSyncStatus,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update replay_standard_match_info
+    set id = #{record.id,jdbcType=BIGINT},
+      standard_match_id = #{record.standardMatchId,jdbcType=BIGINT},
+      standard_tournament_id = #{record.standardTournamentId,jdbcType=BIGINT},
+      sync_status = #{record.syncStatus,jdbcType=TINYINT},
+      replay_count = #{record.replayCount,jdbcType=INTEGER},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      replay_number = #{record.replayNumber,jdbcType=INTEGER},
+      replay_match_count = #{record.replayMatchCount,jdbcType=INTEGER},
+      match_event_count = #{record.matchEventCount,jdbcType=INTEGER},
+      odds_count = #{record.oddsCount,jdbcType=INTEGER},
+      match_result_count = #{record.matchResultCount,jdbcType=INTEGER},
+      match_status_count = #{record.matchStatusCount,jdbcType=INTEGER},
+      replay_begin_time = #{record.replayBeginTime,jdbcType=BIGINT},
+      last_time_replay_end_time = #{record.lastTimeReplayEndTime,jdbcType=BIGINT},
+      replay_status = #{record.replayStatus,jdbcType=TINYINT},
+      replay_delay_seconds = #{record.replayDelaySeconds,jdbcType=INTEGER},
+      sub_sync_status = #{record.subSyncStatus,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.panda.merge.model.ReplayStandardMatchInfo">
+    update replay_standard_match_info
+    <set>
+      <if test="standardMatchId != null">
+        standard_match_id = #{standardMatchId,jdbcType=BIGINT},
+      </if>
+      <if test="standardTournamentId != null">
+        standard_tournament_id = #{standardTournamentId,jdbcType=BIGINT},
+      </if>
+      <if test="syncStatus != null">
+        sync_status = #{syncStatus,jdbcType=TINYINT},
+      </if>
+      <if test="replayCount != null">
+        replay_count = #{replayCount,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null">
+        modify_time = #{modifyTime,jdbcType=BIGINT},
+      </if>
+      <if test="replayNumber != null">
+        replay_number = #{replayNumber,jdbcType=INTEGER},
+      </if>
+      <if test="replayMatchCount != null">
+        replay_match_count = #{replayMatchCount,jdbcType=INTEGER},
+      </if>
+      <if test="matchEventCount != null">
+        match_event_count = #{matchEventCount,jdbcType=INTEGER},
+      </if>
+      <if test="oddsCount != null">
+        odds_count = #{oddsCount,jdbcType=INTEGER},
+      </if>
+      <if test="matchResultCount != null">
+        match_result_count = #{matchResultCount,jdbcType=INTEGER},
+      </if>
+      <if test="matchStatusCount != null">
+        match_status_count = #{matchStatusCount,jdbcType=INTEGER},
+      </if>
+      <if test="replayBeginTime != null">
+        replay_begin_time = #{replayBeginTime,jdbcType=BIGINT},
+      </if>
+      <if test="lastTimeReplayEndTime != null">
+        last_time_replay_end_time = #{lastTimeReplayEndTime,jdbcType=BIGINT},
+      </if>
+      <if test="replayStatus != null">
+        replay_status = #{replayStatus,jdbcType=TINYINT},
+      </if>
+      <if test="replayDelaySeconds != null">
+        replay_delay_seconds = #{replayDelaySeconds,jdbcType=INTEGER},
+      </if>
+      <if test="subSyncStatus != null">
+        sub_sync_status = #{subSyncStatus,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.panda.merge.model.ReplayStandardMatchInfo">
+    update replay_standard_match_info
+    set standard_match_id = #{standardMatchId,jdbcType=BIGINT},
+      standard_tournament_id = #{standardTournamentId,jdbcType=BIGINT},
+      sync_status = #{syncStatus,jdbcType=TINYINT},
+      replay_count = #{replayCount,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=BIGINT},
+      modify_time = #{modifyTime,jdbcType=BIGINT},
+      replay_number = #{replayNumber,jdbcType=INTEGER},
+      replay_match_count = #{replayMatchCount,jdbcType=INTEGER},
+      match_event_count = #{matchEventCount,jdbcType=INTEGER},
+      odds_count = #{oddsCount,jdbcType=INTEGER},
+      match_result_count = #{matchResultCount,jdbcType=INTEGER},
+      match_status_count = #{matchStatusCount,jdbcType=INTEGER},
+      replay_begin_time = #{replayBeginTime,jdbcType=BIGINT},
+      last_time_replay_end_time = #{lastTimeReplayEndTime,jdbcType=BIGINT},
+      replay_status = #{replayStatus,jdbcType=TINYINT},
+      replay_delay_seconds = #{replayDelaySeconds,jdbcType=INTEGER},
+      sub_sync_status = #{subSyncStatus,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+    <update id="updateReplayFinish">
+      update replay_standard_match_info set replay_status=#{replayStatus},last_time_replay_end_time=#{lastTimeReplayEndTime},replay_number=replay_number+1 where standard_match_id=#{standardMatchId}
+    </update>
+</mapper>

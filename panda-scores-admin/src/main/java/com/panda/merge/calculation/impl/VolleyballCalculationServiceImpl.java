@@ -8,6 +8,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.panda.merge.constant.SportPeriodConstant;
 import com.panda.merge.constant.SportTypeEnum;
+import com.panda.merge.constant.VolleyballConstant;
 import com.panda.merge.dto.*;
 import com.panda.merge.dto.scores.StandardMatchSwitchDTO;
 import com.panda.merge.dto.scores.StandardScoreCenter;
@@ -55,6 +56,40 @@ public class VolleyballCalculationServiceImpl extends AbstractCalculationService
             createScores(matchScoresInfo,data);
         }else {
             updateScores(matchScoresInfo,data);
+        }
+    }
+
+    /**
+     * 把排球 scoresJson 的局编号从 8/9/10/11/12/441/442 转换成简单序号 1-7 后返回，
+     * 与斯诺克 buildStandardMatchScoreByMap 对齐，供 standard MQ 下游使用：
+     * - 仅替换 key（periodId → 局序号），inner JSON 原样保留
+     * - 不在 VOLLEYBALL_SET_BEGIN 中的 key（如 -1 全场桶、80 中断、999 结束）保持原样
+     * - 解析失败时回退到原 JSON，避免影响主链路
+     */
+    public String buildStandardMatchScoreByMap(String scoresJson, String linkId) {
+        if (StringUtils.isEmpty(scoresJson)) {
+            return scoresJson;
+        }
+        try {
+            JSONObject src = JSONObject.parseObject(scoresJson);
+            JSONObject dst = new JSONObject();
+            for (String key : src.keySet()) {
+                String newKey = key;
+                try {
+                    Integer mapped = VolleyballConstant.VOLLEYBALL_SET_BEGIN.get(Long.valueOf(key));
+                    if (mapped != null) {
+                        newKey = mapped.toString();
+                    }
+                } catch (NumberFormatException nfe) {
+                    // 非数字 key 直接原样保留
+                }
+                dst.put(newKey, src.get(key));
+            }
+            log.info("::{}::排球比分编码转换：{}", linkId, dst);
+            return dst.toJSONString();
+        } catch (Exception e) {
+            log.error("::{}::排球 buildStandardMatchScoreByMap 异常，回退原 JSON", linkId, e);
+            return scoresJson;
         }
     }
 
@@ -284,15 +319,15 @@ public class VolleyballCalculationServiceImpl extends AbstractCalculationService
             log.info("::{}::排球同步标准比分：{}，{}",data.getLinkId(),entry.getKey(),entry.getValue());
             Long scoresPperiod=changePeriodByExtryPeriodEvent(entry.getKey());
             if(scoresPperiod==8L && tennisSwitch.getFirstSwitch()==1){
-                standardScores.put(8L,allPeriodScores.get(scoresPperiod));
+                standardScores.put(8L,entry.getValue());
             }else if(scoresPperiod==9L && tennisSwitch.getSecondSwitch()==1){
-                standardScores.put(9L,allPeriodScores.get(scoresPperiod));
+                standardScores.put(9L,entry.getValue());
             }else if(scoresPperiod==10L && tennisSwitch.getThirdSwitch()==1){
-                standardScores.put(10L,allPeriodScores.get(scoresPperiod));
+                standardScores.put(10L,entry.getValue());
             }else if(scoresPperiod==11L && tennisSwitch.getFourSwitch()==1){
-                standardScores.put(11L,allPeriodScores.get(scoresPperiod));
+                standardScores.put(11L,entry.getValue());
             }else if(scoresPperiod==12L && tennisSwitch.getFifSwitch()==1){
-                standardScores.put(12L,allPeriodScores.get(scoresPperiod));
+                standardScores.put(12L,entry.getValue());
             }
         }
     }

@@ -29,7 +29,7 @@ public class MatchEventCommonCleanJob extends IJobHandler {
     MatchEventCommonExtMapper matchEventCommonExtMapper;
     @Override
     public ReturnT<String> execute(String deleteLimit) throws Exception {
-        log.info("MatchEventCommonCleanJob param:{}",deleteLimit);
+        //log.info("MatchEventCommonCleanJob param:{}",deleteLimit);
         Integer delete = DELETE_LIMIT_DEFAULT;
         if(StringUtils.isNotEmpty(deleteLimit)){
             try{

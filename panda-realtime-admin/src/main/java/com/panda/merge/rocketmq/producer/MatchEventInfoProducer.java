@@ -22,6 +22,7 @@ import com.panda.merge.dto.MatchEventInfoDetail;
 import com.panda.merge.dto.MatchEventInfoWarnNoticeDto;
 import com.panda.merge.dto.Request;
 import com.panda.merge.dto.message.DataMerchantMessage;
+import com.panda.merge.dto.message.MarketSuspendMessage;
 import com.panda.merge.dto.message.MatchEventInfoMessage;
 import com.panda.merge.mapper.MatchEventInfoScoresMapper;
 import com.panda.merge.model.*;
@@ -179,6 +180,11 @@ public class MatchEventInfoProducer {
      * @param isReissue 是否补发事件(true:切换事件源，或者延迟消费的事件，false:开售事件，或者正常通道下发事件）
      */
     public void pushMatchEventDataToRisk(String linkId, List<MatchEventInfo> originalMatchEventInfos, ThirdMatchInfo thirdMatchInfo, boolean isReissue) {
+        if (CollectionUtils.isEmpty(originalMatchEventInfos)){
+            log.info("linkId=【{}】pushMatchEventDataToRisk, matchEventInfoListPush为空, 三方赛事原始id={}, isReissue={}",
+                    linkId, thirdMatchInfo.getThirdMatchSourceId(),isReissue);
+            return;
+        }
         //需要过滤掉uof事件.0:UOF;1:liveData
         List<MatchEventInfo> resList = originalMatchEventInfos.stream().filter(obj -> !ZERO.equals(obj.getSourceType())).collect(Collectors.toList());
         if (!CollectionUtils.isEmpty(resList)) {
@@ -234,6 +240,11 @@ public class MatchEventInfoProducer {
      */
     public void pushMatchEventData(String linkId, List<MatchEventInfo> originalMatchEventInfos,
                                    ThirdMatchInfo thirdMatchInfo, boolean isReissue, boolean isNormalChannel) {
+        if (CollectionUtils.isEmpty(originalMatchEventInfos)){
+            log.info("linkId=【{}】pushMatchEventData, matchEventInfoListPush为空, s02MatchSourceCode={}, s02SportId={}",
+                    linkId, s02MatchSourceCode, s02SportId);
+            return;
+        }
         //转换后的事件
         List<MatchEventInfo> matchEventInfos = baseProcessor.matchHomeAwayExchange(originalMatchEventInfos, thirdMatchInfo);
 
@@ -670,19 +681,25 @@ public class MatchEventInfoProducer {
             List<List<MatchEventInfo>> lists = CommUtils.groupList(matchEventInfos, TWO * HUNDRED);
             for (int i = 0; i < lists.size(); i++) {
                 List<MatchEventInfo> list = lists.get(i);
-                Request<List<MatchEventInfoMessage>> request = getMessageListBuilder(linkId + "_" + i, list, thirdMatchInfo, isReissue);
+                Request<List<MatchEventInfoMessage>> request = getMessageListBuilder(linkId + "_" + i, list, thirdMatchInfo, isReissue, topic);
                 request.setDataType(topic);
                 request.setTag(thirdMatchInfo.getReferenceId()+"");
                 realtimeBaseProduecr.sendAdminOrSpare(request,thirdMatchInfo,ZERO);
+
+                Long delayTime = SECOND_1;
+                if (ConstantSystem.MATCH_EVENT_INFO_TO_RISK.equals(topic)) {
+                    delayTime = SECOND_1 * 3;
+                }
+
                 try{
-                    Thread.sleep(SECOND_1);
+                    Thread.sleep(delayTime);
                 }catch (Exception e){
                     log.info("linkId=【"+linkId+"】pushMatchEventList2Mq,sleep异常,Exception={}", e);
                 }
             }
             log.info("linkId=【{}】组装事件并下发完成,topic={},下发条数={},分批总条数={}", linkId, topic, matchEventInfos.size(), lists.size());
         } else {
-            Request<List<MatchEventInfoMessage>> request = getMessageListBuilder(linkId, matchEventInfos, thirdMatchInfo, isReissue);
+            Request<List<MatchEventInfoMessage>> request = getMessageListBuilder(linkId, matchEventInfos, thirdMatchInfo, isReissue, topic);
             request.setDataType(topic);
             request.setTag(thirdMatchInfo.getReferenceId()+"");
             realtimeBaseProduecr.sendAdminOrSpare(request,thirdMatchInfo,ZERO);
@@ -697,8 +714,9 @@ public class MatchEventInfoProducer {
      * 组装下游需要事件信息格式
      *
      * @param isReissue 是否补发事件(切换事件源触发的补发事件) true:切换事件源，false:正常事件，开售事件 ，需求 3531，切换事件源标识历史事件，避免前端赛事进行时间在切换过程中乱跳
+     * @param topic
      */
-    public Request<List<MatchEventInfoMessage>> getMessageListBuilder(String linkId, List<MatchEventInfo> matchEventInfos, ThirdMatchInfo thirdMatchInfo, boolean isReissue) {
+    public Request<List<MatchEventInfoMessage>> getMessageListBuilder(String linkId, List<MatchEventInfo> matchEventInfos, ThirdMatchInfo thirdMatchInfo, boolean isReissue, String topic) {
         List<MatchEventInfoMessage> matchEventInfoMessages = new LinkedList<>();
         /** 球员ID前缀*/
         String dataSourceCode = matchEventInfos.get(0).getDataSourceCode();
@@ -747,6 +765,16 @@ public class MatchEventInfoProducer {
             matchEventInfoMessage.setMatchLength(thirdMatchInfo.getMatchLength());
             //需求 3531，切换事件源标识历史事件，避免前端赛事进行时间在切换过程中乱
             matchEventInfoMessage.setIsReissue(isReissue);
+//            109522 【产品】【生产】injury_time历史事件不标示补发
+            if (isReissue
+                    && StandardSportTypeEnum.FootBall.code.equals(matchEventInfo.getSportId())
+                    && (ConstantSystem.MATCH_EVENT_INFO.equals(topic) || ConstantSystem.MATCH_EVENT_INFO_TO_RISK.equals(topic))
+                    && EventCodeEnum.INJURY_TIME.code.equals(matchEventInfo.getEventCode())
+            ) {
+                matchEventInfoMessage.setIsReissue(false);
+                log.info("补发伤停事件取消补发标记, linkId={}, thirdMatchSourceId={}, thirdEventId={}", linkId, matchEventInfo.getThirdMatchSourceId(), matchEventInfo.getThirdEventId());
+            }
+
             matchEventInfoMessages.add(matchEventInfoMessage);
         }
         Request<List<MatchEventInfoMessage>> request = new Request<>(matchEventInfoMessages,linkId,isReissue,dataSourceCode);
@@ -774,22 +802,27 @@ public class MatchEventInfoProducer {
     }
 
     /**
-     * 连续5次比分校验失败，通知关盘
-     * @param linkId
-     * @param thirdMatchInfo
+     * 连续5次比分校验失败，通知封盘
      */
-    public void pushScoreValidationError(String linkId, ThirdMatchInfo thirdMatchInfo) {
-        DataMerchantMessage dataMerchantMessage = new DataMerchantMessage();
-        dataMerchantMessage.setMatchId(thirdMatchInfo.getReferenceId());
-        dataMerchantMessage.setStatus(Constant.TRADE_MARKET_CONFIG.MARKET_STATUS.DEACTIVATED);
-        //风控定义字段
-        dataMerchantMessage.setTradeLevel(1);
-        dataMerchantMessage.setLinkedType(40);
-        dataMerchantMessage.setSportId(thirdMatchInfo.getSportId());
-        realtimeBaseProduecr.send(dataMerchantMessage, linkId,"RCS_TRADE_UPDATE_MARKET_STATUS",
+    public void pushScoreValidationError(String linkId, ThirdMatchInfo thirdMatchInfo, Boolean isReissue, Boolean spareMq) {
+        MarketSuspendMessage.MessageData messageData = new MarketSuspendMessage.MessageData();
+        messageData.setMatchId(thirdMatchInfo.getReferenceId());
+        messageData.setSportId(thirdMatchInfo.getSportId());
+
+        MarketSuspendMessage message = new MarketSuspendMessage();
+        message.setLinkId(linkId);
+        message.setData(messageData);
+        message.setDataSourceTime(System.currentTimeMillis());
+        message.setDataSourceCode(thirdMatchInfo.getDataSourceCode());
+        message.setIsReissue(isReissue);
+        message.setSpareMq(spareMq);
+
+        String topic = "RCS_SCORE_INCONSISTENCY_WARNING";
+        realtimeBaseProduecr.send(message, linkId,topic,
                 thirdMatchInfo.getReferenceId() + "", thirdMatchInfo.getDataSourceCode());
-        log.info("linkId=【{}】连续5次比分校验失败，通知关盘,topic=RCS_TRADE_UPDATE_MARKET_STATUS,request={}",
-                linkId, JSON.toJSONString(dataMerchantMessage));
+
+        log.info("linkId=【{}】连续5次比分校验失败，通知封盘,topic={},request={}",
+                linkId, topic, JSON.toJSONString(message));
     }
 
     /**

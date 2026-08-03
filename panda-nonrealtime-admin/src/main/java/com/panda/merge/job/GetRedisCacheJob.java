@@ -33,13 +33,13 @@ public class GetRedisCacheJob extends IJobHandler {
      */
     @Override
     public ReturnT<String> execute(String parKey){
-        log.info("【GetRedisCacheJob 根据传入key值获取缓存】 处理开始,入参: {}",parKey);
+        //log.info("【GetRedisCacheJob 根据传入key值获取缓存】 处理开始,入参: {}",parKey);
         XxlJobLogger.log("【GetRedisCacheJob 根据传入key值获取缓存】 处理开始,入参: {}",parKey);
         try {
             if(StringUtils.isNotBlank(parKey)){
                 if(parKey.contains(XIN)){
                     Set<String> keys = redisService.keys(parKey);
-                    log.info("【GetRedisCacheJob 根据传入key值获取缓存】 根据传入key获取到缓存个数：{}",keys.size());
+                    //log.info("【GetRedisCacheJob 根据传入key值获取缓存】 根据传入key获取到缓存个数：{}",keys.size());
                     XxlJobLogger.log("【GetRedisCacheJob 根据传入key值获取缓存】 根据传入key获取到缓存个数：{}",keys.size());
                     keys.forEach(key->{
                         Object obj = redisService.get(key);
@@ -47,7 +47,7 @@ public class GetRedisCacheJob extends IJobHandler {
                         if(null != obj){
                             jsonStr = JSON.toJSONString(obj);
                         }
-                        log.info("【GetRedisCacheJob 根据传入key值获取缓存】 key：{},val：{}",key,jsonStr);
+                        //log.info("【GetRedisCacheJob 根据传入key值获取缓存】 key：{},val：{}",key,jsonStr);
                         XxlJobLogger.log("【GetRedisCacheJob 根据传入key值获取缓存】 key：{},val：{}",key,jsonStr);
                     });
                 }else{
@@ -56,7 +56,7 @@ public class GetRedisCacheJob extends IJobHandler {
                     if(null != obj){
                         jsonStr = JSON.toJSONString(obj);
                     }
-                    log.info("【GetRedisCacheJob 根据传入key值获取缓存】 key：{},val：{}",parKey,jsonStr);
+                    //log.info("【GetRedisCacheJob 根据传入key值获取缓存】 key：{},val：{}",parKey,jsonStr);
                     XxlJobLogger.log("【GetRedisCacheJob 根据传入key值获取缓存】 key：{},val：{}",parKey,jsonStr);
                 }
             }
@@ -64,7 +64,7 @@ public class GetRedisCacheJob extends IJobHandler {
             log.error("【GetRedisCacheJob 根据传入key值获取缓存】 Exception:", e);
             XxlJobLogger.log("【GetRedisCacheJob 根据传入key值获取缓存】 Exception:"+e.getMessage());
         }
-        log.info("【GetRedisCacheJob 根据传入key值获取缓存】 处理结束");
+        //log.info("【GetRedisCacheJob 根据传入key值获取缓存】 处理结束");
         XxlJobLogger.log("【GetRedisCacheJob 根据传入key值获取缓存】 处理结束");
         return ReturnT.SUCCESS;
     }

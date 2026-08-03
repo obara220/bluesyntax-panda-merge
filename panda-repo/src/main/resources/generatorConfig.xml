@@ -47,7 +47,7 @@
 <!--&lt;!&ndash;                         <columnOverride column="scores_json" javaType="java.lang.String" jdbcType="VARCHAR" />&ndash;&gt;-->
 <!--&lt;!&ndash;                          <columnOverride column="scores_json_extra" javaType="java.lang.String" jdbcType="VARCHAR" />&ndash;&gt;-->
 <!--        </table>-->
-        <table tableName="third_match_promotion_chart">
+        <table tableName="config_outright_trade_market">
         </table>
 
     </context>

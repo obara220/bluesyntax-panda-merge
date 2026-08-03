@@ -53,7 +53,7 @@ public class CleanCategoryBindingRedisCachJob extends IJobHandler {
 
     @Override
     public ReturnT<String> execute(String parKey) {
-        log.info("【CleanCategoryBindingRedisCachJob 根据传入key值清除缓存】 处理开始,入参: {}", parKey);
+        //log.info("【CleanCategoryBindingRedisCachJob 根据传入key值清除缓存】 处理开始,入参: {}", parKey);
         XxlJobLogger.log("【CleanCategoryBindingRedisCachJob 根据传入key值清除缓存】 处理开始,入参: {}", parKey);
         try {
             if (StringUtils.isBlank(parKey)) {
@@ -67,7 +67,7 @@ public class CleanCategoryBindingRedisCachJob extends IJobHandler {
             log.error("【CleanCategoryBindingRedisCachJob 根据传入key值清除缓存执行异常】 Exception:", e);
             XxlJobLogger.log("【CleanCategoryBindingRedisCachJob 根据传入key值清除缓存执行异常】 Exception:" + e.getMessage());
         }
-        log.info("【CleanCategoryBindingRedisCachJob 根据传入key值清除缓存】 处理结束");
+        //log.info("【CleanCategoryBindingRedisCachJob 根据传入key值清除缓存】 处理结束");
         XxlJobLogger.log("【CleanCategoryBindingRedisCachJob 根据传入key值清除缓存】 处理结束");
         return ReturnT.SUCCESS;
     }
@@ -97,7 +97,7 @@ public class CleanCategoryBindingRedisCachJob extends IJobHandler {
             default:
                 break;
         }
-        log.info("【CleanCategoryBindingRedisCachJob 根据传入表{}清除缓存】 成功清除的缓存条数：{}", parKey, num);
+        //log.info("【CleanCategoryBindingRedisCachJob 根据传入表{}清除缓存】 成功清除的缓存条数：{}", parKey, num);
         XxlJobLogger.log("【CleanCategoryBindingRedisCachJob 根据传入表{}清除缓存】 成功清除的缓存条数：{}", parKey, num);
     }
 

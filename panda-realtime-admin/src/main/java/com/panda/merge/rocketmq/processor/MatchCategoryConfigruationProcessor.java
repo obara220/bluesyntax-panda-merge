@@ -9,6 +9,7 @@ import com.google.common.collect.Maps;
 import com.panda.merge.common.BaseProcessor;
 import com.panda.merge.common.enums.*;
 import com.panda.merge.common.utils.TimeUtils;
+import com.panda.merge.component.MatchEventMarketXCloseProcessor;
 import com.panda.merge.config.RedisService;
 import com.panda.merge.dto.Request;
 import com.panda.merge.dto.message.MatchCategoryConfigurationMessage;
@@ -64,7 +65,21 @@ public class MatchCategoryConfigruationProcessor extends BaseProcessor {
     DataSourceService dataSourceService;
 
     @Autowired
+    MatchEventMarketXCloseProcessor matchEventMarketXCloseProcessor;
+
+    @Autowired
     RedisService redisService;
+    @Autowired
+    ThirdSportTournamentService thirdSportTournamentService;
+
+    @Autowired
+    ThirdMatchTeamRelationService thirdMatchTeamRelationService;
+
+    @Autowired
+    ThirdSportTeamService thirdSportTeamService;
+
+    @Autowired
+    LanguageInternationService languageInternationService;
 
     /**
      * 刷新玩法数据
@@ -151,6 +166,7 @@ public class MatchCategoryConfigruationProcessor extends BaseProcessor {
                } else{
                    marketCategorySell.setSellStatus(SellStatusEnum.UNSOLD.getValue());
                }
+                matchEventMarketXCloseProcessor.marketCategoryApportionToPeriod(message.getLinkId(), marketSellInfo.getSportId(), standardMatchId, marketCategorySell.getMarketCategoryId(), marketCategorySell.getAutoCloseMarket(), marketCategorySell.getMatchProgressTime());
             }
             if (MapUtil.isNotEmpty(stringStringMap)) {
                 redisService.hSetAll(categoryRedisKey, stringStringMap, marketCacheTime(marketSellInfo.getBeginTime()));
@@ -162,43 +178,49 @@ public class MatchCategoryConfigruationProcessor extends BaseProcessor {
         categorySellService.saveBatch(standardMatchId, marketType, marketCategorySellList);
     }
 
-
-
     public void handleCategoryConfigrations(@Valid Request<MatchMarketCategoryConfigurationMessage> message) {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        log.info("::{}::handleCategoryConfigrations，接收处理开始... {}",message.getLinkId(), JSONUtil.toJsonStr(message));
-        MatchMarketCategoryConfigurationMessage categoryConfigutaionInfo = message.getData();
-        if(null == categoryConfigutaionInfo){
-            log.info("::{}::handleCategoryConfigrations ,传入参数信息不能为空！",message.getLinkId());
-            return;
-        }
-        Long standardMatchId = categoryConfigutaionInfo.getStandardMatchId();
-        StandardMatchInfo standardMatchInfo = standardMatchInfoService.getItem(standardMatchId);
-        if(null == standardMatchInfo){
-            log.info("::{}::handleCategoryConfigrations，根据标准赛事ID:{}未查到对应标准赛事信息!", message.getLinkId(), standardMatchId);
-            return;
-        }
-        //刷新开售缓存并返回最新开售信息
-        StandardSportMarketSell marketSellInfo = marketSellService.refreshCache(standardMatchId);
-        if(null == marketSellInfo){
-            log.info("::{}::handleCategoryConfigrations，根据标准赛事:{}未查到对应开售记录!", message.getLinkId(), standardMatchId);
-            return;
-        }
-        /** 需要打印当前赛事开始记录的当前早盘/滚球的开售状态时间及数据服务商 */
-        log.info("::{}::handleCategoryConfigrations，根据标准赛事：{} " +
-                        "获取到的开售记录消息，早盘开售状态：{}，早盘开售时间：{}，早盘数据服务商：{}；滚球开售状态：{}，滚球开售时间{}，滚球数据服务商：{}",
-                message.getLinkId(), standardMatchId, marketSellInfo.getPreMatchSellStatus(),
-                marketSellInfo.getPreMatchTime(), marketSellInfo.getPreMatchDataProviderCode(),
-                marketSellInfo.getLiveMatchSellStatus(), marketSellInfo.getPreMatchTime(),
-                marketSellInfo.getLiveMatchDataProviderCode());
+        Long standardMatchId = null;
+        try{
+            //校验LinkId和缓存中是否重复
+            validateLinkId("Tournament_Template_Play",message);
+
+            log.info("::{}::handleCategoryConfigrations，接收处理开始... {}",message.getLinkId(), JSONUtil.toJsonStr(message));
+            MatchMarketCategoryConfigurationMessage categoryConfigutaionInfo = message.getData();
+            if(null == categoryConfigutaionInfo){
+                log.info("::{}::handleCategoryConfigrations ,传入参数信息不能为空！",message.getLinkId());
+                return;
+            }
+            standardMatchId = categoryConfigutaionInfo.getStandardMatchId();
+            StandardMatchInfo standardMatchInfo = standardMatchInfoService.getItem(standardMatchId);
+            if(null == standardMatchInfo){
+                log.info("::{}::handleCategoryConfigrations，根据标准赛事ID:{}未查到对应标准赛事信息!", message.getLinkId(), standardMatchId);
+                return;
+            }
+            //刷新开售缓存并返回最新开售信息
+            StandardSportMarketSell marketSellInfo = marketSellService.refreshCache(standardMatchId);
+            if(null == marketSellInfo){
+                log.info("::{}::handleCategoryConfigrations，根据标准赛事:{}未查到对应开售记录!", message.getLinkId(), standardMatchId);
+                return;
+            }
+            /** 需要打印当前赛事开始记录的当前早盘/滚球的开售状态时间及数据服务商 */
+            log.info("::{}::handleCategoryConfigrations，根据标准赛事：{} " +
+                            "获取到的开售记录消息，早盘开售状态：{}，早盘开售时间：{}，早盘数据服务商：{}；滚球开售状态：{}，滚球开售时间{}，滚球数据服务商：{}",
+                    message.getLinkId(), standardMatchId, marketSellInfo.getPreMatchSellStatus(),
+                    marketSellInfo.getPreMatchTime(), marketSellInfo.getPreMatchDataProviderCode(),
+                    marketSellInfo.getLiveMatchSellStatus(), marketSellInfo.getPreMatchTime(),
+                    marketSellInfo.getLiveMatchDataProviderCode());
 
 
-        //将赛事对应的数据权重及玩法开售配置入库
-        this.handlDataSourceAndCategorySellConfigruations(message.getLinkId(), categoryConfigutaionInfo, message.getOperaterId(), standardMatchId, marketSellInfo, standardMatchInfo);
-        stopWatch.stop();
-        log.info("::{}::handleCategoryConfigrations，标准赛事:{}处理完毕...，耗时：{}",message.getLinkId(),standardMatchId,stopWatch.getTotalTimeMillis());
+            //将赛事对应的数据权重及玩法开售配置入库
+            this.handlDataSourceAndCategorySellConfigruations(message.getLinkId(), categoryConfigutaionInfo, message.getOperaterId(), standardMatchId, marketSellInfo, standardMatchInfo);
+        }finally {
+            stopWatch.stop();
+            log.info("::{}::handleCategoryConfigrations，标准赛事:{}处理完毕...，耗时：{}",message.getLinkId(),standardMatchId,stopWatch.getTotalTimeMillis());
+        }
     }
+
     @Transactional(rollbackFor = Exception.class)
     public void handlDataSourceAndCategorySellConfigruations(String linkId,MatchMarketCategoryConfigurationMessage categoryConfigutaionInfo,Long operaterId,
                                                              Long standardMatchId,StandardSportMarketSell marketSellInfo,StandardMatchInfo standardMatchInfo) {
@@ -270,7 +292,9 @@ public class MatchCategoryConfigruationProcessor extends BaseProcessor {
             /**根据标准赛事对应的存在的商业数据源及页面数据源权重配置确定需要使用的数据源**/
             log.info("::{}::dataWeightMap，获取页面配置的数据源权重信息:{},:::riskManagerCode:{},dataMatchSourceCodes:::{}", linkId, dataWeightMap,riskManagerCode,dataMatchSourceCodes);
             oddsUsingDataSource = this.getUsingDataSourceByDataWeightAndMatchInfos(riskManagerCode, dataWeightMap, dataMatchSourceCodes);
-            log.info("::{}::handleCategoryConfigrations，获取到的赔率源为:::{}", linkId, JSON.toJSONString(oddsUsingDataSource));
+            if (StringUtils.isBlank(oddsUsingDataSource)) {
+                log.info("::{}::handleCategoryConfigrations，按照规则找不出对应的开售数据源，下挂的三方赛事为{}", linkId, JSON.toJSONString(dataMatchSourceCodes));
+            }
 
 
             /** 赛事状态源及事件源默认与赔率源一致 **/
@@ -310,7 +334,7 @@ public class MatchCategoryConfigruationProcessor extends BaseProcessor {
 //                        dataWeightMap, dataMatchSourceCodes);
 //            }
 
-
+            log.info("::{}::handleCategoryConfigrations，标准赛事:最终获取到的赔率源为：{},{},{}", linkId, oddsUsingDataSource, matchStatusUsingSource, dataWeightMap);
             this.updateMarketSellRecByRiskManagerCode(linkId,riskManagerCode, oddsUsingDataSource, matchStatusUsingSource, marketType, marketSellInfo, dataWeightMap);
             log.info("::{}::handleCategoryConfigrations，标准赛事：获取到的赔率源为{}", linkId, oddsUsingDataSource);
 
@@ -564,6 +588,7 @@ public class MatchCategoryConfigruationProcessor extends BaseProcessor {
                 //                categoryItem.setBcWeight(bcWeight);
                 //                categoryItem.setBgWeight(bgWeight);
                 categorySellService.update(categoryItem);
+                matchEventMarketXCloseProcessor.marketCategoryApportionToPeriod(linkId, sportId, standardMatchId, categoryItem.getMarketCategoryId(), categoryItem.getAutoCloseMarket(), categoryItem.getMatchProgressTime());
             }
 
             //过滤出DB中已存在的配置信息，让下面不再做重复新增
@@ -632,6 +657,7 @@ public class MatchCategoryConfigruationProcessor extends BaseProcessor {
                 if (StringUtils.isNotBlank(configuration.getDataSourceCode())) {
                     categorySellConfigurations.add(configuration);
                 }
+                matchEventMarketXCloseProcessor.marketCategoryApportionToPeriod(linkId, sportId, standardMatchId, configuration.getMarketCategoryId(), configuration.getAutoCloseMarket(), configuration.getMatchProgressTime());
             }
             if(!categorySellConfigurations.isEmpty()&&!categoryConfigutaionInfo.getRiskManagerCode().equals(DataSourceCodeEnum.PA.getCode())&&!CollectionUtils.isEmpty(categoryConfigutaionInfo.getCategoryIds4405())){
                 handleCategorySell(categorySellConfigurations,categoryConfigutaionInfo.getCategoryIds4405());
@@ -729,5 +755,27 @@ public class MatchCategoryConfigruationProcessor extends BaseProcessor {
                 usinngDataSource = maxWeightCode.get().getKey();
             }
         return usinngDataSource;
+    }
+
+    /**
+     * 批量新增国际化
+     *
+     * @param newNameCode
+     * @param oldNameCode
+     * @param languageInternationAllList
+     */
+    private void addLanguageInternation(Long newNameCode, Long oldNameCode, List<LanguageInternation> languageInternationAllList) {
+        List<LanguageInternation> languageInternationList = languageInternationService.getLanguageInternationByNameCode(oldNameCode);
+        if (org.apache.commons.collections4.CollectionUtils.isEmpty(languageInternationList)) {
+            return;
+        }
+        for (LanguageInternation languageInternation : languageInternationList) {
+            languageInternation.setId(null);
+            languageInternation.setNameCode(newNameCode);
+            languageInternation.setDataSourceCode(DataSourceCodeEnum.PD.code);
+            languageInternation.setCreateTime(Calendar.getInstance().getTimeInMillis());
+            languageInternation.setModifyTime(Calendar.getInstance().getTimeInMillis());
+            languageInternationAllList.add(languageInternation);
+        }
     }
 }

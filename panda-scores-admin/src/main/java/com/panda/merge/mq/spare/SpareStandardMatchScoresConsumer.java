@@ -38,7 +38,7 @@ import java.util.List;
 @Component
 public class SpareStandardMatchScoresConsumer {
     private static final String TOPIC ="STANDARD_MATCH_SCORES";
-    private static final String CONSUMER_GROUP="scores-group-STANDARD_MATCH_SCORES";
+    private static final String CONSUMER_GROUP="scores-group-STANDARD_MATCH_SCORES2";
 
     @Value("${slaveNamesrvAddr}")
     private String nameServers;

@@ -92,7 +92,7 @@ public class ThirdOutrightMatchInfoProcessor extends BaseProcessor {
                             stopWatch.getTotalTimeMillis(),Integer.parseInt(String.valueOf(response.getCode())),response.getMsg())
             );
         }
-        log.info("【"+ PROJECT_ID_NOREALTIME+" ："+ THIRD_OUTRIGHT_MATCH_INFO_API+"】【"+request.getDataSourceCode()+" ::"+request.getLinkId()+"::】第三方冠军赛事数据处理结束,返回结果 ：{}" ,JSON.toJSONString(response));
+        log.info("【"+ PROJECT_ID_NOREALTIME +" ："+ PROJECT_ID_NOREALTIME+" ："+ THIRD_OUTRIGHT_MATCH_INFO_API+"】【"+request.getDataSourceCode()+" ::"+request.getLinkId()+"::】第三方冠军赛事数据处理结束,返回结果 ：{}" ,JSON.toJSONString(response));
         return response;
     }
 

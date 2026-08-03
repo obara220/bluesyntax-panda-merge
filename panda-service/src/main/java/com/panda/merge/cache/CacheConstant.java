@@ -15,4 +15,6 @@ public class CacheConstant {
 
     public static final String CACHE_AUTO_SWITCH_CONFIG = "autoSwitchConfig";
 
+    public static final String CACHE_FLOW_CONTROL = "fc";
+
 }

@@ -4,7 +4,9 @@ import com.panda.merge.model.ThirdVideoBoardCastRecord;
 import com.panda.merge.model.ThirdVideoBoardCastRecordExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public interface ThirdVideoBoardCastRecordMapper {
     long countByExample(ThirdVideoBoardCastRecordExample example);
 

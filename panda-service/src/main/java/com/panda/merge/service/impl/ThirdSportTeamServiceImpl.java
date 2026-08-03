@@ -127,6 +127,17 @@ public class ThirdSportTeamServiceImpl extends BaseServiceImpl<ThirdSportTeam> i
         return refreshCache(resList.get(0));
     }
 
+    @Override
+    public ThirdSportTeam getItemsByReferenceId(String dataSourceCode, Long referenceId) {
+        ThirdSportTeamExample example = new ThirdSportTeamExample();
+        example.createCriteria().andDataSourceCodeEqualTo(dataSourceCode).andReferenceIdEqualTo(referenceId);
+        List<ThirdSportTeam> resList = thirdSportTeamMapper.selectByExample(example);
+        if(CollectionUtils.isEmpty(resList)){
+            return null;
+        }
+        return resList.get(0);
+    }
+
 
     /** 刷新缓存*/
     private ThirdSportTeam refreshCache(ThirdSportTeam item){

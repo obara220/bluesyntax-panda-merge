@@ -191,6 +191,7 @@ public class DealMarketStatusProcessor {
             if (standardSportMarketCategory == null || Constant.SPORT_MARKET_CATEGORY.STATUS.INVALID.equals(standardSportMarketCategory.getStatus())) {
                 standardMarketMessage.setPaStatusReason(MarketTipsLanguageEnum.getEnum(MarketTipsLanguageEnum.PLAY_STATUS_CLOSE.getCode(), placeNumStatus.toString()));
                 resultStatus = Constant.SPORT_MARKET.STATUS.DEACTIVATED;
+                standardMarketMessage.setThirdMarketSourceStatus(Constant.SPORT_MARKET.STATUS.DEACTIVATED);
             }
         }
         //最终状态赋值

@@ -95,4 +95,14 @@ public class ThirdMatchTeamDTO implements Serializable {
      * 备注。
      */
     private String remark;
+
+    /**
+     * 赛事类型（默认1）{
+     *     1：普通赛事
+     *     2：电竞赛事
+     *     3：篮球3x3(如果运动类型为篮球）
+     *     4：MMA(如果运动类型为拳击）
+     * }
+     */
+    private Integer matchType;
 }

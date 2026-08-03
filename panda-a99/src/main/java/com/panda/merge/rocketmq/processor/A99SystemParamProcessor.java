@@ -68,8 +68,10 @@ public class A99SystemParamProcessor extends BaseProcessor {
             log.info("{}::准备修改定时任务,表达式:{},开关:{}", request.getLinkId(), cron, a99SystemConfigParam.getEnable());
             if (a99SystemConfigParam.getMatchType() == 0) {
 //                preOddsJob.updateCronExpression(cron);
+                return;
             } else if (a99SystemConfigParam.getMatchType() == 1) {
 //                liveOddsJob.updateCronExpression(cron);
+                return;
             }
 //            int taskId = a99SystemConfigParam.getMatchType() == 0 ? xxlJobConfig.getPreTaskId() : xxlJobConfig.getLiveTaskId();
 //            updateXxlJobCorn(request.getLinkId(), taskId, cron);

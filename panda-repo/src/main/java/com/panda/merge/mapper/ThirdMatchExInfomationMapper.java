@@ -4,7 +4,9 @@ import com.panda.merge.model.ThirdMatchExInfomation;
 import com.panda.merge.model.ThirdMatchExInfomationExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public interface ThirdMatchExInfomationMapper {
     long countByExample(ThirdMatchExInfomationExample example);
 

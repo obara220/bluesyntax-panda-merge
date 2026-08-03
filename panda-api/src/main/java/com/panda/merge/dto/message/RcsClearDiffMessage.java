@@ -37,4 +37,9 @@ public class RcsClearDiffMessage implements Serializable {
      * LINKID
      */
     private String globalId;
+
+    /**
+     * 自動切換賠率源 手動/自動:true,其他：false
+     */
+    private boolean changeDataSource = false;
 }

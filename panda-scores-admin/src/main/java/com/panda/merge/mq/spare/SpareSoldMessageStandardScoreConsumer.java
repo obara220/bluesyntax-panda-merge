@@ -35,7 +35,7 @@ import static com.panda.merge.constant.ConstantSystem.SOLD_MESSAGE;
 @Component
 public class SpareSoldMessageStandardScoreConsumer {
     private static final String TOPIC = SOLD_MESSAGE;
-    private static final String CONSUMER_GROUP = "scores-group-SOLD_MESSAGE_STANDARD_SCORES";
+    private static final String CONSUMER_GROUP = "scores-group-SOLD_MESSAGE_STANDARD_SCORES2";
 
     @Value("${slaveNamesrvAddr}")
     private String nameServers;

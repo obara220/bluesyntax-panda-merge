@@ -149,7 +149,10 @@ public class ThirdMarketDTO implements Serializable {
      * 内部数据源
      */
     private String internalDataSourceCode;
-
+    /**
+     * AO特殊事件
+     */
+    private Integer eventType = 0;
     /**
      * 三方盘口标识：TRUE 走加锁逻辑，FALSE 不走加锁逻辑直接入库 ,默认TRUE
      */

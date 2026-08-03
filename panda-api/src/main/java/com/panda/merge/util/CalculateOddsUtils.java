@@ -3,14 +3,17 @@ package com.panda.merge.util;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.panda.merge.common.enums.Constant;
+import com.panda.merge.common.utils.BigDecimalUtils;
 import com.panda.merge.dto.DiscountOddsConfigDTO;
 import com.panda.merge.dto.message.StandardMarketMessage;
 import com.panda.merge.dto.message.StandardMarketOddsMessage;
 import com.panda.merge.dto.message.StandardMatchMarketMessage;
 import com.panda.merge.enums.OddsCalcCategoryGroupEnum;
 import com.panda.merge.model.ConfigMarketLevel;
+import org.springframework.data.redis.connection.RedisServer;
 import org.springframework.util.CollectionUtils;
 
+import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.HashMap;
@@ -20,6 +23,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 public class CalculateOddsUtils {
+    @Resource
+    private RedisServer redisServer;
     /**
      * Map<String,StandardMatchMarketMessage>  String:原topic，StandardMatchMarketMessage：原topic对应的赔率
      * @param configs
@@ -95,7 +100,7 @@ public class CalculateOddsUtils {
                                 }
                                 else if (CalculateOddsCategoryConfig.CATEGORY_50.contains(e.getMarketCategoryId()) &&  (CalculateOddsCategoryConfig.SOPRT_TYPE.contains(standardMatchMarketMessage.getSportId())?standardMatchMarketMessage.getSportId():-1)==(configs.get(0).getSportId()))
                                 {
-                                    CATEGORY_50(e.getMarketOddsList(), discountOddsConfigDTOMap, finalC5, entry.getKey(),isPreMarketType);
+                                    CATEGORY_50(e.getMarketOddsList(), discountOddsConfigDTOMap, finalC5, entry.getKey(),isPreMarketType,e.getMarketCategoryId());
                                 }
                                 else if (CalculateOddsCategoryConfig.THREE_ODDS_CATEGORY.contains(e.getMarketCategoryId()) &&  (CalculateOddsCategoryConfig.SOPRT_TYPE.contains(standardMatchMarketMessage.getSportId())?standardMatchMarketMessage.getSportId():-1)==(configs.get(0).getSportId()))
                                 {
@@ -198,7 +203,7 @@ public class CalculateOddsUtils {
                                         break;
                                     case GROUP_50:
                                         CATEGORY_50(e.getMarketOddsList(), discountOddsConfigDTOMap, finalC5,
-                                                    entry.getKey(), isPreMarketType);
+                                                    entry.getKey(), isPreMarketType,e.getMarketCategoryId());
                                         break;
                                     case GROUP_THREE_ODDS:
                                         THREE_ODDS_CATEGORY(e.getMarketOddsList(), discountOddsConfigDTOMap,
@@ -294,12 +299,18 @@ public class CalculateOddsUtils {
 
 
 
-    private static void CATEGORY_50(List<StandardMarketOddsMessage> standardMarketOddsMessageList, Map<String, DiscountOddsConfigDTO> discountOddsConfigDTOMap,ConfigMarketLevel finalC5,Integer level,boolean isPreMarketType)  {
+    private static void CATEGORY_50(List<StandardMarketOddsMessage> standardMarketOddsMessageList, Map<String, DiscountOddsConfigDTO> discountOddsConfigDTOMap,ConfigMarketLevel finalC5,Integer level,boolean isPreMarketType,Long marketCategoryId)  {
+        //-----------------------注释部分为bug单 103733 已转需求推进 ----------------------------
+        // AtomicBoolean flag = new AtomicBoolean(false);
         standardMarketOddsMessageList.forEach(y->{
             if (y.getPaOddsValue()+(finalC5.getDiffValue()*100000) <= 100000)
             {
+/*                if(CalculateOddsCategoryConfig.WIN_ALONE.equals(marketCategoryId)){
+                    flag.set(true);
+                    return;
+                }*/
                 CalculateOdds calculateOdds = new CalculateOdds();
-                calculateOdds.setActive(Constant.SPORT_MARKET.ODDS_STATUS.DEACTIVATED);
+                calculateOdds.setActive(Constant.SPORT_MARKET.ODDS_STATUS.SUSPENDED);
                 calculateOdds.setPaOddsValue(y.getPaOddsValue());
                 calculateOdds.setMalayOddsValue(arithmeticMALAY(y.getMalayOddsValue(), finalC5.getDiffValue()));
                 calculateOdds.setDisOddsValue(getDisOddsValues(y, discountOddsConfigDTOMap, finalC5,isPreMarketType));
@@ -316,6 +327,16 @@ public class CalculateOddsUtils {
                 y.getOddsMap().put(""+level,calculateOdds);
             }
         });
+/*        if(flag.get()){
+            standardMarketOddsMessageList.forEach(y->{
+                CalculateOdds calculateOdds = new CalculateOdds();
+                calculateOdds.setActive(Constant.SPORT_MARKET.ODDS_STATUS.SUSPENDED);
+                calculateOdds.setPaOddsValue(y.getPaOddsValue());
+                calculateOdds.setMalayOddsValue(arithmeticMALAY(y.getMalayOddsValue(), finalC5.getDiffValue()));
+                calculateOdds.setDisOddsValue(getDisOddsValues(y, discountOddsConfigDTOMap, finalC5,isPreMarketType));
+                y.getOddsMap().put(""+level,calculateOdds);
+            });
+        }*/
     }
 
     /**
@@ -347,7 +368,7 @@ public class CalculateOddsUtils {
         {
             standardMarketOddsMessageList.forEach(y->{
                 CalculateOdds calculateOdds = new CalculateOdds();
-                calculateOdds.setActive(Constant.SPORT_MARKET.ODDS_STATUS.DEACTIVATED);
+                calculateOdds.setActive(Constant.SPORT_MARKET.ODDS_STATUS.SUSPENDED);
                 calculateOdds.setPaOddsValue(y.getPaOddsValue());
                 calculateOdds.setMalayOddsValue(y.getMalayOddsValue());
                 calculateOdds.setDisOddsValue(getDisOddsValues(y, discountOddsConfigDTOMap, finalNormal,isPreMarketType));
@@ -372,7 +393,7 @@ public class CalculateOddsUtils {
                 if (y.getPaOddsValue()+(finalCthree.getDiffValue()*100000) <= 100000)
                 {
                     CalculateOdds calculateOdds = new CalculateOdds();
-                    calculateOdds.setActive(Constant.SPORT_MARKET.ODDS_STATUS.DEACTIVATED);
+                    calculateOdds.setActive(Constant.SPORT_MARKET.ODDS_STATUS.SUSPENDED);
                     calculateOdds.setPaOddsValue(y.getPaOddsValue());
                     calculateOdds.setMalayOddsValue(arithmeticMALAY(y.getMalayOddsValue(), finalCthree.getDiffValue()));
                     calculateOdds.setDisOddsValue(getDisOddsValues(y, discountOddsConfigDTOMap, finalCthree,isPreMarketType));
@@ -394,7 +415,7 @@ public class CalculateOddsUtils {
                 if (y.getPaOddsValue()+(finalCthree1.getDiffValue()*100000) <= 100000)
                 {
                     CalculateOdds calculateOdds = new CalculateOdds();
-                    calculateOdds.setActive(Constant.SPORT_MARKET.ODDS_STATUS.DEACTIVATED);
+                    calculateOdds.setActive(Constant.SPORT_MARKET.ODDS_STATUS.SUSPENDED);
                     calculateOdds.setPaOddsValue(y.getPaOddsValue());
                     calculateOdds.setMalayOddsValue(arithmeticMALAY(y.getMalayOddsValue(), finalCthree1.getDiffValue()));
                     calculateOdds.setDisOddsValue(getDisOddsValues(y, discountOddsConfigDTOMap, finalCthree1,isPreMarketType));
@@ -416,7 +437,7 @@ public class CalculateOddsUtils {
                 if (y.getPaOddsValue()+(finalCthree2.getDiffValue()*100000) <= 100000)
                 {
                     CalculateOdds calculateOdds = new CalculateOdds();
-                    calculateOdds.setActive(Constant.SPORT_MARKET.ODDS_STATUS.DEACTIVATED);
+                    calculateOdds.setActive(Constant.SPORT_MARKET.ODDS_STATUS.SUSPENDED);
                     calculateOdds.setPaOddsValue(y.getPaOddsValue());
                     calculateOdds.setMalayOddsValue(arithmeticMALAY(y.getMalayOddsValue(), finalCthree2.getDiffValue()));
                     calculateOdds.setDisOddsValue(getDisOddsValues(y, discountOddsConfigDTOMap, finalCthree2,isPreMarketType));
@@ -462,26 +483,26 @@ public class CalculateOddsUtils {
     }
 
     /**
-     * 马来赔计算规则
-     *
-     * @param
-     * @return
+     * 马来赔计算规则：主盘马来赔 + 信用等级 diff，结果规整为2位小数。
      */
-    private static Double arithmeticMALAY(Double malayOddsValue, Double diffValue) {
-        //马来赔率
+    private static BigDecimal arithmeticMALAY(Double malayOddsValue, Double diffValue) {
         if (null == malayOddsValue || 0 == malayOddsValue) {
-            return 0D;
+            return BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
         }
-        BigDecimal malayAndDiff = new BigDecimal(Double.toString(malayOddsValue)).add(new BigDecimal(Double.toString(diffValue)));
+        if (diffValue == null) {
+            diffValue = 0D;
+        }
+        BigDecimal malayAndDiff = new BigDecimal(Double.toString(malayOddsValue))
+                .add(new BigDecimal(Double.toString(diffValue)));
         //#如果正数马来赔率分组后小于等于0，令分组后的赔率为最低马来赔率0.01
-        if (malayOddsValue > 0 & malayAndDiff.doubleValue() <= 0) {
-            return 0.01;
+        if (malayOddsValue > 0 && malayAndDiff.compareTo(BigDecimal.ZERO) <= 0) {
+            return new BigDecimal("0.01");
         }
         //#如果负数马来赔率分组后小于等于-1，该赔率再+2
-        if (malayOddsValue < 0 & malayAndDiff.doubleValue() <= -1) {
+        if (malayOddsValue < 0 && malayAndDiff.compareTo(BigDecimal.ONE.negate()) <= 0) {
             malayAndDiff = malayAndDiff.add(new BigDecimal("2"));
         }
-        return malayAndDiff.doubleValue();
+        return BigDecimalUtils.normalizeMalayOddsDecimal(malayAndDiff);
     }
 
     private static OddsCalcCategoryGroupEnum getCategoryGroup(Map<Long, Integer> categoryGroupMap,

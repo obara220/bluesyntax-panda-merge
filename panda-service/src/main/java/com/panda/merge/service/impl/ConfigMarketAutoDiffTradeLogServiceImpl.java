@@ -28,7 +28,7 @@ public class ConfigMarketAutoDiffTradeLogServiceImpl implements ConfigMarketAuto
     @Override
     public ConfigMarketAutoDiffTradeLog create(String linkId, TradeMarketAutoDiffConfigItemDTO tradeMarketAutoDiffConfigItemDTO, Long matchId, Long operaterId) {
         ConfigMarketAutoDiffTradeLog configMarketAutoDiffTradeLog = new ConfigMarketAutoDiffTradeLog();
-        configMarketAutoDiffTradeLog.setId(UUIdUtils.getId());
+        /*configMarketAutoDiffTradeLog.setId(UUIdUtils.getId());
         configMarketAutoDiffTradeLog.setCreateTime(TimeUtils.millsSecondsEast8ZoneGmt());
         configMarketAutoDiffTradeLog.setDiffValue(tradeMarketAutoDiffConfigItemDTO.getDiffValue());
         configMarketAutoDiffTradeLog.setModifyTime(TimeUtils.millsSecondsEast8ZoneGmt());
@@ -38,7 +38,7 @@ public class ConfigMarketAutoDiffTradeLogServiceImpl implements ConfigMarketAuto
         configMarketAutoDiffTradeLog.setStandardMatchId(matchId);
         configMarketAutoDiffTradeLog.setLinkId(linkId);
         configMarketAutoDiffTradeLog.setOperaterId(operaterId);
-//        marketAutoDiffTradeLogMapper.insertSelective(configMarketAutoDiffTradeLog);
+        marketAutoDiffTradeLogMapper.insertSelective(configMarketAutoDiffTradeLog);*/
         return configMarketAutoDiffTradeLog;
     }
 }

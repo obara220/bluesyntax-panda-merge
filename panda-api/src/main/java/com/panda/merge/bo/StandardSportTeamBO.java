@@ -111,4 +111,14 @@ public class StandardSportTeamBO implements Serializable {
      * 赛事球队关系信息
      */
     private StandardMatchTeamRelationBO matchTeamRelation;
+
+
+    /**
+     * 赛事类别 1:联赛 2:杯赛
+     */
+    private Integer matchCategory;
+    /**
+     * 赛事类型  常规 1：普通赛事、2：电竞赛事 3: 其他
+     */
+    private Integer matchType;
 }

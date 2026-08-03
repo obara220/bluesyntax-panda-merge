@@ -34,5 +34,4 @@ public class StandardMatchSwitchStatusMessage {
 
     /** 是否提前开赛 0否，1是*/
     private Integer advance = 0;
-
 }

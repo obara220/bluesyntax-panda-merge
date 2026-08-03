@@ -40,6 +40,5 @@ public class DataMerchantMessage implements Serializable {
      */
     private Integer linkedType;
 
-
     private Integer isErrorProofing;
 }

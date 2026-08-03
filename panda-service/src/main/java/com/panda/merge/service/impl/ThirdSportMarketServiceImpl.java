@@ -29,7 +29,6 @@ import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -247,7 +246,7 @@ public class ThirdSportMarketServiceImpl implements ThirdSportMarketService {
         thirdSportMarket.setCreateTime(TimeUtils.millsSecondsEast8ZoneGmt());
         thirdSportMarket.setScopeId(standardSportMarketCategory.getScopeId());
         thirdSportMarket.setModifyTime(thirdMarketDTO.getModifyTime());
-        //tx的修改时间必须严格使用上游的修改时间
+        //tx的创建时间必须严格使用上游的时间
         if (MarginCategoryConfig.SPORT_TX_LOGIC.contains(thirdMarketDTO.getDataSourceCode())) {
             thirdSportMarket.setModifyTime(thirdMarketDTO.getModifyTime());
         }
@@ -256,7 +255,10 @@ public class ThirdSportMarketServiceImpl implements ThirdSportMarketService {
         thirdSportMarket.setOfferLineId(thirdMarketDTO.getOfferLineId());
         MergeFunctionUtils.setNumberOfWinners( thirdSportMarket, thirdMarketDTO.getNumberOfWinners());
         thirdSportMarket.setInternalDataSourceCode(thirdMarketDTO.getInternalDataSourceCode());
+        thirdSportMarket.setEventType(thirdMarketDTO.getEventType());
         try {
+            //发送mq
+            //marketDbProducer.sendThirdMarketInsertInfo(linkId, Arrays.asList(thirdSportMarket));
             thirdSportMarketMapper.insertSelective(thirdSportMarket);
             //三方冠军盘口名称多语言处理
             if (thirdMarketDTO.getMarketType() == 2 && !CollectionUtils.isEmpty(thirdMarketDTO.getI18nNames())) {
@@ -274,7 +276,7 @@ public class ThirdSportMarketServiceImpl implements ThirdSportMarketService {
             //此处只打印异常，即使入库失败该盘口依然需要投递给下游
             log.info("::{}::insert三方盘口唯一约束冲突，尝试重新入库,matchId:{},三方盘口ID:{}", linkId,
                     thirdSportMarket.getMatchId(), thirdSportMarket.getThirdMarketSourceId());
-            createReplenish(linkId,thirdSportMarket);
+            //createReplenish(linkId,thirdSportMarket);
         }
         return thirdSportMarket;
     }
@@ -324,8 +326,10 @@ public class ThirdSportMarketServiceImpl implements ThirdSportMarketService {
 
     @Override
     @CachePut(key = "'ThirdSportMarket:' + #thirdSportMarket.matchId+ '-' + #thirdSportMarket.thirdMarketSourceId")
-    @Async("ThirdSportMarketThreadPool")
+    //@Async("ThirdSportMarketThreadPool")
     public ThirdSportMarket updateByPrimaryKeySelective(ThirdSportMarket thirdSportMarket) {
+        //发送mq
+        //marketDbProducer.sendThirdMarketUpdateInfo("", Arrays.asList(thirdSportMarket));
         thirdSportMarketMapper.updateByPrimaryKeySelective(thirdSportMarket);
         return thirdSportMarket;
     }

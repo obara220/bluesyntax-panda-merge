@@ -127,6 +127,11 @@ public class ThirdMatchPromotionChartDTO implements Serializable {
     @ApiModelProperty(value = "是否当前赛季(0:否,1:是)")
     private Integer isCurrentSeason;
 
+    /**
+     * 轮次文字描述（中文）
+     */
+    private String zsRoundDescription;
+
     private static final long serialVersionUID = 1L;
 
 }

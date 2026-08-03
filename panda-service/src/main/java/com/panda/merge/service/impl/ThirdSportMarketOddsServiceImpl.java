@@ -68,7 +68,12 @@ public class ThirdSportMarketOddsServiceImpl implements ThirdSportMarketOddsServ
                 .andThirdOddsFieldSourceIdEqualTo(thirdOddsFieldSourceId)
                 .andMarketIdEqualTo(thirdMarketId);
         List<ThirdSportMarketOdds> thirdSportMarketOdds = null;
-        thirdSportMarketOdds = thirdSportMarketOddsMapper.selectByExample(thirdSportMarketOddsExample);
+        try {
+            thirdSportMarketOdds = thirdSportMarketOddsMapper.selectByExample(thirdSportMarketOddsExample);
+        }catch (Exception e){
+            log.error("::thirdOddsFieldSourceId{}::getItem查询ThirdSportMarketOdds::{}",thirdOddsFieldSourceId,e);
+        }finally {
+        }
         if(CollectionUtils.isEmpty(thirdSportMarketOdds)){
             return null;
         }
@@ -76,15 +81,18 @@ public class ThirdSportMarketOddsServiceImpl implements ThirdSportMarketOddsServ
     }
 
     @Override
-    //@Cacheable(key = "'ThirdSportMarketOdds:' + #marketId",unless = "#result == null ")
+//    @Cacheable(key = "'ThirdSportMarketOdds:' + #marketId",unless = "#result == null ")
     public List<ThirdSportMarketOdds> getItemList(String dataSourceCode,Long marketId) {
-        ThirdSportMarketOddsExample thirdSportMarketOddsExample = new ThirdSportMarketOddsExample();
-        thirdSportMarketOddsExample.createCriteria().andMarketIdEqualTo(marketId).andDataSourceCodeEqualTo(dataSourceCode);
-        List<ThirdSportMarketOdds> thirdSportMarketOddsList = thirdSportMarketOddsMapper.selectByExample(thirdSportMarketOddsExample);
-        if (CollectionUtils.isEmpty(thirdSportMarketOddsList)) {
-            return null;
+        try {
+            ThirdSportMarketOddsExample thirdSportMarketOddsExample = new ThirdSportMarketOddsExample();
+            thirdSportMarketOddsExample.createCriteria().andMarketIdEqualTo(marketId).andDataSourceCodeEqualTo(dataSourceCode);
+            List<ThirdSportMarketOdds> thirdSportMarketOddsList = thirdSportMarketOddsMapper.selectByExample(thirdSportMarketOddsExample);
+            if (CollectionUtils.isEmpty(thirdSportMarketOddsList)) {
+                return null;
+            }
+            return thirdSportMarketOddsList;
+        } finally {
         }
-        return thirdSportMarketOddsList;
     }
 
     /**
@@ -107,17 +115,22 @@ public class ThirdSportMarketOddsServiceImpl implements ThirdSportMarketOddsServ
         thirdSportMarketOdds.setThirdTemplateSourceId(thirdMarketOddsDTO.getThirdTempletSourceId());
         thirdSportMarketOdds.setCreateTime(TimeUtils.millsSecondsEast8ZoneGmt());
         thirdSportMarketOdds.setModifyTime(thirdMarketOddsDTO.getModifyTime());
+        if (null == thirdSportMarketOdds.getModifyTime()) {
+            thirdSportMarketOdds.setModifyTime(thirdSportMarket.getModifyTime());
+        }
         thirdSportMarketOdds.setThirdMatchId(thirdSportMarket.getMatchId());
         thirdSportMarketOdds.setName(StandardSportMarketOddsServiceImpl.getOddsName(thirdMarketOddsDTO.getI18nNames()));
         thirdSportMarketOdds.setNameCode(thirdSportMarketOdds.getId());
         try {
+            //发送mq
+            //marketDbProducer.sendThirdMarketOddsInsertInfo(linkId, Arrays.asList(thirdSportMarketOdds));
             thirdSportMarketOddsMapper.insert(thirdSportMarketOdds);
         } catch (DuplicateKeyException e) {
             //此处只打印异常，即使入库失败该盘口投注项依然需要投递给下游
             log.info("::{}::insert三方盘口投注项唯一约束冲突,尝试重新入库，盘口主键ID:{},三方投注项ID:{}",
                     linkId, thirdSportMarket.getId(), thirdMarketOddsDTO.getThirdOddsFieldSourceId());
             //重新入库
-        	createReplenish(linkId,thirdSportMarketOdds);
+            createReplenish(linkId,thirdSportMarketOdds);
 //            String key = RedisConfig.REDIS_KEY_DATABASE + "::ThirdSportMarketOdds:" + thirdSportMarketOdds.getMarketId();
 //            redisService.del(key);
         }
@@ -161,8 +174,8 @@ public class ThirdSportMarketOddsServiceImpl implements ThirdSportMarketOddsServ
             }else {
             	int count = updateByMarketIdAndDataSourceCodeAndFieldId(linkId,thirdSportMarketOdds);
             	if(count > 0) {
-               	 	String key = RedisConfig.REDIS_KEY_DATABASE + "::ThirdSportMarketOdds:" + thirdSportMarketOdds.getMarketId()+"-"+thirdSportMarketOdds.getThirdOddsFieldSourceId();
-                    redisService.del(key);
+//               	 	String key = RedisConfig.REDIS_KEY_DATABASE + "::ThirdSportMarketOdds:" + thirdSportMarketOdds.getMarketId()+"-"+thirdSportMarketOdds.getThirdOddsFieldSourceId();
+//                    redisService.del(key);
                     log.info("::{}:: update三方盘口投注项信息 成功，盘口主键ID:{},三方投注项ID:{}",
                             linkId, thirdSportMarketOdds.getMarketId(), thirdSportMarketOdds.getThirdOddsFieldSourceId());
                }else {
@@ -207,11 +220,8 @@ public class ThirdSportMarketOddsServiceImpl implements ThirdSportMarketOddsServ
     }
 
     @Override
-//    @Async("ThirdSportMarketThreadPool")
     public void upThirdOddsList(String linkId, String dataSourceCode, List<ThirdSportMarketOdds> thirdSportMarketOddsList, List<ThirdMarketOddsDTO> thirdMarketOddsDTOS) {
         try {
-            //批量修改投注项
-            //thirdSportMarketOddsDao.upDataList(thirdSportMarketOddsList, dataSourceCode);
             //刷新LIST缓存
 //            String key = RedisConfig.REDIS_KEY_DATABASE + "::ThirdSportMarketOdds:" + thirdSportMarketOddsList.get(0).getMarketId();
 //            if (thirdMarketOddsDTOS.size() == thirdSportMarketOddsList.size()) {
@@ -223,7 +233,7 @@ public class ThirdSportMarketOddsServiceImpl implements ThirdSportMarketOddsServ
 //            }
             //刷新单挑缓存
             thirdSportMarketOddsList.forEach(odds -> {
-                thirdSportMarketOddsMapper.updateByPrimaryKeySelective(odds);
+                //thirdSportMarketOddsMapper.updateByPrimaryKeySelective(odds);
                 String key1 = RedisConfig.REDIS_KEY_DATABASE + "::ThirdSportMarketOdds:" + odds.getMarketId() + '-' + odds.getThirdOddsFieldSourceId();
                 redisService.set(key1, odds);
             });
@@ -234,9 +244,10 @@ public class ThirdSportMarketOddsServiceImpl implements ThirdSportMarketOddsServ
     }
 
     @Override
-    @Async("ThirdSportMarketThreadPool")
+    //@Async("ThirdSportMarketThreadPool")
     public void upThirdOddsAsyncList(String linkId, String dataSourceCode, List<ThirdSportMarketOdds> thirdSportMarketOddsList, List<ThirdMarketOddsDTO> thirdMarketOddsDTOS) {
-        //thirdSportMarketOddsDao.upDataList(thirdSportMarketOddsList, dataSourceCode);
+        //发送mq
+        //marketDbProducer.sendThirdMarketOddsUpdateInfo(linkId, thirdSportMarketOddsList);
 //        String key = RedisConfig.REDIS_KEY_DATABASE + "::ThirdSportMarketOdds:" + thirdSportMarketOddsList.get(0).getMarketId();
 //        if (thirdMarketOddsDTOS.size() == thirdSportMarketOddsList.size()) {
 //            redisService.set(key, thirdSportMarketOddsList);
@@ -254,14 +265,21 @@ public class ThirdSportMarketOddsServiceImpl implements ThirdSportMarketOddsServ
     }
 
     @Override
+    public void upThirdOddsListByDataSourceCode(String linkId, String dataSourceCode, List<ThirdSportMarketOdds> upOddsList) {
+        thirdSportMarketOddsDao.upDataList(upOddsList, dataSourceCode);
+
+    }
+
+    @Override
     public Long getRelationMarketOddsId(Long relationMarketId, String oddsType,String thirdOddsFieldSourceId,String addition1, Long marketGategoryId) {
         Long relationMarketOddsId;
         //兼容冠军投注项id历史数据
         if (MarginCategoryConfig.STANDARD_OUTRIGHT_CATEGORY.contains(marketGategoryId)) {
             StringBuffer redisKey = new StringBuffer(Constant.REDIS_KEY.RONGHE_STANDARD_MARKET_ODDS_RELATION_MARKET_ODDS_ID);
             String key = redisKey.append(relationMarketId).append("_").append(oddsType).toString();
-            if (redisService.get(key) != null && !StringUtils.isEmpty(redisService.get(key).toString())) {
-                return Long.valueOf(redisService.get(key).toString());
+            Object obj = redisService.get(key);
+            if (obj != null && !StringUtils.isEmpty(obj.toString())) {
+                return Long.valueOf(obj.toString());
             }
         }
         String redisKey = RelationKeyFactory.getMarketOddsRelationKeyByThirdOddsInfo(relationMarketId,oddsType,thirdOddsFieldSourceId,addition1,marketGategoryId);
@@ -470,7 +488,7 @@ public class ThirdSportMarketOddsServiceImpl implements ThirdSportMarketOddsServ
                         linkId,market.getMarketCategoryId()+"_"+market.getSendData()+"_"+market.getDataSourceCode());
         		redisService.hDel(key, market.getMarketCategoryId()+"_"+market.getSendData()+"_"+market.getDataSourceCode()+"_"+Constant.SPORT_MARKET.STATUS.SUSPENDED);
             	redisService.hDel(key, market.getMarketCategoryId()+"_"+market.getSendData()+"_"+market.getDataSourceCode()+"_"+Constant.SPORT_MARKET.STATUS.DEACTIVATED);
-                String redisKey = DigestUtil.md5Hex(Constant.REDIS_KEY.RONGHE_STANDARD_CATEGORY_MARKET + matchId + "_" + market.getDataSourceCode()+"_"+market.getMarketCategoryId());
+            	String redisKey = DigestUtil.md5Hex(Constant.REDIS_KEY.RONGHE_STANDARD_CATEGORY_MARKET + matchId + "_" + market.getDataSourceCode()+"_"+market.getMarketCategoryId());
             	StandardSportMarket standardSportMarket = (StandardSportMarket) redisService.hGet(redisKey,market.getSendData());
             	if(standardSportMarket != null && standardSportMarket.getOldThirdMarketSourceStatus() != null) {
             		log.info("::{}::deleteMatchMarketOddsOfRedis,重置盘口缓存。盘口状态更新为:{},更新之前三方状态:{}",

@@ -95,7 +95,7 @@ public class StandardSportMarketNewServiceImpl implements StandardSportMarketNew
         if(CollectionUtils.isEmpty(requiredCallItems)){
             return result;
         }
-
+        log.info("2724,查询标准盘口数据库：{}", requiredCallItems);
         String sql = "select *  from standard_sport_market  where (standard_match_info_id, third_market_source_id, data_source_code) in (";
         for (OddsWrapper<ThirdMarketDTO> item : requiredCallItems) {
             sql += "(" + item.getStandardSourceId() + ", \""+ item.getData().getThirdMarketSourceId() + "\", \"" + item.getDataSourceCode() + "\"), ";
@@ -277,7 +277,7 @@ public class StandardSportMarketNewServiceImpl implements StandardSportMarketNew
         if (obj == null || StringUtils.isEmpty(obj.toString())) {
             relationMarketId = MD5Utils.getLongByMD5(redisKey);//UUIdUtils.getId();
         } else {
-            relationMarketId = Long.valueOf(obj.toString());
+            relationMarketId = Long.valueOf(redisService.get(redisKey).toString());
         }
         redisService.set(redisKey, relationMarketId.toString(), RedisConfig.REDIS_MONTH_TIME);
         return relationMarketId;

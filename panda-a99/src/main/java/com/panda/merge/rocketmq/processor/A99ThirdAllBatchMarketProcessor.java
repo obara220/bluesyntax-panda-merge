@@ -267,23 +267,25 @@ public class A99ThirdAllBatchMarketProcessor extends BaseProcessor {
                 thirdSportMarketMessages.forEach(e -> {
                     //缓存三方盘口
                     if(e.getMarketType() == 0) {
-                        if (e.getStatus() != 0) {
-                            //删除缓存
-                            log.info("{}::滚球玩法缓存删除成功,缓存key:{},item:{}",linkId, Constant.REDIS_KEY.RONGHE_A99_THIRD_MARKET_ODDS_LIVE + standardMatchInfo.getId() + ":" + e.getMarketCategoryId(), internalDataSourceCode + ":" + e.getRelationMarketId());
-                            redisService.hDel(Constant.REDIS_KEY.RONGHE_A99_THIRD_MARKET_ODDS_LIVE + standardMatchInfo.getId() + ":" + e.getMarketCategoryId(), internalDataSourceCode + ":" + e.getRelationMarketId());
-                        }
-                        // 滚球玩法缓存1分钟，如果1分钟不更新全部失效
-                        redisService.hSet(Constant.REDIS_KEY.RONGHE_A99_THIRD_MARKET_ODDS_LIVE + standardMatchInfo.getId() + ":" + e.getMarketCategoryId(), internalDataSourceCode + ":" + e.getRelationMarketId(), e, 60*10);
-                        log.info("{}::滚球玩法添加缓存成功,缓存key:{},item:{}", linkId, Constant.REDIS_KEY.RONGHE_A99_THIRD_MARKET_ODDS_LIVE + standardMatchInfo.getId() + ":" + e.getMarketCategoryId(), internalDataSourceCode + ":" + e.getRelationMarketId());
+//                        if (e.getStatus() != 0) {
+//                            //删除缓存
+//                            log.info("{}::滚球玩法缓存删除成功,缓存key:{},item:{}",linkId, Constant.REDIS_KEY.RONGHE_A99_THIRD_MARKET_ODDS_LIVE + standardMatchInfo.getId() + ":" + e.getMarketCategoryId(), internalDataSourceCode + ":" + e.getRelationMarketId());
+//                            redisService.hDel(Constant.REDIS_KEY.RONGHE_A99_THIRD_MARKET_ODDS_LIVE + standardMatchInfo.getId() + ":" + e.getMarketCategoryId(), internalDataSourceCode + ":" + e.getRelationMarketId());
+//                        } else {
+                            // 滚球玩法缓存1分钟，如果1分钟不更新全部失效
+                            redisService.hSet(Constant.REDIS_KEY.RONGHE_A99_THIRD_MARKET_ODDS_LIVE + standardMatchInfo.getId() + ":" + e.getMarketCategoryId(), internalDataSourceCode + ":" + e.getRelationMarketId(), e, 60*10);
+                            log.info("{}::滚球玩法添加缓存成功,缓存key:{},item:{}", linkId, Constant.REDIS_KEY.RONGHE_A99_THIRD_MARKET_ODDS_LIVE + standardMatchInfo.getId() + ":" + e.getMarketCategoryId(), internalDataSourceCode + ":" + e.getRelationMarketId());
+//                        }
                     } else {
-                        if (e.getStatus() != 0) {
-                            //删除缓存
-                            log.info("{}::早盘玩法缓存删除成功,缓存key:{},item:{}",linkId, Constant.REDIS_KEY.RONGHE_A99_THIRD_MARKET_ODDS_PRE + standardMatchInfo.getId() + ":" + e.getMarketCategoryId(), internalDataSourceCode + ":" + e.getRelationMarketId());
-                            redisService.hDel(Constant.REDIS_KEY.RONGHE_A99_THIRD_MARKET_ODDS_PRE + standardMatchInfo.getId() + ":" + e.getMarketCategoryId(), internalDataSourceCode + ":" + e.getRelationMarketId());
-                        }
-                        // 早盘玩法缓存10小时
-                        redisService.hSet(Constant.REDIS_KEY.RONGHE_A99_THIRD_MARKET_ODDS_PRE + standardMatchInfo.getId() + ":" + e.getMarketCategoryId(), internalDataSourceCode + ":" + e.getRelationMarketId(), e, 3600*10);
-                        log.info("{}::早盘玩法添加缓存成功,缓存key:{},item:{}", linkId, Constant.REDIS_KEY.RONGHE_A99_THIRD_MARKET_ODDS_PRE + standardMatchInfo.getId() + ":" + e.getMarketCategoryId(), internalDataSourceCode + ":" + e.getRelationMarketId());
+//                        if (e.getStatus() != 0) {
+//                            //删除缓存
+//                            log.info("{}::早盘玩法缓存删除成功,缓存key:{},item:{}",linkId, Constant.REDIS_KEY.RONGHE_A99_THIRD_MARKET_ODDS_PRE + standardMatchInfo.getId() + ":" + e.getMarketCategoryId(), internalDataSourceCode + ":" + e.getRelationMarketId());
+//                            redisService.hDel(Constant.REDIS_KEY.RONGHE_A99_THIRD_MARKET_ODDS_PRE + standardMatchInfo.getId() + ":" + e.getMarketCategoryId(), internalDataSourceCode + ":" + e.getRelationMarketId());
+//                        } else {
+                            // 早盘玩法缓存10小时
+                            redisService.hSet(Constant.REDIS_KEY.RONGHE_A99_THIRD_MARKET_ODDS_PRE + standardMatchInfo.getId() + ":" + e.getMarketCategoryId(), internalDataSourceCode + ":" + e.getRelationMarketId(), e, 3600*10);
+                            log.info("{}::早盘玩法添加缓存成功,缓存key:{},item:{}", linkId, Constant.REDIS_KEY.RONGHE_A99_THIRD_MARKET_ODDS_PRE + standardMatchInfo.getId() + ":" + e.getMarketCategoryId(), internalDataSourceCode + ":" + e.getRelationMarketId());
+//                        }
                     }
                 });
                 if (!thirdSportMarketMessages.isEmpty()) {

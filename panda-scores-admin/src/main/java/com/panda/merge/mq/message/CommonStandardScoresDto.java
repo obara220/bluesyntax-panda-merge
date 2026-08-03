@@ -90,4 +90,5 @@ public class CommonStandardScoresDto {
      * 赛事状态 发给比分网
      */
     private Integer matchStatus;
+
 }

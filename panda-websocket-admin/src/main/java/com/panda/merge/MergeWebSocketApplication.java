@@ -19,7 +19,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableDubbo
 @EnableCaching
 @NacosPropertySource(dataId = "panda-websocket-admin", autoRefreshed = true)
-@NacosPropertySource(dataId = "panda-data-common", autoRefreshed = true)
 public class MergeWebSocketApplication {
 
 

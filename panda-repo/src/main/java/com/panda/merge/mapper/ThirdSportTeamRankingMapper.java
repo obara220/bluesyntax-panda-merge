@@ -4,7 +4,9 @@ import com.panda.merge.model.ThirdSportTeamRanking;
 import com.panda.merge.model.ThirdSportTeamRankingExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public interface ThirdSportTeamRankingMapper {
     long countByExample(ThirdSportTeamRankingExample example);
 

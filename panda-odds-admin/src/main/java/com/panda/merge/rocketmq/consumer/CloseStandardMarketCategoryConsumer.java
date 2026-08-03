@@ -79,7 +79,6 @@ public class CloseStandardMarketCategoryConsumer extends BaseProcessor implement
         try {
             Set<Long> categoryIds = new HashSet<>();
             StandardMatchInfo standardMatchInfo = standardMatchInfoService.getItem(thirdMatchInfo.getReferenceId());
-            Map<String, StandardMarketDataMessage> standardMarketMessageNewSendMap = new HashMap<>();
             for (CategoryDataSourceCodeDTO categoryDataSourceCodeDTO : categoryDataSourceCodeDTOList) {
                 String internalDataSourceCode = categoryDataSourceCodeDTO.getInternalDataSourceCode();
                 int marketType = categoryDataSourceCodeDTO.getMarketType();
@@ -89,7 +88,7 @@ public class CloseStandardMarketCategoryConsumer extends BaseProcessor implement
                     log.info("::{}::切换数据源不支持的玩法进行关盘,玩法不支持:{}", linkId, thirdCategoryId);
                     continue;
                 }
-               /* if (StandardSportTypeEnum.FootBall.code.equals(standardMatchInfo.getSportId()) && MarginCategoryConfig.FootBall_MAIN3484_CATEGORY.contains(thirdMarketCategory.getReferenceId())) {
+                /*if (StandardSportTypeEnum.FootBall.code.equals(standardMatchInfo.getSportId()) && MarginCategoryConfig.FootBall_MAIN3484_CATEGORY.contains(thirdMarketCategory.getReferenceId())) {
                 } else if (StandardSportTypeEnum.Basketball.code.equals(standardMatchInfo.getSportId()) && MarginCategoryConfig.BASKETBALL_MAIN_CATEGORY.contains(thirdMarketCategory.getReferenceId())) {
                 } else {
                     continue;
@@ -111,6 +110,7 @@ public class CloseStandardMarketCategoryConsumer extends BaseProcessor implement
                 //获取本次玩法下面所有盘口
                 Map<String, StandardMarketDataMessage> standardMarketMessageNewMap = redisService.hGetAll(redisKey);
                 if (!MapUtils.isEmpty(standardMarketMessageNewMap)) {
+                    log.info("::{}::切换数据源不支持的玩法进行关盘,标准缓存存在", linkIdNew);
                     List<Long> relationMarketIds = new ArrayList<>();
                     standardMarketMessageNewMap.values().stream().forEach(standardMarketMessage -> {
                         standardMarketMessage.setColseMarket(2);
@@ -129,9 +129,10 @@ public class CloseStandardMarketCategoryConsumer extends BaseProcessor implement
                         thirdMatchMarketProcessor.processOddsByPanda(linkIdNew, message.getOddsSource(), message.getOperaterId(), standardMatchInfo, singleCategory, standardMarketMessageNewMap, System.currentTimeMillis(), new HashMap<>(), Boolean.TRUE);
                     }
                 } else {
+                    log.info("::{}::切换数据源不支持的玩法进行关盘,标准缓存不存在", linkIdNew);
                     //获取上一次下发的最新盘口 ，上一次不存在不处理
                     List<StandardMarketMessage> TempLastStandardMarketMessages = (List<StandardMarketMessage>) redisService.hGet(lastMarketOddsKey, String.valueOf(thirdMarketCategory.getReferenceId()));
-                    if (TempLastStandardMarketMessages==null||TempLastStandardMarketMessages.isEmpty()){
+                    if (TempLastStandardMarketMessages == null || TempLastStandardMarketMessages.isEmpty()) {
                         continue;
                     }
                     List<StandardMarketMessage> lastStandardMarketMessages = TempLastStandardMarketMessages.stream().filter(e->(checkDataSourceCode&&dataSourceCode.equals(e.getDataSourceCode()))||!checkDataSourceCode).collect(Collectors.toList());

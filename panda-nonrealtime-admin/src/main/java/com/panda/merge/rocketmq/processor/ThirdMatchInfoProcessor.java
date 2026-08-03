@@ -81,6 +81,10 @@ public class ThirdMatchInfoProcessor extends BaseProcessor {
     @NacosValue(value = "${sale.auto.sources:0}", autoRefreshed = true)
     private String autoSaleSources;
 
+    /** 测试环境专用，自动开售的赛种*/
+    @NacosValue(value = "${sale.auto.sport.ids:0}", autoRefreshed = true)
+    private String autoSaleSportIds;
+
     /**
      * 处理赛事数据
      * @param request  三方数据源赛事入参
@@ -120,7 +124,7 @@ public class ThirdMatchInfoProcessor extends BaseProcessor {
                     getPaDataServiceLogDTO(request.getLinkId(),nonrealtime,THIRD_MATCH_INFO_API,"三方赛事信息接入",
                             stopWatch.getTotalTimeMillis(),Integer.parseInt(String.valueOf(response.getCode())),response.getMsg())
             );
-            log.info("【"+ PROJECT_ID_NOREALTIME+" ："+ THIRD_MATCH_INFO_API+"】【"+request.getDataSourceCode()+" ::"+request.getLinkId()+"::】第三方赛事数据处理结束,返回结果 ：{}" ,JSON.toJSONString(response));
+            log.info("【"+ PROJECT_ID_NOREALTIME +" ："+ PROJECT_ID_NOREALTIME+" ："+ THIRD_MATCH_INFO_API+"】【"+request.getDataSourceCode()+" ::"+request.getLinkId()+"::】第三方赛事数据处理结束,返回结果 ：{}" ,JSON.toJSONString(response));
         }
         return response;
     }
@@ -232,15 +236,34 @@ public class ThirdMatchInfoProcessor extends BaseProcessor {
                 //=============================场地信息结束=============================
                 /**统一入库赛事，赛事球队关系，场地信息多语言入库*/
                 log.info("【"+ PROJECT_ID_NOREALTIME +" ："+ THIRD_MATCH_INFO_API+"】【"+dataSource.getCode()+" ::"+linkId+"::】本次处理的三方赛事信息:{},开赛时间={},liveEventSource={}",thirdMatchInfo.getThirdMatchSourceId(),thirdMatchInfo.getBeginTime(), thirdMatchInfoDTO.getLiveEventSource());
+                //108326 【日常】【生产】L01篮球，三方赛事结束了，阶段却显示0
+                try {
+                    Long.valueOf(thirdMatchInfo.getMatchPeriod());
+                } catch (Exception e) {
+                    log.info("【linkId="+linkId+",源赛事ID={}】,三方赛事阶段转换异常,原始值:{},转换为'0'", thirdMatchInfo.getThirdMatchSourceId(), thirdMatchInfo.getMatchPeriod());
+                    thirdMatchInfo.setMatchPeriod("0");
+                }
+                if (DataSourceCodeEnum.LS.getCode().equals(thirdMatchInfo.getDataSourceCode())) {
+                    if ("0".equals(thirdMatchInfo.getMatchPeriod()) && oldThirdMatchInfo != null && StringUtils.isNotBlank(oldThirdMatchInfo.getMatchPeriod())) {
+                        thirdMatchInfo.setMatchPeriod(null);
+                    }
+                }
                 transactionalProcessor.saveOrupdateThirdMatch(linkId, thirdMatchInfo, isNewThirdMatch, thirdMatchInfoDTO.getSportId());
                 thirdMatchInfoProducer.pushQueueMatch(linkId,dataSource,thirdMatchInfo);
                 //如果为0则不开启自动开售
                 if(!String.valueOf(ZERO).equals(autoSaleSources)){
+                    List<String> autoSaleSourceList = Arrays.asList(autoSaleSources.split(","));
                     /** BE默认自动开售 42835 单 ，F01电子赛事自动开售*/
-                    if(TWO.equals(thirdMatchInfo.getMatchType()) && autoSaleSources.contains(thirdMatchInfo.getDataSourceCode())) {
+                    if(TWO.equals(thirdMatchInfo.getMatchType()) && autoSaleSourceList.contains(thirdMatchInfo.getDataSourceCode())) {
                         thirdMatchInfoProducer.pushReplayMatch(linkId, dataSource, thirdMatchInfo);
                         log.info("【"+ PROJECT_ID_NOREALTIME +" ："+ THIRD_MATCH_INFO_API+"】【"+dataSource.getCode()+" ::"+linkId+"::】成功发送重播赛事自动开售处理");
                     }else{
+                        /** ---------------测试环境专用开始，需要自动开售的赛种---------------*/
+                        List<String> autoSaleSportIdList = Arrays.asList(autoSaleSportIds.split(","));
+                        if(autoSaleSourceList.contains(thirdMatchInfo.getDataSourceCode()) && autoSaleSportIdList.contains(thirdMatchInfo.getSportId()+"")) {
+                            thirdMatchInfoDTO.setReplayMatch(ConstantSystem.ONE);
+                        }
+                        /** ---------------测试环境专用结束，需要自动开售的赛种---------------*/
                         /** 重播自动开售*/
                         if(ConstantSystem.ONE.equals(thirdMatchInfoDTO.getReplayMatch())) {
                             thirdMatchInfoProducer.pushReplayMatch(linkId, dataSource, thirdMatchInfo);
@@ -693,14 +716,14 @@ public class ThirdMatchInfoProcessor extends BaseProcessor {
                 if(StringUtils.isBlank(lotteryNumber)){
                     lotteryNumber = oldLotteryNumber;
                 }
-                log.info("【"+ PROJECT_ID_NOREALTIME+" ："+ THIRD_MATCH_INFO_API+"】【"+dataSourceCode+" : "+linkId+"】传入彩票编号：{},库中彩票编号：{}",thirdMatchInfo.getLotteryNumber(),oldLotteryNumber);
+                log.info("【"+ PROJECT_ID_NOREALTIME +" ："+ PROJECT_ID_NOREALTIME+" ："+ THIRD_MATCH_INFO_API+"】【"+dataSourceCode+" : "+linkId+"】传入彩票编号：{},库中彩票编号：{}",thirdMatchInfo.getLotteryNumber(),oldLotteryNumber);
                 if(StringUtils.isNotBlank(lotteryNumber) && !lotteryNumber.equals(oldLotteryNumber)){
                     try{
                         StandardMatchInfo standardMatchInfo = new StandardMatchInfo();
                         standardMatchInfo.setId(oldThirdMatchInfo.getReferenceId());
                         standardMatchInfo.setLotteryNumber(lotteryNumber);
                         StandardMatchInfo upStandardMatchInfo = standardMatchInfoService.updateByPrimaryKeySelective(standardMatchInfo);
-                        log.info("【"+ PROJECT_ID_NOREALTIME+" ："+ THIRD_MATCH_INFO_API+"】【"+dataSourceCode+" : "+linkId+"】" + "修改后的标准赛事彩票编号信息：{}",JSON.toJSONString(upStandardMatchInfo));
+                        log.info("【"+ PROJECT_ID_NOREALTIME +" ："+ PROJECT_ID_NOREALTIME+" ："+ THIRD_MATCH_INFO_API+"】【"+dataSourceCode+" : "+linkId+"】" + "修改后的标准赛事彩票编号信息：{}",JSON.toJSONString(upStandardMatchInfo));
                     }catch (Exception e){
                         log.error("【"+ PROJECT_ID_NOREALTIME+" ："+ THIRD_MATCH_INFO_API+"】【"+dataSourceCode+" : "+linkId+"】" + "修改后的标准赛事彩票编号信息异常，Exception",e);
                     }
@@ -715,7 +738,7 @@ public class ThirdMatchInfoProcessor extends BaseProcessor {
             if(!(MatchStatusEnum.Ended.value.equals(oldThirdMatchInfo.getMatchStatus()) && MatchStatusEnum.Closed.value.equals(thirdMatchInfo.getMatchStatus()))){
                 //状态还原
                 thirdMatchInfo.setMatchStatus(oldThirdMatchInfo.getMatchStatus());
-                log.info("【"+ PROJECT_ID_NOREALTIME+" ："+ THIRD_MATCH_INFO_API+"】【"+dataSourceCode+" : "+linkId+"】" +
+                log.info("【"+ PROJECT_ID_NOREALTIME +" ："+ PROJECT_ID_NOREALTIME+" ："+ THIRD_MATCH_INFO_API+"】【"+dataSourceCode+" : "+linkId+"】" +
                         "状态不可逆触发,原赛事状态：{"+thirdMatchInfo.getMatchStatus()+"},传入赛事状态：{"+oldThirdMatchInfo.getMatchStatus()+"}" );
             }
         }else{

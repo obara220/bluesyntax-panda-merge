@@ -40,8 +40,6 @@ public class ThirdMatchMarketProcessor  extends BaseProcessor {
     public List<Long> S01_Code_list = new ArrayList<>();
 
     //public List<Long> L02_Code_list = new ArrayList<>();
-
-    public List<Long> B02_Code_list = new ArrayList<>();
     @ExceptionHelper
     public void execute(@Valid List<Request<ThirdMatchMarketDTO>> requests) {
         if (requests == null || requests.isEmpty()) {
@@ -55,7 +53,6 @@ public class ThirdMatchMarketProcessor  extends BaseProcessor {
                     && e.getData().getDataSourceCode() != null
                     && ((e.getData().getDataSourceCode().equalsIgnoreCase(DataSourceCodeEnum.BG.code) && B01_Code_list.contains(e.getData().getSportId()))
                     || (e.getData().getDataSourceCode().equalsIgnoreCase(DataSourceCodeEnum.N01.code) && N01_Code_list.contains(e.getData().getSportId()))
-                    || (e.getData().getDataSourceCode().equalsIgnoreCase(DataSourceCodeEnum.BC.code) && B02_Code_list.contains(e.getData().getSportId()))
                     || (e.getData().getDataSourceCode().equalsIgnoreCase(DataSourceCodeEnum.N02.code) && N02_Code_list.contains(e.getData().getSportId()))
                     || (e.getData().getDataSourceCode().equalsIgnoreCase(DataSourceCodeEnum.SR.code) && S01_Code_list.contains(e.getData().getSportId()))
                     || (e.getData().getDataSourceCode().equalsIgnoreCase(DataSourceCodeEnum.N03.code) && N03_Code_list.contains(e.getData().getSportId()))
@@ -80,10 +77,6 @@ public class ThirdMatchMarketProcessor  extends BaseProcessor {
         B01_Code_list.add(Long.valueOf(thirdSportTypeService.getThirdSportId(StandardSportTypeEnum.Basketball.code,DataSourceCodeEnum.BG.code)));
         S01_Code_list.add(Long.valueOf(thirdSportTypeService.getThirdSportId(StandardSportTypeEnum.FootBall.code,DataSourceCodeEnum.SR.code)));
         S01_Code_list.add(Long.valueOf(thirdSportTypeService.getThirdSportId(StandardSportTypeEnum.Basketball.code,DataSourceCodeEnum.SR.code)));
-        //L02_Code_list.add(Long.valueOf(thirdSportTypeService.getThirdSportId(StandardSportTypeEnum.FootBall.code,DataSourceCodeEnum.L02.code)));
-        //L02_Code_list.add(Long.valueOf(thirdSportTypeService.getThirdSportId(StandardSportTypeEnum.Basketball.code,DataSourceCodeEnum.L02.code)));
-        B02_Code_list.add(Long.valueOf(thirdSportTypeService.getThirdSportId(StandardSportTypeEnum.FootBall.code,DataSourceCodeEnum.BC.code)));
-        B02_Code_list.add(Long.valueOf(thirdSportTypeService.getThirdSportId(StandardSportTypeEnum.Basketball.code,DataSourceCodeEnum.BC.code)));
 
         N01_Code_list.add(StandardSportTypeEnum.FootBall.getCode());
         N01_Code_list.add(StandardSportTypeEnum.Basketball.getCode());

@@ -97,6 +97,9 @@ public class MarketCategorySell implements Serializable {
     @ApiModelProperty(value = "BT权重")
     private Integer btWeight;
 
+    @ApiModelProperty(value = "1X权重")
+    private Integer onexWeight;
+
     @ApiModelProperty(value = "be权重")
     private Integer beWeight;
 
@@ -383,6 +386,14 @@ public class MarketCategorySell implements Serializable {
         this.btWeight = btWeight;
     }
 
+    public Integer getOnexWeight() {
+        return onexWeight;
+    }
+
+    public void setOnexWeight(Integer onexWeight) {
+        this.onexWeight = onexWeight;
+    }
+
     public Integer getBeWeight() {
         return beWeight;
     }
@@ -516,6 +527,7 @@ public class MarketCategorySell implements Serializable {
         sb.append(", aoWeight=").append(aoWeight);
         sb.append(", lsWeight=").append(lsWeight);
         sb.append(", btWeight=").append(btWeight);
+        sb.append(", onexWeight=").append(onexWeight);
         sb.append(", beWeight=").append(beWeight);
         sb.append(", koWeight=").append(koWeight);
         sb.append(", rbWeight=").append(rbWeight);

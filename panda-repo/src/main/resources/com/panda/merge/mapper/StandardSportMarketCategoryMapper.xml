@@ -87,9 +87,28 @@
   </sql>
   <sql id="Base_Column_List">
     id, sport_id, market_category_id, name_code, desc_name_code, is_collapse, scope_id, 
-    status, merchant_status, ao_status, order_no, template_h5, template_pc, create_time, modify_time,
-    template_pc_client, template_h5_client, merchant_api_code_list
+    status, merchant_status, ao_status, order_no, template_h5, template_pc, create_time, 
+    modify_time, template_pc_client, template_h5_client, detail_name_code
   </sql>
+  <sql id="Blob_Column_List">
+    merchant_api_code_list
+  </sql>
+  <select id="selectByExampleWithBLOBs" parameterType="com.panda.merge.model.StandardSportMarketCategoryExample" resultMap="ResultMapWithBLOBs">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from standard_sport_market_category
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
   <select id="selectByExample" parameterType="com.panda.merge.model.StandardSportMarketCategoryExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
@@ -104,9 +123,11 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="ResultMapWithBLOBs">
     select 
     <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
     from standard_sport_market_category
     where id = #{id,jdbcType=BIGINT}
   </select>
@@ -123,16 +144,18 @@
   <insert id="insert" parameterType="com.panda.merge.model.StandardSportMarketCategory">
     insert into standard_sport_market_category (id, sport_id, market_category_id, 
       name_code, desc_name_code, is_collapse, 
-      scope_id, status,  merchant_status, ao_status,
-      order_no, template_h5, template_pc,
-      create_time, modify_time, template_pc_client,
-      template_h5_client, merchant_api_code_list)
+      scope_id, status, merchant_status, 
+      ao_status, order_no, template_h5, 
+      template_pc, create_time, modify_time, 
+      template_pc_client, template_h5_client, detail_name_code, 
+      merchant_api_code_list)
     values (#{id,jdbcType=BIGINT}, #{sportId,jdbcType=BIGINT}, #{marketCategoryId,jdbcType=BIGINT}, 
       #{nameCode,jdbcType=BIGINT}, #{descNameCode,jdbcType=BIGINT}, #{isCollapse,jdbcType=TINYINT}, 
-      #{scopeId,jdbcType=VARCHAR}, #{status,jdbcType=TINYINT}, #{merchantStatus,jdbcType=TINYINT}, #{aoStatus,jdbcType=TINYINT},
-      #{orderNo,jdbcType=INTEGER}, #{templateH5,jdbcType=TINYINT}, #{templatePc,jdbcType=TINYINT},
-      #{createTime,jdbcType=BIGINT}, #{modifyTime,jdbcType=BIGINT}, #{templatePcClient,jdbcType=TINYINT},
-      #{templateH5Client,jdbcType=TINYINT}, #{merchantApiCodeList,jdbcType=LONGVARCHAR})
+      #{scopeId,jdbcType=VARCHAR}, #{status,jdbcType=TINYINT}, #{merchantStatus,jdbcType=TINYINT}, 
+      #{aoStatus,jdbcType=TINYINT}, #{orderNo,jdbcType=INTEGER}, #{templateH5,jdbcType=TINYINT}, 
+      #{templatePc,jdbcType=TINYINT}, #{createTime,jdbcType=BIGINT}, #{modifyTime,jdbcType=BIGINT}, 
+      #{templatePcClient,jdbcType=TINYINT}, #{templateH5Client,jdbcType=TINYINT}, #{detailNameCode,jdbcType=BIGINT}, 
+      #{merchantApiCodeList,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.panda.merge.model.StandardSportMarketCategory">
     insert into standard_sport_market_category
@@ -187,6 +210,9 @@
       </if>
       <if test="templateH5Client != null">
         template_h5_client,
+      </if>
+      <if test="detailNameCode != null">
+        detail_name_code,
       </if>
       <if test="merchantApiCodeList != null">
         merchant_api_code_list,
@@ -243,6 +269,9 @@
       </if>
       <if test="templateH5Client != null">
         #{templateH5Client,jdbcType=TINYINT},
+      </if>
+      <if test="detailNameCode != null">
+        #{detailNameCode,jdbcType=BIGINT},
       </if>
       <if test="merchantApiCodeList != null">
         #{merchantApiCodeList,jdbcType=LONGVARCHAR},
@@ -309,10 +338,38 @@
       <if test="record.templateH5Client != null">
         template_h5_client = #{record.templateH5Client,jdbcType=TINYINT},
       </if>
+      <if test="record.detailNameCode != null">
+        detail_name_code = #{record.detailNameCode,jdbcType=BIGINT},
+      </if>
       <if test="record.merchantApiCodeList != null">
         merchant_api_code_list = #{record.merchantApiCodeList,jdbcType=LONGVARCHAR},
       </if>
     </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map">
+    update standard_sport_market_category
+    set id = #{record.id,jdbcType=BIGINT},
+      sport_id = #{record.sportId,jdbcType=BIGINT},
+      market_category_id = #{record.marketCategoryId,jdbcType=BIGINT},
+      name_code = #{record.nameCode,jdbcType=BIGINT},
+      desc_name_code = #{record.descNameCode,jdbcType=BIGINT},
+      is_collapse = #{record.isCollapse,jdbcType=TINYINT},
+      scope_id = #{record.scopeId,jdbcType=VARCHAR},
+      status = #{record.status,jdbcType=TINYINT},
+      merchant_status = #{record.merchantStatus,jdbcType=TINYINT},
+      ao_status = #{record.aoStatus,jdbcType=TINYINT},
+      order_no = #{record.orderNo,jdbcType=INTEGER},
+      template_h5 = #{record.templateH5,jdbcType=TINYINT},
+      template_pc = #{record.templatePc,jdbcType=TINYINT},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      modify_time = #{record.modifyTime,jdbcType=BIGINT},
+      template_pc_client = #{record.templatePcClient,jdbcType=TINYINT},
+      template_h5_client = #{record.templateH5Client,jdbcType=TINYINT},
+      detail_name_code = #{record.detailNameCode,jdbcType=BIGINT},
+      merchant_api_code_list = #{record.merchantApiCodeList,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -336,7 +393,7 @@
       modify_time = #{record.modifyTime,jdbcType=BIGINT},
       template_pc_client = #{record.templatePcClient,jdbcType=TINYINT},
       template_h5_client = #{record.templateH5Client,jdbcType=TINYINT},
-      merchant_api_code_list = #{merchantApiCodeList,jdbcType=LONGVARCHAR}
+      detail_name_code = #{record.detailNameCode,jdbcType=BIGINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -392,10 +449,35 @@
       <if test="templateH5Client != null">
         template_h5_client = #{templateH5Client,jdbcType=TINYINT},
       </if>
+      <if test="detailNameCode != null">
+        detail_name_code = #{detailNameCode,jdbcType=BIGINT},
+      </if>
       <if test="merchantApiCodeList != null">
         merchant_api_code_list = #{merchantApiCodeList,jdbcType=LONGVARCHAR},
       </if>
     </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.panda.merge.model.StandardSportMarketCategory">
+    update standard_sport_market_category
+    set sport_id = #{sportId,jdbcType=BIGINT},
+      market_category_id = #{marketCategoryId,jdbcType=BIGINT},
+      name_code = #{nameCode,jdbcType=BIGINT},
+      desc_name_code = #{descNameCode,jdbcType=BIGINT},
+      is_collapse = #{isCollapse,jdbcType=TINYINT},
+      scope_id = #{scopeId,jdbcType=VARCHAR},
+      status = #{status,jdbcType=TINYINT},
+      merchant_status = #{merchantStatus,jdbcType=TINYINT},
+      ao_status = #{aoStatus,jdbcType=TINYINT},
+      order_no = #{orderNo,jdbcType=INTEGER},
+      template_h5 = #{templateH5,jdbcType=TINYINT},
+      template_pc = #{templatePc,jdbcType=TINYINT},
+      create_time = #{createTime,jdbcType=BIGINT},
+      modify_time = #{modifyTime,jdbcType=BIGINT},
+      template_pc_client = #{templatePcClient,jdbcType=TINYINT},
+      template_h5_client = #{templateH5Client,jdbcType=TINYINT},
+      detail_name_code = #{detailNameCode,jdbcType=BIGINT},
+      merchant_api_code_list = #{merchantApiCodeList,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.panda.merge.model.StandardSportMarketCategory">
@@ -416,7 +498,7 @@
       modify_time = #{modifyTime,jdbcType=BIGINT},
       template_pc_client = #{templatePcClient,jdbcType=TINYINT},
       template_h5_client = #{templateH5Client,jdbcType=TINYINT},
-      merchant_api_code_list = #{merchantApiCodeList,jdbcType=LONGVARCHAR}
+      detail_name_code = #{detailNameCode,jdbcType=BIGINT}
     where id = #{id,jdbcType=BIGINT}
   </update>
 </mapper>

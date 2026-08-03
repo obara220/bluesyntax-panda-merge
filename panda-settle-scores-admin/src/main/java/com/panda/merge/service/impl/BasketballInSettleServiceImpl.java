@@ -7,28 +7,25 @@ import com.panda.merge.common.enums.OperateLogTypeEnum;
 import com.panda.merge.config.RedisService;
 import com.panda.merge.constant.MatchSettleCheckConstant;
 import com.panda.merge.constant.MatchSettleScoreConstant;
-import com.panda.merge.dto.CommonItem;
-import com.panda.merge.dto.CommonThirdScoresDto;
-import com.panda.merge.dto.LimitSwitchDto;
-import com.panda.merge.dto.Request;
+import com.panda.merge.dto.*;
 import com.panda.merge.dto.settle.AutoSettleDataSourceDto;
 import com.panda.merge.dto.settle.MatchListSettleDto;
 import com.panda.merge.filter.basketball.BasketballInstantSettleFilter;
-import com.panda.merge.mapper.MatchSettleInfoMapper;
-import com.panda.merge.mapper.MatchSettleScoreMapper;
-import com.panda.merge.mapper.MatchSettleThirdBasketScoreMapper;
-import com.panda.merge.mapper.StandardMatchInfoMapper;
+import com.panda.merge.mapper.*;
 import com.panda.merge.model.*;
 import com.panda.merge.mq.producer.MatchSettleScoresProducer;
-import com.panda.merge.service.*;
 import com.panda.merge.v2.entity.MatchSettleInfoEntity;
 import com.panda.merge.v2.repository.MatchSettleInfoRepository;
+import com.panda.merge.respository.StandardMatchInfoRepository;
+import com.panda.merge.service.*;
+import com.panda.merge.utils.SettleCheckUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.panda.merge.constant.MatchSettleScoreConstant.MatchSettleScoreStatus.NOT_EDIT;
 import static com.panda.merge.constant.MatchSettleScoreConstant.MatchSettleScoreStatus.SETTLED;
 
 @Service
@@ -45,7 +43,6 @@ public class BasketballInSettleServiceImpl implements IBasketballInSettleService
     MatchSettleThirdBasketScoreMapper matchSettleThirdBasketScoreMapper;
     @Autowired
     MatchSettleScoreMapper matchSettleScoreMapper;
-    @Lazy
     @Autowired
     IWsPushService wsPushService;
     @Autowired
@@ -253,6 +250,138 @@ public class BasketballInSettleServiceImpl implements IBasketballInSettleService
 
     }
 
+    @Override
+    public boolean rollBackSettleInScore(MatchSettleScore matchSettleScore) {
+        String logLink = matchSettleScore.getSettleNum()+matchSettleScore.getStandardMatchId();
+        log.info(logLink+"rollBackSettleInScore step1:{},{},{}",matchSettleScore.getSettleNum(),matchSettleScore.getT1(),matchSettleScore.getT2());
+        String settleNum = matchSettleScore.getSettleNum();
+        StandardMatchInfo standardMatchInfo = standardMatchInfoService.getItem(matchSettleScore.getStandardMatchId());
+        Integer matchLength =standardMatchInfo.getMatchLength();
+        List<String> needRollBackSettleNums = new ArrayList<>();
+        if (matchLength==7||matchLength==0||matchLength==64||matchLength==68||matchLength==70){ //4节制
+            switch (settleNum){
+                case "bk_q104":
+                    needRollBackSettleNums.add("bk_in_q01");
+                    break;
+                case "bk_q204":
+                    needRollBackSettleNums.add("bk_in_q02");
+                    break;
+                case "bk_q304":
+                    needRollBackSettleNums.add("bk_in_q03");
+                    break;
+                case "bk_q404":
+                    needRollBackSettleNums.add("bk_in_q04");
+                    break;
+                case "bk_1ht":
+                    needRollBackSettleNums.add("bk_in_1ht");
+                    break;
+                case "bk_2ht":
+                    needRollBackSettleNums.add("bk_in_2ht");
+                    break;
+                case "bk_2htet":
+                    needRollBackSettleNums.add("bk_in_2htet");
+                    break;
+                case "bk_ft_et":
+                    needRollBackSettleNums.add("bk_in_et");
+                    break;
+                default:
+                    break;
+            }
+        }else if (matchLength==17){ //上下半场
+            switch (settleNum){
+                case "bk_1ht":
+                    needRollBackSettleNums.add("bk_in_1ht");
+                case "bk_2ht":
+                    needRollBackSettleNums.add("bk_in_2ht");
+                case "bk_2htet":
+                    needRollBackSettleNums.add("bk_in_2htet");
+                case "bk_ft_et":
+                    needRollBackSettleNums.add("bk_in_et");
+                    break;
+                default:
+                    break;
+            }
+        }else  if (matchLength==73){ //3*3
+            if (settleNum.equals("bk_ft_et")){
+                needRollBackSettleNums.add("bk_in_et");
+            }
+        }
+        log.info(logLink+"rollBackSettleInScore step2: {}" ,needRollBackSettleNums);
+        if (CollectionUtils.isEmpty(needRollBackSettleNums)){
+            log.info("{} :没有找到需要回滚结算的即时比分1,settleNum: {}",matchSettleScore.getStandardMatchId(),settleNum);
+            return false;
+        }
+        List<MatchSettleScore> settleScores = new ArrayList<>();
+        //找出关联的settleNum的比分,只需要查已结算的
+        MatchSettleScoreExample example = new MatchSettleScoreExample();
+        example.createCriteria().andStandardMatchIdEqualTo(matchSettleScore.getStandardMatchId()).andSettleNumIn(needRollBackSettleNums).andStatusEqualTo(SETTLED);
+        settleScores = matchSettleScoreMapper.selectByExample(example);
+        if (CollectionUtils.isEmpty(settleScores)){
+            log.info("{} :没有找到需要回滚结算的即时比分2,settleNum: {}",matchSettleScore.getStandardMatchId(),settleNum);
+            return false;
+        }
+        MatchSettleScore score = settleScores.get(0);
+        log.info(logLink+"rollBackSettleInScore step3: {},{},{}" ,score.getSettleNum(),score.getT1(),score.getT2());
+        MatchSettleScore oldScore = new MatchSettleScore();
+        BeanUtils.copyProperties(score,oldScore);
+        boolean tag = false;
+        if (matchSettleScore.getT1()<score.getT1()){
+            score.setT1(matchSettleScore.getT1());
+            tag =true;
+        }
+        if (matchSettleScore.getT2()<score.getT2()){
+            score.setT2(matchSettleScore.getT2());
+            tag =true;
+        }
+        log.info(logLink+"rollBackSettleInScore step4: {}",tag);
+        if (tag){
+            try {
+                MatchSettleScore oIdMatchSettleScore = new   MatchSettleScore();
+                BeanUtils.copyProperties(score,oIdMatchSettleScore);
+                oIdMatchSettleScore.setGoWaterStatus(0);
+                oIdMatchSettleScore.setStatus(NOT_EDIT);
+                oIdMatchSettleScore.setT1(null);
+                oIdMatchSettleScore.setT2(null);
+                oIdMatchSettleScore.setExtryInfo(null);
+                oIdMatchSettleScore.setFirstT1(null);
+                oIdMatchSettleScore.setFirstT2(null);
+                oIdMatchSettleScore.setSecondT1(null);
+                oIdMatchSettleScore.setSecondT2(null);
+                oIdMatchSettleScore.setSettleTimes(0);
+                oIdMatchSettleScore.setModifyTime(System.currentTimeMillis());
+                oIdMatchSettleScore.setOperateType(MatchSettleScoreConstant.MatchSettleOperateType.ROLL_BACK);
+                oIdMatchSettleScore.setOperater("AUTO");
+                oIdMatchSettleScore.setUserid("9999");
+                oIdMatchSettleScore.setSettleReasonDetail(null);
+                oIdMatchSettleScore.setSettleReason(null);
+                oIdMatchSettleScore.setPopupUsers(null);
+                matchSettleScoresProducer.sendMatchSettleScores(oIdMatchSettleScore);
+
+
+                score.setSettleTimes(1);
+                score.setSettleCount(2);
+                score.setOperateType(MatchSettleScoreConstant.MatchSettleOperateType.SETTLE);
+                score.setModifyTime(System.currentTimeMillis());
+                //5.更新结算对象到结算表
+                matchSettleScoreMapper.updateByPrimaryKey(score);
+                log.info("比分Id::{}:: 当前即时比分被二次结算参数:{} ", score.getId(), score);
+                //MQ下发
+                matchSettleScoresProducer.sendSyncMQMessage(score);
+
+                wsPushService.pushBasketballStandardSettleScores(score.getStandardMatchId(),
+                        score.getEventCode());
+                matchSettleScoreAddLog.matchSettleScoreAddLog(oldScore,score, "Auto",
+                        OperateLogTypeEnum.ROLLBACK_SCORES_SETTLE.getName(), "", "");
+                log.info(logLink+"rollBackSettleInScore step5:");
+            }catch (Exception e){
+                log.error("rollBackSettleInScore Error",e);
+                return false;
+            }
+
+
+        }
+        return true;
+    }
 
     @Override
     public boolean getRealtimeSwitchOfLevel(Long sportId, Long standardTournamentId) {
@@ -267,13 +396,14 @@ public class BasketballInSettleServiceImpl implements IBasketballInSettleService
         return true;
     }
 
-
     @Override
     public boolean checkRealtimeAndPSwitch(Long sportId, Long standardMatchId ,Long standardTournamentId) {
         boolean flag = getRealtimeSwitchOfLevel(sportId, standardTournamentId);
         if(flag){
             //检查下关p状态
+            log.info("检查关p状态参数:{}",standardMatchId);
             MatchSettleInfoEntity matchSettleInfoEntity = matchSettleInfoRepository.getMatchSettleInfo(standardMatchId);
+            log.info("检查关p状态数据:{}", JSONObject.toJSON(matchSettleInfoEntity));
             flag = matchSettleInfoEntity.getIsAutoSettleDataSource() == 1;
         }
 

@@ -1,19 +1,26 @@
 package com.panda.merge.repository;
 
 import com.alibaba.fastjson.JSONObject;
+import com.panda.merge.common.enums.DataSourceCodeEnum;
 import com.panda.merge.config.RedisService;
+import com.panda.merge.constant.DataSourceConstant;
 import com.panda.merge.constant.RepositoryConstant;
+import com.panda.merge.constant.SourceTypeEnum;
 import com.panda.merge.mapper.StandardMatchInfoMapper;
 import com.panda.merge.mapper.ThirdMatchInfoMapper;
+import com.panda.merge.model.DataSource;
 import com.panda.merge.model.StandardMatchInfo;
 import com.panda.merge.model.ThirdMatchInfo;
 import com.panda.merge.model.ThirdMatchInfoExample;
 import com.panda.merge.service.StandardMatchInfoService;
+import com.panda.merge.service.ThirdMatchInfoService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 public class StandardMatchInfoRepository {
 
@@ -26,6 +33,8 @@ public class StandardMatchInfoRepository {
     private ThirdMatchInfoMapper thirdMatchInfoMapper;
     @Autowired
     private StandardMatchInfoService standardMatchInfoService;
+    @Autowired
+    private ThirdMatchInfoService thirdMatchInfoService;
 
     //标准赛事id查询
     public StandardMatchInfo selectStandardMatchPrimaryKey(Long standardMatchId) {
@@ -51,17 +60,25 @@ public class StandardMatchInfoRepository {
 
     public Long selectAoMatchId(Long standardMatchId) {
         String key = RepositoryConstant.AO_MATCH_ID + standardMatchId;
-        Object o = redisService.get(key);
-        if(o!=null){
-            return Long.parseLong(o.toString());
+//        Object o = redisService.get(key);
+//        if(o!=null){
+//            return Long.parseLong(o.toString());
+//        }
+//        ThirdMatchInfoExample thirdMatchInfoExample =new ThirdMatchInfoExample();
+//        thirdMatchInfoExample.createCriteria().andReferenceIdEqualTo(standardMatchId).andDataSourceCodeEqualTo("AO");
+//        List<ThirdMatchInfo> list =thirdMatchInfoMapper.selectByExample(thirdMatchInfoExample);
+//        if(list.size()!=0){
+//            redisService.set(key,list.get(0).getId(), RepositoryConstant.REDIS_THREE_TIME);
+//            return list.get(0).getId();
+//        }
+//        return null;
+        ThirdMatchInfo thirdMatchInfo = thirdMatchInfoService.getItem(standardMatchId,DataSourceCodeEnum.AO.code);
+        if(thirdMatchInfo!=null){
+            redisService.set(key,thirdMatchInfo.getId(), RepositoryConstant.REDIS_THREE_TIME);
+            log.info("获取标准赛事ID对应的A01赛事ID：{}，{}",standardMatchId,thirdMatchInfo.getId());
+            return thirdMatchInfo.getId();
         }
-        ThirdMatchInfoExample thirdMatchInfoExample =new ThirdMatchInfoExample();
-        thirdMatchInfoExample.createCriteria().andReferenceIdEqualTo(standardMatchId).andDataSourceCodeEqualTo("AO");
-        List<ThirdMatchInfo> list =thirdMatchInfoMapper.selectByExample(thirdMatchInfoExample);
-        if(list.size()!=0){
-            redisService.set(key,list.get(0).getId(), RepositoryConstant.REDIS_THREE_TIME);
-            return list.get(0).getId();
-        }
+        log.info("获取标准赛事ID对应的A01赛事ID：{}，未查询到三方赛事信息",standardMatchId);
         return null;
     }
 }
