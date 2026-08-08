@@ -4965,8 +4965,14 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                 : new HashSet<>(request.getData().getCategoryIds());
         long now = System.currentTimeMillis();
         Map<String, ThirdMarketModifytimeDTO> result = new HashMap<>(map.size());
+        //历史版本写入过只有玩法ID的field，风控按 玩法ID:数据源编码 取值，返回出去只会造成误判，汇总打一条日志即可
+        List<String> invalidFields = new ArrayList<>();
         map.forEach((fieldKey, dto) -> {
             if (dto == null) {
+                return;
+            }
+            if (!ThirdMarket108048Helper.isValidFieldKey(fieldKey)) {
+                invalidFields.add(fieldKey);
                 return;
             }
             if (categoryFilter != null) {
@@ -4978,6 +4984,14 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
             ThirdMarket108048Helper.applyLevel(dto, now);
             result.put(fieldKey, dto);
         });
+        if (!invalidFields.isEmpty()) {
+            log.info("::{}::getThirdMarletLastModifyTime忽略历史非法field,赛事ID:{},field:{}",
+                    request.getLinkId(), request.getData().getMatchId(), invalidFields);
+        }
+        //108048 验证日志：redis 里全部 field vs 本次返回给风控的 field，便于核对"有赔率却没返回状态"
+        log.info("::{}::getThirdMarletLastModifyTime返回,赛事ID:{},请求玩法:{},redis全部field:{},返回field:{}",
+                request.getLinkId(), request.getData().getMatchId(), request.getData().getCategoryIds(),
+                map.keySet(), result.keySet());
         return Response.success(result);
     }
 

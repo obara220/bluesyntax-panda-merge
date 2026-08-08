@@ -81,8 +81,21 @@ public final class ThirdMarket108048Helper {
         dto.setCategoryId(categoryId);
         dto.setDateSourceCode(resolveMarketDataSourceCode(lastMarket, dataSourceCode));
         dto.setLastModifyTime(lastMarket.getModifyTime() != null ? lastMarket.getModifyTime() : System.currentTimeMillis());
+        //需求：红灯=赔率源"最后一笔数据"为关盘，所以状态取时间最新的那一笔，不做多盘口聚合
         dto.setStatus(normalizeStatus(lastMarket.getStatus()));
         return dto;
+    }
+
+    /**
+     * 合法的field格式为 玩法ID:数据源编码。
+     * 历史版本写入过只有玩法ID的field(如 "4")，风控按 玩法ID:数据源编码 取不到，且缓存不过期会一直残留，读写两侧都要剔除。
+     */
+    public static boolean isValidFieldKey(String fieldKey) {
+        if (StringUtils.isBlank(fieldKey)) {
+            return false;
+        }
+        int idx = fieldKey.indexOf(':');
+        return idx > 0 && idx < fieldKey.length() - 1 && parseCategoryId(fieldKey) != null;
     }
 
     public static ThirdMarketModifytimeDTO mergeLatest(ThirdMarketModifytimeDTO existing, ThirdMarketModifytimeDTO incoming) {
@@ -118,6 +131,30 @@ public final class ThirdMarket108048Helper {
             // 黄灯：60秒未更新(开盘/封盘/锁盘)，或60秒内有更新但为封盘/锁盘等非开盘状态
             dto.setLevel(LEVEL_YELLOW);
         }
+    }
+
+    /**
+     * 取本次下发的数据源编码，作为"盘口自己没有任何编码"时的兜底。
+     * 百家赔一次下发同属一个站点，站点编码可能挂在 internalDataSourceCode 上，也可能直接是盘口的
+     * dataSourceCode(如 L01-Bet365)，取值口径与 A99ThirdAllBatchMarketProcessor#getInternalDataSourceCode 一致：
+     * 先找有 internalDataSourceCode 的盘口，其次找有 dataSourceCode 的盘口，都没有才用下发的数据源编码。
+     */
+    public static String resolvePushDataSourceCode(List<ThirdMarketDTO> markets, String fallbackDataSourceCode) {
+        String marketSourceCode = null;
+        if (markets != null) {
+            for (ThirdMarketDTO market : markets) {
+                if (market == null) {
+                    continue;
+                }
+                if (StringUtils.isNotBlank(market.getInternalDataSourceCode())) {
+                    return normalizeDataSourceCode(market.getInternalDataSourceCode());
+                }
+                if (marketSourceCode == null && StringUtils.isNotBlank(market.getDataSourceCode())) {
+                    marketSourceCode = market.getDataSourceCode();
+                }
+            }
+        }
+        return normalizeDataSourceCode(marketSourceCode != null ? marketSourceCode : fallbackDataSourceCode);
     }
 
     /**
