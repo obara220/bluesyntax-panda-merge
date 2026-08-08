@@ -117,11 +117,11 @@ public class MatchEndSettleEventConsumer implements RocketMQListener<Request<Mat
      */
     private boolean check(MatchSettleEvent data){
         //非已结算不对接
-        if (!data.getStatus().equals(3)) {
+        if (data.getStatus()==null || !data.getStatus().equals(3)) {
             return false;
         }
         //非进球比分事件不对接
-        if(!data.getEventType().equals(1)){
+        if(data.getEventType()==null ||  !data.getEventType().equals(1)){
             return false;
         }
         return true;

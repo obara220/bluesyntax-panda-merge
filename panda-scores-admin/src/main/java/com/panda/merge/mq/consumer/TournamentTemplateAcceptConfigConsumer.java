@@ -77,7 +77,7 @@ public class TournamentTemplateAcceptConfigConsumer implements RocketMQListener<
             }
             log.info("{}，TournamentTemplateAcceptConfigScore接收开关配置 监控标准比分处理完成：{}",linkId,s);
         }catch(Exception e){
-            log.error("{}TournamentTemplateAcceptConfigScore 接收开关配置:",linkId,e);
+            log.error("{}TournamentTemplateAcceptConfigScore 接收开关配置:{}",linkId,e);
         }
     }
 

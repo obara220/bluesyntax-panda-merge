@@ -433,18 +433,11 @@ public class ThirdMatchInfoQueryApiImpl extends BaseProcessor implements IThirdM
                             } else if (TWO.equals(itemBo.getHomeAway())){
                                 itemBo.setHomeAway(ONE);
                             }
-                            if(StringUtils.isBlank(item.getHomeFormation())){
+                            if(StringUtils.isNotBlank(item.getHomeFormation())){
                                 itemBo.setAwayFormation(thirdMatchInfo.getHomeFormation());
                             }
-                            if(StringUtils.isBlank(item.getAwayFormation())){
+                            if(StringUtils.isNotBlank(item.getAwayFormation())){
                                 itemBo.setHomeFormation(thirdMatchInfo.getAwayFormation());
-                            }
-                        } else {
-                            if(StringUtils.isBlank(item.getHomeFormation())){
-                                itemBo.setHomeFormation(thirdMatchInfo.getHomeFormation());
-                            }
-                            if(StringUtils.isBlank(item.getAwayFormation())){
-                                itemBo.setAwayFormation(thirdMatchInfo.getAwayFormation());
                             }
                         }
                     }

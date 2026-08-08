@@ -393,6 +393,7 @@ public class FootBallAdvertiseServiceImpl implements FootBallAdvertiseService {
 
         //查询结算状态
         buildSettleStatus(pdMatchAdvertiseVo);
+        pdMatchAdvertiseVo.setLiveEventSource(data.getStandardMatchInfo().getLiveEventSource());
         stopWatch.stop();
         log.info("BasketBallAdvertiseServiceImpl-buildFootBallAdvertiseVo-耗时={}, thirdMatchId={}",stopWatch.getTotalTimeMillis(),matchTimeInfo.getThirdMatchId());
         return Response.success(pdMatchAdvertiseVo);

@@ -13,8 +13,6 @@ import com.panda.merge.constant.SourceTypeEnum;
 import com.panda.merge.dto.Request;
 import com.panda.merge.model.*;
 import com.panda.merge.mq.message.MatchEventInfoMessage;
-import com.panda.merge.mq.message.RcsTradeUpdateEventConfig;
-import com.panda.merge.mq.message.RcsTradeUpdateEventConfigDTO;
 import com.panda.merge.mq.producer.CommonProducer;
 import com.panda.merge.mq.spare.SpareBaseProducer;
 import com.panda.merge.repository.MatchTimeInfoRepository;

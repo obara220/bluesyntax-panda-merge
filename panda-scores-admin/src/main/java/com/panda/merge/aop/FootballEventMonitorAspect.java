@@ -236,7 +236,6 @@ public class FootballEventMonitorAspect {
      */
     private Long updateRedisInfo(Long thirdMatchId, String operatorName, long currentTime, Integer pauseStatus) {
         String linkedId = IdWorker.getId() + "_PD_ACTION_MONITOR";
-        Object monitorObj = redisService.get(PD_FOOTBALL_EVENT_MONITOR);
 
         Response<MatchScoreAndTimeVo> response = commonAdvertiseService.checkMatchScoreAndTimeCreate(thirdMatchId);
         if (response.getData().getMatchScoresInfo().getSportId() != 1) {
@@ -265,39 +264,17 @@ public class FootballEventMonitorAspect {
             eventCurrentTime = Long.parseLong(o.toString());
         }
 
-        // 首次初始化redis数据
-        if (monitorObj == null) {
-            List<FootballEventMonitor> list = new ArrayList<>();
-            FootballEventMonitor monitor = new FootballEventMonitor(operatorName, new ArrayList<>());
-            // 创建事件
-            MatchEventInfoDTO eventInfoDTO = MatchEventUtils.createMatchTimeEvent(data, matchTime, matchTime, currentTime, timeGo, period, linkedId);
-            eventInfoDTO.setCopyLinkId(linkedId);
-            eventInfoDTO.setEventCode("action_monitor");
-            eventInfoDTO.setAddition3(businessEvent);
-            eventInfoDTO.setAddition4(String.valueOf(TimeStatusEnum.CONTINUE.getDesc()));
-            eventInfoDTO.setAddition6(String.valueOf(matchTimeInfoId));
-            // addition7缓存上次比赛时间
-            eventInfoDTO.setAddition7(String.valueOf(TimeStatusEnum.INIT_PERSIST.getDesc()));
-            eventInfoDTO.setAddition8(String.valueOf(thirdMatchId));
-            eventInfoDTO.setAddition9("online");
-            eventInfoDTO.setAddition10(MatchEventMonitorEnum.ONLINE_INIT.getCode());
-            if (DataSourceCodeEnum.PD.getCode().equals(dataSourceCode)) {
-                eventInfoDTO.setPlayer1Name(operatorName);
-            }
-            if (DataSourceCodeEnum.PD2.getCode().equals(dataSourceCode)) {
-                eventInfoDTO.setPlayer2Name(operatorName);
-            }
-            eventInfoDTO.setRemark(operatorName);
-            monitor.getThirdMatchInfo().add(eventInfoDTO);
-            list.add(monitor);
-            redisService.set(PD_FOOTBALL_EVENT_MONITOR, JSONObject.toJSON(list).toString(), REDIS_HOUR_TIME * 6);
-        } else {
-            List<FootballEventMonitor> monitorList = JSON.parseObject(monitorObj.toString(), new TypeReferenceChild<List<FootballEventMonitor>>() {
-            });
-            List<String> userNameList = monitorList.stream().map(FootballEventMonitor::getUserName).collect(Collectors.toList());
-            // 当前用户不存在时，初始化用户及对应三方赛事信息
-            if (!userNameList.contains(operatorName)) {
-                FootballEventMonitor monitorNew = new FootballEventMonitor(operatorName, new ArrayList<>());
+        String monitorLockKey = PD_FOOTBALL_EVENT_MONITOR + ":LOCK";
+        if (!redisService.tryLock(monitorLockKey, linkedId, 3, 3)) {
+            log.error("::三方赛事ID={}::获取PD_FOOTBALL_EVENT_MONITOR分布式锁失败，本次事件监控时间刷新被跳过", thirdMatchId);
+            return thirdMatchId;
+        }
+        try {
+            Object monitorObj = redisService.get(PD_FOOTBALL_EVENT_MONITOR);
+            // 首次初始化redis数据
+            if (monitorObj == null) {
+                List<FootballEventMonitor> list = new ArrayList<>();
+                FootballEventMonitor monitor = new FootballEventMonitor(operatorName, new ArrayList<>());
                 // 创建事件
                 MatchEventInfoDTO eventInfoDTO = MatchEventUtils.createMatchTimeEvent(data, matchTime, matchTime, currentTime, timeGo, period, linkedId);
                 eventInfoDTO.setCopyLinkId(linkedId);
@@ -317,68 +294,100 @@ public class FootballEventMonitorAspect {
                     eventInfoDTO.setPlayer2Name(operatorName);
                 }
                 eventInfoDTO.setRemark(operatorName);
-                monitorNew.getThirdMatchInfo().add(eventInfoDTO);
-                monitorList.add(monitorNew);
+                monitor.getThirdMatchInfo().add(eventInfoDTO);
+                list.add(monitor);
+                redisService.set(PD_FOOTBALL_EVENT_MONITOR, JSONObject.toJSON(list).toString(), REDIS_HOUR_TIME * 6);
             } else {
-                for (FootballEventMonitor monitor : monitorList) {
-                    if (!operatorName.equals(monitor.getUserName())) {
-                        continue;
+                List<FootballEventMonitor> monitorList = JSON.parseObject(monitorObj.toString(), new TypeReferenceChild<List<FootballEventMonitor>>() {
+                });
+                List<String> userNameList = monitorList.stream().map(FootballEventMonitor::getUserName).collect(Collectors.toList());
+                // 当前用户不存在时，初始化用户及对应三方赛事信息
+                if (!userNameList.contains(operatorName)) {
+                    FootballEventMonitor monitorNew = new FootballEventMonitor(operatorName, new ArrayList<>());
+                    // 创建事件
+                    MatchEventInfoDTO eventInfoDTO = MatchEventUtils.createMatchTimeEvent(data, matchTime, matchTime, currentTime, timeGo, period, linkedId);
+                    eventInfoDTO.setCopyLinkId(linkedId);
+                    eventInfoDTO.setEventCode("action_monitor");
+                    eventInfoDTO.setAddition3(businessEvent);
+                    eventInfoDTO.setAddition4(String.valueOf(TimeStatusEnum.CONTINUE.getDesc()));
+                    eventInfoDTO.setAddition6(String.valueOf(matchTimeInfoId));
+                    // addition7缓存上次比赛时间
+                    eventInfoDTO.setAddition7(String.valueOf(TimeStatusEnum.INIT_PERSIST.getDesc()));
+                    eventInfoDTO.setAddition8(String.valueOf(thirdMatchId));
+                    eventInfoDTO.setAddition9("online");
+                    eventInfoDTO.setAddition10(MatchEventMonitorEnum.ONLINE_INIT.getCode());
+                    if (DataSourceCodeEnum.PD.getCode().equals(dataSourceCode)) {
+                        eventInfoDTO.setPlayer1Name(operatorName);
                     }
-                    List<String> thirdMatchIds = monitor.getThirdMatchInfo().stream().map(MatchEventInfoDTO::getAddition8).collect(Collectors.toList());
-                    // 当前用户存在三方赛事时，更新赛事当前系统时间
-                    if (thirdMatchIds.contains(String.valueOf(thirdMatchId))) {
-                        for (MatchEventInfoDTO matchEventInfoDTO : monitor.getThirdMatchInfo()) {
-                            if (matchEventInfoDTO.getAddition8().equals(String.valueOf(thirdMatchId)) && operatorName.equals(matchEventInfoDTO.getRemark())) {
-                                // 20s内的PD事件下发不应触发offline：使用AOP执行时刻刷新eventTime，
-                                // 避免ACTION_MONITER_KEY中残留的旧时间戳被回写导致JOB误判
-                                Long refreshedEventTime = (eventCurrentTime != null && eventCurrentTime > currentTime)
-                                        ? eventCurrentTime
-                                        : currentTime;
-                                matchEventInfoDTO.setEventTime(refreshedEventTime);
-                                if (pauseStatus == 1) {
-                                    // 时间走表时，把addition4置为1
-                                    matchEventInfoDTO.setAddition4(String.valueOf(TimeStatusEnum.CONTINUE.getDesc()));
+                    if (DataSourceCodeEnum.PD2.getCode().equals(dataSourceCode)) {
+                        eventInfoDTO.setPlayer2Name(operatorName);
+                    }
+                    eventInfoDTO.setRemark(operatorName);
+                    monitorNew.getThirdMatchInfo().add(eventInfoDTO);
+                    monitorList.add(monitorNew);
+                } else {
+                    for (FootballEventMonitor monitor : monitorList) {
+                        if (!operatorName.equals(monitor.getUserName())) {
+                            continue;
+                        }
+                        List<String> thirdMatchIds = monitor.getThirdMatchInfo().stream().map(MatchEventInfoDTO::getAddition8).collect(Collectors.toList());
+                        // 当前用户存在三方赛事时，更新赛事当前系统时间
+                        if (thirdMatchIds.contains(String.valueOf(thirdMatchId))) {
+                            for (MatchEventInfoDTO matchEventInfoDTO : monitor.getThirdMatchInfo()) {
+                                if (matchEventInfoDTO.getAddition8().equals(String.valueOf(thirdMatchId)) && operatorName.equals(matchEventInfoDTO.getRemark())) {
+                                    // 20s内的PD事件下发不应触发offline：使用AOP执行时刻刷新eventTime，
+                                    // 避免ACTION_MONITER_KEY中残留的旧时间戳被回写导致JOB误判
+                                    Long refreshedEventTime = (eventCurrentTime != null && eventCurrentTime > currentTime)
+                                            ? eventCurrentTime
+                                            : currentTime;
+                                    matchEventInfoDTO.setEventTime(refreshedEventTime);
+                                    if (pauseStatus == 1) {
+                                        // 时间走表时，把addition4置为1
+                                        matchEventInfoDTO.setAddition4(String.valueOf(TimeStatusEnum.CONTINUE.getDesc()));
+                                    }
+                                    if (pauseStatus == 0 || period.equals(50L)) {
+                                        // 时间暂停时，把addition4置为0
+                                        matchEventInfoDTO.setAddition4(String.valueOf(TimeStatusEnum.PAUSE.getDesc()));
+                                    }
+                                    matchEventInfoDTO.setAddition3(businessEvent);
+                                    // addition7缓存上次比赛时间
+                                    matchEventInfoDTO.setAddition7(String.valueOf(matchEventInfoDTO.getSecondsFromStart()));
+                                    matchEventInfoDTO.setSecondsFromStart(matchTime);
+                                    matchEventInfoDTO.setPeriodRemainingSeconds(matchTime);
+                                    matchEventInfoDTO.setMatchPeriodId(period);
+                                    matchEventInfoDTO.setMatchLength(data.getThirdMatchInfo().getMatchLength());
+                                    matchEventInfoDTO.setCopyLinkId(linkedId);
+                                    log.info("::三方赛事ID={}::PD赛事状态监控事件更新,eventCode={},赛事时间::{}", thirdMatchId, matchEventInfoDTO.getEventCode(), matchTime);
                                 }
-                                if (pauseStatus == 0 || period.equals(50L)) {
-                                    // 时间暂停时，把addition4置为0
-                                    matchEventInfoDTO.setAddition4(String.valueOf(TimeStatusEnum.PAUSE.getDesc()));
-                                }
-                                matchEventInfoDTO.setAddition3(businessEvent);
-                                // addition7缓存上次比赛时间
-                                matchEventInfoDTO.setAddition7(String.valueOf(matchEventInfoDTO.getSecondsFromStart()));
-                                matchEventInfoDTO.setSecondsFromStart(matchTime);
-                                matchEventInfoDTO.setPeriodRemainingSeconds(matchTime);
-                                matchEventInfoDTO.setMatchPeriodId(period);
-                                matchEventInfoDTO.setMatchLength(data.getThirdMatchInfo().getMatchLength());
-                                matchEventInfoDTO.setCopyLinkId(linkedId);
-                                log.info("::三方赛事ID={}::PD赛事状态监控事件更新,eventCode={},赛事时间::{}", thirdMatchId, matchEventInfoDTO.getEventCode(), matchTime);
                             }
+                        } else {
+                            // 当前用户不存在三方赛事时，初始化三方赛事
+                            MatchEventInfoDTO eventInfoDTO = MatchEventUtils.createMatchTimeEvent(data, matchTime, matchTime, currentTime, timeGo, period, linkedId);
+                            eventInfoDTO.setCopyLinkId(linkedId);
+                            eventInfoDTO.setEventCode("action_monitor");
+                            eventInfoDTO.setAddition3(businessEvent);
+                            eventInfoDTO.setAddition4(String.valueOf(TimeStatusEnum.CONTINUE.getDesc()));
+                            eventInfoDTO.setAddition6(String.valueOf(matchTimeInfoId));
+                            // addition7缓存上次比赛时间
+                            eventInfoDTO.setAddition7(String.valueOf(TimeStatusEnum.INIT_PERSIST.getDesc()));
+                            eventInfoDTO.setAddition8(String.valueOf(thirdMatchId));
+                            eventInfoDTO.setAddition9("online");
+                            eventInfoDTO.setAddition10(MatchEventMonitorEnum.ONLINE_INIT.getCode());
+                            if (DataSourceCodeEnum.PD.getCode().equals(dataSourceCode)) {
+                                eventInfoDTO.setPlayer1Name(operatorName);
+                            }
+                            if (DataSourceCodeEnum.PD2.getCode().equals(dataSourceCode)) {
+                                eventInfoDTO.setPlayer2Name(operatorName);
+                            }
+                            eventInfoDTO.setRemark(operatorName);
+                            monitor.getThirdMatchInfo().add(eventInfoDTO);
                         }
-                    } else {
-                        // 当前用户不存在三方赛事时，初始化三方赛事
-                        MatchEventInfoDTO eventInfoDTO = MatchEventUtils.createMatchTimeEvent(data, matchTime, matchTime, currentTime, timeGo, period, linkedId);
-                        eventInfoDTO.setCopyLinkId(linkedId);
-                        eventInfoDTO.setEventCode("action_monitor");
-                        eventInfoDTO.setAddition3(businessEvent);
-                        eventInfoDTO.setAddition4(String.valueOf(TimeStatusEnum.CONTINUE.getDesc()));
-                        eventInfoDTO.setAddition6(String.valueOf(matchTimeInfoId));
-                        // addition7缓存上次比赛时间
-                        eventInfoDTO.setAddition7(String.valueOf(TimeStatusEnum.INIT_PERSIST.getDesc()));
-                        eventInfoDTO.setAddition8(String.valueOf(thirdMatchId));
-                        eventInfoDTO.setAddition9("online");
-                        eventInfoDTO.setAddition10(MatchEventMonitorEnum.ONLINE_INIT.getCode());
-                        if (DataSourceCodeEnum.PD.getCode().equals(dataSourceCode)) {
-                            eventInfoDTO.setPlayer1Name(operatorName);
-                        }
-                        if (DataSourceCodeEnum.PD2.getCode().equals(dataSourceCode)) {
-                            eventInfoDTO.setPlayer2Name(operatorName);
-                        }
-                        eventInfoDTO.setRemark(operatorName);
-                        monitor.getThirdMatchInfo().add(eventInfoDTO);
                     }
                 }
+                redisService.set(PD_FOOTBALL_EVENT_MONITOR, JSONObject.toJSON(monitorList).toString(), REDIS_HOUR_TIME * 6);
             }
-            redisService.set(PD_FOOTBALL_EVENT_MONITOR, JSONObject.toJSON(monitorList).toString(), REDIS_HOUR_TIME * 6);
+        } finally {
+            redisService.unLock(monitorLockKey, linkedId);
         }
         return thirdMatchId;
     }

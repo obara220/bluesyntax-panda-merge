@@ -809,10 +809,10 @@ public class FootballCalculationServiceImpl extends AbstractCalculationServiceIm
                     log.info("点球进球事件+++++++++++，{},====,{}",data.getLinkId(),wholeSores.getPenaltyAwarded());
                     if(ConstantSystem.HOME.equals(data.getHomeAway())){
                         wholeSores.getPenaltyAwarded().setHome(wholeSores.getPenaltyAwarded().getHome()+1);
-                        periodScores.getPenaltyAwarded().setHome(wholeSores.getPenaltyAwarded().getHome()+1);
+                        periodScores.getPenaltyAwarded().setHome(periodScores.getPenaltyAwarded().getHome()+1);
                     }else if(ConstantSystem.AWAY.equals(data.getHomeAway())){
                         wholeSores.getPenaltyAwarded().setAway(wholeSores.getPenaltyAwarded().getAway()+1);
-                        periodScores.getPenaltyAwarded().setAway(wholeSores.getPenaltyAwarded().getAway()+1);
+                        periodScores.getPenaltyAwarded().setAway(periodScores.getPenaltyAwarded().getAway()+1);
                     }
                     //缓存当前点球进球事件，以防下次下发扣回进球取消
                     redisService.set("GOAL_PENALTY_" + data.getThirdMatchId() + "_" +data.getThirdEventId(), data.getHomeAway(), 7200);

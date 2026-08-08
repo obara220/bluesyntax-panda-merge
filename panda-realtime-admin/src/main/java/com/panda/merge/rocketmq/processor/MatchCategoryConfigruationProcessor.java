@@ -300,20 +300,21 @@ public class MatchCategoryConfigruationProcessor extends BaseProcessor {
             /** 赛事状态源及事件源默认与赔率源一致 **/
             String matchStatusUsingSource = oddsUsingDataSource;
             /**
-             * 设置滚球操盘时如果该赛事数据源包含TX，则剔除掉TX按原有逻辑确认赛事状态源及事件源  add_by riben 2020-12-23
+             * 设置滚球操盘时剔除 TX/LS/N01/N02/N03，按原有逻辑确认赛事状态源及事件源
+             * TX add_by riben 2020-12-23；LS add_by runner 2022-7-15；N系列对齐扩展
              ***/
-            if(marketType == 0 && dataMatchSourceCodes.contains(DataSourceCodeEnum.TX.getCode())) {
-                thirdMatchInfos = thirdMatchInfos.stream().filter(e -> !DataSourceCodeEnum.TX.getCode().equals(e.getDataSourceCode())).collect(Collectors.toList());
-                dataMatchSourceCodes = this.getLiveMatchOddsDataSourcesByThirdMatchInfos(thirdMatchInfos);
-                matchStatusUsingSource = this.getUsingDataSourceByDataWeightAndMatchInfos(riskManagerCode,
-                        dataWeightMap, dataMatchSourceCodes);
-            }
-
-            /**
-             * 设置滚球操盘时如果该赛事数据源包含LS，则剔除掉LS按原有逻辑确认赛事状态源及事件源  add_by runner 2022-7-15
-             ***/
-            if(marketType == 0 && dataMatchSourceCodes.contains(DataSourceCodeEnum.LS.getCode())) {
-                thirdMatchInfos = thirdMatchInfos.stream().filter(e -> !DataSourceCodeEnum.LS.getCode().equals(e.getDataSourceCode())).collect(Collectors.toList());
+            if (marketType == 0 && (dataMatchSourceCodes.contains(DataSourceCodeEnum.TX.getCode())
+                    || dataMatchSourceCodes.contains(DataSourceCodeEnum.LS.getCode())
+                    || dataMatchSourceCodes.contains(DataSourceCodeEnum.N01.getCode())
+                    || dataMatchSourceCodes.contains(DataSourceCodeEnum.N02.getCode())
+                    || dataMatchSourceCodes.contains(DataSourceCodeEnum.N03.getCode()))) {
+                thirdMatchInfos = thirdMatchInfos.stream()
+                        .filter(e -> !DataSourceCodeEnum.TX.getCode().equals(e.getDataSourceCode())
+                                && !DataSourceCodeEnum.LS.getCode().equals(e.getDataSourceCode())
+                                && !DataSourceCodeEnum.N01.getCode().equals(e.getDataSourceCode())
+                                && !DataSourceCodeEnum.N02.getCode().equals(e.getDataSourceCode())
+                                && !DataSourceCodeEnum.N03.getCode().equals(e.getDataSourceCode()))
+                        .collect(Collectors.toList());
                 dataMatchSourceCodes = this.getLiveMatchOddsDataSourcesByThirdMatchInfos(thirdMatchInfos);
                 matchStatusUsingSource = this.getUsingDataSourceByDataWeightAndMatchInfos(riskManagerCode,
                         dataWeightMap, dataMatchSourceCodes);

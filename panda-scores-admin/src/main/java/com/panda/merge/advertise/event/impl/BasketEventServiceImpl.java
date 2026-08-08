@@ -67,6 +67,7 @@ public class BasketEventServiceImpl implements BasketEventService {
             eventInfoDTO.setExtrainfo(addT1 + "&" + addT2);
         }
         //4.下发MQ给实时服务
+        log.info("::{}::PD篮球报球板比分-下发实时服务-计算时优先取缓存阶段比分,period={},入参阶段={}", changeMatchScoreDto.getThirdMatchId(), data.getMatchScoresInfo().getPeriod(),changeMatchScoreDto.getPeriod());
         if (period.equals(data.getMatchScoresInfo().getPeriod())) {
             eventProducer.sendPDBasketballEditEventInfo(eventInfoDTO);
         }

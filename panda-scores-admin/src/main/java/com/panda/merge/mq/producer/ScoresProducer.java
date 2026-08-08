@@ -984,7 +984,7 @@ public class ScoresProducer {
     public void sendToMQ(MatchScoresBetterDto matchScoresBetterDto, String linkId) {
         //开售切换只有UOF的比分才需要变更主客队
 
-        scoresService.changeHomeAway(matchScoresBetterDto);
+//        scoresService.changeHomeAway(matchScoresBetterDto);
 
         //数据组装
         CommonStandardScoresDto commonScoresDto = messageBuilderUtils.buildCommonScoresDto(matchScoresBetterDto, linkId);

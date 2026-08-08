@@ -141,6 +141,9 @@ public class StandardMarketOddsProducer {
         MessageBuilder<Request<StandardMatchMarketMessage>> builder = MessageBuilder.withPayload(request).setHeader(MessageConst.PROPERTY_KEYS, linkId);
         // 4405：同场支持玩法级混合操盘，Producer 不再二次读取赛事级 pre/liveRiskManagerCode 覆盖上游分流结果
         // matchTradType 以调用方传入为准（由主流程按玩法分组后决定）。
+        if(isXts){//代操盘模式获取风控紧急开关 是否计算赔率分组
+            matchTradType=getMatchTradeCacheConfig(standardMatchInfo.getRiskManagerCode());
+        }
         //赔率分组计算
         calculateOdds(linkId, standardMatchInfo, matchTradType, standardMatchMarketMessage, dataSourceTime);
 
@@ -185,6 +188,9 @@ public class StandardMarketOddsProducer {
         MessageBuilder<Request<StandardMatchMarketMessage>> builder = MessageBuilder.withPayload(request).setHeader(MessageConst.PROPERTY_KEYS, linkId);
         // 4405：同场支持玩法级混合操盘，Producer 不再二次读取赛事级 pre/liveRiskManagerCode 覆盖上游分流结果
         //赔率分组计算
+        if(isXts){//代操盘模式获取风控紧急开关 是否计算赔率分组
+            matchTradType=getMatchTradeCacheConfig(standardMatchInfo.getRiskManagerCode());
+        }
         calculateOdds(linkId, standardMatchInfo, matchTradType, standardMatchMarketMessage, dataSourceTime);
 
         //第一个参数表示topic:tag
@@ -351,6 +357,9 @@ public class StandardMarketOddsProducer {
         MessageBuilder<Request<StandardMatchMarketMessage>> builder = MessageBuilder.withPayload(request).setHeader(MessageConst.PROPERTY_KEYS, linkId);
         // 4405：同场支持玩法级混合操盘，Producer 不再二次读取赛事级 pre/liveRiskManagerCode 覆盖上游分流结果
         //赔率分组计算
+        if(isXts){//代操盘模式获取风控紧急开关 是否计算赔率分组
+            matchTradType=getMatchTradeCacheConfig(standardMatchInfo.getRiskManagerCode());
+        }
         calculateOdds(linkId, standardMatchInfo, matchTradType, standardMatchMarketMessage, dataSourceTime);
 
         //第一个参数表示topic:tag
@@ -1838,7 +1847,7 @@ public class StandardMarketOddsProducer {
     /**
      * 3027赔率分组计算开关
      *
-     * @return
+     * @return  false计算/true 不计算
      */
     private boolean getMatchTradeCacheConfig(String riskManagerCode) {
         Map<String, Integer> configMap = (Map<String, Integer>) redisService.get(RONGHE_TRAD_CONFIG);
@@ -1848,7 +1857,7 @@ public class StandardMarketOddsProducer {
                 return 1 == isOpen ? false : true;
             }
         }
-        return false;
+        return true;
     }
 
 //    /**

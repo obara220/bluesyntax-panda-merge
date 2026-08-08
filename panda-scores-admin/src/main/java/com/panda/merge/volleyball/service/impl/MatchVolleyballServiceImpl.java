@@ -238,9 +238,7 @@ public class MatchVolleyballServiceImpl extends AbsMatchCommonProcessor<Object> 
         Map<Long, VolleyballV2Scores> all = parseScoresJson(info != null ? info.getScoresJson() : null);
 
         Long requestPeriod = changeMatchPeriodV2Dto.getPeriodId();
-        Long rawPeriod = requestPeriod != null && requestPeriod != 0 ? requestPeriod : (info != null && info.getPeriod() != null && info.getPeriod() != 0 ? info.getPeriod() : 0L);
-        // scoresJson 只有 SET_BEGIN key，SET_END 需先翻译再查找
-        Long lookupPeriod = toSetBeginKey(rawPeriod);
+        Long lookupPeriod = requestPeriod != null && requestPeriod != 0 ? requestPeriod : (info != null && info.getPeriod() != null && info.getPeriod() != 0 ? info.getPeriod() : 0L);
         VolleyballV2Scores periodScores = all.getOrDefault(lookupPeriod, new VolleyballV2Scores());
         VolleyballV2Scores wholeScores = all.getOrDefault(WHOLE_MATCH, new VolleyballV2Scores());
 
@@ -258,6 +256,7 @@ public class MatchVolleyballServiceImpl extends AbsMatchCommonProcessor<Object> 
         // String.valueOf(...) 后 Integer.valueOf 会抛 NumberFormatException，
         // 这里降级为 warn 并放弃该字段，避免整个接口 500。
         Object controlTypeRaw = matchStatus.get(VolleyballConstant.CONTROL_TYPE);
+        log.info("获取controlTypeRaw：{}",controlTypeRaw);
         if (controlTypeRaw != null) {
             try {
                 eventDto.setControlType(Integer.valueOf(String.valueOf(controlTypeRaw)));
@@ -312,37 +311,37 @@ public class MatchVolleyballServiceImpl extends AbsMatchCommonProcessor<Object> 
             }
             if (fromStd != null && fromStd > 0) {
                 boolean preMatch = timeInfo == null || timeInfo.getPeriod() == null || timeInfo.getPeriod() <= 0;
-                if (preMatch) {
-                    // 开赛前尝试反写 standardMatchInfo.matchLength 到 time/scores 三处对齐；
-                    // 抛错时（父类 changeMatchLength 在某些状态下会 throw）继续返回 fromStd，
-                    // 避免内联同步把整个 getCurrentMatchInfo 拖到 500。
-                    try {
-                        ChangeMatchLengthV2Dto lenDto = new ChangeMatchLengthV2Dto();
-                        lenDto.setSportId(changeMatchPeriodV2Dto.getSportId());
-                        lenDto.setThirdMatchId(changeMatchPeriodV2Dto.getThirdMatchId());
-                        lenDto.setMinutes(fromStd);
-                        lenDto.setLinkedId(changeMatchPeriodV2Dto.getLinkedId());
-                        lenDto.setOperatorId(changeMatchPeriodV2Dto.getOperatorId());
-                        lenDto.setOperatorName(changeMatchPeriodV2Dto.getOperatorName());
-                        lenDto.setIpAddress(changeMatchPeriodV2Dto.getIpAddress());
-                        lenDto.setLanguage(changeMatchPeriodV2Dto.getLanguage());
-                        Response lenResp = changeMatchLength(matchScoreAndTimeVo, lenDto);
-                        if (!lenResp.isSuccess()) {
-                            log.info("[MatchVolleyballServiceImpl]getCurrentMatchInfo sync matchLength from standard failed linkId::{} msg:{}",
-                                    changeMatchPeriodV2Dto.getLinkedId(), lenResp.getMsg());
-                        }
-                    } catch (Exception lenEx) {
-                        log.error("[MatchVolleyballServiceImpl]getCurrentMatchInfo sync matchLength threw linkId::{} err:{}",
-                                changeMatchPeriodV2Dto.getLinkedId(), lenEx.getMessage());
-                    }
-                }
+//                if (preMatch) {
+//                    // 开赛前尝试反写 standardMatchInfo.matchLength 到 time/scores 三处对齐；
+//                    // 抛错时（父类 changeMatchLength 在某些状态下会 throw）继续返回 fromStd，
+//                    // 避免内联同步把整个 getCurrentMatchInfo 拖到 500。
+//                    try {
+//                        ChangeMatchLengthV2Dto lenDto = new ChangeMatchLengthV2Dto();
+//                        lenDto.setSportId(changeMatchPeriodV2Dto.getSportId());
+//                        lenDto.setThirdMatchId(changeMatchPeriodV2Dto.getThirdMatchId());
+//                        lenDto.setMinutes(fromStd);
+//                        lenDto.setLinkedId(changeMatchPeriodV2Dto.getLinkedId());
+//                        lenDto.setOperatorId(changeMatchPeriodV2Dto.getOperatorId());
+//                        lenDto.setOperatorName(changeMatchPeriodV2Dto.getOperatorName());
+//                        lenDto.setIpAddress(changeMatchPeriodV2Dto.getIpAddress());
+//                        lenDto.setLanguage(changeMatchPeriodV2Dto.getLanguage());
+//                        Response lenResp = changeMatchLength(matchScoreAndTimeVo, lenDto);
+//                        if (!lenResp.isSuccess()) {
+//                            log.info("[MatchVolleyballServiceImpl]getCurrentMatchInfo sync matchLength from standard failed linkId::{} msg:{}",
+//                                    changeMatchPeriodV2Dto.getLinkedId(), lenResp.getMsg());
+//                        }
+//                    } catch (Exception lenEx) {
+//                        log.error("[MatchVolleyballServiceImpl]getCurrentMatchInfo sync matchLength threw linkId::{} err:{}",
+//                                changeMatchPeriodV2Dto.getLinkedId(), lenEx.getMessage());
+//                    }
+//                }
                 matchLength = fromStd;
             }
         }
         if (matchLength != null) {
             matchStatus.put("matchLength", matchLength);
         }
-
+        matchStatus.putIfAbsent(VolleyballConstant.CONTROL_TYPE, 1);
         // 暂停/中断标志规范化：父类 procInterruptedEvent 写 Boolean，Redis 序列化后可能成 String "true"/"false"；
         // 且字段在「未触发过对应 controlType」时根本不存在。这里统一转布尔并保证始终在响应里出现：
         // - matchInterrupted     = ct=2/3 切换的 timeout 状态
@@ -506,6 +505,7 @@ public class MatchVolleyballServiceImpl extends AbsMatchCommonProcessor<Object> 
                 info.setT2(overall.getAway());
                 info.setModifyTime(System.currentTimeMillis());
                 matchScoreInfoRepository.updateScoresInfo(info);
+                matchScoreAndTimeVo.setMatchScoresInfo(info);
             }
 
             if (matchScoreAndTimeVo.getMatchTimeInfo() != null) {
@@ -643,12 +643,9 @@ public class MatchVolleyballServiceImpl extends AbsMatchCommonProcessor<Object> 
         if (dto.getPeriodId() != null) {
             Long currentPeriod = data.getMatchTimeInfo() != null ? data.getMatchTimeInfo().getPeriod() : null;
             if (currentPeriod != null && currentPeriod.equals(dto.getPeriodId())) {
-                // 记录详细上下文帮助诊断为什么期已经到达目标
-                log.info("[MatchVolleyballServiceImpl]changeMatchPeriod periodId:{}==currentPeriod：{} is already the current period for match:{} linkId::{}, " +
-                        "returning success (idempotent)", dto.getPeriodId(), currentPeriod, dto.getThirdMatchId(), dto.getLinkedId());
-                // 返回成功而不是失败，以处理UI竞争/幂等情况
-                // 例如：当周期由计分逻辑自动切换到休息阶段后用户仍点击"休息"按钮
-                return Response.success();
+                log.warn("[MatchVolleyballServiceImpl]changeMatchPeriod periodId:{} is already the current period for match:{} linkId::{}",
+                        dto.getPeriodId(), dto.getThirdMatchId(), dto.getLinkedId());
+                return Response.failed("已经为当前局了");
             }
         }
 
@@ -667,11 +664,14 @@ public class MatchVolleyballServiceImpl extends AbsMatchCommonProcessor<Object> 
         log.info("赛事ID:{},下发阶段事件---：beforePeriod：{}--{},，比分：{}:{}",dto.getThirdMatchId(), dto.getPeriodId(), data.getMatchScoresInfo().getPeriod(),data.getMatchScoresInfo().getPeriodT1(),data.getMatchScoresInfo().getPeriodT2());
         addMatchPeriod(data, matchEventInfoDTO);
         JSONObject periodVolleyballScores = JSONObject.parseObject(data.getMatchScoresInfo().getScoresJson());
-        // 使用 V2 版本解析，与 addMatchPeriod 中存储的类型保持一致
-        Map<Long, VolleyballV2Scores> allPeriodScores = JsonMapUtils.parseVolleyballV2Map(periodVolleyballScores);
+        Map<Long, VolleyballScores> allPeriodScores= JsonMapUtils.parseVolleyballMap(periodVolleyballScores);
         // 用切换前的 period 取值，因为 addMatchPeriod 后 period 已变成目标（如 301），
         // scoresJson 中只有 SET_BEGIN（8/9/10...）的 key，没有 SET_END（301/302...）
-        VolleyballV2Scores periodScores = allPeriodScores.get(toSetBeginKey(beforePeriod));
+        VolleyballScores periodScores= allPeriodScores.get(getPeriod(beforePeriod));
+        log.info("赛事ID:{},下发阶段事件---：beforePeriod：{}--{},，比分：{}:{}，获取阶段比分：{}",
+                dto.getThirdMatchId(), dto.getPeriodId(), data.getMatchScoresInfo().getPeriod(),
+                data.getMatchScoresInfo().getPeriodT1(),data.getMatchScoresInfo().getPeriodT2(),periodScores);
+
         MatchCommonLogDto matchCommonLogDto = volleyballPdOperationLogConverter.convertChangePeriodToLog(dto);
         matchCommonLogDto.setOperatorId(dto.getOperatorId());
         matchCommonLogDto.setOperatorName(dto.getOperatorName());
@@ -702,6 +702,26 @@ public class MatchVolleyballServiceImpl extends AbsMatchCommonProcessor<Object> 
         matchScoreCommonHelper.commonProcess(data, eventOperationV2Dto, matchEventInfoDTO, matchCommonLogDto);
         log.info("[MatchVolleyballServiceImpl]changeMatchPeriod end linkId::{}", dto.getLinkedId());
         return Response.success();
+    }
+
+    private Long getPeriod(Long periodId) {
+        if(periodId==301L){
+            return 8L;
+        }else if(periodId==302L){
+            return 9L;
+        }else if(periodId==303L){
+            return 10L;
+        }else if(periodId==304L){
+            return 11L;
+        }else if(periodId==305L){
+            return 12L;
+        }else if(periodId==306L){
+            return 441L;
+        }else if(periodId==307L){
+            return 442L;
+        }else{
+            return periodId;
+        }
     }
 
     /**
@@ -972,20 +992,8 @@ public class MatchVolleyballServiceImpl extends AbsMatchCommonProcessor<Object> 
             }
         }
 
-        // 回看历史局：恢复全场盘分。用局序号比较而非 raw periodId，因为
-        // SET_END（301..）> SET_BEGIN（8..）在数值上，但 SET_END→下局 SET_BEGIN 是正常前进。
-        Integer previousSetIndex = null;
-        if (previousPeriodId != null) {
-            if (VolleyballConstant.VOLLEYBALL_SET_BEGIN.containsKey(previousPeriodId)) {
-                previousSetIndex = VolleyballConstant.VOLLEYBALL_SET_BEGIN.get(previousPeriodId);
-            } else if (VolleyballConstant.VOLLEYBALL_SET_END.containsKey(previousPeriodId)) {
-                previousSetIndex = VolleyballConstant.VOLLEYBALL_SET_END.get(previousPeriodId);
-            }
-        }
-        Integer targetSetIndex = VolleyballConstant.VOLLEYBALL_SET_BEGIN.get(targetPeriodId);
-        boolean backToOldSet = targetSetIndex != null
-                && previousSetIndex != null
-                && targetSetIndex < previousSetIndex;
+        // 回看历史局：恢复全场盘分
+        boolean backToOldSet = targetPeriodId != null && VolleyballConstant.VOLLEYBALL_SET_BEGIN.containsKey(targetPeriodId) && previousPeriodId != null && targetPeriodId < previousPeriodId;
         if (backToOldSet) {
             data.getMatchScoresInfo().setT1(keepHome);
             data.getMatchScoresInfo().setT2(keepAway);
@@ -1357,7 +1365,8 @@ public class MatchVolleyballServiceImpl extends AbsMatchCommonProcessor<Object> 
                 MatchScoresInfo standardInfo = new MatchScoresInfo();
                 BeanUtils.copyProperties(info, standardInfo);
                 standardInfo.setScoresJson(volleyballCalculationServiceImpl.buildStandardMatchScoreByMap(info.getScoresJson(), editScoreV2Dto.getLinkedId()));
-                scoresProducer.sendToMQ(thirdMatchInfo, standardInfo, editScoreV2Dto.getLinkedId() + "_EDIT_SCORE", "batch_edit_set_scores");
+                //PS:PD不直接下发比分，只需要下发事件后由事件触发比分下发
+                //                scoresProducer.sendToMQ(thirdMatchInfo, standardInfo, editScoreV2Dto.getLinkedId() + "_EDIT_SCORE", "batch_edit_set_scores");
             }
 
             redisUtils.pushFootBallScore(editScoreV2Dto.getThirdMatchId());
@@ -1393,6 +1402,7 @@ public class MatchVolleyballServiceImpl extends AbsMatchCommonProcessor<Object> 
                         logDto.setBeforeVal(old[0] + "-" + old[1]);
                         logDto.setAfterVal(newHome + "-" + newAway);
                         matchScorePdLogService.setMatchCommonLog(logVo, logDto);
+//                        sendEditScoresEventInfo(thirdMatchInfo,logVo,editScoreV2Dto.getOperatorName());
                     } catch (Exception logEx) {
                         log.error("[MatchVolleyballServiceImpl]batchEditScores PD log skipped match:{} linkId::{} periodId:{} err:{}",
                                 editScoreV2Dto.getThirdMatchId(), editScoreV2Dto.getLinkedId(), periodId, logEx.getMessage());
@@ -1418,7 +1428,7 @@ public class MatchVolleyballServiceImpl extends AbsMatchCommonProcessor<Object> 
                     eventOpDto.setOperatorName(editScoreV2Dto.getOperatorName());
                     eventOpDto.setIpAddress(editScoreV2Dto.getIpAddress());
                     eventOpDto.setLanguage(editScoreV2Dto.getLanguage());
-
+                    log.info("batch_edit_set_scores排球比分编辑：{}  {}",eventOpDto.getThirdMatchId(),eventOpDto);
                     MatchEventInfoDTO matchEventInfoDTO = MatchEventUtils.createCommonMatchEvent(logVo, eventOpDto, 0, 0L, eventPeriodId);
                     matchEventInfoDTO.setCopyLinkId("PD_" + UUID.randomUUID());
                     matchEventInfoDTO.setThirdEventId(matchEventInfoDTO.getCopyLinkId());
@@ -1426,10 +1436,10 @@ public class MatchVolleyballServiceImpl extends AbsMatchCommonProcessor<Object> 
                     matchEventInfoDTO.setExtrainfo("edit-scores");
                     matchEventInfoDTO.setRemark(editScoreV2Dto.getOperatorName());
                     matchEventInfoDTO.setAddition5("1");
+                    matchEventInfoDTO.setT1(whole.getMatchScore().getHome() != null ? whole.getMatchScore().getHome() : 0);
+                    matchEventInfoDTO.setT2(whole.getMatchScore().getAway() != null ? whole.getMatchScore().getAway() : 0);
                     // t1/t2 使用当前编辑局的 setScore（局分），而非全场盘分
                     if (periodSetScore != null) {
-                        matchEventInfoDTO.setT1(periodSetScore.getHome() != null ? periodSetScore.getHome() : 0);
-                        matchEventInfoDTO.setT2(periodSetScore.getAway() != null ? periodSetScore.getAway() : 0);
                         matchEventInfoDTO.setFirstT1(periodSetScore.getHome() != null ? periodSetScore.getHome() : 0);
                         matchEventInfoDTO.setFirstT2(periodSetScore.getAway() != null ? periodSetScore.getAway() : 0);
                     } else {
@@ -1464,23 +1474,32 @@ public class MatchVolleyballServiceImpl extends AbsMatchCommonProcessor<Object> 
         }
     }
 
+    private void sendEditScoresEventInfo(ThirdMatchInfo thirdMatchInfo, MatchScoreAndTimeVo vo,String operatorName) {
+        MatchEventInfoDTO matchEventInfoDTO=new MatchEventInfoDTO();
+        matchEventInfoDTO.setStandardMatchId(vo.getStandardMatchInfo().getId());
+        matchEventInfoDTO.setThirdMatchSourceId(thirdMatchInfo.getThirdMatchSourceId());
+        matchEventInfoDTO.setDataSourceCode(thirdMatchInfo.getDataSourceCode());
+        String linkId = "PD_"+ UUID.randomUUID();
+        matchEventInfoDTO.setCopyLinkId(linkId);
+        matchEventInfoDTO.setThirdEventId(linkId);
+        matchEventInfoDTO.setSportId(thirdMatchInfo.getSportId());
+        matchEventInfoDTO.setEventTime(System.currentTimeMillis());
+        matchEventInfoDTO.setCanceled(0);
+        matchEventInfoDTO.setHomeAway("all");
+        matchEventInfoDTO.setMatchPeriodId(vo.getStandardMatchInfo().getMatchPeriodId());
+        matchEventInfoDTO.setSourceType("1");
+        matchEventInfoDTO.setSecondsFromStart(0L);
+        matchEventInfoDTO.setEventCode("batch_edit_set_scores");
+        matchEventInfoDTO.setT1(vo.getMatchScoresInfo().getT1());
+        matchEventInfoDTO.setT2(vo.getMatchScoresInfo().getT2());
+        matchEventInfoDTO.setIsErrorEndEvent(0);
+        matchEventInfoDTO.setExtrainfo("edit-scores");
+        matchEventInfoDTO.setRemark(operatorName);
+        matchEventInfoDTO.setAddition5("1");
+        eventProducer.sendPDEventInfo(matchEventInfoDTO);
+    }
 
     // ---------------------------------------------------------------- helpers
-
-    /**
-     * SET_END（301..307）→ 对应 SET_BEGIN（8/9..442），其它 periodId 原样返回。
-     * scoresJson 只用 SET_BEGIN 做 key，当 period 处于 SET_END 时需先翻译再查找。
-     */
-    private static Long toSetBeginKey(Long periodId) {
-        if (periodId != null && VolleyballConstant.VOLLEYBALL_SET_END.containsKey(periodId)) {
-            for (Map.Entry<Long, Long> e : VolleyballConstant.VOLLEYBALL_SET_BEGIN_TO_END.entrySet()) {
-                if (e.getValue().equals(periodId)) {
-                    return e.getKey();
-                }
-            }
-        }
-        return periodId;
-    }
 
     /**
      * 把 scoresJson 解析为 periodId → VolleyballV2Scores。返回前确保至少包含 -1（全场）键。

@@ -377,23 +377,6 @@ public class CommonEventServiceImpl implements CommonEventService {
             footballMatchEventStatusVo.setHasVARGoal(true);
         }
         //取消事件或者确认事件都会修改状态为false
-//        if(possibleEventCode.equals("canceled_penalty")||possibleEventCode.equals("penalty")){
-//            boolean flag = true;
-//            if(possibleEventCode.equals("penalty")) {
-//                flag = footballMatchEventStatusVo.isHasHomeConfirmPenalty() || footballMatchEventStatusVo.isHasAwayConfirmPenalty();
-//            }
-//            if(homeAway.equals(TeamTypeEnum.HOME.code)){
-//                footballMatchEventStatusVo.setHasHomePenalty(false);
-//                if(possibleEventCode.equals("penalty") && !flag) {
-//                    footballMatchEventStatusVo.setHasHomeConfirmPenalty(true);
-//                }
-//            }else {
-//                footballMatchEventStatusVo.setHasAwayPenalty(false);
-//                if(possibleEventCode.equals("penalty") && !flag) {
-//                    footballMatchEventStatusVo.setHasAwayConfirmPenalty(true);
-//                }
-//            }
-//        }
         if(possibleEventCode.equals("canceled_penalty")||possibleEventCode.equals("penalty")){
             if(homeAway.equals(TeamTypeEnum.HOME.code)){
                 footballMatchEventStatusVo.setHasHomePenalty(false);

@@ -205,7 +205,7 @@ public class UOFScoresConsumer  extends AbstractSingleMessageMQConsumer<Request<
                         }
                     }
                     //主客队相反
-                    scoresService.changePDHomeAwayScores(matchScoresInfo, thirdMatchInfo);
+//                    scoresService.changePDHomeAwayScores(matchScoresInfo, thirdMatchInfo);
                     //推送三方比分数据 和 标准比分（标准比分不处理 5网，8乒，9排，10羽）
                     //3.判断 livedata 的时间是否 》2分钟 则下发
                     scoresProducer.sendUofScoreToMQ(thirdMatchInfo,matchScoresInfo,request.getLinkId());
@@ -464,7 +464,7 @@ public class UOFScoresConsumer  extends AbstractSingleMessageMQConsumer<Request<
                 }
             }
             //主客队相反
-            scoresService.changePDHomeAwayScores(score, thirdMatchInfo);
+//            scoresService.changePDHomeAwayScores(score, thirdMatchInfo);
             CommonStandardScoresDto commonScoresDto = messageBuilderUtils.buildStandardMatchScoreCommonScoresDto(score,scoreDataDto,matchScoresInfo);
 //            commonScoresDto.setPeriodId(periodId);
             scoresProducer.sendStandardMatchScores(commonScoresDto);

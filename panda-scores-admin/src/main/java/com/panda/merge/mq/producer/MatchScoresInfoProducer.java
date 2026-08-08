@@ -22,8 +22,8 @@ import java.util.List;
 @Service
 @Slf4j
 public class MatchScoresInfoProducer {
-    @Autowired
-    private RocketMQTemplate rocketMqTemplate;
+//    @Autowired
+//    private RocketMQTemplate rocketMqTemplate;
     @Resource(name = "secondTemplate")
     private RocketMQTemplate secondTemplate;
 

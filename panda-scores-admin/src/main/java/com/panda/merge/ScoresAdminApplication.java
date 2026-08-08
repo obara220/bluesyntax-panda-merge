@@ -1,5 +1,6 @@
 package com.panda.merge;
 
+import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.nacos.spring.context.annotation.config.NacosPropertySource;
 import org.apache.dubbo.config.spring.context.annotation.EnableDubbo;
 import org.apache.rocketmq.spring.autoconfigure.RocketMQAutoConfiguration;
@@ -21,6 +22,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class ScoresAdminApplication {
 
     public static void main(String[] args) {
+        ParserConfig.getGlobalInstance().setAutoTypeSupport(false);
         SpringApplication.run(ScoresAdminApplication.class, args);
         System.out.println("比分服务启动完毕 !!! ");
         System.out.println("tag 20231122 !!! ");

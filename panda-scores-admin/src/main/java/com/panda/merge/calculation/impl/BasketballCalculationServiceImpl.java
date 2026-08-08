@@ -915,7 +915,7 @@ public class BasketballCalculationServiceImpl extends AbstractCalculationService
         }else{
             //默认打开
             dto.setMinScoresCheck((Boolean)obj);
-            redisService.set(redisKey,false, RedisConfig.REDIS_DEFAULT_TIME);
+            redisService.set(redisKey,true, RedisConfig.REDIS_DEFAULT_TIME);
         }
         //查询标准比分
         StandardMatchScores standardMatchScores = scoresRedisHelp.getCatchStandScoreByMatchId(standardMatchId);
@@ -1876,13 +1876,13 @@ public class BasketballCalculationServiceImpl extends AbstractCalculationService
 
     private void calcWholeScores(Map<Long, BasketballScores> newStandardScores,BasketballScores thirdWholeSores,Integer matchLength,Long period) {
         List<Long> basketballScoreCenterPeriod = Arrays.asList(13L, 14L,15L, 16L,40L,21L,1L,2L);
-        List<Long> calcScoresPeriod = Arrays.asList(13L, 14L,15L, 16L,40L);
+        List<Long> calcScoresPeriod = Arrays.asList(13L, 14L,15L, 16L,21L,40L);
         if(matchLength==null){
             matchLength = 0;
         }
         if(period==100L){
             basketballScoreCenterPeriod = Arrays.asList(13L,14L,15L,16L,21L,1L,2L);
-            calcScoresPeriod = Arrays.asList(13L,14L,15L,16L);
+            calcScoresPeriod = Arrays.asList(13L,14L,15L,16L,21L);
         }
         Integer home = 0,away=0;
         for (Long periodId : newStandardScores.keySet()) {

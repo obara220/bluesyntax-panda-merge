@@ -47,6 +47,7 @@ import com.panda.merge.model.*;
 import com.panda.merge.mq.message.CommonStandardScoresDto;
 import com.panda.merge.mq.spare.SpareBaseProducer;
 import com.panda.merge.repository.PdMatchInfoRepository;
+import com.panda.merge.repository.ThirdMatchInfoRepository;
 import com.panda.merge.service.IScoresService;
 import com.panda.merge.service.ThirdMatchInfoService;
 import com.panda.merge.utils.MessageBuilderUtils;
@@ -124,6 +125,9 @@ public class EventProducer {
 
     @Autowired
     private FootBallScoreServiceImpl footBallScoreServiceImpl;
+
+    @Autowired
+    private ThirdMatchInfoRepository thirdMatchInfoRepository;
 
     @Autowired
     private CommonScoreEventService commonScoreEventService;
@@ -872,7 +876,7 @@ public class EventProducer {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 //        ThirdMatchInfo thirdMatchInfo=thirdMatchInfoMapper.selectByPrimaryKey(thirdMatchId);
-        ThirdMatchInfo thirdMatchInfo = pdMatchInfoRepository.getThirdMatchInfo(thirdMatchId, null);
+        ThirdMatchInfo thirdMatchInfo = thirdMatchInfoRepository.selectThirdMatchInfoByPrimaryKey(thirdMatchId);
         List<PDFootBallEventDto> eventDtoList = footBallEventService.buildEventList(thirdMatchInfo.getThirdMatchSourceId(), thirdMatchInfo.getDataSourceCode(), null);
         PDFootBallMatchEventDto PDFootBallMatchEventDto =new PDFootBallMatchEventDto();
         PDFootBallMatchEventDto.setThirdMatchId(thirdMatchId.toString());
@@ -901,7 +905,7 @@ public class EventProducer {
      * */
     public void pushFootBallCancelEndEvent(Long thirdMatchId, Long periodId) {
 //        ThirdMatchInfo thirdMatchInfo = thirdMatchInfoMapper.selectByPrimaryKey(thirdMatchId);
-        ThirdMatchInfo thirdMatchInfo = pdMatchInfoRepository.getThirdMatchInfo(thirdMatchId, null);
+        ThirdMatchInfo thirdMatchInfo = thirdMatchInfoRepository.selectThirdMatchInfoByPrimaryKey(thirdMatchId);
         List<PDFootBallEventDto> eventDtoList = footBallEventService.buildEventList(thirdMatchInfo.getThirdMatchSourceId(), thirdMatchInfo.getDataSourceCode(), null);
         eventDtoList = eventDtoList.stream().filter(t->t.getMatchPeriodId().equals(periodId)).collect(Collectors.toList());
         PDFootBallMatchEventDto PDFootBallMatchEventDto = new PDFootBallMatchEventDto();
@@ -919,7 +923,7 @@ public class EventProducer {
 
     public   void pushFootBallPauseContinueEvent(Long thirdMatchId, Integer controlType){
 //        ThirdMatchInfo thirdMatchInfo=thirdMatchInfoMapper.selectByPrimaryKey(thirdMatchId);
-        ThirdMatchInfo thirdMatchInfo = pdMatchInfoRepository.getThirdMatchInfo(thirdMatchId, null);
+        ThirdMatchInfo thirdMatchInfo = thirdMatchInfoRepository.selectThirdMatchInfoByPrimaryKey(thirdMatchId);
         List<PDFootBallEventDto> eventDtoList = footBallEventService.buildEventList(thirdMatchInfo.getThirdMatchSourceId(), thirdMatchInfo.getDataSourceCode(), null);
         PDFootBallMatchEventDto PDFootBallMatchEventDto =new PDFootBallMatchEventDto();
         PDFootBallMatchEventDto.setThirdMatchId(thirdMatchId.toString());
@@ -936,7 +940,7 @@ public class EventProducer {
 
     public void pushFootBallEventPABoard(Long thirdMatchId, Long periodId) {
 //        ThirdMatchInfo thirdMatchInfo = thirdMatchInfoMapper.selectByPrimaryKey(thirdMatchId);
-        ThirdMatchInfo thirdMatchInfo = pdMatchInfoRepository.getThirdMatchInfo(thirdMatchId, null);
+        ThirdMatchInfo thirdMatchInfo = thirdMatchInfoRepository.selectThirdMatchInfoByPrimaryKey(thirdMatchId);
         List<PDFootBallEventDto> eventDtoList = footBallEventService.buildEventList(thirdMatchInfo.getThirdMatchSourceId(), thirdMatchInfo.getDataSourceCode(), null);
         eventDtoList = eventDtoList.stream().filter(t->t.getMatchPeriodId().equals(periodId)).collect(Collectors.toList());
         PDFootBallMatchEventDto PDFootBallMatchEventDto = new PDFootBallMatchEventDto();
@@ -1090,6 +1094,15 @@ public class EventProducer {
             matchEventInfoDTO.setRemark(matchEventInfoDTO.getMatchPeriodId() + "");
         }
         sendPDFootballClickEventInfo(matchEventInfoDTO,dto.getTimeFromStartSecond(), null);
+        //中断补发match_status事件
+        if ("suspension".equals(matchEventInfoDTO.getEventCode())) {
+            MatchEventInfoDTO matchStatusEventInfo = matchEventInfoDTO;
+            matchStatusEventInfo.setEventCode("match_status");
+            matchStatusEventInfo.setRemark("中断补发");
+            matchEventInfoDTO.setMatchPeriodId(80L);
+            sendPDEventInfo(matchStatusEventInfo);
+        }
+
     }
 
     public void sendNowPeriodStatus(Response<MatchScoreAndTimeVo> response) {

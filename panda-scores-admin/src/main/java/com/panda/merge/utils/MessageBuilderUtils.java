@@ -50,8 +50,6 @@ public class MessageBuilderUtils {
     @Autowired
     SnookerCalculationServiceImpl snookerCalculationServiceImpl;
     @Autowired
-    VolleyballCalculationServiceImpl volleyballCalculationServiceImpl;
-    @Autowired
     TennisCalculationServiceImpl tennisCalculationServiceImpl;
     @Autowired
     TableTennisCalculationServiceImpl tableTennisCalculationServiceImpl;
@@ -104,9 +102,6 @@ public class MessageBuilderUtils {
         if(SportTypeEnum.SNOOKER.getValue().equals(matchScoresInfo.getSportId())){
             matchScoresInfo.setScoresJson(snookerCalculationServiceImpl.buildStandardMatchScoreByMap(matchScoresInfo.getScoresJson(),data.getLinkId()));
         }
-//        if(SportTypeEnum.VOLLEYBALL.getValue().equals(matchScoresInfo.getSportId())){
-//            matchScoresInfo.setScoresJson(volleyballCalculationServiceImpl.buildStandardMatchScoreByMap(matchScoresInfo.getScoresJson(),data.getLinkId()));
-//        }
         if(StringUtils.isNotEmpty(matchScoresInfo.getScoresJsonExtra()) && !SportTypeEnum.CRICKET_BALL.getValue().equals(matchScoresInfo.getSportId())){
             JSONObject extrayScore=JSONObject.parseObject(matchScoresInfo.getScoresJsonExtra());
             commonScoresDto.setExtraScores(extrayScore);
@@ -332,7 +327,7 @@ public class MessageBuilderUtils {
         commonScoresDto.setSecondFromStart(matchScoresInfo.getSecondsMatchStart());
         commonScoresDto.setWhetherStop(thirdMatchInfo.getWhetherStop());
         if(matchScoresInfo.getSportId().equals(2L)){
-            if(matchScoresInfo.getMatchLength()!=null && matchScoresInfo.getMatchLength()==3){
+            if(matchScoresInfo.getMatchLength()==3){
                 BasketballScores basketballScores =new BasketballScores();
                 basketballScores.setMatchScore(new CommonItem());
                 basketballScores.getMatchScore().setHome(matchScoresInfo.getT1());
@@ -407,7 +402,7 @@ public class MessageBuilderUtils {
                 commonScoresDto.setScores(JsonMapUtils.transferSimpleJsonMap(JSONObject.toJSONString(basketballScoresMap)));
                 return commonScoresDto;
             }
-            commonScoresDto.setAllScores(basketballCalculationService.buildThirdMatchScoreByMap(matchScoresInfo.getScoresJson()));
+            commonScoresDto.setAllScores(basketballCalculationService.buildStandardMatchScoreByMap(matchScoresInfo.getScoresJson()));
 //            extraBasketballSixScores(commonScoresDto,matchScoresInfo);
         }
         if(SportTypeEnum.AMERICAN_FOOTBALL.getValue().equals(matchScoresInfo.getSportId())){
@@ -424,7 +419,7 @@ public class MessageBuilderUtils {
         commonScoresDto.setDataSourceCode("BFZX");
         commonScoresDto.setEventSourceType(1);
         commonScoresDto.setSportId(matchInfo.getSportId());
-        commonScoresDto.setPeriodId(matchInfo.getMatchPeriodId()!=null?matchInfo.getMatchPeriodId() : 999L);
+        commonScoresDto.setPeriodId(matchInfo.getMatchPeriodId()!=null?new Long(matchInfo.getMatchPeriodId()) : 999L);
         commonScoresDto.setScoreTime(System.currentTimeMillis());
         commonScoresDto.setStandardMatchId(matchInfo.getId());
         commonScoresDto.setWhetherStop(thirdMatchInfo.getWhetherStop());

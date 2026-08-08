@@ -281,6 +281,7 @@ public class MatchScoreCommonHelper {
                 }
             }
         }
+        log.info("result 获取controlType：{},{}",thirdMatchId,result);
         return result;
     }
 

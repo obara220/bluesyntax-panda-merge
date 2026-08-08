@@ -173,7 +173,7 @@ public class FootballDashboardHotKeyApiImpl implements FootballDashboardHotKeyAp
         } catch (Exception e) {
             ByteArrayOutputStream exception = new ByteArrayOutputStream();
             e.printStackTrace(new PrintStream(exception));
-            log.error("PA报球板，删除用户热键设置：userName={}, 错误信息={}", userName, exception);
+            log.error("PA报球板，删除用户热键设置：userName={}, 错误信息={}", userName, exception,e);
         } finally {
             redisService.unLock(key, key);
         }

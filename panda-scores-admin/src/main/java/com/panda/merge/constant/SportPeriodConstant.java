@@ -230,7 +230,7 @@ public class SportPeriodConstant {
                 return  new Long[]{21L,40L};
             }
             else {
-                return  new Long[]{/*1L, 2L,*/13L,14L, 15L,16L,40L, 80L};
+                return  new Long[]{1L, 2L,13L,14L, 15L,16L,40L, 80L};
             }
         }
         public static boolean contans(Long periodId,Integer matchLength) {

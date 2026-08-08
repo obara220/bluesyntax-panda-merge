@@ -587,9 +587,9 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
      * 不依赖 isOddsLive（赛前/滚球切换标识），避免“标识异常存在时只取到一侧缓存”导致下发空赔率。
      */
     private Map<String, StandardMarketDataMessage> getStringStandardMarketDataMessageMapForTradeOperation(Set<Long> marketCategoryIds,
-                                                                                                         String linkId,
-                                                                                                         StandardMatchInfo standardMatchInfo,
-                                                                                                         StandardSportMarketSell standardSportMarketSell) {
+                                                                                                          String linkId,
+                                                                                                          StandardMatchInfo standardMatchInfo,
+                                                                                                          StandardSportMarketSell standardSportMarketSell) {
         Map<String, StandardMarketDataMessage> result = new HashMap<>();
         // 赛前
         {
@@ -916,7 +916,7 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
     public void processTradeSystem(Request<TradeMarketConfigDTO> request, TradeMarketConfigDTO tradeMarketConfigDTO,
                                    StandardMatchInfo oldStandardMatchInfo,
                                    StandardSportMarketSell standardSportMarketSell, Map<String,
-            StandardMarketDataMessage> stringStandardMarketDataMessageMap) {
+                    StandardMarketDataMessage> stringStandardMarketDataMessageMap) {
         if (Constant.TRADE_MARKET_CONFIG.SOURCE_SYSTEM.TRADER_SYSEM.equals(tradeMarketConfigDTO.getSourceSystem())) {
             log.info("::{}::putTradeMarketConfig ,标准赛事id：{},获取缓存数据总数：{}", request.getLinkId(),
                     oldStandardMatchInfo.getId(), stringStandardMarketDataMessageMap.size());
@@ -2985,8 +2985,8 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
      * @return
      */
     public Map<String, StandardMarketDataMessage> getStringStandardMarketDataMessageMapAutoClose(Set<Long> marketCategoryIds,
-                                                                                        String linkId,
-                                                                                        StandardMatchInfo standardMatchInfo, StandardSportMarketSell standardSportMarketSell) {
+                                                                                                 String linkId,
+                                                                                                 StandardMatchInfo standardMatchInfo, StandardSportMarketSell standardSportMarketSell) {
         List<ThirdMatchInfo> thirdMatchInfoList = thirdMatchInfoService.getItems(standardMatchInfo.getId());
         Set<String> dataSourceCodes = thirdMatchInfoList.stream().map(e->e.getDataSourceCode()).collect(Collectors.toSet());
         int oddsLive = isOddsLive(standardMatchInfo.getId());
@@ -3432,7 +3432,7 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
         //最终关盘玩法
         Set<Long> finalMarketCategoryIdSet = new HashSet();
         //最终关盘玩法子玩法
-       List<JSONObject> finalChildMarketCategoryObjSet = new ArrayList<>();
+        List<JSONObject> finalChildMarketCategoryObjSet = new ArrayList<>();
         childMarketCategoryIdsMap.keySet().forEach(childCategoryId -> {
             // 已下发玩法、不再下发
             if (autoCloseMap != null && !autoCloseMap.containsKey(childCategoryId.toString())) {
@@ -3999,12 +3999,12 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
         }
 
         dataSourceSwitchService.switchDataSource(updateMarketCategoryDataSourceCodeRequest,
-                                                 marketCategoryDataSourceCodeList,
-                                                 standardSportMarketSell,
-                                                 standardMarketCategorySellMap,
-                                                 marketType,
-                                                 categoryList,
-                                                 standardMatchInfo);
+                marketCategoryDataSourceCodeList,
+                standardSportMarketSell,
+                standardMarketCategorySellMap,
+                marketType,
+                categoryList,
+                standardMatchInfo);
         return Response.success();
     }
 
@@ -4742,8 +4742,8 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
         }
         List<ThirdMatchInfo> thirdMatchInfoLTList = thirdMatchInfoList.stream().filter(e -> e.getDataSourceCode().equalsIgnoreCase(DataSourceCodeEnum.TX.getCode()) || e.getDataSourceCode().equalsIgnoreCase(DataSourceCodeEnum.LS.getCode())|| e.getDataSourceCode().equalsIgnoreCase(DataSourceCodeEnum.L02.getCode())).collect(Collectors.toList());
         return Response.success(categoryCodeProcessor.processStandardMatchInternalCode(request.getLinkId(),
-                                                                                       thirdMatchInfoLTList,
-                                                                                       standardMatchInfoId));
+                thirdMatchInfoLTList,
+                standardMatchInfoId));
     }
 
     @Override
@@ -4751,8 +4751,8 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
         ValidatorUtils.validate(validator, request);
         MatchCategoryDataSourcesDTO data = request.getData();
         log.info("::{}::getStandardCategoryAvailableDataSources,请求参数：{}",
-                 request.getLinkId(),
-                 JSON.toJSONString(data));
+                request.getLinkId(),
+                JSON.toJSONString(data));
         return dataSourceAutoSwitchService.getDataSources(request);
 
     }
@@ -4789,9 +4789,9 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
         Response<MatchDataSourceDTO> result = dataSourceAutoSwitchService.autoSwitch(request);
         stopWatch.stop();
         log.info("linkId:{},autoSwitchDataSource, millis:{}, result:{}",
-                 request.getLinkId(),
-                 stopWatch.getTotalTimeMillis(),
-                 JSON.toJSONString(result));
+                request.getLinkId(),
+                stopWatch.getTotalTimeMillis(),
+                JSON.toJSONString(result));
         return result;
     }
 
@@ -4965,8 +4965,14 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                 : new HashSet<>(request.getData().getCategoryIds());
         long now = System.currentTimeMillis();
         Map<String, ThirdMarketModifytimeDTO> result = new HashMap<>(map.size());
+        //历史版本写入过只有玩法ID的field，风控按 玩法ID:数据源编码 取值，返回出去只会造成误判，汇总打一条日志即可
+        List<String> invalidFields = new ArrayList<>();
         map.forEach((fieldKey, dto) -> {
             if (dto == null) {
+                return;
+            }
+            if (!ThirdMarket108048Helper.isValidFieldKey(fieldKey)) {
+                invalidFields.add(fieldKey);
                 return;
             }
             if (categoryFilter != null) {
@@ -4978,6 +4984,14 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
             ThirdMarket108048Helper.applyLevel(dto, now);
             result.put(fieldKey, dto);
         });
+        if (!invalidFields.isEmpty()) {
+            log.info("::{}::getThirdMarletLastModifyTime忽略历史非法field,赛事ID:{},field:{}",
+                    request.getLinkId(), request.getData().getMatchId(), invalidFields);
+        }
+        //108048 验证日志：redis 里全部 field vs 本次返回给风控的 field，便于核对"有赔率却没返回状态"
+        log.info("::{}::getThirdMarletLastModifyTime返回,赛事ID:{},请求玩法:{},redis全部field:{},返回field:{}",
+                request.getLinkId(), request.getData().getMatchId(), request.getData().getCategoryIds(),
+                map.keySet(), result.keySet());
         return Response.success(result);
     }
 

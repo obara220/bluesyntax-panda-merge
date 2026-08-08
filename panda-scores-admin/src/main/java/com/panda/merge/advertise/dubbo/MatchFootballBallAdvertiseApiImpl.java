@@ -294,6 +294,7 @@ public class MatchFootballBallAdvertiseApiImpl implements IMatchFootballBallAdve
                 possessionCount.setTechName("possCount");
                 FootballMatchStageVo ballPossessionPercentage = data.getData().getFootballScoreboardVo().getBallPossessionPercentage();
                 ballPossessionPercentage.setTechName("ballPossPct");
+                data.getData().setLiveEventSource(response.getData().getStandardMatchInfo().getLiveEventSource());
                 return data;
             } else {
                 return footBallAdvertiseService.buildFootBallAdvertiseVo(response.getData());
@@ -1015,11 +1016,15 @@ public class MatchFootballBallAdvertiseApiImpl implements IMatchFootballBallAdve
             }
             // 点球大战禁止操作事件--结束
             if (redisService.tryLock(key, key, 2, 3)) {
-                List<String> list = Arrays.asList("possible_red_card,possible_yellow_card,possible_goal,possible_free_kick,possible_corner,possible_penalty,possible_var_red_card,possible_var_goal,possible_var_penalty".split(","));
+                List<String> list = Arrays.asList(("possible_red_card,possible_yellow_card,possible_goal," +
+                        "possible_free_kick,possible_corner,possible_penalty," +
+                        "possible_var_red_card,possible_var_goal," +
+                        "possible_var_penalty").split(","));
                 if (list.contains(eventCode) && obj == null) {
                     return Response.failed("zs".equals(cancelEventDto.getLanguage()) ? "请刷新，稍等或点击事件" : "please refresh, wait or click event");
                 }
                 if (list.contains(eventCode) && obj != null) {
+                    log.info("{}，cancelEvent取消事件删除缓存：{},删除key：{}",cancelEventDto.getThirdMatchId(),eventCode,cacheKey);
                     redisService.del(cacheKey);
                 }
                 //事件触发15分钟 和 5分钟比分生成

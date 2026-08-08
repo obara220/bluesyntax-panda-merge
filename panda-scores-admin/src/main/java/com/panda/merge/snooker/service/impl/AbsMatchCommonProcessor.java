@@ -174,8 +174,10 @@ public abstract class AbsMatchCommonProcessor<T> implements IMatchCommonProcesso
                     changeMatchScoreV2Dto.getThirdMatchId(), changeMatchScoreV2Dto.getLinkedId());
             return Response.failed("赛事已中断，不能进行比分操作");
         }
-        
-        matchScoreCommonHelper.kickOffEventCheck(changeMatchScoreV2Dto.getThirdMatchId(), changeMatchScoreV2Dto.getLanguage());
+        //排球过滤此校验-事件源切换PD后能直接使用
+        if(!SportTypeEnum.VOLLEYBALL.getValue().equals(changeMatchScoreV2Dto.getSportId())){
+            matchScoreCommonHelper.kickOffEventCheck(changeMatchScoreV2Dto.getThirdMatchId(), changeMatchScoreV2Dto.getLanguage());
+        }
         EventOperationV2Dto eventOperationV2Dto = eventOperationConverter.changeMatchScoreToEvent(changeMatchScoreV2Dto);
         fillBaseOperatorFields(changeMatchScoreV2Dto, eventOperationV2Dto);
 
@@ -280,6 +282,7 @@ public abstract class AbsMatchCommonProcessor<T> implements IMatchCommonProcesso
             periodId = 80l;
         } else if (changeMatchStatusV2Dto.getControlType() == 4) {
             periodId = resolveMatchEndPeriod(changeMatchStatusV2Dto);
+            log.info("[AbsMatchCommonServiceImpl]changeMatchStatus ct=4 volleyball thirdMatchId:{},periodId:{}", changeMatchStatusV2Dto.getThirdMatchId(),periodId);
         }
         MatchEventInfoDTO matchEventInfoDTO = MatchEventUtils.createCommonMatchEvent(
                 matchScoreAndTimeVo, eventOperationV2Dto, 0, 0L, periodId);
@@ -320,10 +323,9 @@ public abstract class AbsMatchCommonProcessor<T> implements IMatchCommonProcesso
                 }
                 updatePeriodToDb(matchScoreAndTimeVo, 80L);
             } else if (ct == 4) {
-                Long endPeriod = resolveMatchEndPeriod(changeMatchStatusV2Dto);
-                updatePeriodToDb(matchScoreAndTimeVo, endPeriod);
+                updatePeriodToDb(matchScoreAndTimeVo, resolveMatchEndPeriod(changeMatchStatusV2Dto));
                 if(SportTypeEnum.VOLLEYBALL.getValue().equals(eventOperationV2Dto.getSportId())){
-                    log.info("[AbsMatchCommonServiceImpl]changeMatchStatus ct=4 volleyball scoresJson:{}", matchScoreAndTimeVo.getMatchScoresInfo().getScoresJson());
+                    log.info("[AbsMatchCommonServiceImpl]changeMatchStatus ct=4 volleyball scoresJson:{}", matchScoreAndTimeVo.getMatchScoresInfo());
                     JSONObject periodVolleyballScores = JSONObject.parseObject(matchScoreAndTimeVo.getMatchScoresInfo().getScoresJson());
                     Map<Long, VolleyballV2Scores> allPeriodScores = JsonMapUtils.parseVolleyballV2Map(periodVolleyballScores);
                     log.info("[AbsMatchCommonServiceImpl]changeMatchStatus ct=4 volleyball allPeriodScores keys:{}, size:{}", allPeriodScores != null ? allPeriodScores.keySet() : "null", allPeriodScores != null ? allPeriodScores.size() : 0);
@@ -342,10 +344,11 @@ public abstract class AbsMatchCommonProcessor<T> implements IMatchCommonProcesso
                     }
                     volleyballEventInfo.setFirstNum(firstNum==null?null : Integer.valueOf(firstNum+""));
                     volleyballEventInfo.setHomeAway("all");
-                    volleyballEventInfo.setT1(matchScoreAndTimeVo.getMatchScoresInfo().getT1());
-                    volleyballEventInfo.setT2(matchScoreAndTimeVo.getMatchScoresInfo().getT2());
+                    volleyballEventInfo.setT1(matchEventInfoDTO.getT1());
+                    volleyballEventInfo.setT2(matchEventInfoDTO.getT2());
                     volleyballEventInfo.setFirstT1(periodScores != null && periodScores.getSetScore() != null ? periodScores.getSetScore().getHome() : null);
                     volleyballEventInfo.setFirstT2(periodScores != null && periodScores.getSetScore() != null ? periodScores.getSetScore().getAway() : null);
+                    log.info("[AbsMatchCommonServiceImpl]changeMatchStatus ct=4 volleyball matchEventInfoDTO:{}", matchEventInfoDTO);
                     eventProducer.sendPDEventInfo(volleyballEventInfo);
                 }
             } else if (ct == 6) {
