@@ -57,6 +57,8 @@ import org.springframework.util.StopWatch;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
@@ -1095,7 +1097,10 @@ public class ThirdMatchMarketProcessor extends BaseProcessor {
         log.info("::{}::panda操盘全部盘口计算耗时{}ms," + swCalculate.prettyPrint(), linkId, swCalculate.getTotalTimeMillis());
 
         }catch (Exception e ){
-            log.error(linkId+"::processOddsByPanda,出现异常,"+JSON.toJSONString(e));
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw));
+            String stack = sw.toString();
+            log.info("::{}::processOddsByPanda异常信息={}",linkId,stack);
         }
         }
 
@@ -3960,10 +3965,10 @@ public class ThirdMatchMarketProcessor extends BaseProcessor {
         }
         try {
             //足球数据源margin玩法：数据商抽水赔率按赛事模板margin重新抽水，开关关闭或数据不合法时为空，走原有逻辑
-/*            Map<String, Double> templateMarginOddsMap = footballMarginTemplateConverter.isOpen(sportId, standardMarketDataMessage.getDataSourceCode())
+            Map<String, Double> templateMarginOddsMap = footballMarginTemplateConverter.isOpen(sportId, standardMarketDataMessage.getDataSourceCode())
                     ? footballMarginTemplateConverter.convertOddsByTemplateMargin(linkId, standardMatchInfoId, marketCategoryId,
                     standardMarketDataMessage.getMarketOddsList(), marginGapMap)
-                    : Collections.<String, Double>emptyMap();*/
+                    : Collections.<String, Double>emptyMap();
             for (StandardMarketOddsDataMessage marketOdds : standardMarketDataMessage.getMarketOddsList()) {
                 String oddsType = marketOdds.getOddsType();
                 ConfigMarketMarginGap configMarketMarginGap = new ConfigMarketMarginGap();
@@ -4001,13 +4006,9 @@ public class ThirdMatchMarketProcessor extends BaseProcessor {
                     continue;
                 }
                 //Step1:原始赔率转为小数点，原始概率： P = 1/抽水赔率(足球走赛事模板抽水时，取转换后的赔率)
-       /*         Double templateMarginOdds = templateMarginOddsMap.get(oddsType);
+                Double templateMarginOdds = templateMarginOddsMap.get(oddsType);
                 double changOriginalOdds = templateMarginOdds != null ? templateMarginOdds : BigDecimalUtils.divide(oddsValue, 100000D, 2);
-                double p = BigDecimalUtils.divide(1, changOriginalOdds, 8);*/
-                //Step1:原始赔率转为小数点，原始概率： P = 1/抽水赔率
-                double changOriginalOdds = BigDecimalUtils.divide(oddsValue, 100000D, 2);
                 double p = BigDecimalUtils.divide(1, changOriginalOdds, 8);
-
                 //Step2:计算概率差赔率probabilityOdds, 公式: 1/(P+M+PGap)
                 double probabilityOdds = BigDecimalUtils.add(p, probability);
                 probabilityOdds = BigDecimalUtils.divide(1, probabilityOdds, 2);
