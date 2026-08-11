@@ -68,6 +68,12 @@ public class FootballCalculationServiceImpl extends AbstractCalculationServiceIm
     List<String> SCORES_EVENT = new ArrayList<>(Arrays.asList(EventCodeEnum.CORNER.code,EventCodeEnum.GOAL.code,EventCodeEnum.RED_CARD.code,EventCodeEnum.YELLOW_CARD.code));
     //修改时间事件4243需求
     List<String> MODIFY_TIME_EVENT = new ArrayList<>(Arrays.asList("goal_time_modified","redcard_time_modified","yellowcard_time_modified","corner_time_modified"));
+    // 控球率计算常量
+    private static final BigDecimal ONE_HUNDRED = new BigDecimal("100");
+    // 休息间隙阶段变更集合：lastPeriod->currentPeriod
+    private static final Set<String> BREAK_TRANSITIONS = new HashSet<>(Arrays.asList(
+            "6->7", "7->41", "7->42", "41->7", "42->7", "6->41"
+    ));
 
     @Override
     public void calculationMatchScores(MatchScoresInfo matchScoresInfo, MatchEventInfo data) throws Exception {
@@ -221,8 +227,7 @@ public class FootballCalculationServiceImpl extends AbstractCalculationServiceIm
                     int wholeAway = wholeSores.getPossessionTime().getAway();
                     int wholeTotal = wholeHome + wholeAway;
                     if (wholeTotal > 0) {
-                        BigDecimal onehundred = new BigDecimal("100");
-                        BigDecimal wholeHomePct = new BigDecimal(wholeHome).divide(new BigDecimal(wholeTotal), 2, RoundingMode.HALF_UP).multiply(onehundred);
+                        BigDecimal wholeHomePct = new BigDecimal(wholeHome).divide(new BigDecimal(wholeTotal), 2, RoundingMode.HALF_UP).multiply(ONE_HUNDRED);
                         wholeSores.getBallPossessionPercentage().setHome(wholeHomePct.intValue());
                         wholeSores.getBallPossessionPercentage().setAway(100 - wholeHomePct.intValue());
                     }
@@ -308,6 +313,10 @@ public class FootballCalculationServiceImpl extends AbstractCalculationServiceIm
         if(periodSores==null){
             return;
         }
+        if (wholeSores == null || wholeSores.getPossessionTime() == null) {
+            log.warn("{},buildPossessionDataByGameTime wholeSores或possessionTime为null，跳过计算", linkId);
+            return;
+        }
 
         // ===== 全场控球率更新 =====
         Integer awayAllTime = wholeSores.getPossessionTime().getAway();
@@ -331,17 +340,15 @@ public class FootballCalculationServiceImpl extends AbstractCalculationServiceIm
         int wholeHome = wholeSores.getPossessionTime().getHome();
         int wholeAway = wholeSores.getPossessionTime().getAway();
         int wholeTotal = wholeHome + wholeAway;
-        if(wholeTotal == 0){
+        if(wholeTotal > 0){
+            BigDecimal wholeHomePct = new BigDecimal(wholeHome).divide(new BigDecimal(wholeTotal), 2, RoundingMode.HALF_UP).multiply(ONE_HUNDRED);
+            int wholeHomeInt = wholeHomePct.intValue();
+            wholeSores.getBallPossessionPercentage().setHome(wholeHomeInt);
+            wholeSores.getBallPossessionPercentage().setAway(100 - wholeHomeInt);
+            log.info("{},buildPossessionDataByGameTime 全场控球率:home={}%,away={}%(保证和=100%)",linkId,wholeHomeInt,100 - wholeHomeInt);
+        }else{
             log.info("{},buildPossessionDataByGameTime 全场控球时长0,homeAllTime={},awayAllTime={}",linkId,homeAllTime,awayAllTime);
-            return;
         }
-        // 先计算主队百分比，客队=100-主队，保证和为100%
-        BigDecimal onehundred = new BigDecimal("100");
-        BigDecimal wholeHomePct = new BigDecimal(wholeHome).divide(new BigDecimal(wholeTotal), 2, RoundingMode.HALF_UP).multiply(onehundred);
-        int wholeHomeInt = wholeHomePct.intValue();
-        wholeSores.getBallPossessionPercentage().setHome(wholeHomeInt);
-        wholeSores.getBallPossessionPercentage().setAway(100 - wholeHomeInt);
-        log.info("{},buildPossessionDataByGameTime 全场控球率:home={}%,away={}%(保证和=100%)",linkId,wholeHomeInt,100 - wholeHomeInt);
 
         // ===== 阶段控球率：每个阶段独立累积 =====
         // 从当前阶段对象获取已有的累积值
@@ -371,11 +378,12 @@ public class FootballCalculationServiceImpl extends AbstractCalculationServiceIm
         int periodAway = periodSores.getPossessionTime().getAway();
         int periodTotal = periodHome + periodAway;
         if (periodTotal > 0) {
-            BigDecimal periodHomePct = new BigDecimal(periodHome).divide(new BigDecimal(periodTotal), 2, RoundingMode.HALF_UP).multiply(onehundred);
-            periodSores.getBallPossessionPercentage().setHome(periodHomePct.intValue());
-            periodSores.getBallPossessionPercentage().setAway(100 - periodHomePct.intValue());
+            BigDecimal periodHomePct = new BigDecimal(periodHome).divide(new BigDecimal(periodTotal), 2, RoundingMode.HALF_UP).multiply(ONE_HUNDRED);
+            int periodHomeInt = periodHomePct.intValue();
+            periodSores.getBallPossessionPercentage().setHome(periodHomeInt);
+            periodSores.getBallPossessionPercentage().setAway(100 - periodHomeInt);
             log.info("{},buildPossessionDataByGameTime 阶段控球率:home={}%,away={}%(保证和=100%),累计(s)={}-{}",linkId,
-                periodHomePct.intValue(), 100 - periodHomePct.intValue(), periodHome, periodAway);
+                periodHomeInt, 100 - periodHomeInt, periodHome, periodAway);
         }else{
             log.info("{},buildPossessionDataByGameTime 阶段控球时长为0",linkId);
         }
@@ -394,25 +402,11 @@ public class FootballCalculationServiceImpl extends AbstractCalculationServiceIm
      * @return true=休息间隙，应跳过间隙时间计算
      */
     private boolean isBreakPeriodTransition(Long lastPeriod, Long currentPeriod) {
-        // 6->7: 上半场 -> 下半场（中场休息）
-        if (lastPeriod == 6L && currentPeriod == 7L) {
+        // 哨兵阶段(100L=比赛结束, 999L=完赛)总是跳过间隙计算
+        if (currentPeriod == 100L || currentPeriod == 999L) {
             return true;
         }
-        // 7->41: 下半场 -> 加时赛第一阶段（常规时间结束，间隙非控球）
-        if (lastPeriod == 7L && currentPeriod == 41L) {
-            return true;
-        }
-        // 7->42: 下半场 -> 加时赛第二阶段
-        if (lastPeriod == 7L && currentPeriod == 42L) {
-            return true;
-        }
-        // 6->41: 上半场 -> 加时赛第一阶段（罕见，同样非控球间隙）
-        if (lastPeriod == 6L && currentPeriod == 41L) {
-            return true;
-        }
-        // 注意：41->42（加时赛第一阶段->第二阶段）保持原有逻辑
-        // 因为加时赛半场之间的间隙较小，可能是真实的控球时间差
-        return false;
+        return BREAK_TRANSITIONS.contains(lastPeriod + "->" + currentPeriod);
     }
 
     /**
@@ -440,7 +434,7 @@ public class FootballCalculationServiceImpl extends AbstractCalculationServiceIm
             awayTime = da.getCreateTime();
         } else {
             if (TeamTypeEnum.AWAY.getCode().equals(data.getHomeAway())) {
-                redisService.set(homeEventKey, data, 7200);
+                redisService.set(awayEventKey, data, 7200);
             }
         }
         if (null != hasPublicEvent) {

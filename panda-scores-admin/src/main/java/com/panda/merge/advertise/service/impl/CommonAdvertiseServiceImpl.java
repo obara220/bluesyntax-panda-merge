@@ -442,11 +442,11 @@ public class CommonAdvertiseServiceImpl implements CommonAdvertiseService {
             }
         }
         //切换到点球大战就初始化点球大战比分
-        if(data.getMatchScoresInfo().getSportId().equals(1l)&&matchEventInfoDTO.getMatchPeriodId().equals(50l)){
+        if( data.getThirdMatchInfo().getSportId().equals(1l) && matchEventInfoDTO.getMatchPeriodId().equals(50l) ){
             initPenaltyScores(data.getMatchScoresInfo());
         }
 
-        if( data.getMatchScoresInfo().getSportId().equals(1l) &&
+        if( data.getThirdMatchInfo().getSportId().equals(1l) &&
                 ( matchEventInfoDTO.getMatchPeriodId().equals(6L) || matchEventInfoDTO.getMatchPeriodId().equals(7L) ) ){
             initStartMinScores(data.getMatchScoresInfo(), matchEventInfoDTO.getMatchPeriodId() );
         }

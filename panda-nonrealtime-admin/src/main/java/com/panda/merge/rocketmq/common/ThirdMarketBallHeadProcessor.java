@@ -167,21 +167,23 @@ public class ThirdMarketBallHeadProcessor extends BaseProcessor {
                 ListUtils.sort(thirdMarketDTOArrayList, true, "status", "oddsMetric");
                 ThirdMarketDTO thirdMarketNewHeadFinal = thirdMarketDTOArrayList.get(0);
                 log.info("::{}::百家赔下发三方赔率球头给AO,玩法ID:{}，缓存:{}", linkId, marketCategoryId, JSONObject.toJSONString(thirdMarketNewHeadFinal));
-                ThirdMatchInfo thirdMatchInfoHomeAwayOpposite = thirdMatchInfoService.getItem(standardMatchInfo.getId(), thirdMarketNewHeadFinal.getDataSourceCode());
+                String baseDataSourceCode = resolveBaseDataSourceCode(thirdMarketNewHeadFinal.getDataSourceCode());
+                ThirdMatchInfo thirdMatchInfoHomeAwayOpposite = thirdMatchInfoService.getItem(standardMatchInfo.getId(), baseDataSourceCode);
                 if (null != thirdMatchInfoHomeAwayOpposite) {
                     //主客队相反盘口、投注项相关内容处理
                     if (ONE.equals(thirdMatchInfoHomeAwayOpposite.getHomeAwayOpposite()) && CategoryOppositeConfig.FootBall.containsCategory(thirdMarketNewHeadFinal.getMarketCategoryId())) {
                         {
                             thirdMarketNewHeadFinal = JSONObject.parseObject(JSONObject.toJSONString(thirdMarketNewHeadFinal), ThirdMarketDTO.class);
-                            ThirdMarketCategory thirdMarketCategory = thirdMarketCategoryService.getItem(thirdMarketNewHeadFinal.getDataSourceCode(), thirdMarketNewHeadFinal.getThirdMarketCategorySourceId());
+                            ThirdMarketCategory thirdMarketCategory = thirdMarketCategoryService.getItem(baseDataSourceCode, thirdMarketNewHeadFinal.getThirdMarketCategorySourceId());
                             if (null != thirdMarketCategory) {
-                                changeStandardMarketContent(linkId, thirdMarketNewHeadFinal.getDataSourceCode(), thirdMarketCategory, thirdMarketNewHeadFinal);
+                                changeStandardMarketContent(linkId, baseDataSourceCode, thirdMarketCategory, thirdMarketNewHeadFinal);
+                                thirdMarketNewHeadFinal.setMarketCategoryId(thirdMarketCategory.getReferenceId());
                                 log.info("::{}::百家赔下发三方赔率球头给AO,玩法ID:{}，主客队相反后：{}", linkId, marketCategoryId, JSONObject.toJSONString(thirdMarketNewHeadFinal));
                             }
                         }
                     }
                 }
-                thirdMarketHeadCacheNewMap.put(marketCategoryId.toString(), thirdMarketDTOArrayList.get(0));
+                thirdMarketHeadCacheNewMap.put(marketCategoryId.toString(), thirdMarketNewHeadFinal);
                 sendThirdMarketHeadCacheNewMap.put(marketCategoryId, thirdMarketNewHeadFinal);
             }
             //重新缓存数据源球头

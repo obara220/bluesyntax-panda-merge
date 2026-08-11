@@ -877,7 +877,7 @@ public class MatchEventInfoProcessor extends BaseProcessor {
 
                             try {
                                 //106537 足球赛事比分与统计比分不一致时预警并赛事级关盘
-                                checkEventScoreValidation(matchEventInfo, oldThirdMatchInfo, linkId, isReissue, request.getSpareMq());
+                                checkEventScoreValidation(matchEventInfo, oldThirdMatchInfo, linkId);
                             } catch (Exception e){
                                 log.error("linkId=【{}】process2MatchEvent,checkEventScoreValidation异常,e={}",
                                         newLinkId, e.toString());
@@ -1369,12 +1369,13 @@ public class MatchEventInfoProcessor extends BaseProcessor {
         });
     }
 
+
     /**
      * 106537
      * 商业数据源（S01 G01 K01 R01 B02）下发的所有事件中新增附带进球比分，当收到进球比分与标准统计进球比分对比，比分连续5次不一致时弹窗预警并对应自动赛事级关盘
      * 111278 改封盘
      */
-    private void checkEventScoreValidation(MatchEventInfo matchEventInfo, ThirdMatchInfo thirdMatchInfo, String linkId, Boolean isReissue, Boolean spareMq){
+    private void checkEventScoreValidation(MatchEventInfo matchEventInfo, ThirdMatchInfo thirdMatchInfo, String linkId){
         String dataSourceCode = matchEventInfo.getDataSourceCode();
         if (!DataSourceCodeEnum.getCrossPeriodScoreChangedCode().contains(dataSourceCode)){
             return;
@@ -1497,7 +1498,7 @@ public class MatchEventInfoProcessor extends BaseProcessor {
         if (count >= 5) {
             String notifyKey = scoreCountKey + ":sent";
             if (redisService.setIfNotExist(notifyKey, "1", 2, TimeUnit.HOURS)){
-                matchEventInfoProducer.pushScoreValidationError(linkId, thirdMatchInfo, isReissue, spareMq);
+                matchEventInfoProducer.pushScoreValidationError(linkId, thirdMatchInfo);
                 log.warn("linkId=【{}】checkEventScoreValidation, 比分连续5次不一致触发告警, scoreCountKey={}, keySet={}, matchEventInfo={}, footballCacheScore={}, referenceId={}, dataSourceCode={}, thirdMatchSourceId={}",
                         linkId, scoreCountKey, redisService.sMembers(indexKey), JSON.toJSONString(matchEventInfo), JSON.toJSONString(footballCacheScores), referenceId, dataSourceCode, thirdMatchSourceId);
             }

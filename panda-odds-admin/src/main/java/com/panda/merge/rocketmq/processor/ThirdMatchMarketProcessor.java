@@ -28,6 +28,8 @@ import com.panda.merge.dto.*;
 import com.panda.merge.dto.message.*;
 import com.panda.merge.exception.ExceptionHelper;
 import com.panda.merge.model.*;
+import com.panda.merge.dto.odds.MergeMarketStatusEnum;
+import com.panda.merge.odds.cache.AutoCloseCacheService;
 import com.panda.merge.odds.cache.FootballScoreCacheService;
 import com.panda.merge.odds.enums.MarketHandlingEnum;
 import com.panda.merge.odds.service.FlowControlService;
@@ -38,7 +40,6 @@ import com.panda.merge.proxy.UpdateOperateProxy;
 import com.panda.merge.rocketmq.producer.*;
 import com.panda.merge.service.*;
 import com.panda.merge.util.CategoryUtils;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -253,6 +254,8 @@ public class ThirdMatchMarketProcessor extends BaseProcessor {
     @Autowired
     private FootballMarketValidateService footballMarketValidateService;
     @Autowired
+    private AutoCloseCacheService autoCloseCacheService;
+    @Autowired
     private BasketballOriginalOddsLimitProcessor basketballOriginalOddsLimitProcessor;
 
     @Autowired
@@ -270,9 +273,6 @@ public class ThirdMatchMarketProcessor extends BaseProcessor {
     @NacosValue(value = "${category.waitCloseTime.Switch:true}", autoRefreshed = true)
     private boolean waitCloseTimeSwitch;
 
-    @Getter
-    @NacosValue(value = "${market.98442.football:true}", autoRefreshed = true)
-    private boolean marketFootBall;
 
     /**
      * 处理收到的数据源赔率
@@ -1095,8 +1095,7 @@ public class ThirdMatchMarketProcessor extends BaseProcessor {
         log.info("::{}::panda操盘全部盘口计算耗时{}ms," + swCalculate.prettyPrint(), linkId, swCalculate.getTotalTimeMillis());
 
         }catch (Exception e ){
-            e.printStackTrace();
-            log.error(linkId+"::processOddsByPanda,出现异常",e);
+            log.error(linkId+"::processOddsByPanda,出现异常,"+JSON.toJSONString(e));
         }
         }
 
@@ -1114,12 +1113,60 @@ public class ThirdMatchMarketProcessor extends BaseProcessor {
             return;
         }
         standardMarketMessageList.stream().forEach(e->{
+            if (shouldSkipThirdMarketStatusProcess(standardMatchInfo, e)) {
+                return;
+            }
             if (e.getThirdMarketSourceStatus() != 0 && !MarginCategoryConfig.FootBall_MAIN3484_CATEGORY.contains(e.getMarketCategoryId()) && e.getMarketCategoryId()!=133L){
                 e.setStatus(2);
                 e.setThirdMarketSourceStatus(1);
                 e.setPaStatusReason(e.getPaStatusReason()+","+"101470");
             }
         });
+    }
+
+    private static final String PRE_LIVE_CLOSE_REMARK = "关闭赛前盘兜底";
+
+    /**
+     * 自动关盘、早转滚关盘等场景，101470 不再改写为源封
+     */
+    private boolean shouldSkipThirdMarketStatusProcess(StandardMatchInfo standardMatchInfo, StandardMarketMessage market) {
+        return isAutoClosedMarket(standardMatchInfo, market) || isPreLiveClosedMarket(standardMatchInfo, market);
+    }
+
+    /**
+     * 玩法已触发自动关盘，101470 不再改写三方数据源状态
+     */
+    private boolean isAutoClosedMarket(StandardMatchInfo standardMatchInfo, StandardMarketMessage market) {
+        if (Constant.AOTU_CLOSE_STATUS.equals(market.getAutoCloseStatus())) {
+            return true;
+        }
+        if (StringUtils.isNotBlank(market.getRemark())
+                && market.getRemark().contains(MergeMarketStatusEnum.AUTO_CLOSE.name())) {
+            return true;
+        }
+        Long matchId = standardMatchInfo.getId();
+        if (autoCloseCacheService.autoClose(matchId, market.getMarketCategoryId())) {
+            return true;
+        }
+        return market.getChildMarketCategoryId() != null
+                && autoCloseCacheService.autoClose(matchId, market.getChildMarketCategoryId());
+    }
+
+    /**
+     * 早转滚 / 滚球阶段关闭的赛前盘，101470 不再改写为源封
+     */
+    private boolean isPreLiveClosedMarket(StandardMatchInfo standardMatchInfo, StandardMarketMessage market) {
+        if (StringUtils.isNotBlank(market.getRemark()) && market.getRemark().contains(PRE_LIVE_CLOSE_REMARK)) {
+            return true;
+        }
+        if (!Objects.equals(market.getMarketType(), Constant.SPORT_MARKET.MARKET_TYPE.PRE_MATCH_BUSINESS)) {
+            return false;
+        }
+        if (isOddsLive(standardMatchInfo.getId()) != 0) {
+            return false;
+        }
+        return Constant.SPORT_MARKET.STATUS.DEACTIVATED.equals(market.getStatus())
+                || Constant.SPORT_MARKET.STATUS.DEACTIVATED.equals(market.getThirdMarketSourceStatus());
     }
 
     /**
@@ -1864,7 +1911,12 @@ public class ThirdMatchMarketProcessor extends BaseProcessor {
                 continue;
             }
             if (null == marketCategorySell.getAutoOpenMarket() || 0 == marketCategorySell.getAutoOpenMarket() || null == marketCategorySell.getAutoOpenTime() || 0 == marketCategorySell.getAutoOpenTime()) {
-                log.info("::{}::篮球滚球自动开盘玩法,玩法配置：{}，不存在不处理", linkId, marketCategoryId);
+                log.info("::{}::篮球滚球自动开盘玩法,玩法：{}，未配置自动开盘参数,强制关盘", linkId, marketCategoryId);
+                standardMarketMessages.forEach(standardMarketMessage -> {
+                    standardMarketMessage.setThirdMarketSourceStatus(Constant.TRADE_MARKET_CONFIG.MARKET_STATUS.DEACTIVATED);
+                    standardMarketMessage.setStatus(Constant.TRADE_MARKET_CONFIG.MARKET_STATUS.DEACTIVATED);
+                    standardMarketMessage.setPaStatus(Constant.SPORT_MARKET.STATUS.DEACTIVATED);
+                });
                 continue;
             }
             String key = Constant.REDIS_KEY.RONGHE_AUTO_OPEN_MARKET_CATEGORY + standardMatchInfo.getId();
@@ -2567,7 +2619,7 @@ public class ThirdMatchMarketProcessor extends BaseProcessor {
             return;
         }
         if (standardMarketDataMessage.getMarketOddsList().size() == 3) {
-            processStandardMarketMarginEUROPE(linkId, standardMatchId, standardMarketDataMessage, marketCategoryId);
+            processStandardMarketMarginEUROPE(linkId, standardMatchId, standardMarketDataMessage, marketCategoryId, sportId);
         } else if (standardMarketDataMessage.getMarketOddsList().size() == 2) {
             if (DataSourceCodeEnum.AO.code.equals(standardMarketDataMessage.getDataSourceCode())) {
                 if (marketCategoryId == 352
@@ -2585,28 +2637,8 @@ public class ThirdMatchMarketProcessor extends BaseProcessor {
             log.info("::{}::marginCalculateTransfer投注项数量错误,标准赛事ID:{},玩法:{},standardMarketDataMessage:{}", linkId, standardMatchId, marketCategoryId, JSON.toJSON(standardMarketDataMessage));
         }
 
-        //98442
-        if (StandardSportTypeEnum.FootBall.code.equals(sportId) && marketFootBall){
-            if (standardMarketDataMessage.getMarketOddsList()!=null){
-                double marginDs = 0.0;
-                List<StandardMarketOddsDataMessage> marketOddsList = standardMarketDataMessage.getMarketOddsList();
-                Object flag = marketOddsList.stream().filter(e->e.getOddsValue()==0||e.getOddsValue()==null).findAny().orElse(null);
-                if (flag != null){
-                    return;
-                }
-                for (StandardMarketOddsDataMessage standardMarketOddsDataMessage : marketOddsList){
-                    marginDs = marginDs + BigDecimalUtils.divide(1, BigDecimalUtils.divide(standardMarketOddsDataMessage.getOddsValue(), 100000), 2);
-                }
-                if (marginDs < 1){
-                    return;
-                }
-                for (StandardMarketOddsDataMessage standardMarketOddsDataMessage : marketOddsList){
-                    Double odds = BigDecimalUtils.divide(standardMarketOddsDataMessage.getOddsValue(), 100000, 2);
-                    Double paOddsValue = BigDecimalUtils.multiply(BigDecimalUtils.divide(odds, marginDs),BigDecimalUtils.divide(standardMarketOddsDataMessage.getMargin(),100));
-                    standardMarketOddsDataMessage.setPaOddsValue(BigDecimalUtils.multiply(paOddsValue, 100000).intValue());
-                }
-            }
-        }
+        //98442 赔率转换已前置到 processStandardMarketMarginEUROPE 的入口(FootballMarginTemplateConverter)，
+        //转换后仍走概率差(跳水)/水差/优美优化，此处不再二次覆盖PA赔率
     }
 
     private void standardMarketMapMalay(String linkId, StandardMatchInfo standardMatchInfo, List<StandardMarketDataMessage> standardMarketMessageList, Map<Long, List<StandardMarketDataMessage>> standardMarketMapMALAY) {
@@ -3906,8 +3938,9 @@ public class ThirdMatchMarketProcessor extends BaseProcessor {
      * @param standardMatchInfoId
      * @param standardMarketDataMessage
      * @param marketCategoryId
+     * @param sportId 球种ID，足球开关打开时数据商抽水赔率改走赛事模板margin抽水
      */
-    private void processStandardMarketMarginEUROPE(String linkId, Long standardMatchInfoId, StandardMarketDataMessage standardMarketDataMessage, Long marketCategoryId) {
+    private void processStandardMarketMarginEUROPE(String linkId, Long standardMatchInfoId, StandardMarketDataMessage standardMarketDataMessage, Long marketCategoryId, Long sportId) {
         //转换统一盘口ID
         Long relationMarketId = convertRelationMarketId(linkId, standardMarketDataMessage);
         if (standardMarketDataMessage.getPlaceNum() == null) {
@@ -3926,6 +3959,11 @@ public class ThirdMatchMarketProcessor extends BaseProcessor {
             marginGapMap = itemList.stream().collect(Collectors.toMap(ConfigMarketMarginGap::getOddsType, a -> a, (k1, k2) -> k1));
         }
         try {
+            //足球数据源margin玩法：数据商抽水赔率按赛事模板margin重新抽水，开关关闭或数据不合法时为空，走原有逻辑
+/*            Map<String, Double> templateMarginOddsMap = footballMarginTemplateConverter.isOpen(sportId, standardMarketDataMessage.getDataSourceCode())
+                    ? footballMarginTemplateConverter.convertOddsByTemplateMargin(linkId, standardMatchInfoId, marketCategoryId,
+                    standardMarketDataMessage.getMarketOddsList(), marginGapMap)
+                    : Collections.<String, Double>emptyMap();*/
             for (StandardMarketOddsDataMessage marketOdds : standardMarketDataMessage.getMarketOddsList()) {
                 String oddsType = marketOdds.getOddsType();
                 ConfigMarketMarginGap configMarketMarginGap = new ConfigMarketMarginGap();
@@ -3962,9 +4000,14 @@ public class ThirdMatchMarketProcessor extends BaseProcessor {
                     log.info("::{}::三项盘独赢计算:{},标准盘口:{},统一盘口id:{},原始赔率为:0，不再计算,封盘口和投注项:{}", linkId, standardMatchInfoId, standardMarketDataMessage.getId(), standardMarketDataMessage.getRelationMarketId(), marketOdds.getOddsType());
                     continue;
                 }
+                //Step1:原始赔率转为小数点，原始概率： P = 1/抽水赔率(足球走赛事模板抽水时，取转换后的赔率)
+       /*         Double templateMarginOdds = templateMarginOddsMap.get(oddsType);
+                double changOriginalOdds = templateMarginOdds != null ? templateMarginOdds : BigDecimalUtils.divide(oddsValue, 100000D, 2);
+                double p = BigDecimalUtils.divide(1, changOriginalOdds, 8);*/
                 //Step1:原始赔率转为小数点，原始概率： P = 1/抽水赔率
                 double changOriginalOdds = BigDecimalUtils.divide(oddsValue, 100000D, 2);
                 double p = BigDecimalUtils.divide(1, changOriginalOdds, 8);
+
                 //Step2:计算概率差赔率probabilityOdds, 公式: 1/(P+M+PGap)
                 double probabilityOdds = BigDecimalUtils.add(p, probability);
                 probabilityOdds = BigDecimalUtils.divide(1, probabilityOdds, 2);

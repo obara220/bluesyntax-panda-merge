@@ -138,28 +138,26 @@
       #{item.modifyTime,jdbcType=BIGINT}, #{item.createTime,jdbcType=BIGINT}, #{item.scoresJsonExtra,jdbcType=VARCHAR}
       )    </foreach>
     ON DUPLICATE KEY UPDATE
-    id = VALUES(id),
-    third_match_id = VALUES(third_match_id),
-    third_match_source_id = VALUES(third_match_source_id),
-    sport_id = VALUES(sport_id),
-    `period` = VALUES(`period`),
-    period_length = VALUES(period_length),
-    match_length = VALUES(match_length),
-    event_time = VALUES(event_time),
-    remaining_time = VALUES(remaining_time),
-    seconds_match_start = VALUES(seconds_match_start),
-    data_source_code = VALUES(data_source_code),
-    scores_json = VALUES(scores_json),
-    scores_json_type = VALUES(scores_json_type),
-    match_length = VALUES(match_length),
-    t1 = VALUES(t1),
-    t2 = VALUES(t2),
-    period_t1 = VALUES(period_t1),
-    period_t2 = VALUES(period_t2),
-    data_source_type = VALUES(data_source_type),
-    modify_time = VALUES(modify_time),
-    create_time = VALUES(create_time),
-    scores_json_extra = VALUES(scores_json_extra)
+    third_match_id = COALESCE(VALUES(third_match_id), third_match_id),
+    third_match_source_id = COALESCE(VALUES(third_match_source_id), third_match_source_id),
+    sport_id = COALESCE(VALUES(sport_id), sport_id),
+    `period` = COALESCE(VALUES(`period`), `period`),
+    period_length = COALESCE(VALUES(period_length), period_length),
+    match_length = COALESCE(VALUES(match_length), match_length),
+    event_time = COALESCE(VALUES(event_time), event_time),
+    remaining_time = COALESCE(VALUES(remaining_time), remaining_time),
+    seconds_match_start = COALESCE(VALUES(seconds_match_start), seconds_match_start),
+    data_source_code = COALESCE(VALUES(data_source_code), data_source_code),
+    scores_json = COALESCE(VALUES(scores_json), scores_json),
+    scores_json_type = COALESCE(VALUES(scores_json_type), scores_json_type),
+    t1 = COALESCE(VALUES(t1), t1),
+    t2 = COALESCE(VALUES(t2), t2),
+    period_t1 = COALESCE(VALUES(period_t1), period_t1),
+    period_t2 = COALESCE(VALUES(period_t2), period_t2),
+    data_source_type = COALESCE(VALUES(data_source_type), data_source_type),
+    modify_time = COALESCE(VALUES(modify_time), modify_time),
+    create_time = COALESCE(VALUES(create_time), create_time),
+    scores_json_extra = COALESCE(VALUES(scores_json_extra), scores_json_extra)
   </insert>
 
   <insert id="insert" parameterType="com.panda.merge.model.MatchScoresInfo">

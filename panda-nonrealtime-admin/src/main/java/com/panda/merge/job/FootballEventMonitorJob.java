@@ -177,7 +177,11 @@ public class FootballEventMonitorJob extends IJobHandler {
     //                            } catch (InterruptedException e) {
     //                                throw new RuntimeException(e);
     //                            }
-
+                                if ( !isParsableLong(eventInfoDTO.getAddition6()) ) {
+                                    log.info("::{}::执行offline跳过id为空，matchTimeId:{}", eventInfoDTO.getCopyLinkId(), eventInfoDTO.getAddition6() );
+                                    sb.append( "赛事阶段id为空;");
+                                    return;
+                                }
                                 MatchTimeInfo matchTimeInfo = selectByPrimaryKey(Long.valueOf(eventInfoDTO.getAddition6()));
                                 //88478-bug 中场休息和 加时塞休息不需要下发offline
                                 List<Long> periods = Arrays.asList(31L, 33L,80L,999L);
@@ -263,6 +267,12 @@ public class FootballEventMonitorJob extends IJobHandler {
     //                            } catch (InterruptedException e) {
     //                                throw new RuntimeException(e);
     //                            }
+
+                                if ( !isParsableLong(eventInfoDTO.getAddition6()) ) {
+                                    log.info("::{}::执行offline跳过id为空，matchTimeId:{}", eventInfoDTO.getCopyLinkId(), eventInfoDTO.getAddition6() );
+                                    sb.append( "赛事阶段id为空;");
+                                    return;
+                                }
                                 //88478-bug 中场休息和 加时塞休息不需要下发offline
                                 MatchTimeInfo matchTimeInfo = selectByPrimaryKey(Long.valueOf(eventInfoDTO.getAddition6()));
                                 List<Long> periods = Arrays.asList(31L, 33L,80L,999L);
@@ -400,5 +410,19 @@ public class FootballEventMonitorJob extends IJobHandler {
             log.error("查询赛事时间异常：", e);
         }
         return matchTimeInfo;
+    }
+
+
+    public static boolean isParsableLong(String str) {
+        if ( str == null || str.trim().isEmpty() ) {
+            return false;
+        }
+
+        try {
+            Long.parseLong(str.trim());
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 }

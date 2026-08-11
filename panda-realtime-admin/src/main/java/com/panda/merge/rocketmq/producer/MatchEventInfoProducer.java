@@ -802,20 +802,13 @@ public class MatchEventInfoProducer {
     }
 
     /**
+     * 111278
      * 连续5次比分校验失败，通知封盘
      */
-    public void pushScoreValidationError(String linkId, ThirdMatchInfo thirdMatchInfo, Boolean isReissue, Boolean spareMq) {
-        MarketSuspendMessage.MessageData messageData = new MarketSuspendMessage.MessageData();
-        messageData.setMatchId(thirdMatchInfo.getReferenceId());
-        messageData.setSportId(thirdMatchInfo.getSportId());
-
+    public void pushScoreValidationError(String linkId, ThirdMatchInfo thirdMatchInfo) {
         MarketSuspendMessage message = new MarketSuspendMessage();
-        message.setLinkId(linkId);
-        message.setData(messageData);
-        message.setDataSourceTime(System.currentTimeMillis());
-        message.setDataSourceCode(thirdMatchInfo.getDataSourceCode());
-        message.setIsReissue(isReissue);
-        message.setSpareMq(spareMq);
+        message.setMatchId(thirdMatchInfo.getReferenceId());
+        message.setSportId(thirdMatchInfo.getSportId());
 
         String topic = "RCS_SCORE_INCONSISTENCY_WARNING";
         realtimeBaseProduecr.send(message, linkId,topic,

@@ -98,14 +98,15 @@ public class FootBallAdvertiseServiceImpl implements FootBallAdvertiseService {
     @Override
     public Response matchStart(MatchScoreAndTimeVo matchScoreAndTimeVo, String linkedId, KickOffDto kickOff, ChangeMatchStatusDto changeMatchStatus) {
         //1.计算阶段
-        Long nextPeriod= 6l;
+        Long nextPeriod= 6L;
         //2 计算时长
         Long startTimeSecond= 0l;
         //修改赛事阶段以及时间
         //3.查询阶段比分
         MatchScoreCommonVo matchScoreCommonVo= footBallScoreService.searchCommonMatchScore(matchScoreAndTimeVo.getMatchScoresInfo(),nextPeriod);
         //4.下发阶段事件
-        commonEventService.changeMatchPeriodEvent(matchScoreAndTimeVo,nextPeriod,startTimeSecond,startTimeSecond,System.currentTimeMillis(),matchScoreCommonVo,linkedId,"");
+        commonEventService.changeMatchPeriodEvent( matchScoreAndTimeVo, nextPeriod, startTimeSecond, startTimeSecond,
+                System.currentTimeMillis(), matchScoreCommonVo, linkedId,"");
         String oddsDataSourceCode = matchScoreAndTimeVo.getThirdMatchInfo().getDataSourceCode();
 //        StandardSportMarketSellExample example= new StandardSportMarketSellExample();
 //        example.createCriteria().andMatchInfoIdEqualTo(matchScoreAndTimeVo.getThirdMatchInfo().getReferenceId());

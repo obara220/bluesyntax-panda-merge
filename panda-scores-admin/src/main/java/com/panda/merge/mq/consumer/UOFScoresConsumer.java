@@ -189,10 +189,9 @@ public class UOFScoresConsumer  extends AbstractSingleMessageMQConsumer<Request<
                         }
                         //足球、篮球针对B02统计比分做处理：如果存在事件比分，则不下发统计比分
                         if(SportTypeEnum.FOOTBALL.getValue().equals(sportId) || SportTypeEnum.BASKETBALL.getValue().equals(sportId) ){
-                            MatchScoresInfo liveScore = matchScoreInfoRepository.selectByExample(thirdMatchInfo.getId(),SourceTypeEnum.LIVE_DATA.getCode());
-                            //判断事件比分是否存在
-                            if(liveScore != null){
-                                log.info("linkId::{}::UOFScoresConsumer 当前赛种:{},B02数据已存在事件比分,无需下发统计比分！",request.getLinkId(),sportId);
+                            //使用isLivedataStoped判断更准确：不仅检查LIVE_DATA比分是否存在，还检查数据源是否已切换到UOF
+                            if(!scoresService.isLivedataStoped(thirdMatchInfo.getId())){
+                                log.info("linkId::{}::UOFScoresConsumer 当前赛种:{},B02数据已存在事件比分且未切换到UOF,无需下发统计比分！",request.getLinkId(),sportId);
                                 return;
                             }
                         }

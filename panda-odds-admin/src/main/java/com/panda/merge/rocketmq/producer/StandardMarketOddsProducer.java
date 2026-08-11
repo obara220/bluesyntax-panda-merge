@@ -139,10 +139,10 @@ public class StandardMarketOddsProducer {
         request.setLinkId(linkId);
         request.setDataSourceTime(dataSourceTime);
         MessageBuilder<Request<StandardMatchMarketMessage>> builder = MessageBuilder.withPayload(request).setHeader(MessageConst.PROPERTY_KEYS, linkId);
-        // 4405：同场支持玩法级混合操盘，Producer 不再二次读取赛事级 pre/liveRiskManagerCode 覆盖上游分流结果
-        // matchTradType 以调用方传入为准（由主流程按玩法分组后决定）。
-        if(isXts){//代操盘模式获取风控紧急开关 是否计算赔率分组
-            matchTradType=getMatchTradeCacheConfig(standardMatchInfo.getRiskManagerCode());
+        if (isXts&&!CollectionUtils.isEmpty(standardMarketMessageAllList) && !Objects.equals(NUMBER_TWO, standardMarketMessageAllList.get(0).getMarketType())) {
+            StandardSportMarketSell standardSportMarketSell = standardSportMarketSellService.getItem(standardMatchInfo.getId());
+            matchTradType = getMatchTradeCacheConfig(standardMarketMessageAllList.get(0).getMarketType() == 1 ? standardSportMarketSell.getPreRiskManagerCode() : standardSportMarketSell.getLiveRiskManagerCode());
+            log.info("::{}::,计算赔率分组 代操盘 数据源Code:{},是否计算分组赔率 ：{}", linkId,standardMatchInfo.getRiskManagerCode(),matchTradType);
         }
         //赔率分组计算
         calculateOdds(linkId, standardMatchInfo, matchTradType, standardMatchMarketMessage, dataSourceTime);
@@ -186,10 +186,10 @@ public class StandardMarketOddsProducer {
         request.setLinkId(linkId);
         request.setDataSourceTime(dataSourceTime);
         MessageBuilder<Request<StandardMatchMarketMessage>> builder = MessageBuilder.withPayload(request).setHeader(MessageConst.PROPERTY_KEYS, linkId);
-        // 4405：同场支持玩法级混合操盘，Producer 不再二次读取赛事级 pre/liveRiskManagerCode 覆盖上游分流结果
-        //赔率分组计算
-        if(isXts){//代操盘模式获取风控紧急开关 是否计算赔率分组
-            matchTradType=getMatchTradeCacheConfig(standardMatchInfo.getRiskManagerCode());
+        if (isXts&&!CollectionUtils.isEmpty(standardMarketMessageAllList) && !Objects.equals(NUMBER_TWO, standardMarketMessageAllList.get(0).getMarketType())) {
+            StandardSportMarketSell standardSportMarketSell = standardSportMarketSellService.getItem(standardMatchInfo.getId());
+            matchTradType = getMatchTradeCacheConfig(standardMarketMessageAllList.get(0).getMarketType() == 1 ? standardSportMarketSell.getPreRiskManagerCode() : standardSportMarketSell.getLiveRiskManagerCode());
+            log.info("::{}::,计算赔率分组 代操盘 数据源Code:{},是否计算分组赔率 ：{}", linkId,standardMatchInfo.getRiskManagerCode(),matchTradType);
         }
         calculateOdds(linkId, standardMatchInfo, matchTradType, standardMatchMarketMessage, dataSourceTime);
 
@@ -355,10 +355,10 @@ public class StandardMarketOddsProducer {
         request.setOperaterId(operaterId);
         request.setOddsSource(oddsSource);
         MessageBuilder<Request<StandardMatchMarketMessage>> builder = MessageBuilder.withPayload(request).setHeader(MessageConst.PROPERTY_KEYS, linkId);
-        // 4405：同场支持玩法级混合操盘，Producer 不再二次读取赛事级 pre/liveRiskManagerCode 覆盖上游分流结果
-        //赔率分组计算
-        if(isXts){//代操盘模式获取风控紧急开关 是否计算赔率分组
-            matchTradType=getMatchTradeCacheConfig(standardMatchInfo.getRiskManagerCode());
+        if (isXts&&!CollectionUtils.isEmpty(standardMarketMessageAllList) && !Objects.equals(NUMBER_TWO, standardMarketMessageAllList.get(0).getMarketType())) {
+            StandardSportMarketSell standardSportMarketSell = standardSportMarketSellService.getItem(standardMatchInfo.getId());
+            matchTradType = getMatchTradeCacheConfig(standardMarketMessageAllList.get(0).getMarketType() == 1 ? standardSportMarketSell.getPreRiskManagerCode() : standardSportMarketSell.getLiveRiskManagerCode());
+            log.info("::{}::,计算赔率分组 代操盘 数据源Code:{},是否计算分组赔率 ：{}", linkId,standardMatchInfo.getRiskManagerCode(),matchTradType);
         }
         calculateOdds(linkId, standardMatchInfo, matchTradType, standardMatchMarketMessage, dataSourceTime);
 

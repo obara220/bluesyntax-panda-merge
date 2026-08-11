@@ -166,9 +166,11 @@ public class PlayRiskManagerService {
         if (StringUtils.isBlank(riskManagerCode)) {
             return null;
         }
-        if (StringUtils.equalsIgnoreCase(riskManagerCode, RiskManagerCodeEnums.MTS.name())
-                || StringUtils.equalsIgnoreCase(riskManagerCode, RiskManagerCodeEnums.OTS.name())) {
+        if (StringUtils.equalsIgnoreCase(riskManagerCode, RiskManagerCodeEnums.MTS.name())) {
             return com.panda.merge.common.enums.DataSourceCodeEnum.SR.code;
+        }
+        if (StringUtils.equalsIgnoreCase(riskManagerCode, RiskManagerCodeEnums.OTS.name())) {
+            return com.panda.merge.common.enums.DataSourceCodeEnum.OD.code;
         }
         if (StringUtils.equalsIgnoreCase(riskManagerCode, RiskManagerCodeEnums.GTS.name())) {
             return com.panda.merge.common.enums.DataSourceCodeEnum.BG.code;

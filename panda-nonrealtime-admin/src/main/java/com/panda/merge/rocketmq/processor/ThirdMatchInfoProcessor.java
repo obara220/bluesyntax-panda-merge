@@ -85,6 +85,7 @@ public class ThirdMatchInfoProcessor extends BaseProcessor {
     @NacosValue(value = "${sale.auto.sport.ids:0}", autoRefreshed = true)
     private String autoSaleSportIds;
 
+
     /**
      * 处理赛事数据
      * @param request  三方数据源赛事入参

@@ -12,6 +12,7 @@ import com.panda.merge.bo.MarketCategorySellBO;
 import com.panda.merge.common.enums.*;
 import com.panda.merge.common.utils.EntityEqualsUtils;
 import com.panda.merge.common.utils.TimeUtils;
+import com.panda.merge.component.FootballMarginTemplateConverter;
 import com.panda.merge.component.UUIdUtils;
 import com.panda.merge.config.RedisConfig;
 import com.panda.merge.config.RedisService;
@@ -89,6 +90,11 @@ public class BaseProcessor {
     private ConfigMarketHeadGapService headGapService;
     @Autowired
     public ConfigMarketMarginGapService configMarketMarginGapService;
+    /**
+     * 98442 足球数据源margin玩法：数据商抽水赔率 -> 赛事模板margin抽水赔率 转换器
+     */
+    @Autowired
+    public FootballMarginTemplateConverter footballMarginTemplateConverter;
     @Autowired
     private StandardMatchInfoService standardMatchInfoService;
     @Autowired
@@ -808,28 +814,7 @@ public class BaseProcessor {
         if (!standardMatchInfo.getSportId().equals(StandardSportTypeEnum.Basketball.code)) {
             return marketCategoryIdSet;
         }
-        Long finallyPeriodId = nowPeriod;
-        switch (String.valueOf(nowPeriod)) {
-            case "301":
-                finallyPeriodId = 13L;
-                break;
-            case "302":
-                finallyPeriodId = 14L;
-                break;
-            case "31":
-                finallyPeriodId = 1L;
-                break;
-            case "303":
-                finallyPeriodId = 15L;
-                break;
-            case "100":
-                //NCAA篮球赛事的下半场结束的赛事阶段也为100,故在此判断赛事是否为NCAA赛事，matchLength为“17” 则表示NCAA赛事
-                finallyPeriodId = standardMatchInfo.getMatchLength() == 17 ? 2L : 16L;
-                break;
-            case "110":
-                finallyPeriodId = 40L;
-                break;
-        }
+        Long finallyPeriodId = mapBasketballFinallyPeriodId(nowPeriod, standardMatchInfo);
         String key = Constant.REDIS_KEY.RONGHE_AUTO_OPEN_MARKET_CATEGORY + standardMatchInfo.getId();
         List<MarketCategorySellBO> marketCategorySells = marketCategorySellService.getItemByPrimaryOpenCache(standardMatchInfo.getId(), finallyPeriodId);
         if (!CollectionUtils.isEmpty(marketCategorySells)) {
@@ -851,6 +836,90 @@ public class BaseProcessor {
             }
         }
         return marketCategoryIdSet;
+    }
+
+    /**
+     * 篮球赛事阶段映射为自动开盘配置阶段
+     */
+    public Long mapBasketballFinallyPeriodId(Long nowPeriod, StandardMatchInfo standardMatchInfo) {
+        if (nowPeriod == null) {
+            return null;
+        }
+        Long finallyPeriodId = nowPeriod;
+        switch (String.valueOf(nowPeriod)) {
+            case "301":
+                finallyPeriodId = 13L;
+                break;
+            case "302":
+                finallyPeriodId = 14L;
+                break;
+            case "31":
+                finallyPeriodId = 1L;
+                break;
+            case "303":
+                finallyPeriodId = 15L;
+                break;
+            case "100":
+                //NCAA篮球赛事的下半场结束的赛事阶段也为100,故在此判断赛事是否为NCAA赛事，matchLength为“17” 则表示NCAA赛事
+                finallyPeriodId = standardMatchInfo.getMatchLength() == 17 ? 2L : 16L;
+                break;
+            case "110":
+                finallyPeriodId = 40L;
+                break;
+            default:
+                break;
+        }
+        return finallyPeriodId;
+    }
+
+    /**
+     * 篮球滚球中途开售，初始化自动开盘 Redis（供 PANDA 下发前拦截使用）
+     */
+    public void initAutoOpenMarketOnSold(String linkId, StandardMatchInfo standardMatchInfo, Integer marketType, Set<Long> soldCategoryIds) {
+        if (!Objects.equals(marketType, 0) || !StandardSportTypeEnum.Basketball.code.equals(standardMatchInfo.getSportId())) {
+            return;
+        }
+        Set<Long> targetCategories = soldCategoryIds.stream()
+                .filter(MarginCategoryConfig.BASKETBALL_AUTO_OPEN_CATEGORY::contains)
+                .collect(Collectors.toSet());
+        if (CollectionUtils.isEmpty(targetCategories)) {
+            return;
+        }
+        StandardMatchInfo latestMatch = standardMatchInfoService.getItemByPrimaryKey(standardMatchInfo.getId());
+        if (latestMatch == null) {
+            latestMatch = standardMatchInfo;
+        }
+        Long nowPeriod = getMatchPeriod(latestMatch.getId(), latestMatch.getMatchPeriodId());
+        Long finallyPeriodId = mapBasketballFinallyPeriodId(nowPeriod, latestMatch);
+        Long secondsFromStart = getBasketballSecondsFromStart(latestMatch.getId(), latestMatch);
+        String redisKey = Constant.REDIS_KEY.RONGHE_AUTO_OPEN_MARKET_CATEGORY + latestMatch.getId();
+        Long ttl = marketCacheTime(latestMatch.getBeginTime());
+        for (Long categoryId : targetCategories) {
+            MarketCategorySell categorySell = marketCategorySellService.getItem(linkId, latestMatch.getId(), 0, categoryId);
+            if (categorySell == null || categorySell.getAutoOpenMarket() == null || categorySell.getAutoOpenMarket() == 0
+                    || categorySell.getAutoOpenTime() == null || categorySell.getAutoOpenTime() == 0) {
+                continue;
+            }
+            boolean shouldOpen = finallyPeriodId != null
+                    && categorySell.getAutoOpenMarket().equals(finallyPeriodId.intValue())
+                    && secondsFromStart != null
+                    && secondsFromStart <= categorySell.getAutoOpenTime();
+            redisService.hSet(redisKey, categoryId.toString(), shouldOpen, ttl);
+            log.info("::{}::篮球中途开售初始化自动开盘Redis,玩法:{},当前阶段:{},配置阶段:{},进行时长:{},是否开盘:{}",
+                    linkId, categoryId, finallyPeriodId, categorySell.getAutoOpenMarket(), secondsFromStart, shouldOpen);
+        }
+    }
+
+    private Long getBasketballSecondsFromStart(Long standardMatchId, StandardMatchInfo standardMatchInfo) {
+        if (standardMatchInfo.getSecondsMatchStart() != null && standardMatchInfo.getSecondsMatchStart() > 0) {
+            return standardMatchInfo.getSecondsMatchStart().longValue();
+        }
+        String secondsKey = String.format(ConstantSystem.getStandardSecondsMatchStartKey(), standardMatchId);
+        Object secondsObj = redisService.get(secondsKey);
+        if (secondsObj instanceof JSONObject) {
+            return ((JSONObject) secondsObj).getLong("secondsMatchStart");
+        }
+        return null;
     }
 
     /**
@@ -1479,6 +1548,36 @@ public class BaseProcessor {
             }
         }
         return true;
+    }
+
+    protected String resolveBaseDataSourceCode(String dataSourceCode) {
+        if (StringUtils.isBlank(dataSourceCode)) {
+            return dataSourceCode;
+        }
+        return dataSourceCode.split("-")[0].toUpperCase();
+    }
+
+    /**
+     * 百家赔等非实时链路：三方赛事已标记主客队相反时，替换盘口/投注项内容
+     */
+    protected Long applyHomeAwayOppositeForThirdMarket(String linkId,
+                                                       String dataSourceCode,
+                                                       StandardMatchInfo standardMatchInfo,
+                                                       ThirdMatchInfo thirdMatchInfo,
+                                                       ThirdMarketCategory thirdMarketCategory,
+                                                       ThirdMarketDTO thirdMarketDTO) {
+        if (thirdMatchInfo == null || !ONE.equals(thirdMatchInfo.getHomeAwayOpposite())) {
+            return thirdMarketCategory.getReferenceId();
+        }
+        if (standardMatchInfo == null || !StandardSportTypeEnum.FootBall.code.equals(standardMatchInfo.getSportId())) {
+            return thirdMarketCategory.getReferenceId();
+        }
+        Long marketCategoryId = thirdMarketCategory.getReferenceId();
+        if (!CategoryOppositeConfig.FootBall.containsCategory(marketCategoryId)) {
+            return marketCategoryId;
+        }
+        changeStandardMarketContent(linkId, resolveBaseDataSourceCode(dataSourceCode), thirdMarketCategory, thirdMarketDTO);
+        return thirdMarketCategory.getReferenceId();
     }
 
     /**

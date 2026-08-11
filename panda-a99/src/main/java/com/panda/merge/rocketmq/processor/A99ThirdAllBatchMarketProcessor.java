@@ -658,7 +658,7 @@ public class A99ThirdAllBatchMarketProcessor extends BaseProcessor {
             return;
         }
         if (standardMarketDataMessage.getMarketOddsList().size() == 3) {
-            processStandardMarketMarginEUROPE(linkId, standardMatchId, standardMarketDataMessage, marketCategoryId);
+            processStandardMarketMarginEUROPE(linkId, standardMatchId, standardMarketDataMessage, marketCategoryId, sportId);
         } else if (standardMarketDataMessage.getMarketOddsList().size() == 2) {
             processStandardMarketTwoEUROPE(linkId, standardMatchId, standardMarketDataMessage, marketCategoryId, sportId);
         } else {
@@ -673,8 +673,9 @@ public class A99ThirdAllBatchMarketProcessor extends BaseProcessor {
      * @param standardMatchInfoId
      * @param standardMarketDataMessage
      * @param marketCategoryId
+     * @param sportId 球种ID，足球A99开关打开时数据商抽水赔率改走赛事模板margin抽水
      */
-    private void processStandardMarketMarginEUROPE(String linkId, Long standardMatchInfoId, StandardMarketDataMessage standardMarketDataMessage, Long marketCategoryId) {
+    private void processStandardMarketMarginEUROPE(String linkId, Long standardMatchInfoId, StandardMarketDataMessage standardMarketDataMessage, Long marketCategoryId, Long sportId) {
         //转换统一盘口ID
         Long relationMarketId = convertRelationMarketId(linkId, standardMarketDataMessage);
         if (standardMarketDataMessage.getPlaceNum() == null) {
@@ -693,6 +694,11 @@ public class A99ThirdAllBatchMarketProcessor extends BaseProcessor {
             marginGapMap = itemList.stream().collect(Collectors.toMap(ConfigMarketMarginGap::getOddsType, a -> a, (k1, k2) -> k1));
         }
         try {
+            //足球数据源margin玩法：数据商抽水赔率按赛事模板margin重新抽水，A99开关关闭或数据不合法时为空，走原有逻辑
+            Map<String, Double> templateMarginOddsMap = footballMarginTemplateConverter.isA99Open(sportId, standardMarketDataMessage.getDataSourceCode())
+                    ? footballMarginTemplateConverter.convertOddsByTemplateMargin(linkId, standardMatchInfoId, marketCategoryId,
+                    standardMarketDataMessage.getMarketOddsList(), marginGapMap)
+                    : Collections.<String, Double>emptyMap();
             for (StandardMarketOddsDataMessage marketOdds : standardMarketDataMessage.getMarketOddsList()) {
                 String oddsType = marketOdds.getOddsType();
                 ConfigMarketMarginGap configMarketMarginGap = new ConfigMarketMarginGap();
@@ -729,8 +735,9 @@ public class A99ThirdAllBatchMarketProcessor extends BaseProcessor {
                     log.info("::{}::三项盘独赢计算:{},标准盘口:{},统一盘口id:{},原始赔率为:0，不再计算,封盘口和投注项:{}", linkId, standardMatchInfoId, standardMarketDataMessage.getId(), standardMarketDataMessage.getRelationMarketId(), marketOdds.getOddsType());
                     continue;
                 }
-                //Step1:原始赔率转为小数点，原始概率： P = 1/抽水赔率
-                double changOriginalOdds = BigDecimalUtils.divide(oddsValue, 100000D, 2);
+                //Step1:原始赔率转为小数点，原始概率： P = 1/抽水赔率(足球走赛事模板抽水时，取转换后的赔率)
+                Double templateMarginOdds = templateMarginOddsMap.get(oddsType);
+                double changOriginalOdds = templateMarginOdds != null ? templateMarginOdds : BigDecimalUtils.divide(oddsValue, 100000D, 2);
                 double p = BigDecimalUtils.divide(1, changOriginalOdds, 8);
                 //Step2:计算概率差赔率probabilityOdds, 公式: 1/(P+M+PGap)
                 double probabilityOdds = BigDecimalUtils.add(p, probability);
