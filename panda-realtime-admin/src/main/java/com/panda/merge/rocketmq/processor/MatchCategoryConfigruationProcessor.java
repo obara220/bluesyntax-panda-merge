@@ -472,7 +472,13 @@ public class MatchCategoryConfigruationProcessor extends BaseProcessor {
             log.info("{} 赛事模版事件源:::{}",linkId,matchStatusUsingSource);
             if (!CollectionUtils.isEmpty(thirdMatchInfos)){
                 if (StringUtils.isNotBlank(matchStatusUsingSource) && matchStatusUsingSource.equals(DataSourceCodeEnum.AO.code)) {
-                    List<ThirdMatchInfo> noAoThirdMatchs = thirdMatchInfos.stream().filter(e -> !e.getDataSourceCode().equals(DataSourceCodeEnum.AO.code)).collect(Collectors.toList());
+                    // 非AO重选时剔除N系列，避免回落到N01/N02/N03
+                    List<ThirdMatchInfo> noAoThirdMatchs = thirdMatchInfos.stream()
+                            .filter(e -> !DataSourceCodeEnum.AO.code.equals(e.getDataSourceCode())
+                                    && !DataSourceCodeEnum.N01.getCode().equals(e.getDataSourceCode())
+                                    && !DataSourceCodeEnum.N02.getCode().equals(e.getDataSourceCode())
+                                    && !DataSourceCodeEnum.N03.getCode().equals(e.getDataSourceCode()))
+                            .collect(Collectors.toList());
                     if(!CollectionUtils.isEmpty(noAoThirdMatchs)){
                         Set<String> dataMatchSourceCodes = this.getLiveMatchOddsDataSourcesByThirdMatchInfos(noAoThirdMatchs);
                         Optional<Map.Entry<String, Integer>> maxWeightCode = Maps.filterKeys(dataWeightMap, e -> dataMatchSourceCodes.contains(e)).entrySet().stream().min(Map.Entry.comparingByValue(Comparator.naturalOrder()));

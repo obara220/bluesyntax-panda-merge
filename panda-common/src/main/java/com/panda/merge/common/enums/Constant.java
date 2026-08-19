@@ -369,8 +369,8 @@ public interface Constant {
 
         String RONGHE_A99_THIRD_MARKET_ODDS_LIVE = "Ronghe:a99:thirdMatchMarketOdds:live:";
 
-        String RONGHE_A99_PRE_MATCH_IDS = "Ronghe:a99:match:ids:pre";
-        String RONGHE_A99_LIVE_MATCH_IDS = "Ronghe:a99:match:ids:live";
+        String RONGHE_A99_PRE_MATCH_IDS = "Ronghe:a99:match:pre:ids";
+        String RONGHE_A99_LIVE_MATCH_IDS = "Ronghe:a99:match:live:ids";
 
         String RONGHE_A99_DATA_SOURCE_WEIGHT = "Ronghe:a99:datasource:weight";
 

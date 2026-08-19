@@ -653,8 +653,8 @@ public class FootballScores extends  AbstractSportScores{
                     }
                 }else{
                     //当前阶段
-                    periodScore.redCard.setHome(data.getFirstT1());
-                    periodScore.redCard.setAway(data.getFirstT2());
+                    periodScore.yellowCard.setHome(data.getFirstT1());
+                    periodScore.yellowCard.setAway(data.getFirstT2());
                 }
                 //全场
                 this.yellowCard.setHome(data.getT1());

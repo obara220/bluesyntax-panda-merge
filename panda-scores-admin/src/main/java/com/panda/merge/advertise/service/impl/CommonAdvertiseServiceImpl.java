@@ -180,7 +180,7 @@ public class CommonAdvertiseServiceImpl implements CommonAdvertiseService {
         MatchTimeInfo matchTimeInfo =new MatchTimeInfo();
         matchTimeInfo.setCreateTime(System.currentTimeMillis());
         matchTimeInfo.setModifyTime(System.currentTimeMillis());
-        matchTimeInfo.setDataSourceType(matchScoresInfo.getDataSourceType());
+        matchTimeInfo.setDataSourceType(SourceTypeEnum.LIVE_DATA.getVal());
         matchTimeInfo.setTimeGo(0);
         matchTimeInfo.setThirdMatchId(matchScoresInfo.getThirdMatchId());
         matchTimeInfo.setPeriod(matchScoresInfo.getPeriod());

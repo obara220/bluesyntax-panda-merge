@@ -128,8 +128,8 @@ public class MatchSettleBatchCheckServiceImpl implements IMatchSettleBatchCheckS
 
     private static final List<String> validEventCodeForSettle = Arrays.asList("goal", "kick_off", "corner", "fa_card", "yellow_card", "red_card", CommonConstant.BASKETBALL_SCORE_EVENT_CODE);
     List<String> goalDelaySettleNum = Arrays.asList("102","1034","1035","1036","103","1037","1038","1039","1040","1041","106","1044","1045","1046","107","1047","1048","1049","1050","1051");
-    List<String> cornerDelaySettleNum = Arrays.asList("2011","2012","2014","2015");
-    List<String> bookingDelaySettleNum = Arrays.asList("301","302","305","306");
+    List<String> cornerDelaySettleNum = Arrays.asList("2011","2012","2013","201","2014","2015","2016","202","203","2017","2018","2019","206","2020","2021","2022","207","208");
+    List<String> bookingDelaySettleNum = Arrays.asList("301","302","303","304","305","306","307","308","309","3010","3011","3012","3013","3014","3015","3016","3017","3018");
     List<String> basketballDelayNum = Arrays.asList("bk_q404","bk_q304","bk_q204","bk_q104","bk_1ht","bk_2ht","bk_ft_rg","bk_ft_et","bk_2htet","bk_et");
     List<String> bookingEventDelaySettleNum = Arrays.asList("3019","3020","30195","30205");
     List<String> cornerEventDelaySettleNum = Arrays.asList("204","205","2045","2055");

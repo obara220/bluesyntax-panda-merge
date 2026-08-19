@@ -88,6 +88,7 @@ public class MatchEndSettleEventConsumer implements RocketMQListener<Request<Mat
         }
         //1、过滤不符合的消息
         if (!check(request.getData())) {
+            log.info("{} MatchSettleEventConsumer事件过滤:{}", linkId, request.getData());
             return;
         }
 
@@ -121,7 +122,7 @@ public class MatchEndSettleEventConsumer implements RocketMQListener<Request<Mat
             return false;
         }
         //非进球比分事件不对接
-        if(data.getEventType()==null ||  !data.getEventType().equals(1)){
+        if(data.getEventType()==null ||  !data.getEventType().equals(1) || !data.getEventType().equals(3)){
             return false;
         }
         return true;

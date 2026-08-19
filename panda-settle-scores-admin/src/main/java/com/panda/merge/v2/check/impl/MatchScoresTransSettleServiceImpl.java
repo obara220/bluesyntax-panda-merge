@@ -6,6 +6,7 @@ import com.panda.merge.common.enums.Constant;
 import com.panda.merge.common.enums.DataSourceCodeEnum;
 import com.panda.merge.common.utils.CommUtils;
 import com.panda.merge.component.UUIdUtils;
+import com.panda.merge.config.RedisConfig;
 import com.panda.merge.config.RedisService;
 import com.panda.merge.constant.CommonConstant;
 import com.panda.merge.constant.SettleMentionEnum;
@@ -16,6 +17,7 @@ import com.panda.merge.filter.football.impl.MatchPenaltyEventSettleInitFilter;
 import com.panda.merge.filter.football.impl.MatchScoresSettleInitChainFilter;
 import com.panda.merge.model.*;
 import com.panda.merge.respository.MatchEventInfoRepository;
+import com.panda.merge.v2.controllerv2.MatchSettleCenterController;
 import com.panda.merge.v2.repository.MatchSettleInfoRepository;
 import com.panda.merge.service.*;
 import com.panda.merge.service.impl.GrayIntervalService;
@@ -108,6 +110,9 @@ public class MatchScoresTransSettleServiceImpl implements IMatchScoresTransSettl
     @Autowired
     private com.panda.merge.service.IDataSourceHeartbeatService dataSourceHeartbeatService;
 
+    @Autowired
+    private MatchSettleCenterController matchSettleCenterController;
+
     private static final String SCORE_EVENT="SCORE_EVENT:";
     
     // 5分钟阶段的settleNum范围
@@ -115,6 +120,11 @@ public class MatchScoresTransSettleServiceImpl implements IMatchScoresTransSettl
                                                                         "7050", "7055", "7060", "7065", "7070", "7075", "7080", "7085", "7090");
     // 15分钟阶段的settleNum范围
     private static final List<String> FIFTEEN_MIN_PERIODS = Arrays.asList("60899", "61799", "62699", "73599", "74499", "75399");
+
+    List<String> goalFiveFifSettleNum = Arrays.asList("102","1034","1035","1036","103","1037","1038","1039","104","1040","1041","1042","106","1044","1045","1046","107","1047","1048","1049","108","1050","1051","1052");
+    List<String> cornerFifSettleNum = Arrays.asList("2011","2012","2013","2014","2015","2016");
+    List<String> facardFifSettleNum = Arrays.asList("301","302","303","305","306","307");
+
 
     @Override
     public void tansforScoreSettle(CommonThirdScoresDto data, boolean isStandard) {
@@ -261,6 +271,17 @@ public class MatchScoresTransSettleServiceImpl implements IMatchScoresTransSettl
                 //3.1 更新临近2个为灰色区间
                 checkIsGreyDto.setScoresGrey(1);
                 this.updateGrayMatchSettleScore(checkIsGreyDto,data.getMatchEventInfo().getHomeAway());
+                for (String sm: checkIsGreyDto.getSettleNum()){
+                    if (goalFiveFifSettleNum.contains(sm) || cornerFifSettleNum.contains(sm) || facardFifSettleNum.contains(sm)) {
+                        String tempEventCode = data.getMatchEventInfo().getEventCode();
+                        if (data.getMatchEventInfo().getEventCode().equals("yellow_card")||data.getMatchEventInfo().getEventCode().equals("red_card")||data.getMatchEventInfo().getEventCode().equals("fa_card")){
+                            tempEventCode = "facard";
+                        }
+                        matchSettleCenterController.changeEventTypeAutoSettleStatus(tempEventCode, data.getMatchEventInfo().getStandardMatchId(), Boolean.FALSE, "system-gray section-" + tempEventCode, "");
+                        redisService.set(CommonConstant.SETTLE_DATASOURCE_LOST_CONNECTION+data.getMatchEventInfo().getStandardMatchId(), 1, RedisConfig.REDIS_DEFAULT_TIME);
+                        break;
+                    }
+                }
             }
         }
         if(checkIsGreyDto!=null){

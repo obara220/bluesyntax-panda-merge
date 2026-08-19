@@ -98,7 +98,7 @@ public class MatchSettleNewEventConsumer implements RocketMQListener<Request<Mat
             return false;
         }
         //非进球比分事件不对接
-        if(data.getEventType()==null ||  !data.getEventType().equals(1)){
+        if(data.getEventType()==null ||  !data.getEventType().equals(1) || !data.getEventType().equals(3)){
             return false;
         }
         return true;

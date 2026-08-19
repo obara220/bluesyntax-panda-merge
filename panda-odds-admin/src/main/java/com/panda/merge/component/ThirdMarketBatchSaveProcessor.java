@@ -72,21 +72,11 @@ public class ThirdMarketBatchSaveProcessor {
     @Lazy
     @Resource
     private ThirdMatchMarketProcessor thirdMatchMarketProcessor;
-
-    @NacosValue(value = "${category.waitCloseTime.Switch:true}", autoRefreshed = true)
-    private boolean waitCloseTimeSwitch;
-
-    @Autowired
-    public CommonAsyncService commonAsyncService;
-
     @Autowired
     public CategoryCodeProducer categoryCodeProducer;
     @Getter
     @NacosValue(value = "${market.validate.enabled.football:true}", autoRefreshed = true)
     private boolean footballValidateEnabled;
-
-    private static final long WATERMARK_STALE_MS = 180_000L;
-
     /**
      * 1.兼容冠军盘口
      * 2.三方玩法转换标准玩法
@@ -260,7 +250,7 @@ public class ThirdMarketBatchSaveProcessor {
             thirdMarketMapDTO = filteredValidData.stream().collect(Collectors.groupingBy(t->t.getData().getThirdMarketCategorySourceId()));
             log.info("::{}:: 开始处理盘口信息size:{}", uuid, thirdMarketMapDTO.size());
             for (Map.Entry<String, List<OddsWrapper<ThirdMarketDTO>>> entry : thirdMarketMapDTO.entrySet()) {
-                doProcess(uuid, entry, thirdMatchInfoBasedIdMap, resultForSwitchStatus, resultForStandardScores, resultForscoreCenter, storeData, standardMatchInfoBasedIdMap, Boolean.FALSE, Boolean.TRUE);
+                doProcess(uuid, entry, thirdMatchInfoBasedIdMap, resultForSwitchStatus, resultForStandardScores, resultForscoreCenter, storeData, standardMatchInfoBasedIdMap, Boolean.FALSE);
             }
             sw.stop();
             sw.start("三方盘口三方赔率入库开始耗时");
@@ -322,6 +312,7 @@ public class ThirdMarketBatchSaveProcessor {
         return newList;
     }
 
+
     /**
      * 47319：数据商盘口状态是封 数据商盘口投注项全是未激活 ，改为关
      * @param marketList
@@ -356,23 +347,6 @@ public class ThirdMarketBatchSaveProcessor {
         }
     }
 
-    private Map<Long, Integer> getMatchIsLiveMap(List<OddsWrapper<ThirdMarketDTO>> marketList) {
-        // 先去重
-        Set<Long> matchIdSet = marketList.stream().map(OddsWrapper::getStandardSourceId).collect(Collectors.toSet());
-        List<Long> matchIdList = new ArrayList<>(matchIdSet);
-
-        List<String> standardMarketSwitchStatusKeyList = new ArrayList<>();
-        matchIdList.forEach(e -> standardMarketSwitchStatusKeyList.add(Constant.REDIS_KEY.RONGHE_STANDARD_MARKET_SWITCH_STATUS + e));
-        List<Object> standardMarketSwitchResultList = redisService.mGet(standardMarketSwitchStatusKeyList);
-        Map<Long, Integer> matchIsLiveMap = new HashMap<>();
-        for (int i = 0; i < matchIdList.size(); i++) {
-            Object object = standardMarketSwitchResultList.get(i);
-            Integer isLive = Objects.isNull(object) ? 1 : 0;
-            matchIsLiveMap.put(matchIdList.get(i), isLive);
-        }
-        return matchIsLiveMap;
-    }
-
     private String genKeyBasedDatasourceTime(OddsWrapper<ThirdMarketDTO> thirdMarketDTO, Map<Long, ThirdMatchInfo> thirdMatchInfoBasedIdMap){
         ThirdMatchInfo thirdMatchInfo = thirdMatchInfoBasedIdMap.get(thirdMarketDTO.getThirdMatchId());
         String dataSourceTimeKey;
@@ -402,9 +376,9 @@ public class ThirdMarketBatchSaveProcessor {
     }
 
     //循环处理三方盘口入库
-    public void doProcess(Long uuid, Map.Entry<String, List<OddsWrapper<ThirdMarketDTO>>> entry, Map<Long, ThirdMatchInfo> thirdMatchInfoBasedIdMap,
+    public void doProcess(Long uuid,Map.Entry<String, List<OddsWrapper<ThirdMarketDTO>>> entry, Map<Long, ThirdMatchInfo> thirdMatchInfoBasedIdMap,
                           Map<String, Object> resultForSwitchStatus, Map<String, Object> resultForStandardScores,
-                          Map<String, Object> resultForscoreCenter, List<OddsWrapper<ThirdMarketDTO>> storeData, Map<Long, StandardMatchInfoDetail> standardMatchInfoBasedIdMap, Boolean lockFlag, Boolean autoOpen) {
+                          Map<String, Object> resultForscoreCenter, List<OddsWrapper<ThirdMarketDTO>> storeData,Map<Long, StandardMatchInfoDetail> standardMatchInfoBasedIdMap, Boolean lockFlag) {
         // 开始处理盘口信息
         // 更新最新盘口的时间
         List<String> keysBasedDatasourceTime= entry.getValue().stream().map(thirdMarketDTO -> genKeyBasedDatasourceTime(thirdMarketDTO, thirdMatchInfoBasedIdMap)).collect(Collectors.toList());
@@ -452,8 +426,8 @@ public class ThirdMarketBatchSaveProcessor {
                     && MarginCategoryConfig.FootBall_MAIN_CATEGORY.contains(marketCategoryId)
                     && thirdMarketDTO.getData().getMarketType() == 0
                     && (!DataSourceCodeEnum.TX.code.equals(thirdMarketDTO.getData().getDataSourceCode())
-                    && !DataSourceCodeEnum.LS.code.equals(thirdMarketDTO.getData().getDataSourceCode())
-                    && !DataSourceCodeEnum.L02.code.equals(thirdMarketDTO.getData().getDataSourceCode()))
+                    && !DataSourceCodeEnum.LS.code.equals(thirdMarketDTO.getData().getDataSourceCode()))
+                    && !DataSourceCodeEnum.L02.code.equals(thirdMarketDTO.getData().getDataSourceCode())
                     && (MapUtil.isNotEmpty(autoOpenDataSourceCodeMatchMap) && autoOpenDataSourceCodeMatchMap.containsKey(thirdMarketDTO.getStandardSourceId()+""))) {
                 if (thirdMarketDTO.getData().getStatus().equals(Constant.SPORT_MARKET.STATUS.ACTIVE)) {
                     String finalCode = StringUtils.isEmpty(thirdMarketDTO.getData().getInternalDataSourceCode()) ? thirdMarketDTO.getData().getDataSourceCode() : thirdMarketDTO.getData().getInternalDataSourceCode();
@@ -490,18 +464,8 @@ public class ThirdMarketBatchSaveProcessor {
             String dataSourceTimeKeyMd5 = genKeyBasedDatasourceTime(thirdMarketDTO, thirdMatchInfoBasedIdMap);
             Long oldTime = oldTimesMap.get(dataSourceTimeKeyMd5);
             if (!redisService.setIfGreater(thirdMarketDTO.getLinkId(),thirdMarketDTO.getData().getThirdMarketSourceId(),dataSourceTimeKeyMd5,thirdMarketDTO.getData().getModifyTime(),RedisConfig.REDIS_MY_TIME)){
-                long now = System.currentTimeMillis();
-                Long modifyTime = thirdMarketDTO.getData().getModifyTime();
-                boolean brokenWatermark = oldTime != null
-                        && (now - oldTime > WATERMARK_STALE_MS || oldTime > now + WATERMARK_STALE_MS);
-                if (brokenWatermark) {
-                    redisService.set(dataSourceTimeKeyMd5, modifyTime, RedisConfig.REDIS_MY_TIME);
-                    log.info("::{}::ThirdMarketSaveProcessor,水位线陈旧/污染兜底放行,三方源盘口id:{},旧时间戳:{},新时间戳:{},当前时间:{}",
-                            thirdMarketDTO.getLinkId(), thirdMarketDTO.getData().getThirdMarketSourceId(), oldTime, modifyTime, now);
-                } else {
-                    log.info("::{}::ThirdMarketSaveProcessor,盘口时间戳小于当前盘口时间戳,三方源盘口id:{},旧时间戳:{}", thirdMarketDTO.getLinkId(), thirdMarketDTO.getData().getThirdMarketSourceId(), oldTime);
-                    continue;
-                }
+                log.info("::{}::ThirdMarketSaveProcessor,盘口时间戳小于当前盘口时间戳,三方源盘口id:{},旧时间戳:{}", thirdMarketDTO.getLinkId(), thirdMarketDTO.getData().getThirdMarketSourceId(), oldTime);
+                continue;
             }
             /*if (oldTime != null && oldTime > thirdMarketDTO.getData().getModifyTime()) {
                 if(lockFlag){

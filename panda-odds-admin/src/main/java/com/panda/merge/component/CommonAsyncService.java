@@ -1,7 +1,8 @@
 package com.panda.merge.component;
 
-import com.alibaba.fastjson.JSONObject;
+import com.panda.merge.common.enums.StandardSportTypeEnum;
 import com.panda.merge.common.utils.IdWorker;
+import com.panda.merge.constant.CategoryOppositeConfig;
 import com.panda.merge.constant.MarginCategoryConfig;
 import com.panda.merge.dto.message.StandardMarketMessage;
 import com.panda.merge.dto.message.ThirdSportMarketMessage;
@@ -9,12 +10,14 @@ import com.panda.merge.model.StandardMatchInfo;
 import com.panda.merge.model.ThirdMatchInfo;
 import com.panda.merge.model.ThirdSportMarket;
 import com.panda.merge.model.ThirdSportMarketOdds;
+import com.panda.merge.rocketmq.processor.ThirdMatchMarketProcessor;
 import com.panda.merge.rocketmq.producer.SystemDeActiveLogProducer;
 import com.panda.merge.rocketmq.producer.ThirdSportMarketMergeProducer;
 import com.panda.merge.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -24,6 +27,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static com.panda.merge.constant.ConstantSystem.ONE;
 
 /**
  * 赔率服务异步处理服务公共类
@@ -42,6 +47,9 @@ public class CommonAsyncService {
     public ThirdSportMarketMergeProducer thirdSportMarketMergeProducer;
     @Autowired
     public SystemDeActiveLogProducer systemDeActiveLogProducer;
+    @Lazy
+    @Autowired
+    private ThirdMatchMarketProcessor thirdMatchMarketProcessor;
     /**
      * 根据标准盘口的开售信息找出其他数据源的三方盘口集合
      *
@@ -107,6 +115,7 @@ public class CommonAsyncService {
             }
             if (!CollectionUtils.isEmpty(thirdSportMarketMessages)) {
                 for (ThirdSportMarketMessage thirdSportMarketMessage : thirdSportMarketMessages) {
+                    applyHomeAwayOppositeForThirdMarketMessage(linkId, standardMatchInfo, thirdSportMarketMessage);
                     thirdSportMarketMessage.setRelationMarketId(thirdSportMarketService.getRelationMarketId(linkId, standardMatchInfo.getId(), thirdSportMarketMessage.getMarketCategoryId(),
                             thirdSportMarketMessage.getAddition1(), thirdSportMarketMessage.getAddition2(), thirdSportMarketMessage.getAddition3(), thirdSportMarketMessage.getAddition4(), thirdSportMarketMessage.getAddition5(),
                             thirdSportMarketMessage.getMarketType(), thirdSportMarketMessage.getThirdMarketSourceId()));
@@ -135,5 +144,35 @@ public class CommonAsyncService {
     @Async("sendDeActiveLogThreadPool")
     public void sendDeactivatedBySystemLogToRisk(String linkId, StandardMatchInfo standardMatchInfo, StandardMarketMessage standardMarketMessage) {
         systemDeActiveLogProducer.doSendLogToRisk(linkId, standardMatchInfo, standardMarketMessage);
+    }
+
+    /**
+     * STANDARD_THIRD_MARKET_ODDS 下发前：主客相反三方盘口/投注项翻转（与标准融合盘口径一致）
+     */
+    private void applyHomeAwayOppositeForThirdMarketMessage(String linkId,
+                                                            StandardMatchInfo standardMatchInfo,
+                                                            ThirdSportMarketMessage thirdSportMarketMessage) {
+        if (!StandardSportTypeEnum.FootBall.code.equals(standardMatchInfo.getSportId())) {
+            return;
+        }
+        ThirdMatchInfo thirdMatchInfo = thirdMatchInfoService.getItem(standardMatchInfo.getId(), thirdSportMarketMessage.getDataSourceCode());
+        if (thirdMatchInfo == null || !ONE.equals(thirdMatchInfo.getHomeAwayOpposite())) {
+            return;
+        }
+        if (!CategoryOppositeConfig.FootBall.containsCategory(thirdSportMarketMessage.getMarketCategoryId())) {
+            return;
+        }
+        if (thirdMatchMarketProcessor.skipHomeAwayOppositeForDataSource(thirdSportMarketMessage.getDataSourceCode())) {
+            return;
+        }
+        ThirdSportMarket thirdSportMarket = new ThirdSportMarket();
+        BeanUtils.copyProperties(thirdSportMarketMessage, thirdSportMarket);
+        thirdMatchMarketProcessor.changeThirdMarketContent(linkId, thirdSportMarket);
+        thirdMatchMarketProcessor.changeThirdMarketOddsContent(linkId, thirdSportMarketMessage.getThirdSportMarketOddsList(), thirdSportMarket);
+        thirdSportMarketMessage.setMarketCategoryId(thirdSportMarket.getMarketCategoryId());
+        thirdSportMarketMessage.setAddition1(thirdSportMarket.getAddition1());
+        thirdSportMarketMessage.setAddition2(thirdSportMarket.getAddition2());
+        thirdSportMarketMessage.setAddition3(thirdSportMarket.getAddition3());
+        thirdSportMarketMessage.setAddition4(thirdSportMarket.getAddition4());
     }
 }

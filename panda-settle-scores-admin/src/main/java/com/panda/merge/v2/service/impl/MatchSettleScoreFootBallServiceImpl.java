@@ -4871,4 +4871,200 @@ public class MatchSettleScoreFootBallServiceImpl implements IMatchSettleScoreFoo
             redisService.unLock(key,key);
         }
     }
+
+    @Override
+    public Response editMatchSettleEventMethodAndPlayerV3(EditMatchSettleEventDto editMatchSettleEventDto) {
+        log.info("editMatchSettleEventMethodAndPlayer param,editMatchSettleEventDto: {}",editMatchSettleEventDto);
+        String key ="MATCH_SETTLE_INFO:"+ editMatchSettleEventDto.getEventId();
+        if(matchServiceHelper.checkIfOverSettleTime(editMatchSettleEventDto.getStandardMatchId())){
+            return Response.failed("1031930");
+        }
+        try {
+            if(redisService.tryLock(key,key,2,5)) {
+                MatchSettleEvent matchSettleEvent =matchSettleEventRepository.getById(editMatchSettleEventDto.getEventId());
+                if(matchSettleEvent==null){
+                    return Response.failed("1031935");
+                }
+                MatchSettleEvent matchSettleEventBefore =new MatchSettleEvent();
+                BeanUtils.copyProperties(matchSettleEvent,matchSettleEventBefore);
+                if(editMatchSettleEventDto.getGoWaterStatus()!=null&&editMatchSettleEventDto.getGoWaterStatus()==1){
+                    matchSettleEvent.setGoWaterStatus(1);
+                }
+                matchSettleEvent.setExtryInfo(editMatchSettleEventDto.getExtryInfo());
+                matchSettleEvent.setPlayerNameCode(editMatchSettleEventDto.getMatchPlayerNameCode());
+                matchSettleEvent.setStatus(1);
+                matchSettleEvent.setModifyTime(System.currentTimeMillis());
+                matchSettleEvent.setOperater(editMatchSettleEventDto.getOperatorName());
+                matchSettleEventRepository.updateById(matchSettleEvent);
+
+                //进球方式和球员_操作日志
+                matchSettleOperateLogService.matchSettleEventAddLog(matchSettleEventBefore,matchSettleEvent,editMatchSettleEventDto.getOperatorName(),
+                        OperateLogTypeEnum.PLAYER_AND_GOAL_TYPE,editMatchSettleEventDto.getIpAddress());
+                if("goal".equals(editMatchSettleEventDto.getEventCode()) && StringUtils.isNotBlank(editMatchSettleEventDto.getOperatorName())){
+                    wsPushService.pushSettleMatchList(new MatchListSettleDto(editMatchSettleEventDto.getStandardMatchId(),
+                            editMatchSettleEventDto.getEventCode(),null,null,6));
+                }else {
+                    wsPushService.pushStandardSettleEvent(editMatchSettleEventDto.getStandardMatchId(),
+                            editMatchSettleEventDto.getEventCode());
+                }
+                return Response.success();
+            }else {
+                return Response.failed("1031933");
+            }
+        }catch (Exception e){
+            log.error("IFootballMatchScoresSettleApiImpl-editMatchSettleEventMethodAndPlayer:",e);
+            return Response.failed();
+        }finally {
+            redisService.unLock(key,key);
+        }
+    }
+
+    @Override
+    public Response confirmMatchSettleEventV3(EditMatchSettleEventDto matchSettleEventDto) {
+        log.info("confirmMatchSettleEvent param,matchSettleEventDto: {}",matchSettleEventDto);
+        String key = CommonConstant.MATCH_SEQUENCE_SCORE_SETTLE + matchSettleEventDto.getStandardMatchId();
+        if(matchServiceHelper.checkIfOverSettleTime(matchSettleEventDto.getStandardMatchId())){
+            return Response.failed("1031930");
+        }
+        log.info("事件Id::{}:: 当前事件被确认参数:{} ",matchSettleEventDto.getEventId(),matchSettleEventDto);
+        try {
+            if(redisService.tryLock(key,key,2,5)) {
+                MatchSettleEvent matchSettleEvent =matchSettleEventRepository.getById(matchSettleEventDto.getEventId());
+                if(matchSettleEvent==null){
+                    return Response.failed("1031935");
+                }
+                if(matchSettleEvent.getStatus()!=NOT_CONFIRM){
+                    return Response.failed("1031934");
+                }
+                matchSettleEvent.setModifyTime(System.currentTimeMillis());
+                matchSettleEvent.setStatus(CONFIRM);
+                matchSettleEventRepository.updateById(matchSettleEvent);
+                //2.确认记录日志
+                matchSettleEvent.setFifteenMinSection(matchSettleEvent.getFiveMinSection());
+                matchSettleOperateLogService.matchSettleEventAddLog(matchSettleEvent,matchSettleEventDto.getOperatorName(),
+                        OperateLogTypeEnum.CONFIRM_SCORE.getCode().toString(),"",matchSettleEventDto.getIpAddress());
+                //3.返回查询事件列表
+                wsPushService.pushStandardSettleEvent(matchSettleEventDto.getStandardMatchId(),
+                        matchSettleEventDto.getEventCode());
+                return Response.success();
+            }else {
+                return Response.failed("1031933");
+            }
+        }catch (Exception e){
+            log.error("IFootballMatchScoresSettleApiImpl-confirmMatchSettleEvent:",e);
+            return Response.failed();
+        }finally {
+            redisService.unLock(key,key);
+        }
+    }
+
+    @Override
+    public Response settleMatchSettleEventV3(EditMatchSettleEventDto matchSettleScoreDto) {
+        log.info("settleMatchSettleEvent param,matchSettleScoreDto: {}",matchSettleScoreDto);
+        String key = CommonConstant.MATCH_SEQUENCE_SCORE_SETTLE + matchSettleScoreDto.getStandardMatchId();
+        if(matchServiceHelper.checkIfOverSettleTime(matchSettleScoreDto.getStandardMatchId())){
+            return Response.failed("1031930");
+        }
+        if(redisService.hasKey("SETTLE_ROLLBACK_MATCH_ID_"+matchSettleScoreDto.getEventId())){
+            return Response.failed("1031960");
+        }
+        try {
+            if(redisService.tryLock(key,key,2,5)) {
+                MatchSettleEvent matchSettleEvent =matchSettleEventRepository.getById(matchSettleScoreDto.getEventId());
+                if(matchSettleEvent==null){
+                    return Response.failed("1031935");
+                }
+                if(matchSettleEvent.getStatus()!=CONFIRM){
+                    return Response.failed("1031936");
+                }
+                Integer settleTimes =matchSettleEvent.getSettleTimes();
+                if(settleTimes==null){
+                    settleTimes=0;
+                }
+                if (matchSettleEvent.getSettleCount()== null ) {
+                    matchSettleEvent.setSettleCount(0);
+                }
+
+                settleTimes++;
+
+
+//                if(matchSettleEvent.getSettleCount() == 1) {
+//                    Object object = redisService.get(CommonConstant.FIVE_MIN_SETTLE_TIMES+matchSettleEvent.getId());
+//                    if(object != null) {
+//                        settleTimes--;
+//                        matchSettleEvent.setSettleCount(0);
+//                        redisService.del(CommonConstant.FIVE_MIN_SETTLE_TIMES+matchSettleEvent.getId());
+//                    }
+//                }
+
+                //二次结算,必须给出结算原因
+                if (matchSettleEvent.getSettleCount() >  0 &&
+                        (matchSettleScoreDto.getSettleReason()==null  ||
+                                matchSettleScoreDto.getSettleReason()== 0) ) {
+                    return Response.failed("1031953");
+                }
+
+                String  before= "-";
+                Integer settleReason = matchSettleEvent.getSettleReason();
+                if (settleReason != null &&  settleReason != 0 ) {
+                    before = settleReason.toString();
+                    if (settleReason == 118) {
+                        before += ": "+matchSettleEvent.getSettleReasonDetail();
+                    }
+                }
+                if(!matchSettleEvent.getSettleNum().equals("1028")){
+                    if(matchSettleEvent.getEventTime()==null||matchSettleEvent.getEventTime().equals(0l)){
+                        Long eventTime =matchSettleCheckInfoHelper.searchEventTimeByEvent(matchSettleEvent);
+                        if(eventTime==0l){
+                            eventTime=matchSettleEvent.getModifyTime();
+                        }
+                        matchSettleEvent.setEventTime(eventTime);
+                    }
+                }
+                matchSettleEvent.setStatus(SETTLED);
+                matchSettleEvent.setSettleCount(matchSettleEvent.getSettleCount()+1);
+                matchSettleEvent.setModifyTime(System.currentTimeMillis());
+                matchSettleEvent.setSettleTimes(settleTimes);
+                matchSettleEvent.setOperater(matchSettleScoreDto.getOperatorName());
+                matchSettleEvent.setOperateType(MatchSettleScoreConstant.MatchSettleOperateType.SETTLE);
+                matchSettleEvent.setUserid(matchSettleScoreDto.getOperatorId());
+                matchSettleEvent.setSettleReason(matchSettleScoreDto.getSettleReason());
+                matchSettleEvent.setSettleReasonDetail(matchSettleScoreDto.getSettleReasonDetail());
+                matchSettleEvent.setIsGrey(0);
+                matchSettleEvent.setHasDeleteEvent(0);
+                matchSettleEvent.setCurrentEventStatus(0);
+                matchSettleCheckInfoHelper.endEventSettleByEvent(matchSettleEvent);
+                matchSettleEventRepository.updateById(matchSettleEvent);
+                matchSettleInfoHelper.updateMatchGrayStatus(matchSettleEvent.getStandardMatchId());
+                matchSettleInfoHelper.updateMatchCurrentEventStatus(matchSettleEvent.getStandardMatchId());
+                log.info("比分Id::{}:: 当前事件被结算参数:{} ",matchSettleScoreDto.getEventId(),matchSettleEvent);
+                if (matchSettleScoreDto.getSettleReason() != null) {
+                    SettleMatchScoreDto warnPara = new SettleMatchScoreDto();
+                    warnPara.setStandardMatchId(matchSettleScoreDto.getStandardMatchId());
+                    warnPara.setSettleReason(matchSettleScoreDto.getSettleReason());
+                    warnPara.setSettleNum(Integer.valueOf(matchSettleScoreDto.getSettleNum()));
+                    matchSettleEventService.secondSettleWarnMango(warnPara, 1);
+                }
+                //1.日志
+                matchSettleEvent.setOperateType(MatchSettleScoreConstant.MatchSettleOperateType.SETTLE);
+                matchSettleEvent.setFifteenMinSection(matchSettleScoreDto.getFifteenMinSection());
+                matchSettleOperateLogService.matchSettleEventAddLog(matchSettleEvent,
+                        matchSettleScoreDto.getOperatorName(),OperateLogTypeEnum.SCORE_SETTLE.getCode().toString()
+                        ,before,matchSettleScoreDto.getIpAddress());
+
+                //2.MQ下发
+                matchSettleScoresProducer.sendMatchSettleEvent(matchSettleEvent);
+                wsPushService.pushStandardSettleEvent(matchSettleScoreDto.getStandardMatchId(),
+                        matchSettleScoreDto.getEventCode());
+                return Response.success();
+            }else {
+                return Response.failed("1031933");
+            }
+        }catch (Exception e){
+            log.error("IFootballMatchScoresSettleApiImpl-settleMatchSettleEvent:",e);
+            return Response.failed();
+        }finally {
+            redisService.unLock(key,key);
+        }
+    }
 }

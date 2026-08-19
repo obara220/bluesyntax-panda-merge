@@ -37,10 +37,13 @@ import com.panda.merge.dto.advertise.TimeStatusEventDto;
 import com.panda.merge.mapper.StandardSportMarketSellMapper;
 import com.panda.merge.model.FootballEventMonitor;
 import com.panda.merge.model.FootballKeyboardSet;
+import com.panda.merge.model.MatchScoresInfo;
 import com.panda.merge.model.MatchTimeInfo;
 import com.panda.merge.model.StandardSportMarketSell;
 import com.panda.merge.model.StandardSportMarketSellExample;
 import com.panda.merge.model.TypeReferenceChild;
+import com.panda.merge.repository.MatchScoreInfoRepository;
+import com.panda.merge.repository.PdMatchInfoRepository;
 import com.panda.sports.auth.exception.SessionValidException;
 import com.panda.sports.auth.rpc.IAuthRequiredPermission;
 import lombok.extern.slf4j.Slf4j;
@@ -87,6 +90,12 @@ public class FootballEventMonitorAspect {
 
     @Autowired
     private StandardSportMarketSellMapper standardSportMarketSellMapper;
+
+    @Autowired
+    private MatchScoreInfoRepository matchScoreInfoRepository;
+
+    @Autowired
+    private PdMatchInfoRepository pdMatchInfoRepository;
 
     @Pointcut("execution(* com.panda.merge.advertise.dubbo.MatchFootballBallAdvertiseApiImpl.confirmEvent(..))"
             + "|| execution(* com.panda.merge.advertise.dubbo.MatchFootballBallAdvertiseApiImpl.cancelEvent(..))"
@@ -238,7 +247,30 @@ public class FootballEventMonitorAspect {
         String linkedId = IdWorker.getId() + "_PD_ACTION_MONITOR";
 
         Response<MatchScoreAndTimeVo> response = commonAdvertiseService.checkMatchScoreAndTimeCreate(thirdMatchId);
-        if (response.getData().getMatchScoresInfo().getSportId() != 1) {
+        if (response == null || response.getData() == null || response.getData().getMatchScoresInfo() == null
+                || response.getData().getMatchTimeInfo() == null || response.getData().getThirdMatchInfo() == null) {
+            log.warn("[FootballEventMonitorAspect]updateRedisInfo thirdMatchId:{} incomplete data, skip", thirdMatchId);
+            return thirdMatchId;
+        }
+        if (response.getData().getMatchScoresInfo().getSportId() == null || response.getData().getMatchScoresInfo().getSportId() != 1) {
+            return thirdMatchId;
+        }
+        // scoresJson 为空说明缓存数据不完整（新赛事或未初始化），回源 DB 重新加载
+        if (org.apache.commons.lang3.StringUtils.isBlank(response.getData().getMatchScoresInfo().getScoresJson())) {
+            log.warn("[FootballEventMonitorAspect]updateRedisInfo thirdMatchId:{} scoresJson is blank, try reload from DB", thirdMatchId);
+            MatchScoresInfo freshScores = matchScoreInfoRepository.selectByExample(thirdMatchId, 1);
+            if (freshScores != null && org.apache.commons.lang3.StringUtils.isNotBlank(freshScores.getScoresJson())) {
+                response.getData().getMatchScoresInfo().setScoresJson(freshScores.getScoresJson());
+                pdMatchInfoRepository.setRedisAndMatchScoresInfo(freshScores, null);
+                log.info("[FootballEventMonitorAspect]updateRedisInfo thirdMatchId:{} scoresJson reloaded from DB", thirdMatchId);
+            } else {
+                log.warn("[FootballEventMonitorAspect]updateRedisInfo thirdMatchId:{} scoresJson still blank after DB reload, skip", thirdMatchId);
+                return thirdMatchId;
+            }
+        }
+        // standardMatchInfo 可能为 null（referenceId 为空或未建立标准赛事关联时）
+        if (response.getData().getStandardMatchInfo() == null) {
+            log.warn("[FootballEventMonitorAspect]updateRedisInfo thirdMatchId:{} standardMatchInfo is null, skip", thirdMatchId);
             return thirdMatchId;
         }
         MatchScoreAndTimeVo data = response.getData();

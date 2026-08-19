@@ -90,9 +90,6 @@ public class BaseProcessor {
     private ConfigMarketHeadGapService headGapService;
     @Autowired
     public ConfigMarketMarginGapService configMarketMarginGapService;
-    /**
-     * 98442 足球数据源margin玩法：数据商抽水赔率 -> 赛事模板margin抽水赔率 转换器
-     */
     @Autowired
     public FootballMarginTemplateConverter footballMarginTemplateConverter;
     @Autowired
@@ -810,7 +807,7 @@ public class BaseProcessor {
      * @param nowPeriod
      */
     public Set<Long> autoOpenMarket(String linkId, Long secondsFromStart, StandardMatchInfo standardMatchInfo, Long nowPeriod) {
-        Set<Long> marketCategoryIdSet = new HashSet();
+        Set<Long> marketCategoryIdSet = new HashSet<>();
         if (!standardMatchInfo.getSportId().equals(StandardSportTypeEnum.Basketball.code)) {
             return marketCategoryIdSet;
         }
@@ -925,6 +922,7 @@ public class BaseProcessor {
     /**
      * 需求1852兜底 阶段切换时，关闭上个阶段玩法的盘口
      * @param linkId
+     * @param secondsFromStart  已进行时长
      * @param standardMatchInfo 标准赛事
      */
     public Set<Long> getAutoCloseBeforePeriodCategory(String linkId, StandardMatchInfo standardMatchInfo, Long nowPeriod){
@@ -1242,8 +1240,7 @@ public class BaseProcessor {
                             log.info("::{}::推送三方赛事给下游缓存标准赛事开赛时间,标准赛事ID:{},开赛时间:{},开售赛事状态源:{}",
                                     linkId, standardMatchInfo.getId(), item.getBeginTime(), matchStatusSourceCode);
                             String updatedKey = redisService.genNewHashKey(matchBeginStr, standardMatchInfo.getId().toString(), ConstantSystem.BUCKET_QUANTITY_SIXTY_FOUR);
-                            redisService.hSet(updatedKey, standardMatchInfo.getId().toString(), item.getBeginTime(),marketCacheTime(item.getBeginTime()));
-                        }else{
+                            redisService.hSet(updatedKey, standardMatchInfo.getId().toString(), item.getBeginTime(),Integer.MAX_VALUE);                        }else{
                             log.info("::{}::推送三方赛事给下游缓存标准赛事开赛时间,大于7天后时间不入缓存,标准赛事ID:{},开赛时间:{},开售赛事状态源:{}",
                                     linkId, standardMatchInfo.getId(), item.getBeginTime(), matchStatusSourceCode);
                         }
@@ -1269,33 +1266,33 @@ public class BaseProcessor {
      * @param standardMatchInfo
      */
     public void refreshStandardMatchBeginTimeByMatchId(String linkId, StandardMatchInfo standardMatchInfo) {
-        //只处理赛前
-        Object marketTypeObj = redisService.get(Constant.REDIS_KEY.RONGHE_STANDARD_MARKET_SWITCH_STATUS + standardMatchInfo.getId());
-        //标准赛事是否已经下发过自动构建赔率key
-        String key = Constant.REDIS_KEY.RONGHE_STANDARD_PER_MARKET + standardMatchInfo.getId();
-        if (Objects.isNull(marketTypeObj) && Objects.isNull(redisService.get(key))) {
-            StandardSportMarketSell sportMarketSellServiceItem = sportMarketSellService.getItem(standardMatchInfo.getId());
-            if (sportMarketSellServiceItem != null) {
-                //标准赛事查库
-                StandardMatchInfo refreshStandardMatchInfo = standardMatchInfoService.getItemByPrimaryKey(standardMatchInfo.getId());
-                //标识赛事开售 赛事状态源
-                String matchBeginStr = Constant.REDIS_KEY.RONGHE_THIRD_PER_MARKET;
-                if (TimeUtils.timeCalendar(refreshStandardMatchInfo.getBeginTime())) {
-                    log.info("::{}::模板缓存标准赛事开赛时间,标准赛事ID:{},开赛时间:{},赛事状态源:{}",
-                            linkId, standardMatchInfo.getId(), refreshStandardMatchInfo.getBeginTime(), sportMarketSellServiceItem.getMatchStatusSourceCode());
-                    String updatedKey = redisService.genNewHashKey(matchBeginStr, standardMatchInfo.getId().toString(), ConstantSystem.BUCKET_QUANTITY_SIXTY_FOUR);
-                    redisService.hSet(updatedKey, standardMatchInfo.getId().toString(), refreshStandardMatchInfo.getBeginTime(),marketCacheTime(refreshStandardMatchInfo.getBeginTime()));
-                }else {
-                    log.info("::{}::模板缓存标准赛事开赛时间,大于7天后时间不入缓存,标准赛事ID:{},开赛时间:{},赛事状态源:{}",
-                            linkId, standardMatchInfo.getId(), standardMatchInfo.getBeginTime(), sportMarketSellServiceItem.getMatchStatusSourceCode());
+            //只处理赛前
+            Object marketTypeObj = redisService.get(Constant.REDIS_KEY.RONGHE_STANDARD_MARKET_SWITCH_STATUS + standardMatchInfo.getId());
+            //标准赛事是否已经下发过自动构建赔率key
+            String key = Constant.REDIS_KEY.RONGHE_STANDARD_PER_MARKET + standardMatchInfo.getId();
+            if (Objects.isNull(marketTypeObj) && Objects.isNull(redisService.get(key))) {
+                StandardSportMarketSell sportMarketSellServiceItem = sportMarketSellService.getItem(standardMatchInfo.getId());
+                if (sportMarketSellServiceItem != null) {
+                    //标准赛事查库
+                    StandardMatchInfo refreshStandardMatchInfo = standardMatchInfoService.getItemByPrimaryKey(standardMatchInfo.getId());
+                    //标识赛事开售 赛事状态源
+                    String matchBeginStr = Constant.REDIS_KEY.RONGHE_THIRD_PER_MARKET;
+                    if (TimeUtils.timeCalendar(refreshStandardMatchInfo.getBeginTime())) {
+                        log.info("::{}::模板缓存标准赛事开赛时间,标准赛事ID:{},开赛时间:{},赛事状态源:{}",
+                                linkId, standardMatchInfo.getId(), refreshStandardMatchInfo.getBeginTime(), sportMarketSellServiceItem.getMatchStatusSourceCode());
+                        String updatedKey = redisService.genNewHashKey(matchBeginStr, standardMatchInfo.getId().toString(), ConstantSystem.BUCKET_QUANTITY_SIXTY_FOUR);
+                        redisService.hSet(updatedKey, standardMatchInfo.getId().toString(), refreshStandardMatchInfo.getBeginTime(),Integer.MAX_VALUE);
+                    }else {
+                        log.info("::{}::模板缓存标准赛事开赛时间,大于7天后时间不入缓存,标准赛事ID:{},开赛时间:{},赛事状态源:{}",
+                                linkId, standardMatchInfo.getId(), standardMatchInfo.getBeginTime(), sportMarketSellServiceItem.getMatchStatusSourceCode());
+                    }
+                } else {
+                    log.info("::{}::模板缓存标准赛事开赛时间,未开售,标准赛事ID:{}", linkId, standardMatchInfo.getId());
                 }
             } else {
-                log.info("::{}::模板缓存标准赛事开赛时间,未开售,标准赛事ID:{}", linkId, standardMatchInfo.getId());
+                log.info("::{}::模板缓存标准赛事开赛时间,已下发过滚球标识或已下发过自动构建盘口,标准赛事ID:{}",
+                        linkId, standardMatchInfo.getId());
             }
-        } else {
-            log.info("::{}::模板缓存标准赛事开赛时间,已下发过滚球标识或已下发过自动构建盘口,标准赛事ID:{}",
-                    linkId, standardMatchInfo.getId());
-        }
     }
 
     /**
@@ -1378,6 +1375,11 @@ public class BaseProcessor {
                     });
                     diffAndMarginConfigDTO.setMarketMarginDtlDTOList(marketMarginDtlDTOList);
                 }
+                configList.add(diffAndMarginConfigDTO);
+            }
+            //水差接口、集合接口 处理
+            if (!CollectionUtils.isEmpty(diffConfigList)) {
+                //marketDiffDealWith(diffConfigList, marketDataMessageMap, diffAndMarginConfigDTO);
                 configList.add(diffAndMarginConfigDTO);
             }
             //margin接口、集合接口 处理
@@ -1558,6 +1560,16 @@ public class BaseProcessor {
     }
 
     /**
+     * A01(AO)与主数据源一致，接入侧投递的赔率已随主源处理主客相反，融合赔率服务不再重复翻转。
+     */
+    protected boolean skipHomeAwayOppositeForDataSource(String dataSourceCode) {
+        if (StringUtils.isBlank(dataSourceCode)) {
+            return false;
+        }
+        return DataSourceCodeEnum.AO.code.equalsIgnoreCase(resolveBaseDataSourceCode(dataSourceCode));
+    }
+
+    /**
      * 百家赔等非实时链路：三方赛事已标记主客队相反时，替换盘口/投注项内容
      */
     protected Long applyHomeAwayOppositeForThirdMarket(String linkId,
@@ -1566,6 +1578,9 @@ public class BaseProcessor {
                                                        ThirdMatchInfo thirdMatchInfo,
                                                        ThirdMarketCategory thirdMarketCategory,
                                                        ThirdMarketDTO thirdMarketDTO) {
+        if (thirdMarketCategory == null) {
+            return null;
+        }
         if (thirdMatchInfo == null || !ONE.equals(thirdMatchInfo.getHomeAwayOpposite())) {
             return thirdMarketCategory.getReferenceId();
         }
@@ -1576,8 +1591,11 @@ public class BaseProcessor {
         if (!CategoryOppositeConfig.FootBall.containsCategory(marketCategoryId)) {
             return marketCategoryId;
         }
-        changeStandardMarketContent(linkId, resolveBaseDataSourceCode(dataSourceCode), thirdMarketCategory, thirdMarketDTO);
-        return thirdMarketCategory.getReferenceId();
+        // 每次独立拷贝，避免 changeStandardMarketContent 原地修改共享的玩法缓存对象
+        ThirdMarketCategory categoryCopy = new ThirdMarketCategory();
+        BeanUtils.copyProperties(thirdMarketCategory, categoryCopy);
+        changeStandardMarketContent(linkId, resolveBaseDataSourceCode(dataSourceCode), categoryCopy, thirdMarketDTO);
+        return categoryCopy.getReferenceId();
     }
 
     /**

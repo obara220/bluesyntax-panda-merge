@@ -9,6 +9,7 @@ import com.panda.merge.common.enums.StandardSportTypeEnum;
 import com.panda.merge.common.utils.BigDecimalUtils;
 import com.panda.merge.common.utils.MergeFunctionUtils;
 import com.panda.merge.component.AutoDiffCountMarketMalay;
+import com.panda.merge.component.FootballMarginTemplateConverter;
 import com.panda.merge.component.InitializeComponent;
 import com.panda.merge.constant.MarginCategoryConfig;
 import com.panda.merge.dto.message.StandardMarketDataMessage;
@@ -57,6 +58,8 @@ public class A99CalculationMarketProcessor extends BaseProcessor {
     public A99ThirdSportMarketMergeProducer thirdSportMarketMergeProducer;
     @Autowired
     private StandardSportPlayerService standardSportPlayerService;
+    @Autowired
+    private FootballMarginTemplateConverter footballMarginTemplateConverter;
 
     /**
      * 赔率盘口处理
@@ -633,11 +636,11 @@ public class A99CalculationMarketProcessor extends BaseProcessor {
             marginGapMap = itemList.stream().collect(Collectors.toMap(ConfigMarketMarginGap::getOddsType, a -> a, (k1, k2) -> k1));
         }
         try {
-            //足球数据源margin玩法：数据商抽水赔率按赛事模板margin重新抽水，A99开关关闭或数据不合法时为空，走原有逻辑
-            Map<String, Double> templateMarginOddsMap = footballMarginTemplateConverter.isA99Open(sportId, standardMarketDataMessage.getDataSourceCode())
-                    ? footballMarginTemplateConverter.convertOddsByTemplateMargin(linkId, standardMatchInfoId, marketCategoryId,
-                    standardMarketDataMessage.getMarketOddsList(), marginGapMap)
-                    : Collections.<String, Double>emptyMap();
+//            //足球数据源margin玩法：数据商抽水赔率按赛事模板margin重新抽水，A99开关关闭或数据不合法时为空，走原有逻辑
+//            Map<String, Double> templateMarginOddsMap = footballMarginTemplateConverter.isA99Open(sportId, standardMarketDataMessage.getDataSourceCode())
+//                    ? footballMarginTemplateConverter.convertOddsByTemplateMargin(linkId, standardMatchInfoId, marketCategoryId,
+//                    standardMarketDataMessage.getMarketOddsList(), marginGapMap)
+//                    : Collections.<String, Double>emptyMap();
             for (StandardMarketOddsDataMessage marketOdds : standardMarketDataMessage.getMarketOddsList()) {
                 String oddsType = marketOdds.getOddsType();
                 ConfigMarketMarginGap configMarketMarginGap = new ConfigMarketMarginGap();
@@ -675,8 +678,9 @@ public class A99CalculationMarketProcessor extends BaseProcessor {
                     continue;
                 }
                 //Step1:原始赔率转为小数点，原始概率： P = 1/抽水赔率(足球走赛事模板抽水时，取转换后的赔率)
-                Double templateMarginOdds = templateMarginOddsMap.get(oddsType);
-                double changOriginalOdds = templateMarginOdds != null ? templateMarginOdds : BigDecimalUtils.divide(oddsValue, 100000D, 2);
+                double changOriginalOdds = BigDecimalUtils.divide(oddsValue, 100000D, 2);
+//                Double templateMarginOdds = templateMarginOddsMap.get(oddsType);
+//                double changOriginalOdds = templateMarginOdds != null ? templateMarginOdds : BigDecimalUtils.divide(oddsValue, 100000D, 2);
                 double p = BigDecimalUtils.divide(1, changOriginalOdds, 8);
                 //Step2:计算概率差赔率probabilityOdds, 公式: 1/(P+M+PGap)
                 double probabilityOdds = BigDecimalUtils.add(p, probability);

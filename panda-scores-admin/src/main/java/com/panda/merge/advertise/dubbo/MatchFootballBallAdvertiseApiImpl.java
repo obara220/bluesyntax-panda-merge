@@ -294,7 +294,9 @@ public class MatchFootballBallAdvertiseApiImpl implements IMatchFootballBallAdve
                 possessionCount.setTechName("possCount");
                 FootballMatchStageVo ballPossessionPercentage = data.getData().getFootballScoreboardVo().getBallPossessionPercentage();
                 ballPossessionPercentage.setTechName("ballPossPct");
-                data.getData().setLiveEventSource(response.getData().getStandardMatchInfo().getLiveEventSource());
+                if (response.getData().getStandardMatchInfo() != null) {
+                    data.getData().setLiveEventSource(response.getData().getStandardMatchInfo().getLiveEventSource());
+                }
                 return data;
             } else {
                 return footBallAdvertiseService.buildFootBallAdvertiseVo(response.getData());

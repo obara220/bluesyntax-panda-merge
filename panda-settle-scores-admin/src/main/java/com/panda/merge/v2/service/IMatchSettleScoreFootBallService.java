@@ -99,4 +99,10 @@ public interface IMatchSettleScoreFootBallService {
     Response addMatchSettleEventV3(AddMatchSettleEventDto addMatchSettleEventDto);
 
     Response editMatchSettleEventV3(EditMatchSettleEventDto editMatchSettleEventDto);
+
+    Response editMatchSettleEventMethodAndPlayerV3(EditMatchSettleEventDto editMatchSettleEventDto);
+
+    Response confirmMatchSettleEventV3(EditMatchSettleEventDto matchSettleEventDto);
+
+    Response settleMatchSettleEventV3(EditMatchSettleEventDto matchSettleScoreDto);
 }

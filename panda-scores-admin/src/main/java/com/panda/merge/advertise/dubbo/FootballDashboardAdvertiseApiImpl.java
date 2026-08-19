@@ -107,6 +107,9 @@ public class FootballDashboardAdvertiseApiImpl implements FootballDashboardAdver
 
     @Override
     public Response injuryTimeEvent(InjuryTimeEventDto injuryTimeEventDto) {
+        log.info("linkId=::{}::,requestId=::{}::足球报球板伤停补时事件，thirdMatchId={},timeFromStartSecond={}",
+                injuryTimeEventDto.getLinkedId(), injuryTimeEventDto.getRequestId(), injuryTimeEventDto.getThirdMatchId(),
+                injuryTimeEventDto.getTimeFromStartSecond());
         Long thirdMatchId = injuryTimeEventDto.getThirdMatchId();
         String key = MATCH_FOOTBALL_INJURY + thirdMatchId;
         ThirdMatchInfo thirdMatchInfo = pdMatchInfoRepository.getThirdMatchInfo(injuryTimeEventDto.getThirdMatchId(), null);

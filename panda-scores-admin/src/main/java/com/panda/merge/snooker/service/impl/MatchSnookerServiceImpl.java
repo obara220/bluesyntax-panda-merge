@@ -1037,8 +1037,8 @@ public class MatchSnookerServiceImpl extends AbsMatchCommonProcessor<MatchScoreC
             if (pid == null || pid.equals(WHOLE_MATCH)) {
                 continue;
             }
-            // 只统计局阶段 periodId: [8, 80)
-            if (pid < 8L || pid >= 80L) {
+            // 只统计小局开始阶段（8/9/.../441/442/500+），避免漏掉第6局及以后（periodId>=80）
+            if (!SnookerConstant.SNOOKER_SET_BEGIN.containsKey(pid)) {
                 continue;
             }
             // 当前局进行中：不应提前结算盘分（回看历史局不排除）
@@ -1258,6 +1258,73 @@ public class MatchSnookerServiceImpl extends AbsMatchCommonProcessor<MatchScoreC
     protected void afterSnookerMatchStartStatusEvent(Long thirdMatchId, Long periodId, Long eventId, Integer controlType) {
         if (Integer.valueOf(1).equals(controlType)) {
             recordPeriodBeginEventId(thirdMatchId, periodId, eventId);
+        }
+    }
+
+    /**
+     * 比赛结束（controlType=4）：若当前仍停在某一局进行中（未先点小局结束），
+     * 需要把该局 setScore 胜负结算进全场盘分，否则全局 t1/t2 会漏掉最后一局。
+     */
+    @Override
+    public Response changeMatchStatus(MatchScoreAndTimeVo data, ChangeMatchStatusV2Dto dto) {
+        if (dto != null && Integer.valueOf(4).equals(dto.getControlType())) {
+            settleCurrentFrameOnMatchEnd(data);
+        }
+        return super.changeMatchStatus(data, dto);
+    }
+
+    /**
+     * 将 scoresJson 中所有已决出胜负的小局（含当前进行中的最后一局）重算为全场盘分并写回。
+     */
+    private void settleCurrentFrameOnMatchEnd(MatchScoreAndTimeVo data) {
+        if (data == null || data.getMatchScoresInfo() == null) {
+            return;
+        }
+        MatchScoresInfo info = data.getMatchScoresInfo();
+        if (StringUtils.isBlank(info.getScoresJson())) {
+            return;
+        }
+        try {
+            JSONObject periodScoresJson = JSONObject.parseObject(info.getScoresJson());
+            Map<Long, SnookerV2Scores> allPeriodScores = JsonMapUtils.parseSnookerV2Map(periodScoresJson);
+            // currentPeriodId 传 null：比赛已结束，当前局不再视为“进行中”，必须计入盘分
+            CommonItem overall = calcOverallMatchScore(allPeriodScores, null);
+
+            SnookerV2Scores whole = allPeriodScores.get(WHOLE_MATCH);
+            if (whole == null) {
+                whole = new SnookerV2Scores();
+                allPeriodScores.put(WHOLE_MATCH, whole);
+            }
+            if (whole.getMatchScore() == null) {
+                whole.setMatchScore(new CommonItem());
+            }
+            whole.getMatchScore().setHome(overall.getHome());
+            whole.getMatchScore().setAway(overall.getAway());
+
+            Long currentPeriodId = data.getMatchTimeInfo() != null ? data.getMatchTimeInfo().getPeriod() : null;
+            if (currentPeriodId != null && SnookerConstant.SNOOKER_SET_BEGIN.containsKey(currentPeriodId)) {
+                SnookerV2Scores currentPeriodScores = allPeriodScores.get(currentPeriodId);
+                if (currentPeriodScores != null) {
+                    if (currentPeriodScores.getMatchScore() == null) {
+                        currentPeriodScores.setMatchScore(new CommonItem());
+                    }
+                    currentPeriodScores.getMatchScore().setHome(overall.getHome());
+                    currentPeriodScores.getMatchScore().setAway(overall.getAway());
+                }
+            }
+
+            info.setScoresJson(JSONObject.toJSONString(allPeriodScores));
+            info.setT1(overall.getHome());
+            info.setT2(overall.getAway());
+            info.setModifyTime(System.currentTimeMillis());
+            matchScoreInfoRepository.updateScoresInfo(info);
+
+            log.info("[MatchSnookerServiceImpl]settleCurrentFrameOnMatchEnd matchScore home={}, away={} currentPeriodId:{} match:{}",
+                    overall.getHome(), overall.getAway(), currentPeriodId,
+                    data.getThirdMatchInfo() != null ? data.getThirdMatchInfo().getId() : null);
+        } catch (Exception e) {
+            log.error("[MatchSnookerServiceImpl]settleCurrentFrameOnMatchEnd error match:{}",
+                    data.getThirdMatchInfo() != null ? data.getThirdMatchInfo().getId() : null, e);
         }
     }
 

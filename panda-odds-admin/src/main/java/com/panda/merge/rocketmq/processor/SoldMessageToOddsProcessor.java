@@ -123,6 +123,7 @@ public class SoldMessageToOddsProcessor extends BaseProcessor {
 
     @Autowired
     private StandardMarketCategoryService standardMarketCategoryService;
+
     @Autowired
     private MarketOddsPlaceProcessor marketOddsPlaceProcessor;
 
@@ -134,7 +135,7 @@ public class SoldMessageToOddsProcessor extends BaseProcessor {
 
 
     public void soldMessageToOdds(@Valid Request<SoldMessage> request) {
-        StopWatch stopWatch = new StopWatch("soldMessageToOdds_" + UUIdUtils.getId());
+        StopWatch stopWatch = new StopWatch("soldMessageToOdds_"+UUIdUtils.getId());
         stopWatch.start();
         String linkId = request.getLinkId();
         validateLinkId("soldMessageToOdds", request);
@@ -168,56 +169,60 @@ public class SoldMessageToOddsProcessor extends BaseProcessor {
         //清除玩法开售表缓存
         soldMessage.getMarketCategoryIds().forEach(x -> marketCategorySellService.removeCache(soldMessage.getMatchId(), soldMessage.getMarketType(), x.getCategoryId()));
         //赔率处理
-        Map<Long, String> marketCategoryIds = new HashMap<>();
-        soldMessage.getMarketCategoryIds().forEach(v -> {
-            marketCategoryIds.put(v.getCategoryId(), v.getDataSourceCode());
+        Map<Long,String> marketCategoryIds = new HashMap<>();
+        soldMessage.getMarketCategoryIds().forEach(v->{
+            marketCategoryIds.put(v.getCategoryId(),v.getDataSourceCode());
         });
-        soldHandler(linkId, standardMatchInfo, standardSportMarketSell, marketCategoryIds, soldMessage.getMarketType(), false, false);
+        soldHandler(linkId,standardMatchInfo,standardSportMarketSell,marketCategoryIds,soldMessage.getMarketType(),false,false);
 
         //统计处理耗时
         stopWatch.stop();
         paDataServiceLogProducer.sendPaDataServiceLog(
-                getPaDataServiceLogDTO(request.getLinkId(), "odds-admin", "SOLD_MESSAGE", "三方赛事信息接入",
-                        stopWatch.getTotalTimeMillis(), 200, null)
+                getPaDataServiceLogDTO(request.getLinkId(),"odds-admin","SOLD_MESSAGE","三方赛事信息接入",
+                        stopWatch.getTotalTimeMillis(),200,null)
         );
     }
 
 
     /**
      * 刷历史开售数据到缓存
-     *
      * @param standardMatchInfo
      * @param standardSportMarketSell
      */
-    private void refreshSoldInfo(StandardMatchInfo standardMatchInfo, StandardSportMarketSell standardSportMarketSell, Map<String, String> stringHashMap, Integer marketType) {
+    private void refreshSoldInfo(StandardMatchInfo standardMatchInfo,StandardSportMarketSell standardSportMarketSell,Map<String,String> stringHashMap,Integer marketType)
+    {
         String preCode = standardSportMarketSell.getPreMatchDataProviderCode();
         String liveCode = standardSportMarketSell.getLiveMatchDataProviderCode();
-        if (marketType == 1) {
-            List<MarketCategorySell> pre = marketCategorySellService.getItem(standardMatchInfo.getId(), "1");
-            if (!CollectionUtils.isEmpty(pre) && StringUtils.isNotEmpty(preCode)) {
-                String preRedisKey = Constant.REDIS_KEY.RONGHE_MARKET_CATEGORY_SELL + standardMatchInfo.getId() + "_" + 1;
-                Map<String, String> perMap = new HashMap<>();
-                pre.forEach(e -> {
-                    perMap.put(String.valueOf(e.getMarketCategoryId()), e.getDataSourceCode());
+        if (marketType == 1)
+        {
+            List<MarketCategorySell> pre = marketCategorySellService.getItem(standardMatchInfo.getId(),"1");
+            if (!CollectionUtils.isEmpty(pre) && StringUtils.isNotEmpty(preCode))
+            {
+                String preRedisKey = Constant.REDIS_KEY.RONGHE_MARKET_CATEGORY_SELL + standardMatchInfo.getId()+"_"+1;
+                Map<String,String> perMap = new HashMap<>();
+                pre.forEach(e->{
+                    perMap.put(String.valueOf(e.getMarketCategoryId()),e.getDataSourceCode());
                 });
-                redisService.hSetAll(preRedisKey, perMap, marketCacheTime(standardMatchInfo.getBeginTime()));
+                redisService.hSetAll(preRedisKey,perMap, marketCacheTime(standardMatchInfo.getBeginTime()));
             }
-        } else {
-            List<MarketCategorySell> live = marketCategorySellService.getItem(standardMatchInfo.getId(), "0");
-            if (!CollectionUtils.isEmpty(live) && StringUtils.isNotEmpty(liveCode)) {
-                String liveRedisKey = Constant.REDIS_KEY.RONGHE_MARKET_CATEGORY_SELL + standardMatchInfo.getId() + "_" + 0;
-                Map<String, String> liveMap = new HashMap<>();
-                live.forEach(e -> {
-                    liveMap.put(String.valueOf(e.getMarketCategoryId()), e.getDataSourceCode());
+        }
+        else
+        {
+            List<MarketCategorySell> live = marketCategorySellService.getItem(standardMatchInfo.getId(),"0");
+            if (!CollectionUtils.isEmpty(live) && StringUtils.isNotEmpty(liveCode))
+            {
+                String liveRedisKey = Constant.REDIS_KEY.RONGHE_MARKET_CATEGORY_SELL + standardMatchInfo.getId()+"_"+0;
+                Map<String,String> liveMap = new HashMap<>();
+                live.forEach(e->{
+                    liveMap.put(String.valueOf(e.getMarketCategoryId()),e.getDataSourceCode());
                 });
-                redisService.hSetAll(liveRedisKey, liveMap, marketCacheTime(standardMatchInfo.getBeginTime()));
+                redisService.hSetAll(liveRedisKey,liveMap, marketCacheTime(standardMatchInfo.getBeginTime()));
             }
         }
     }
 
     /**
      * 玩法开售流程
-     *
      * @param linkId
      * @param standardMatchInfo
      * @param standardSportMarketSell
@@ -313,10 +318,9 @@ public class SoldMessageToOddsProcessor extends BaseProcessor {
             }
         }
         //存在关盘盘口玩法 k:数据商,value:玩法集合
-        Map<String, List<Long>> closeMarketCategoryIdMap = new HashMap<>();
+        Map<String,List<Long>> closeMarketCategoryIdMap = new HashMap<>();
         //开盘玩法
         Set<Long> openMarketCategoryIdList = new HashSet<>();
-
         //查询三方赛事赔率
         Map<Long, String> longStringHashMap = new HashMap<>();
 
@@ -354,7 +358,7 @@ public class SoldMessageToOddsProcessor extends BaseProcessor {
         });
         //-------------2785 end---------------
         //k:marketcategory,value:datasourcecode
-        Map<String, String> stringHashMap = new HashMap<String, String>();
+        Map<String,String> stringHashMap = new HashMap<String,String>();
         //k:datasourcecode,value:marketcategorylist
         Map<String, List<Long>> stringListHashMap = new HashMap<>();
         // 再构建两张索引：
@@ -364,22 +368,26 @@ public class SoldMessageToOddsProcessor extends BaseProcessor {
             stringHashMap.put(String.valueOf(k), v);
             if (stringListHashMap.containsKey(v)) {
                 stringListHashMap.get(v).add(k);
-            } else {
+            }
+            else
+            {
                 List<Long> list = new ArrayList<>();
                 list.add(k);
-                stringListHashMap.put(v, list);
+                stringListHashMap.put(v,list);
             }
         });
         Long standardMatchInfoId = null;
         //测试联赛不需要下发
         StandardRelationNewStandard standardRelationNewStandard = standardRelationNewStandardService.getItemByNewId(standardMatchInfo.getId());
-        if (null == standardRelationNewStandard) {
+        if (null == standardRelationNewStandard)
+        {
             //找出所有其他数据源的三方盘口并下发到风控
-            commonAsyncService.getAllThirdSportMarketList(linkId + "_third", standardMatchInfo, marketType, longStringHashMap);
+            commonAsyncService.getAllThirdSportMarketList(linkId+"_third",standardMatchInfo,marketType,longStringHashMap);
             standardMatchInfoId = standardMatchInfo.getId();
-        } else {
-            standardMatchInfoId = standardMatchInfo.getId();
-            //standardMatchInfoId = standardRelationNewStandard.getSourceStandardId();
+        }
+        else
+        {
+            standardMatchInfoId = standardRelationNewStandard.getSourceStandardId();
         }
 
         List<ThirdSportMarket> thirdSportMarketList = new ArrayList<>();
@@ -395,11 +403,14 @@ public class SoldMessageToOddsProcessor extends BaseProcessor {
                 return;
             }
             //主客队相反,玩法过滤处理
-            log.info("::{}::soldMessage赔率下发，主客队相反需求过滤部分玩法，条件：{},thirdMatchInfo:{}", linkId, ONE.equals(tempThirdMatchInfo.getHomeAwayOpposite()), tempThirdMatchInfo);
-            if (ONE.equals(tempThirdMatchInfo.getHomeAwayOpposite())) {
+            log.info("::{}::soldMessage赔率下发，主客队相反需求过滤部分玩法，条件：{},thirdMatchInfo:{}", linkId, ONE.equals(tempThirdMatchInfo.getHomeAwayOpposite()),tempThirdMatchInfo);
+            if(ONE.equals(tempThirdMatchInfo.getHomeAwayOpposite()))
+            {
                 List<Long> categoryList = new ArrayList<>();
-                for (Long category : y) {
-                    if (CategoryOppositeConfig.FootBall.containsCategory(category)) {
+                for (Long category:y)
+                {
+                    if (CategoryOppositeConfig.FootBall.containsCategory(category))
+                    {
                         categoryList.add(category);
                     }
                 }
@@ -442,11 +453,11 @@ public class SoldMessageToOddsProcessor extends BaseProcessor {
         if (0 == marketType) {
             //下发滚球标识 ，清除水差，盘口差
             if (StringUtils.isNotBlank(liveCode)) {
-                List<ThirdSportMarket> thirdSportMarkets = thirdSportMarketList.stream().filter(e -> e.getMarketType() == 0).collect(Collectors.toList());
+                List<ThirdSportMarket> thirdSportMarkets = thirdSportMarketList.stream().filter(e->e.getMarketType()==0).collect(Collectors.toList());
                 if (!CollectionUtils.isEmpty(thirdSportMarkets)) {
                     //滚球关闭赛前盘
                     if (StringUtils.isNotBlank(preCode)) {
-                        thirdMatchMarketProcessor.newClosePreMarkets(linkId, standardSportMarketSell, marketType, standardMatchInfo, System.currentTimeMillis(), false, new ArrayList<>(), 0);
+                        thirdMatchMarketProcessor.newClosePreMarkets(linkId, standardSportMarketSell, marketType, standardMatchInfo, System.currentTimeMillis(),false,new ArrayList<>(),0);
                     }
                 }
             }
@@ -455,11 +466,11 @@ public class SoldMessageToOddsProcessor extends BaseProcessor {
         //是否在早盘阶段操作滚球赛事级权重切换
         boolean preTradeLive  = thirdMatchMarketProcessor.isOddsLive(standardMatchInfo.getId())==1 && marketType == 0;
         //以下数据库逻辑操作有并发问题，这里需要以赛事维度加redis锁
-        String lockValue = UUIdUtils.getId() + "_" + linkId;
+        String lockValue = UUIdUtils.getId()+"_"+linkId;
         String redisLocKey = Constant.REDIS_KEY.RONGHE_LOCK + standardMatchInfo.getId();
-        log.info("::{}::soldMessage赔率下发,redisLocKey:{},准备获取分布式锁,lockValue:{}", linkId, redisLocKey, lockValue);
+        log.info("::{}::soldMessage赔率下发,redisLocKey:{},准备获取分布式锁,lockValue:{}", linkId,redisLocKey, lockValue);
         redisService.tryLock(redisLocKey, lockValue, 10, 8);
-        log.info("::{}::soldMessage赔率下发,redisLocKey:{},获取到分布式锁,lockValue:{}", linkId, redisLocKey, lockValue);
+        log.info("::{}::soldMessage赔率下发,redisLocKey:{},获取到分布式锁,lockValue:{}", linkId,redisLocKey, lockValue);
         Map<String, StandardMarketDataMessage> standardMarketDataMessageMap1 = new HashMap<>();
         Map<String, StandardMarketDataMessage> standardMarketDataMessageMap = new HashMap<>();
         try {
@@ -486,7 +497,9 @@ public class SoldMessageToOddsProcessor extends BaseProcessor {
                 standardMarketDataMessageMap1 = oldMarketHandler(linkId, standardMatchInfo, soldCache, categoryDataSourceMap,marketType);
             }
 
-            redisService.hSetAll(categoryRedisKey, stringHashMap, marketCacheTime(standardMatchInfo.getBeginTime()));
+            boolean result1 = redisService.hSetAll(categoryRedisKey, stringHashMap, marketCacheTime(standardMatchInfo.getBeginTime()));
+            log.info("::{}::处理赔率数据开售缓存,stringHashMap:{},result:{}",
+                    linkId, stringHashMap,result1);
             marketCategorySellService.removeCashes(standardMatchInfoId,marketType,categoryDataSourceMap.keySet());
             if (preTradeLive){
                 //早盘阶段操作滚球赛事级权重切换，操作完玩法开售缓存直接结束
@@ -560,7 +573,7 @@ public class SoldMessageToOddsProcessor extends BaseProcessor {
                     standardMarketConvertMessageMap.forEach((k, v) -> {
                         if (openMarketCategoryIdList.contains(v.getMarketCategoryId())) {
                             StandardMarketDataMessage standardMarketDataMessage = standardMarketDataMessageMap2.get(v.getRelationMarketId().toString());
-                            if (standardMarketDataMessage != null) {
+                            if (standardMarketDataMessage != null){
                                 //删除标准赔率缓存，不删除会有缓存和数据源不匹配
                                 String redisKey1 = DigestUtil.md5Hex(Constant.REDIS_KEY.RONGHE_STANDARD_CATEGORY_MARKET + standardMatchInfo.getId() + "_" + standardMarketDataMessage.getDataSourceCode()+"_"+standardMarketDataMessage.getMarketCategoryId());
                                 redisService.hDel(redisKey1, v.getRelationMarketId().toString());
@@ -575,7 +588,7 @@ public class SoldMessageToOddsProcessor extends BaseProcessor {
                     });
                 }
             }
-//            log.info("::{}::对缓存所有数据进行排序,marketCategoryIds：{}，standardMarketDataMessageMap2:{}", linkId, categoryDataSourceMap.keySet(), standardMarketDataMessageMap2);
+            log.info("::{}::对缓存所有数据进行排序,marketCategoryIds：{}，standardMarketDataMessageMap2:{}", linkId, categoryDataSourceMap.keySet(), standardMarketDataMessageMap2);
             //对缓存所有数据进行排序
             marketOddsPlaceProcessor.setOddsOrderByOddsValue(linkId, standardMarketDataMessageMap2, standardMatchInfo, categoryDataSourceMap.keySet(), null, null, null, false);
             Map<String, List<StandardMarketDataMessage>> stringStandardMarketDataMessageMap = standardMarketDataMessageMap2.values().stream().collect(Collectors.groupingBy(StandardMarketDataMessage::getDataSourceCode));
@@ -586,8 +599,8 @@ public class SoldMessageToOddsProcessor extends BaseProcessor {
                     log.info("::{}:: soldMessage刷新缓存盘口信息, key={},marketId={},result={}", linkId, redisKey, marketDataMessage.getRelationMarketId(), result);
                 }
             });
-            log.info("::{}::处理赔率数据,marketCategoryIds:{},soldCache:{}",
-                    linkId, categoryDataSourceMap,soldCache);
+            log.info("::{}::处理赔率数据,standardMarketDataMessageMap1：{}，standardMarketDataMessageMap2:{},marketCategoryIds:{},oldStringHashMap:{}",
+                    linkId, standardMarketDataMessageMap1, standardMarketDataMessageMap2,categoryDataSourceMap,soldCache);
             //处理赔率数据
             if (MapUtil.isNotEmpty(standardMarketDataMessageMap1)) {
                 marketOddsPlaceProcessor.setOddsOrderByOddsValue(linkId, standardMarketDataMessageMap1, standardMatchInfo, categoryDataSourceMap.keySet(), null, null, null, false);
@@ -598,9 +611,22 @@ public class SoldMessageToOddsProcessor extends BaseProcessor {
                 Map<Long,List<StandardMarketDataMessage>> map2 = list2.stream().collect(Collectors.groupingBy(StandardMarketDataMessage::getMarketCategoryId));
                 for (String key : standardMarketDataMessageMap1.keySet()) {
                     StandardMarketDataMessage marketDataMessage = standardMarketDataMessageMap1.get(key);
+                    if (isInternalOddsSource(categoryDataSourceMap.get(marketDataMessage.getMarketCategoryId()))
+                            &&(StandardSportTypeEnum.FootBall.code.equals(standardMatchInfo.getSportId())||StandardSportTypeEnum.Basketball.code.equals(standardMatchInfo.getSportId()))
+                            &&marketDataMessage.getPlaceNum() == 1
+                            && !map2.containsKey(marketDataMessage.getMarketCategoryId())){
+                        String tempDataSourceCode = categoryDataSourceMap.get(marketDataMessage.getMarketCategoryId()).contains("L01")?DataSourceCodeEnum.LS.getCode():DataSourceCodeEnum.L02.getCode();
+                        marketDataMessage.setDataSourceCode(tempDataSourceCode);
+                        marketDataMessage.setInternalDataSourceCode(categoryDataSourceMap.get(marketDataMessage.getMarketCategoryId()));
+                        marketDataMessage.setRemark("操盘后台切换玩法数据源后无赔率，该数据源玩法关盘");
+                        marketDataMessage.oldClose();
+                        String redisKey = DigestUtil.md5Hex(Constant.REDIS_KEY.RONGHE_STANDARD_CATEGORY_MARKET + standardMatchInfo.getId() + "_" + marketDataMessage.getDataSourceCode() + "_" + marketDataMessage.getMarketCategoryId());
+                        redisService.hSet(redisKey, marketDataMessage.getRelationMarketId().toString(),marketDataMessage, marketCacheTime(standardMatchInfo.getBeginTime()));
+                    }
                     if (MapUtil.isEmpty(standardMarketDataMessageMap2) || !standardMarketDataMessageMap2.containsKey(key)) {
                         if ((categoryDataSourceMap.get(marketDataMessage.getMarketCategoryId()).contains("L01") || categoryDataSourceMap.get(marketDataMessage.getMarketCategoryId()).contains("T01") || categoryDataSourceMap.get(marketDataMessage.getMarketCategoryId()).contains("L02"))
                                 && (soldCache.get(marketDataMessage.getMarketCategoryId() + "").contains("LS") || soldCache.get(marketDataMessage.getMarketCategoryId() + "").contains("TX")|| soldCache.get(marketDataMessage.getMarketCategoryId() + "").contains("L02"))) {
+
                             continue;
                         }
                         String redisKey = DigestUtil.md5Hex(Constant.REDIS_KEY.RONGHE_STANDARD_CATEGORY_MARKET + standardMatchInfo.getId() + "_" + marketDataMessage.getDataSourceCode() + "_" + marketDataMessage.getMarketCategoryId());
@@ -610,29 +636,27 @@ public class SoldMessageToOddsProcessor extends BaseProcessor {
                             marketDataMessage.oldClose();
                         }
                     }
-                    if (isRefresh
-                            && marketDataMessage.getMarketType()==0
-                            && marketDataMessage.getMarketSource()==1){
-                        marketDataMessage.invalidDataSource();
-                        continue;
-                    }
                     marketDataMessage.setDataSourceCode(longStringHashMap.get(marketDataMessage.getMarketCategoryId()));
                     marketDataMessage.setInternalDataSourceCode("");
                     if ((StandardSportTypeEnum.FootBall.code.equals(standardMatchInfo.getSportId())||StandardSportTypeEnum.Basketball.code.equals(standardMatchInfo.getSportId()))
                             &&marketDataMessage.getPlaceNum() == 1
-                            && !map2.containsKey(marketDataMessage.getMarketCategoryId())
-                            && !isXtsManager(linkId,standardMatchInfo,marketType)) {
-                        if (categoryDataSourceMap.get(marketDataMessage.getMarketCategoryId()).contains("L01") || categoryDataSourceMap.get(marketDataMessage.getMarketCategoryId()).contains("L02")) {
-                            String tempDataSourceCode = categoryDataSourceMap.get(marketDataMessage.getMarketCategoryId()).contains("L01") ? DataSourceCodeEnum.LS.getCode() : DataSourceCodeEnum.L02.getCode();
+                            && !map2.containsKey(marketDataMessage.getMarketCategoryId())){
+                        if (categoryDataSourceMap.get(marketDataMessage.getMarketCategoryId()).contains("L01") || categoryDataSourceMap.get(marketDataMessage.getMarketCategoryId()).contains("L02")){
+                            String tempDataSourceCode = categoryDataSourceMap.get(marketDataMessage.getMarketCategoryId()).contains("L01")?DataSourceCodeEnum.LS.getCode():DataSourceCodeEnum.L02.getCode();
                             marketDataMessage.setDataSourceCode(tempDataSourceCode);
                             marketDataMessage.setInternalDataSourceCode(categoryDataSourceMap.get(marketDataMessage.getMarketCategoryId()));
                         }
+
+                        marketDataMessage.setRemark("操盘后台切换玩法数据源后无赔率，该数据源玩法关盘");
+                        marketDataMessage.oldClose();
+                        String redisKey = DigestUtil.md5Hex(Constant.REDIS_KEY.RONGHE_STANDARD_CATEGORY_MARKET + standardMatchInfo.getId() + "_" + marketDataMessage.getDataSourceCode() + "_" + marketDataMessage.getMarketCategoryId());
+                        redisService.hSet(redisKey, marketDataMessage.getRelationMarketId().toString(),marketDataMessage, marketCacheTime(standardMatchInfo.getBeginTime()));
                     }
                 }
                 standardMarketDataMessageMap.putAll(standardMarketDataMessageMap1);
             }
             if (MapUtil.isNotEmpty(standardMarketDataMessageMap2)) {
-                log.info("::{}::standardMarketDataMessageMap2:{}", linkId, standardMarketDataMessageMap2.size());
+                log.info("::{}::standardMarketDataMessageMap2:{}", linkId, JSONObject.toJSONString(standardMarketDataMessageMap2));
                 standardMarketDataMessageMap.putAll(standardMarketDataMessageMap2);
             }
             //如果开售了赛前盘并且有滚球盘口下来，需要把所有赛前盘关掉
@@ -650,6 +674,7 @@ public class SoldMessageToOddsProcessor extends BaseProcessor {
                         if (!anyMatch) {
                             standardMarketDataMessageStream.forEach(s -> s.setColseMarket(2));
                         }
+
                     }
                     //L01 T01 切换 其他数据，其他数据源存在关盘不走关转封
                     if (soldCache.containsKey(marketCategoryId + "") && categoryDataSourceMap.containsKey(marketCategoryId)) {
@@ -667,15 +692,15 @@ public class SoldMessageToOddsProcessor extends BaseProcessor {
                                         || (StandardSportTypeEnum.Basketball.code.equals(standardMatchInfo.getSportId())
                                         && MarginCategoryConfig.BASKETBALL_MAIN_CATEGORY.contains(marketCategoryId));
                         if (isMainCategory) {
-                            // map1 流程 617 行会把旧盘 dataSourceCode 改成 LS/TX，不能仅按外部源过滤
+                            // map1 流程 617 行：把旧盘 dataSourceCode 改成 LS/TX，不能仅按外部源过滤
                             applyInternalSwitchCloseDisplay(linkId, entry.getValue());
                         }
                     }
                 }
             }
-        } finally {
-            redisService.unLock(redisLocKey, lockValue);
-            log.info("::{}::soldMessage赔率下发,redisLocKey:{},释放分布式锁,lockValue:{}", linkId, redisLocKey, lockValue);
+        }finally {
+            redisService.unLock(redisLocKey,lockValue);
+            log.info("::{}::soldMessage赔率下发,redisLocKey:{},释放分布式锁,lockValue:{}", linkId,redisLocKey, lockValue);
         }
         // 篮球滚球中途开售：初始化自动开盘 Redis，避免 PANDA 路径误开未来节次玩法
         initAutoOpenMarketOnSold(linkId, standardMatchInfo, marketType, categoryDataSourceMap.keySet());
@@ -708,7 +733,6 @@ public class SoldMessageToOddsProcessor extends BaseProcessor {
 
     /**
      * 旧的数据源盘口关盘处理，删除缓存标准盘口
-     *
      * @param standardMatchInfo
      * @param oldStringHashMap
      * @param marketCategoryIds
@@ -791,7 +815,7 @@ public class SoldMessageToOddsProcessor extends BaseProcessor {
     }
 
     /**
-     * 切到内部站点时的关转封处理（作用于玩法下全部盘口，含 617 行改写 dataSourceCode 后的旧盘）。
+     * 切到内部站点时的关转封处理（作用于玩法下全部盘口，含 617 行改 dataSourceCode 后的旧盘）。
      * - 历史关盘：colseMarket=2，保持 DEACTIVATED
      * - 本次切换 oldClose 的旧源盘：colseMarket=1，DEACTIVATED → SUSPENDED
      * - 新内部站点盘：不干预
@@ -858,26 +882,33 @@ public class SoldMessageToOddsProcessor extends BaseProcessor {
      */
     public Map<String, StandardMarketDataMessage> processMarketBySold(String linkId, StandardMatchInfo standardMatchInfo, List<ThirdSportMarket> thirdSportMarketList) {
         Map<String, StandardMarketDataMessage> map = new HashMap<>();
-        if (CollectionUtils.isEmpty(thirdSportMarketList)) {
+        if(CollectionUtils.isEmpty(thirdSportMarketList)){
             return map;
         }
 
         thirdSportMarketList.forEach(thirdSportMarket -> {
+            //获取全部球种玩法
+//            StandardMarketCategory standardMarketCategory = standardMarketCategoryService.getItemById(thirdSportMarket.getMarketCategoryId());
+//            if (standardMarketCategory == null || Constant.SPORT_MARKET_CATEGORY.STATUS.INVALID.equals(standardMarketCategory.getStatus()))
+//            {
+//                log.info("::{}::三方赛事:{},赛种id:{},全部球种不支持此玩法，玩法id:{}", linkId, thirdMatchInfo.getThirdMatchSourceId(), thirdMatchInfo.getSportId(), thirdSportMarket.getMarketCategoryId());
+//                return ;
+//            }
             // 主客队相反：盘口处理
             ThirdMatchInfo thirdMatchInfo = thirdMatchInfoService.getItem(standardMatchInfo.getId(), thirdSportMarket.getDataSourceCode());
-            log.info("::{}::玩法开售流程，三方赛事信息 thirdMatchInfo：{}，null != thirdMatchInfo：{}，判断条件：{}", linkId, thirdMatchInfo, null != thirdMatchInfo, (null != thirdMatchInfo && thirdMatchInfo.getSportId().equals(StandardSportTypeEnum.FootBall.code) && ONE.equals(thirdMatchInfo.getHomeAwayOpposite())));
-            if (null != thirdMatchInfo && thirdMatchInfo.getSportId().equals(StandardSportTypeEnum.FootBall.code) && ONE.equals(thirdMatchInfo.getHomeAwayOpposite())) {
+            log.info("::{}::玩法开售流程，三方赛事信息 thirdMatchInfo：{}，null != thirdMatchInfo：{}，判断条件：{}", linkId,thirdMatchInfo,null != thirdMatchInfo ,(null != thirdMatchInfo && thirdMatchInfo.getSportId().equals(StandardSportTypeEnum.FootBall.code) && ONE.equals(thirdMatchInfo.getHomeAwayOpposite())));
+            if (null != thirdMatchInfo && thirdMatchInfo.getSportId().equals(StandardSportTypeEnum.FootBall.code) && ONE.equals(thirdMatchInfo.getHomeAwayOpposite())
+                    && !thirdMatchMarketProcessor.skipHomeAwayOppositeForDataSource(thirdSportMarket.getDataSourceCode())) {
                 thirdMatchMarketProcessor.changeThirdMarketContent(linkId, thirdSportMarket);
             }
+
             //获取赛种玩法
-            StandardSportMarketCategory standardSportMarketCategory = standardSportMarketCategoryService.getItem(thirdSportMarket.getMarketCategoryId(), standardMatchInfo.getSportId());
+            StandardSportMarketCategory standardSportMarketCategory = standardSportMarketCategoryService.getByCategoryIdAndSportId(thirdSportMarket.getMarketCategoryId(), standardMatchInfo.getSportId());
             log.info("::{}::判断玩法是否开启, sportId:{},categoryId:{},standardSportMarketCategory{},thirdSportMarket:{}",
-                    linkId, standardMatchInfo.getSportId(), thirdSportMarket.getMarketCategoryId(), standardSportMarketCategory, JSONObject.toJSONString(thirdSportMarket));
+                    linkId, standardMatchInfo.getSportId(),thirdSportMarket.getMarketCategoryId(),standardSportMarketCategory,JSONObject.toJSONString(thirdSportMarket));
             //赛种不支持玩法
-            if (standardSportMarketCategory == null
-                    || Constant.SPORT_MARKET_CATEGORY.STATUS.INVALID.equals(standardSportMarketCategory.getStatus())
-                    || (thirdSportMarket.getDataSourceCode().equalsIgnoreCase(DataSourceCodeEnum.AO.code) && Constant.SPORT_MARKET_CATEGORY.STATUS.INVALID.equals(standardSportMarketCategory.getAoStatus()))) {
-                log.info("::{}::processMarketBySold 玩法状态为关闭，关闭赛事盘口，标准赛事id:{},赛种id:{},玩法id:{}", linkId, standardMatchInfo.getId(), standardMatchInfo.getSportId(), thirdSportMarket.getMarketCategoryId());
+            if (standardSportMarketCategory == null || Constant.SPORT_MARKET_CATEGORY.STATUS.INVALID.equals(standardSportMarketCategory.getStatus())) {
+            	log.info("::{}::processMarketBySold 玩法状态为关闭，关闭赛事盘口，标准赛事id:{},赛种id:{},玩法id:{}", linkId, standardMatchInfo.getId(), standardMatchInfo.getSportId(), thirdSportMarket.getMarketCategoryId());
                 return;
             }
 
@@ -903,10 +934,10 @@ public class SoldMessageToOddsProcessor extends BaseProcessor {
                     } else {
                         log.info("::{}::processMarketBySold冠军标准盘口开售create,盘口id:{},三方nameCode:{},国际化信息为空", linkId, standardSportMarket.getRelationMarketId(), thirdSportMarket.getNameCode());
                     }
-//                if (DataSourceCodeEnum.PA.name().equals(standardSportMarket.getDataSourceCode())) {
-                    //通知风控进行操盘方式的初始化
-                    standardMarketOddsProducer.toInitTradeType( linkId, standardSportMarket );
-//                }
+//                    if (DataSourceCodeEnum.PA.name().equals(standardSportMarket.getDataSourceCode())) {
+                        //通知风控进行操盘方式的初始化
+                        standardMarketOddsProducer.toInitTradeType(linkId, standardSportMarket);
+//                    }
                 }
             } else {
                 if (standardSportMarket.getMarketType() == 2) {
@@ -919,7 +950,7 @@ public class SoldMessageToOddsProcessor extends BaseProcessor {
                     }
                 }
                 //TX修改时间 需要用三方表的最新修改时间 修改时间为空取保存时间
-                log.info("::{}::需要用三方表的最新修改时间,数据源：{}，三方盘口id:{},三方表修改时间：{}", linkId, standardSportMarket.getDataSourceCode(), standardSportMarket.getThirdMarketSourceId(), thirdSportMarket.getModifyTime());
+                log.info("::{}::需要用三方表的最新修改时间,数据源：{}，三方盘口id:{},三方表修改时间：{}",linkId,standardSportMarket.getDataSourceCode(),standardSportMarket.getThirdMarketSourceId(),thirdSportMarket.getModifyTime());
                 standardSportMarket.setModifyTime(!Objects.isNull(thirdSportMarket.getModifyTime()) ? thirdSportMarket.getModifyTime() : thirdSportMarket.getCreateTime());
                 standardSportMarket.setStatus(thirdSportMarket.getStatus());
                 standardSportMarket.setThirdMarketSourceStatus(thirdSportMarket.getStatus());
@@ -932,98 +963,102 @@ public class SoldMessageToOddsProcessor extends BaseProcessor {
                 standardSportMarket.setAddition4(thirdSportMarket.getAddition4());
                 MergeFunctionUtils.setNumberOfWinners( standardSportMarket, thirdSportMarket.getNumberOfWinners());
                 standardSportMarket.setInternalDataSourceCode(thirdSportMarket.getInternalDataSourceCode());
-                standardSportMarket.setEventType(thirdSportMarket.getEventType());
+
                 //异步执行更新
                 standardSportMarketService.updateByPrimaryKeySelective(standardSportMarket);
             }
             //处理标准盘口投注项
             log.info("::{}::三方投注项数据查询, 数据源:{}, 三方盘口id:{}", linkId, thirdSportMarket.getDataSourceCode(), thirdSportMarket.getId() );
-            List<ThirdSportMarketOdds> thirdSportMarketOddsList = thirdSportMarketOddsService.getItemList(thirdSportMarket.getDataSourceCode(), thirdSportMarket.getId());
+            List<ThirdSportMarketOdds> thirdSportMarketOddsList = thirdSportMarketOddsService.getItemList(thirdSportMarket.getDataSourceCode(),thirdSportMarket.getId());
             List<StandardSportMarketOdds> standardSportMarketOddsList = new ArrayList<>();
-            if (null != thirdMatchInfo && thirdMatchInfo.getSportId().equals(StandardSportTypeEnum.FootBall.code) && ONE.equals(thirdMatchInfo.getHomeAwayOpposite())) {
+            if (null != thirdMatchInfo && thirdMatchInfo.getSportId().equals(StandardSportTypeEnum.FootBall.code) && ONE.equals(thirdMatchInfo.getHomeAwayOpposite())
+                    && !thirdMatchMarketProcessor.skipHomeAwayOppositeForDataSource(thirdSportMarket.getDataSourceCode())) {
                 thirdMatchMarketProcessor.changeThirdMarketOddsContent(linkId, thirdSportMarketOddsList, thirdSportMarket);
             }
             if (!CollectionUtils.isEmpty(thirdSportMarketOddsList)) {
                 log.info("::{}::处理标准盘口投注项,赛事ID:{},三方盘口ID:{},数据源:{},三方表盘口ID:{},条数:{}",
-                        linkId, standardMatchInfo.getId(), thirdSportMarket.getId(), thirdSportMarket.getDataSourceCode(), JSONObject.toJSONString(thirdSportMarketOddsList));
+                        linkId, standardMatchInfo.getId(), thirdSportMarket.getId(), thirdSportMarket.getDataSourceCode(),thirdSportMarket.getThirdMarketSourceId(), thirdSportMarketOddsList.size());
                 for (ThirdSportMarketOdds thirdSportMarketOdds : thirdSportMarketOddsList) {
-                    //查询标准盘口投注项信息是否存在，不存在新增，存在更新
-                    StandardSportMarketOdds standardSportMarketOdds = standardSportMarketOddsService.getItem(thirdSportMarket.getDataSourceCode(), thirdSportMarketOdds.getThirdOddsFieldSourceId(), standardSportMarket.getId());
-                    //获取三方玩法投注项模板
-                    ThirdMarketCategoryField thirdMarketCategoryField = thirdMarketCategoryFieldService.getItem(thirdSportMarketOdds.getOddsFieldsTemplateId(), thirdSportMarketOdds.getThirdTemplateSourceId());
-                    //获取三方玩法投注项模板
-                    if (thirdMarketCategoryField == null) {
-                        log.info("::{}::三方投注项模板为空，融合三方投注项模板id={}", linkId, thirdSportMarketOdds.getOddsFieldsTemplateId());
-                        break;
-                    }
-                    //TODO 校验盘口投注项是否满足标准玩法投注项条件
-                    if (standardSportMarketOdds == null) {
-                        //生成并保存标准投注项
-                        standardSportMarketOdds = new StandardSportMarketOdds();
-                        BeanUtils.copyProperties(thirdSportMarketOdds, standardSportMarketOdds);
-                        standardSportMarketOdds.setId(UUIdUtils.getId());
-                        standardSportMarketOdds.setMarketId(standardSportMarket.getId());
-                        standardSportMarketOdds.setRelationMarketId(standardSportMarket.getRelationMarketId());
-                        standardSportMarketOdds.setCreateTime(TimeUtils.millsSecondsEast8ZoneGmt());
-                        standardSportMarketOdds.setRelationMarketOddsId(standardSportMarketOddsService.createRelationMarketOddsId(standardSportMarketOdds, standardSportMarket));
-                        standardSportMarketOdds.setModifyTime(TimeUtils.millsSecondsEast8ZoneGmt());
-                        standardSportMarketOdds.setOddsFieldsTemplateId(thirdMarketCategoryField.getReferenceId());
-                        standardSportMarketOdds.setThirdTemplateSourceId(thirdMarketCategoryField.getThirdSourceId());
-                        standardSportMarketOdds.setStandardMatchId(standardSportMarket.getStandardMatchInfoId());
-                        standardSportMarketOdds.setNameCode(standardSportMarketOdds.getId());
-                        //转换标准球队id
-                        standardSportMarketOddsService.convertStandardTeam(linkId, standardSportMarketOdds, standardSportMarket);
-                        standardSportMarketOddsService.create(linkId, standardSportMarketOdds);
-                        if (standardSportMarket.getMarketType() == 2 && null != thirdSportMarketOdds.getNameCode()) {
-                            List<I18nOutrightMarketOdds> i18nOutrightMarketOddsList = i18nOutrightMarketOddsService.selectI18nOutRightMarketOddsList(thirdSportMarketOdds.getDataSourceCode(), thirdSportMarketOdds.getNameCode());
-                            //查询1133需求投注项是否有对应球队的多语言
-                            /*if (StringUtils.isNotEmpty(thirdSportMarketOdds.getAddition1())) {
-                                this.toMegerBetRadarTeamName(linkId, standardMatchInfo.getSportId(), standardMatchInfo.getDataSourceCode(), thirdSportMarketOdds, i18nOutrightMarketOddsList);
-                            }*/
-                            if (!CollectionUtils.isEmpty(i18nOutrightMarketOddsList)) {
-                                StandardSportMarketOdds finalStandardSportMarketOdds = standardSportMarketOdds;
-                                i18nOutrightMarketOddsList.forEach(i18nOutrightMarket -> {
-                                    i18nOutrightMarket.setNameCode(finalStandardSportMarketOdds.getNameCode());
-                                });
-                                i18nOutrightMarketOddsService.saveBatch(i18nOutrightMarketOddsList);
-                                standardMarketOddsProducer.marketOddsNameI18nSend(linkId, i18nOutrightMarketOddsList,
-                                                                                  standardMatchInfo.getId());
-                            } else {
-                                log.info("::{}::processMarketBySold冠军标准盘口开售create,盘口id:{},三方nameCode:{},国际化信息为空", linkId, standardSportMarket.getRelationMarketId(), thirdSportMarket.getNameCode());
-                            }
-                        }
-                    } else {
-                        standardSportMarketOdds.setActive(thirdSportMarketOdds.getActive());
-                        standardSportMarketOdds.setOddsValue(thirdSportMarketOdds.getOddsValue());
-                        standardSportMarketOdds.setOriginalOddsValue(thirdSportMarketOdds.getOriginalOddsValue());
-                        standardSportMarketOdds.setOddsType(thirdSportMarketOdds.getOddsType());
-                        standardSportMarketOdds.setModifyTime(TimeUtils.millsSecondsEast8ZoneGmt());
-                        if (standardSportMarket.getMarketType() != 2) {
-                            // 更新附加字段
-                            standardSportMarketOdds.setAddition1(thirdSportMarketOdds.getAddition1());
-                            standardSportMarketOdds.setAddition2(thirdSportMarketOdds.getAddition2());
-                            standardSportMarketOdds.setAddition3(thirdSportMarketOdds.getAddition3());
-                            standardSportMarketOdds.setAddition4(thirdSportMarketOdds.getAddition4());
-                            standardSportMarketOdds.setAddition5(thirdSportMarketOdds.getAddition5());
-                            //标准球队转换
-                            standardSportMarketOddsService.convertStandardTeam(linkId, standardSportMarketOdds, standardSportMarket);
-                        }
-                        //异步执行更新
-                        standardSportMarketOddsService.updateByPrimaryKeySelective(standardSportMarketOdds);
-                    }
-                    standardSportMarketOddsList.add(standardSportMarketOdds);
+                //查询标准盘口投注项信息是否存在，不存在新增，存在更新
+                StandardSportMarketOdds standardSportMarketOdds = standardSportMarketOddsService.getItem(thirdSportMarket.getDataSourceCode(), thirdSportMarketOdds.getThirdOddsFieldSourceId(), standardSportMarket.getId());
+                //获取三方玩法投注项模板
+                ThirdMarketCategoryField thirdMarketCategoryField = thirdMarketCategoryFieldService.getItem(thirdSportMarketOdds.getOddsFieldsTemplateId(), thirdSportMarketOdds.getThirdTemplateSourceId());
+                //获取三方玩法投注项模板
+                if (thirdMarketCategoryField == null) {
+                    log.info("::{}::三方投注项模板为空，融合三方投注项模板id={}", linkId, thirdSportMarketOdds.getOddsFieldsTemplateId());
+                    break;
                 }
+                //TODO 校验盘口投注项是否满足标准玩法投注项条件
+                if (standardSportMarketOdds == null) {
+                    //生成并保存标准投注项
+                    standardSportMarketOdds = new StandardSportMarketOdds();
+                    BeanUtils.copyProperties(thirdSportMarketOdds, standardSportMarketOdds);
+                    standardSportMarketOdds.setId(UUIdUtils.getId());
+                    standardSportMarketOdds.setMarketId(standardSportMarket.getId());
+                    standardSportMarketOdds.setRelationMarketId(standardSportMarket.getRelationMarketId());
+                    standardSportMarketOdds.setCreateTime(TimeUtils.millsSecondsEast8ZoneGmt());
+                    standardSportMarketOdds.setRelationMarketOddsId(standardSportMarketOddsService.createRelationMarketOddsId(standardSportMarketOdds, standardSportMarket));
+                    standardSportMarketOdds.setModifyTime(TimeUtils.millsSecondsEast8ZoneGmt());
+                    standardSportMarketOdds.setOddsFieldsTemplateId(thirdMarketCategoryField.getReferenceId());
+                    standardSportMarketOdds.setThirdTemplateSourceId(thirdMarketCategoryField.getThirdSourceId());
+                    standardSportMarketOdds.setStandardMatchId(standardSportMarket.getStandardMatchInfoId());
+                    standardSportMarketOdds.setNameCode(standardSportMarketOdds.getId());
+                    //转换标准球队id
+                    standardSportMarketOddsService.convertStandardTeam(linkId, standardSportMarketOdds, standardSportMarket);
+                    standardSportMarketOddsService.create(linkId, standardSportMarketOdds);
+                    if (standardSportMarket.getMarketType() == 2 &&  null != thirdSportMarketOdds.getNameCode()) {
+                        List<I18nOutrightMarketOdds> i18nOutrightMarketOddsList = i18nOutrightMarketOddsService.selectI18nOutRightMarketOddsList(thirdSportMarketOdds.getDataSourceCode(), thirdSportMarketOdds.getNameCode());
+                        //查询1133需求投注项是否有对应球队的多语言
+                        /*if (StringUtils.isNotEmpty(thirdSportMarketOdds.getAddition1())) {
+                            this.toMegerBetRadarTeamName( linkId, standardMatchInfo.getSportId(), standardMatchInfo.getDataSourceCode(), thirdSportMarketOdds,i18nOutrightMarketOddsList);
+                        }*/
+                        if (!CollectionUtils.isEmpty(i18nOutrightMarketOddsList)) {
+                            StandardSportMarketOdds finalStandardSportMarketOdds = standardSportMarketOdds;
+                            i18nOutrightMarketOddsList.forEach(i18nOutrightMarket -> {
+                                i18nOutrightMarket.setNameCode(finalStandardSportMarketOdds.getNameCode());
+                            });
+                            i18nOutrightMarketOddsService.saveBatch(i18nOutrightMarketOddsList);
+                            standardMarketOddsProducer.marketOddsNameI18nSend(linkId, i18nOutrightMarketOddsList,
+                                                                              standardMatchInfo.getId());
+                        } else {
+                            log.info("::{}::processMarketBySold冠军标准盘口开售create,盘口id:{},三方nameCode:{},国际化信息为空", linkId, standardSportMarket.getRelationMarketId(), thirdSportMarket.getNameCode());
+                        }
+                    }
+                } else {
+                    standardSportMarketOdds.setActive(thirdSportMarketOdds.getActive());
+                    standardSportMarketOdds.setOddsValue(thirdSportMarketOdds.getOddsValue());
+                    standardSportMarketOdds.setOriginalOddsValue(thirdSportMarketOdds.getOriginalOddsValue());
+                    standardSportMarketOdds.setOddsType(thirdSportMarketOdds.getOddsType());
+                    standardSportMarketOdds.setModifyTime(TimeUtils.millsSecondsEast8ZoneGmt());
+                    if (standardSportMarket.getMarketType() != 2) {
+                        // 更新附加字段
+                        standardSportMarketOdds.setAddition1(thirdSportMarketOdds.getAddition1());
+                        standardSportMarketOdds.setAddition2(thirdSportMarketOdds.getAddition2());
+                        standardSportMarketOdds.setAddition3(thirdSportMarketOdds.getAddition3());
+                        standardSportMarketOdds.setAddition4(thirdSportMarketOdds.getAddition4());
+                        standardSportMarketOdds.setAddition5(thirdSportMarketOdds.getAddition5());
+                        //标准球队转换
+                        standardSportMarketOddsService.convertStandardTeam(linkId, standardSportMarketOdds, standardSportMarket);
+                    }
+                    //异步执行更新
+                    standardSportMarketOddsService.updateByPrimaryKeySelective(standardSportMarketOdds);
+                }
+                standardSportMarketOddsList.add(standardSportMarketOdds);
+              }
             }
             //新增玩法投注项排序
-            if (!CollectionUtils.isEmpty(standardSportMarketOddsList) && MarginCategoryConfig.ODDS_ORDER.contains(standardSportMarket.getMarketCategoryId())) {
-                thirdMatchMarketProcessor.oddsOrderByOddsType(standardSportMarketOddsList, standardSportMarket.getMarketCategoryId());
-                for (int i = 0; i < standardSportMarketOddsList.size(); i++) {
-                    standardSportMarketOddsList.get(i).setOrderOdds(i + 1);
+            if (!CollectionUtils.isEmpty(standardSportMarketOddsList) && MarginCategoryConfig.ODDS_ORDER.contains(standardSportMarket.getMarketCategoryId()))
+            {
+                thirdMatchMarketProcessor.oddsOrderByOddsType(standardSportMarketOddsList,standardSportMarket.getMarketCategoryId());
+                for (int i = 0;i<standardSportMarketOddsList.size();i++)
+                {
+                    standardSportMarketOddsList.get(i).setOrderOdds(i+1);
                 }
             }
             //将盘口及盘口投注项封装到一起
-            StandardMarketDataMessage standardMarketDataMessage = thirdMatchMarketProcessor.convertToStandardMarketDataMessage(standardSportMarketOddsList, standardSportMarket, TimeUtils.millsSecondsEast8ZoneGmt() - 10 * 1000);
+            StandardMarketDataMessage standardMarketDataMessage = thirdMatchMarketProcessor.convertToStandardMarketDataMessage(standardSportMarketOddsList, standardSportMarket,TimeUtils.millsSecondsEast8ZoneGmt()-10*1000);
             map.put(String.valueOf(standardMarketDataMessage.getRelationMarketId()), standardMarketDataMessage);
+
             //将最新盘口刷入缓存
             //将最新盘口刷入缓存,兼容冠军盘
             String marketKey;
@@ -1033,10 +1068,10 @@ public class SoldMessageToOddsProcessor extends BaseProcessor {
                 marketKey = DigestUtil.md5Hex(Constant.REDIS_KEY.RONGHE_STANDARD_CATEGORY_MARKET + standardMatchInfo.getId() + "_" + standardMarketDataMessage.getDataSourceCode() + "_" + standardMarketDataMessage.getMarketCategoryId());
             }
             log.info("::{}::准备缓存赔率信息，key={}, hashKey={}, hashValue={}", linkId, marketKey, standardMarketDataMessage.getRelationMarketId().toString(), standardMarketDataMessage);
-            if (Constant.SPORT_MARKET.STATUS.ACTIVE.equals(standardMarketDataMessage.getStatus())) {
+            if (Constant.SPORT_MARKET.STATUS.ACTIVE.equals(standardMarketDataMessage.getStatus()) ){
                 standardMarketDataMessage.setShowMarketResult(1);
             }
-            if (MarginCategoryConfig.SPORT_TX_LOGIC.contains(standardMarketDataMessage.getDataSourceCode())) {
+            if(MarginCategoryConfig.SPORT_TX_LOGIC.contains(standardMarketDataMessage.getDataSourceCode())){
                 standardMarketDataMessage.setPlaceNum(null == thirdSportMarket.getOfferLineId() ? 999 : thirdSportMarket.getOfferLineId());
             }
             redisService.hSet(marketKey, standardMarketDataMessage.getRelationMarketId().toString(), standardMarketDataMessage, marketCacheTime(standardMatchInfo.getBeginTime()));
@@ -1049,25 +1084,20 @@ public class SoldMessageToOddsProcessor extends BaseProcessor {
     /**
      * 根据 1133需求，冠军赛事投注项的多语言如果与球队的多语言可以对应，那么直接使用球队的多语言；
      * 优先级为数据商下发的投注项多语言，为空则取值球队的多语言
-     *
      * @return
      */
-    private void toMegerBetRadarTeamName(String linkId, Long sportId, String dataSourceCode, ThirdSportMarketOdds thirdSportMarketOdds, List<I18nOutrightMarketOdds> i18nOutrightMarketOddsList) {
-        Map<String, I18nOutrightMarketOdds> marketOddsMap = i18nOutrightMarketOddsList.stream().collect(Collectors.toMap(I18nOutrightMarketOdds::getLanguageType, Function.identity()));
+    private void toMegerBetRadarTeamName( String linkId, Long sportId, String dataSourceCode, ThirdSportMarketOdds thirdSportMarketOdds, List<I18nOutrightMarketOdds> i18nOutrightMarketOddsList) {
+        Map<String,I18nOutrightMarketOdds> marketOddsMap = i18nOutrightMarketOddsList.stream().collect(Collectors.toMap(I18nOutrightMarketOdds::getLanguageType, Function.identity()));
         //根据
         Integer betRadarId = Integer.parseInt(thirdSportMarketOdds.getAddition1());
-        if (betRadarId > 1) {
-            StandardSportTeam standardSportTeam = standardSportTeamService.getStandardTeamByBetRadarId(sportId, dataSourceCode, betRadarId);
-            if (standardSportTeam != null) {
-                log.info("::{}::, 冠军赛事球队信息:{}", linkId, JSON.toJSONString(standardSportTeam));
-                if (Objects.isNull(standardSportTeam.getNameCode())) {
-                    return;
+        if ( betRadarId > 1 ) {
+            StandardSportTeam  standardSportTeam = standardSportTeamService.getStandardTeamByBetRadarId( sportId, dataSourceCode, betRadarId );
+            if ( standardSportTeam != null ) {
+                List<LanguageInternation> languageInternations = languageInternationService.getLanguageInternationByNameCode( standardSportTeam.getNameCode() );
+                if (languageInternations.size()==0) {
+                    return ;
                 }
-                List<LanguageInternation> languageInternations = languageInternationService.getLanguageInternationByNameCode(standardSportTeam.getNameCode());
-                if (languageInternations.isEmpty()) {
-                    return;
-                }
-                Map<String, String> liMap = languageInternations.stream().collect(Collectors.toMap(LanguageInternation::getLanguageType, LanguageInternation::getText));
+                Map<String,String> liMap = languageInternations.stream().collect(Collectors.toMap(LanguageInternation::getLanguageType, LanguageInternation::getText));
                 //老数据的同步
                 for (I18nOutrightMarketOdds i18nOutrightMarketOdds : i18nOutrightMarketOddsList) {
                     if (liMap.containsKey(i18nOutrightMarketOdds.getLanguageType())) {
@@ -1078,7 +1108,7 @@ public class SoldMessageToOddsProcessor extends BaseProcessor {
                 }
                 //新数据的添加
                 for (LanguageInternation li : languageInternations) {
-                    if (!marketOddsMap.containsKey(li.getLanguageType())) {
+                    if ( !marketOddsMap.containsKey(li.getLanguageType())) {
                         I18nOutrightMarketOdds i18nOutrightMarketOdds = new I18nOutrightMarketOdds();
                         i18nOutrightMarketOdds.setLanguageType(li.getLanguageType());
                         i18nOutrightMarketOdds.setText(li.getText());

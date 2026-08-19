@@ -34,10 +34,12 @@ import com.panda.merge.utils.MessageGZIP;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
+import java.util.Objects;
 
 import static com.panda.merge.constant.RepositoryConstant.FOOTBALL_KEYBOARD_SET;
 import static com.panda.merge.constant.RepositoryConstant.MATCH_SCORES_INFO;
@@ -137,36 +139,63 @@ public class PdMatchInfoRepository {
         String key = MATCH_SCORES_INFO + thirdMatchId + "_" + sourceType;
         Object o = redisService.get(key);
         MatchScoresInfo matchScoresInfo;
-        if (org.apache.commons.lang3.ObjectUtils.isEmpty(o)) {
-            log.info("::{}::报球版查询比分开始redis不存在，开始查询数据库",thirdMatchId);
-            MatchScoresInfoExample example = new MatchScoresInfoExample();
-            example.createCriteria().andThirdMatchIdEqualTo(thirdMatchId);
-            List<MatchScoresInfo> matchScoresInfoList = matchScoresInfoMapper.selectByExample(example);
-            log.info("::{}::报球版查询比分开始redis不存在，查询到数据库数据:{}",thirdMatchId, JSONObject.toJSONString(matchScoresInfoList));
-            if (CollectionUtils.isEmpty(matchScoresInfoList)) {
+        if (ObjectUtils.isEmpty(o)) {
+            log.info("::{}::报球版查询比分redis不存在，开始查询数据库", thirdMatchId);
+            matchScoresInfo = loadMatchScoresFromDb(thirdMatchId);
+            if (matchScoresInfo == null) {
                 return null;
             }
-            matchScoresInfo = matchScoresInfoList.get(0);
-            if (org.apache.commons.lang3.ObjectUtils.isEmpty(time)) {
-                redisService.set(key, MessageGZIP.compressToByte(((JSONObject) JSONObject.toJSON(matchScoresInfo)).toJSONString()));
-                redisService.set(MATCH_SCORES_INFO + matchScoresInfo.getId(), MessageGZIP.compressToByte(((JSONObject) JSONObject.toJSON(matchScoresInfo)).toJSONString()));
-            } else {
-                redisService.set(key, MessageGZIP.compressToByte(((JSONObject) JSONObject.toJSON(matchScoresInfo)).toJSONString()), time);
-                redisService.set(MATCH_SCORES_INFO + matchScoresInfo.getId(), MessageGZIP.compressToByte(((JSONObject) JSONObject.toJSON(matchScoresInfo)).toJSONString()), time);
-            }
+            cacheMatchScores(key, matchScoresInfo, time);
         } else {
-//            ParserConfig.getGlobalInstance().setAutoTypeSupport(true);
-            if (o instanceof MatchScoresInfo) {
-                matchScoresInfo = JSON.parseObject(JSON.toJSONString(o), MatchScoresInfo.class);
-                log.info("::{}::报球版查询比分开始redis存在，查询redis数据:{}",thirdMatchId,JSONObject.toJSONString(matchScoresInfo));
-            } else {
-                String str = MessageGZIP.uncompressToString((byte[]) o);
-                matchScoresInfo = JSON.toJavaObject(JSONObject.parseObject(str), MatchScoresInfo.class);
-                log.info("::{}::报球版查询比分开始redis存在，查询redis二进字数据:{}",thirdMatchId,JSONObject.toJSONString(matchScoresInfo));
+            matchScoresInfo = parseMatchScoresFromRedis(o);
+            log.info("::{}::报球版查询比分redis存在，查询redis数据:{}", thirdMatchId, JSONObject.toJSONString(matchScoresInfo));
+            // scoresJson 为空说明缓存数据不完整（可能是旧数据或初始化未完成），回源 DB 补齐
+            if (StringUtils.isBlank(matchScoresInfo.getScoresJson())) {
+                log.warn("::{}::报球版scoresJson为空，回源DB重新加载", thirdMatchId);
+                matchScoresInfo = loadMatchScoresFromDb(thirdMatchId);
+                if (matchScoresInfo != null) {
+                    cacheMatchScores(key, matchScoresInfo, time);
+                }
             }
-
         }
         return matchScoresInfo;
+    }
+
+    /**
+     * 从数据库加载 MatchScoresInfo，按 thirdMatchId 查询取第一条。
+     */
+    private MatchScoresInfo loadMatchScoresFromDb(Long thirdMatchId) {
+        MatchScoresInfoExample example = new MatchScoresInfoExample();
+        example.createCriteria().andThirdMatchIdEqualTo(thirdMatchId);
+        List<MatchScoresInfo> list = matchScoresInfoMapper.selectByExample(example);
+        log.info("::{}::报球版查询比分数据库结果:{}", thirdMatchId, JSONObject.toJSONString(list));
+        return CollectionUtils.isEmpty(list) ? null : list.get(0);
+    }
+
+    /**
+     * 将 MatchScoresInfo 写入 Redis，同时写入 thirdMatchId_key 和 id_key 两份缓存。
+     */
+    private void cacheMatchScores(String key, MatchScoresInfo matchScoresInfo, Integer time) {
+        String json = ((JSONObject) JSONObject.toJSON(matchScoresInfo)).toJSONString();
+        byte[] bytes = MessageGZIP.compressToByte(json);
+        if (ObjectUtils.isEmpty(time)) {
+            redisService.set(key, bytes);
+            redisService.set(MATCH_SCORES_INFO + matchScoresInfo.getId(), bytes);
+        } else {
+            redisService.set(key, bytes, time);
+            redisService.set(MATCH_SCORES_INFO + matchScoresInfo.getId(), bytes, time);
+        }
+    }
+
+    /**
+     * 从 Redis 对象解析 MatchScoresInfo，兼容普通序列化与 GZIP 二进制两种格式。
+     */
+    private MatchScoresInfo parseMatchScoresFromRedis(Object o) {
+        if (o instanceof MatchScoresInfo) {
+            return JSON.parseObject(JSON.toJSONString(o), MatchScoresInfo.class);
+        }
+        String str = MessageGZIP.uncompressToString((byte[]) o);
+        return JSON.toJavaObject(JSONObject.parseObject(str), MatchScoresInfo.class);
     }
 
     /**
