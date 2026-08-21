@@ -403,6 +403,10 @@ public class FootBallScoreServiceImpl implements FootBallScoreService {
             Map<Long, FootballScores> allPeriodScores= JsonMapUtils.parseFootballMap(periodFootballScores);
             FootballScores wholeSores= allPeriodScores.get(WHOLE_MATCH);
             FootballScores periodSores= allPeriodScores.get(data.getMatchTimeInfo().getPeriod());
+            if (periodSores == null) {
+                periodSores = FootballScores.createMinFootballScores();
+                allPeriodScores.put(data.getMatchTimeInfo().getPeriod(), periodSores);
+            }
 
             Pair<Pair<Integer, Integer>, String> scoreNumResult = obtainScoreNum(matchEventInfoDTO, data.getThirdMatchInfo());
             Pair<Integer, Integer> matchScoresEventInfo = scoreNumResult.getLeft();
