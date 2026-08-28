@@ -4963,9 +4963,9 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
         Set<Long> categoryFilter = CollectionUtils.isEmpty(request.getData().getCategoryIds())
                 ? null
                 : new HashSet<>(request.getData().getCategoryIds());
+        Integer marketTypeFilter = ThirdMarket108048Helper.normalizeMarketType(request.getData().getMarketType());
         long now = System.currentTimeMillis();
         Map<String, ThirdMarketModifytimeDTO> result = new HashMap<>(map.size());
-        //历史版本写入过只有玩法ID的field，风控按 玩法ID:数据源编码 取值，返回出去只会造成误判，汇总打一条日志即可
         List<String> invalidFields = new ArrayList<>();
         map.forEach((fieldKey, dto) -> {
             if (dto == null) {
@@ -4981,6 +4981,16 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                     return;
                 }
             }
+            Integer fieldMarketType = ThirdMarket108048Helper.parseMarketType(fieldKey);
+            if (marketTypeFilter != null && !marketTypeFilter.equals(fieldMarketType)) {
+                return;
+            }
+            if (dto.getMarketType() == null) {
+                dto.setMarketType(fieldMarketType);
+            }
+            if (StringUtils.isBlank(dto.getDateSourceCode())) {
+                dto.setDateSourceCode(ThirdMarket108048Helper.parseDataSourceCode(fieldKey));
+            }
             ThirdMarket108048Helper.applyLevel(dto, now);
             result.put(fieldKey, dto);
         });
@@ -4988,10 +4998,9 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
             log.info("::{}::getThirdMarletLastModifyTime忽略历史非法field,赛事ID:{},field:{}",
                     request.getLinkId(), request.getData().getMatchId(), invalidFields);
         }
-        //108048 验证日志：redis 里全部 field vs 本次返回给风控的 field，便于核对"有赔率却没返回状态"
-        log.info("::{}::getThirdMarletLastModifyTime返回,赛事ID:{},请求玩法:{},redis全部field:{},返回field:{}",
+        log.info("::{}::getThirdMarletLastModifyTime返回,赛事ID:{},请求玩法:{},请求早滚:{},redis全部field:{},返回field:{}",
                 request.getLinkId(), request.getData().getMatchId(), request.getData().getCategoryIds(),
-                map.keySet(), result.keySet());
+                request.getData().getMarketType(), map.keySet(), result.keySet());
         return Response.success(result);
     }
 

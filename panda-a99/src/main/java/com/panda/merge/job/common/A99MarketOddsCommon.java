@@ -152,22 +152,23 @@ public class A99MarketOddsCommon {
             //比分中心的标准比分缓存key
             FootballCacheScores footballCacheScores = getRedisScore(matchId);
 
+            List<ThirdSportMarketMessage> mainMarketList = new ArrayList<>(10);
             List<String> validMarketIds = new ArrayList<>(24);
             List<String> marketKeys = new ArrayList<>(24);
             a99ParamConfig.getStandardMarketIds().forEach(marketId -> {
                 //根据玩法id获取玩法集id
                 String categorySetId = getCategorySetId(a99ParamConfig.getCategoryMap(), marketId);
-                log.info("赛事id:{}, 根据玩法id:{}获取到玩法集:{}", matchId, marketId, categorySetId);
+//                log.info("赛事id:{}, 根据玩法id:{}获取到玩法集:{}", matchId, marketId, categorySetId);
                 //判断这场赛事A99是否开启了这个玩法集
                 if (cacheMatchMap.containsKey(matchId.toString())) {
                     Object cacheObj = cacheMatchMap.get(matchId.toString());
-                    log.info("赛事id:{}, 当前已开启的玩法集:{}", matchId, marketId, cacheObj);
+//                    log.info("赛事id:{}, 当前已开启的玩法集:{}", matchId, marketId, cacheObj);
                     if (ObjectUtil.isNotEmpty(cacheObj)) {
                         String categorySetIds = (String)cacheObj;
                         if (categorySetIds.contains(categorySetId)) {
                             validMarketIds.add(marketId);
                             marketKeys.add(redisKeyPrefix + matchId + ":" + marketId);
-                            log.info("赛事id:{}, 当前已开启的玩法集包含:{}", matchId, categorySetId);
+//                            log.info("赛事id:{}, 当前已开启的玩法集包含:{}", matchId, categorySetId);
                         }
                     }
                 }
@@ -193,7 +194,6 @@ public class A99MarketOddsCommon {
                     if (groupByMarket.containsKey(Long.valueOf(marketId))) {
                         List<ThirdSportMarketMessage> matchMarketList = new ArrayList<>(20);
                         List<ThirdSportMarketMessage> closesMarketList = new ArrayList<>(10);
-                        List<ThirdSportMarketMessage> mainMarketList = new ArrayList<>(10);
 //                        Map<String, Object> thirdMarketMap = redisService.hGetAll(redisKeyPrefix + matchId + ":" + marketId);
                         Map<String, Object> thirdMarketMap = groupByMarket.get(Long.valueOf(marketId));
                         log.info("赛事id:{},玩法id:{},三方玩法数量:{}", matchId, marketId, thirdMarketMap.size());
@@ -333,13 +333,22 @@ public class A99MarketOddsCommon {
                                     }
                                 }
                                 if (mainMarketMessage != null) {
-                                    mainMarketList.add(mainMarketMessage);
                                     buffer.append("主盘口计算完成,")
                                             .append("最大坑位值为:")
                                             .append(maxPitVal)
                                             .append(",主盘口为:")
                                             .append(mainMarketMessage.getAddition1());
                                     log.info("赛事id:{}, 玩法id:{}, 开始计算主盘口:{}", matchId, marketId, buffer.toString());
+
+                                    //校验主盘口及赔率是否发生改变
+                                    boolean isChange = checkMainItemIsChange(mainMarketMessage, getOddsValueFromMarketMessage(mainMarketMessage, "Over"),
+                                            getOddsValueFromMarketMessage(mainMarketMessage, "Under"));
+                                    if (isChange) {
+                                        mainMarketList.add(mainMarketMessage);
+                                    } else {
+                                        log.info("赛事id:{}, 玩法id:{}, 主盘口id:{}, 主盘口:{}, 当前主盘口及赔率没有变化，无需下发赔率", matchId, marketId, mainMarketMessage.getRelationMarketId(),
+                                                mainMarketMessage.getAddition1());
+                                    }
                                 }
                                 //抽水
 //                                calculationMarketProcessor.n0nDataSourceOddsHandle(linkId, standardMatchInfo, matchMarketList, 1L);
@@ -362,13 +371,9 @@ public class A99MarketOddsCommon {
 //                                }
 //                            }
 
+
+
 //                            if (isGreatThanDiffValue) {
-                                mainMarketList.forEach(market -> {
-                                    //投注项排序，按orderOdds升序排序
-                                    market.getThirdSportMarketOddsList().sort(Comparator.comparing(ThirdSportMarketOdds::getOrderOdds));
-                                });
-                                //发送A99赔率给风控
-                                thirdSportMarketMergeProducer.sendThirdSportMarketMessageToMQ(linkId, standardMatchInfo, mainMarketList, mainMarketList.get(0).getModifyTime());
                                 //保存已下发玩法的玩法集id
                                 List<String> types = getRequestTypeListByMarketList(mainMarketList);
                                 if (CollectionUtil.isNotEmpty(types)) {
@@ -378,6 +383,18 @@ public class A99MarketOddsCommon {
                         }
                     }
                 }
+
+                if (CollectionUtil.isNotEmpty(mainMarketList)) {
+                    mainMarketList.forEach(market -> {
+                        //投注项排序，按orderOdds升序排序
+                        market.getThirdSportMarketOddsList().sort(Comparator.comparing(ThirdSportMarketOdds::getOrderOdds));
+                    });
+                    //发送A99赔率给A01
+                    String linkId = "A99_" + IdUtil.simpleUUID();
+                    thirdSportMarketMergeProducer.sendThirdSportMarketMessageToMQ(linkId, standardMatchInfo, mainMarketList, mainMarketList.get(0).getModifyTime());
+                }
+
+
 
                 if (CollectionUtil.isNotEmpty(requestTypeList)) {
                     List<String> distinctList = requestTypeList.stream()
@@ -433,7 +450,7 @@ public class A99MarketOddsCommon {
                 .filter(odds -> oddsType.equals("Under") ?
                         odds.getOddsType().equals("Under") || odds.getOddsType().equals("1") :
                         odds.getOddsType().equals("Over") || odds.getOddsType().equals("2"))
-                .map(ThirdSportMarketOdds::getPaOddsValue)
+                .map(ThirdSportMarketOdds::getOddsValue)
                 .findFirst().get();
         return new BigDecimal(paOddsValue);
     }
@@ -835,6 +852,53 @@ public class A99MarketOddsCommon {
         }
         return resultList;
     }
+
+
+    /**
+     * 校验玩法主盘口赔率是否改变
+     * @param thirdSportMarketMessage
+     * @param underOddsValue
+     * @param overOddsValue
+     * @return
+     */
+    private boolean checkMainItemIsChange(ThirdSportMarketMessage thirdSportMarketMessage, BigDecimal overOddsValue, BigDecimal underOddsValue){
+//        log.info("校验主盘口赔率是否改变==>赛事id:{}, 玩法id:{}, 盘口id:{} 盘口:{}, 投注项1:{}, 投注项2:{}", thirdSportMarketMessage.getReferenceId(),
+//                thirdSportMarketMessage.getMarketCategoryId(), thirdSportMarketMessage.getRelationMarketId(), overOddsValue, underOddsValue);
+//        String redisKey = RONGHE_A99_ODDS_OVER_ODDS_VALUE + thirdSportMarketMessage.getReferenceId() + ":" + thirdSportMarketMessage.getMarketCategoryId();
+//        Object obj = redisService.get(redisKey);
+//        String cacheVal = thirdSportMarketMessage.getRelationMarketId() + Constant.STR_SEPARATION + overOddsValue + Constant.STR_SEPARATION + underOddsValue;
+//        if (null == obj) {
+//            log.info("主盘口缓存为空==>赛事id:{}, 玩法id:{}, 盘口id:{}, 盘口:{}", thirdSportMarketMessage.getReferenceId(),
+//                    thirdSportMarketMessage.getMarketCategoryId(), thirdSportMarketMessage.getRelationMarketId(), thirdSportMarketMessage.getAddition1());
+//            redisService.set(redisKey, cacheVal, 10*60*60);
+//            return true;
+//        }
+//        String cacheObj = (String)obj;
+//        String[] cacheValArr = cacheObj.split(Constant.STR_SEPARATION);
+//        if (cacheValArr.length != 3) {
+//            log.info("主盘口缓存解析异常==>赛事id:{}, 玩法id:{}, 盘口id:{}, 盘口:{}", thirdSportMarketMessage.getReferenceId(),
+//                    thirdSportMarketMessage.getMarketCategoryId(), thirdSportMarketMessage.getRelationMarketId(), thirdSportMarketMessage.getAddition1());
+//            redisService.set(redisKey, cacheVal, 10*60*60);
+//            return true;
+//        }
+//        Long cacheRelationMarketId = Long.parseLong(cacheValArr[0]);
+//        BigDecimal cacheOverOdds = new BigDecimal(cacheValArr[1]);
+//        BigDecimal cacheUnderOdds = new BigDecimal(cacheValArr[2]);
+//        log.info("主盘口缓存取值成功==>赛事id:{}, 玩法id:{}, 盘口id:{}, 投注项1:{}, 投注项2:{}", thirdSportMarketMessage.getReferenceId(),
+//                thirdSportMarketMessage.getMarketCategoryId(), thirdSportMarketMessage.getRelationMarketId(), cacheOverOdds, cacheUnderOdds);
+//        if (cacheRelationMarketId.longValue() != thirdSportMarketMessage.getRelationMarketId().longValue()
+//                || cacheOverOdds.compareTo(overOddsValue) != 0
+//                || cacheUnderOdds.compareTo(underOddsValue) != 0) {
+//            log.info("主盘口赔率发生改变==>赛事id:{}, 玩法id:{}, 盘口id:{}, 盘口:{}", thirdSportMarketMessage.getReferenceId(),
+//                    thirdSportMarketMessage.getMarketCategoryId(), thirdSportMarketMessage.getRelationMarketId(), thirdSportMarketMessage.getAddition1());
+//            //如果盘口id/大小投注项的赔率有任何一个和缓存里面的不一致，说明主盘口或赔率已改变，返回true
+//            redisService.set(redisKey, cacheVal, 10*60*60);
+//            return true;
+//        }
+//        return false;
+        return true;
+    }
+
 
     /**
      *  判断当前赔率是否超过赔率差值

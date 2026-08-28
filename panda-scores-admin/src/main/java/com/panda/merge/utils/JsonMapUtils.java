@@ -225,6 +225,64 @@ public class JsonMapUtils {
         }
         return map3;
     }
+
+    /**
+     * 解析乒乓球PA报球板比分JSON为 periodId → TableTennisV2Scores 映射。
+     * 与 {@link #parseTableTennisMap} 的区别：返回类型是 V2 版本（服务于报球板链路）。
+     */
+    public static Map<Long, com.panda.merge.tabletennis.dto.TableTennisV2Scores> parseTableTennisV2Map(JSONObject jsonObject) {
+        Map<Long, com.panda.merge.tabletennis.dto.TableTennisV2Scores> map3 = new HashMap<>();
+        if (jsonObject == null) {
+            return map3;
+        }
+        try {
+            String jsonString = jsonObject.toJSONString();
+            if (StringUtils.isEmpty(jsonString) || !jsonString.trim().startsWith("{")) {
+                return map3;
+            }
+            Map map = JSONObject.parseObject(jsonString, Map.class);
+            if (map == null) {
+                return map3;
+            }
+            for (Object o : map.keySet()) {
+                try {
+                    Object value = map.get(o);
+                    if (value == null) {
+                        continue;
+                    }
+                    JSONObject valueJson;
+                    if (value instanceof JSONObject) {
+                        valueJson = (JSONObject) value;
+                    } else {
+                        String valueStr = value.toString();
+                        if (valueStr.trim().startsWith("{")) {
+                            valueJson = JSONObject.parseObject(valueStr);
+                        } else {
+                            continue;
+                        }
+                    }
+                    com.panda.merge.tabletennis.dto.TableTennisV2Scores scores =
+                            JSONObject.toJavaObject(valueJson, com.panda.merge.tabletennis.dto.TableTennisV2Scores.class);
+                    if (scores != null) {
+                        if (o instanceof String) {
+                            map3.put(Long.parseLong(o.toString()), scores);
+                        } else if (o instanceof Integer) {
+                            map3.put((Integer) o + 0l, scores);
+                        } else if (o instanceof Long) {
+                            map3.put((Long) o, scores);
+                        } else {
+                            map3.put(Long.parseLong(o.toString()), scores);
+                        }
+                    }
+                } catch (Exception e) {
+                    continue;
+                }
+            }
+        } catch (Exception e) {
+            return map3;
+        }
+        return map3;
+    }
     public static Map<Long, CricketBallScores> parseCricketMap(JSONObject jsonObject) {
         Map map = JSONObject.parseObject(jsonObject.toJSONString(), Map.class);
         Map<Long, CricketBallScores> map3 = new HashMap<>();

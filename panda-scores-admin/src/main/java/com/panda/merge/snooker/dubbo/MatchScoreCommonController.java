@@ -7,6 +7,7 @@ import com.panda.merge.dto.Response;
 import com.panda.merge.dto.advertise.v2.*;
 import com.panda.merge.snooker.service.MatchSnookerService;
 import com.panda.merge.snooker.service.impl.MatchFactory;
+import com.panda.merge.tabletennis.service.MatchTableTennisService;
 import com.panda.merge.volleyball.service.MatchVolleyballService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboService;
@@ -31,6 +32,9 @@ public class MatchScoreCommonController implements IMatchScoreCommonApi {
 
     @Resource
     private MatchVolleyballService matchVolleyballService;
+
+    @Resource
+    private MatchTableTennisService matchTableTennisService;
 
     @Override
     public Response getCurrentMatchInfo(ChangeMatchPeriodV2Dto changeMatchPeriodV2Dto) {
@@ -135,19 +139,24 @@ public class MatchScoreCommonController implements IMatchScoreCommonApi {
             }
             MatchScoreAndTimeVo matchScoreAndTimeVo = commonAdvertiseService.searchMatchScoreAndTime(sendEventDto.getThirdMatchId());
             Response response;
-            // 仅支持斯诺克（7）和排球（9）：
+            // 支持斯诺克（7）、排球（9）、乒乓球（8）：
             // - 斯诺克：MatchSnookerService.sendEvent 处理认输/判输/持杆等定制语义；
             // - 排球：MatchVolleyballService.sendEvent 通过 doCalculation 把 kill / block /
             //         expulsion / disqualification / penalty / error / current_serve_volleyball
-            //         等统计字段累加到 scoresJson。其它球种直接拒绝，避免误用通用兜底丢失计分。
+            //         等统计字段累加到 scoresJson。
+            // - 乒乓球：MatchTableTennisService.sendEvent 通过 doCalculation 把发球/黄牌/红牌/
+            //           加速模式/红黄牌同手等统计字段累加到 scoresJson。
+            //         其它球种直接拒绝，避免误用通用兜底丢失计分。
             if (Long.valueOf(7L).equals(sendEventDto.getSportId())) {
                 response = matchSnookerService.sendEvent(matchScoreAndTimeVo, sendEventDto);
             } else if (Long.valueOf(9L).equals(sendEventDto.getSportId())) {
                 response = matchVolleyballService.sendEvent(matchScoreAndTimeVo, sendEventDto);
+            } else if (Long.valueOf(8L).equals(sendEventDto.getSportId())) {
+                response = matchTableTennisService.sendEvent(matchScoreAndTimeVo, sendEventDto);
             } else {
                 log.warn("[MatchScoreCommonController]sendEvent unsupported sportId:{} linkId::{}",
                         sendEventDto.getSportId(), sendEventDto.getLinkedId());
-                return Response.failed("sendEvent 仅支持斯诺克(7)和排球(9)，sportId=" + sendEventDto.getSportId() + " 不支持");
+                return Response.failed("sendEvent 仅支持斯诺克(7)/排球(9)/乒乓球(8)，sportId=" + sendEventDto.getSportId() + " 不支持");
             }
             log.info("[MatchScoreCommonController]sendEvent end linkId::{}", sendEventDto.getLinkedId());
             return response;

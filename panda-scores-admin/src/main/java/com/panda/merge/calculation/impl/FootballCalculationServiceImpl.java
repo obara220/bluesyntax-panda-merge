@@ -1285,9 +1285,9 @@ public class FootballCalculationServiceImpl extends AbstractCalculationServiceIm
             }
             footballPenaltyScores.cancelCalutionPenaltyScores(data);
             matchScoresInfo.setScoresJsonExtra(JSONObject.toJSONString(footballPenaltyScores));
-            if(data.getMatchPeriodId()==50L){
-                oldSores.setGoal(new CommonItem(data.getT1(),data.getT2()));
-            }
+//            if(data.getMatchPeriodId()==50L){
+//                oldSores.setGoal(new CommonItem(data.getT1(),data.getT2()));
+//            }
         }catch (Exception e){
 
             log.error(":处理数据发生异常:", e);

@@ -964,7 +964,8 @@ public class SoldMessageScoresConsumer implements RocketMQListener<Request<SaleU
         MatchTimeInfo matchTimeInfoNew  =  this.getMatchTimeByCodeAndStandardMatchId(data.getBusinessEventCode(),data.getMatchId(),matchScoresInfoNew,linkId);
         if(matchTimeInfoNew==null){
             log.info("{}【SoldMessageScoresConsumer:"+ SOLD_MESSAGE+"】【::"+request.getData().getMatchId()+"::】复制时间新事件源无时间数据:{}",request.getLinkId(),data.getBusinessEventCode());
-            matchTimeInfoNew = new MatchTimeInfo();
+//            matchTimeInfoNew = new MatchTimeInfo();
+            return;
         }
         log.info("{}【SoldMessageScoresConsumer:"+ SOLD_MESSAGE+"】【::"+request.getData().getMatchId()+"::】复制时间完成:{}-->{}",request.getLinkId(),data.getBusinessEventCodeOld(),data.getBusinessEventCode());
 

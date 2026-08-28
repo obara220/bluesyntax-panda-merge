@@ -702,8 +702,7 @@ public class SoldMessageToOddsProcessor extends BaseProcessor {
             redisService.unLock(redisLocKey,lockValue);
             log.info("::{}::soldMessage赔率下发,redisLocKey:{},释放分布式锁,lockValue:{}", linkId,redisLocKey, lockValue);
         }
-        // 篮球滚球中途开售：初始化自动开盘 Redis，避免 PANDA 路径误开未来节次玩法
-        initAutoOpenMarketOnSold(linkId, standardMatchInfo, marketType, categoryDataSourceMap.keySet());
+
         //下发当前最新赔率
         thirdMatchMarketProcessor.processOddsByAll(linkId,-1,null, standardMatchInfo, categoryDataSourceMap.keySet(), standardMarketDataMessageMap, System.currentTimeMillis(), standardSportMarketSell, new HashMap<>());
         //通知LS，TX下发赔率

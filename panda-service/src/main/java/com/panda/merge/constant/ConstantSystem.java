@@ -553,8 +553,15 @@ public final class ConstantSystem {
      */
     public static final String THIRD_MATCH_ANALYSIS_MODIFY_TIME = "THIRD_MATCH_ANALYSIS_MODIFY_TIME";
     //======================================赛事分析相关结束===============================================
+    /**
+     * 数据商变更赛事来源(消费上游)
+     */
+    public static final String DATASOURCE_MATCH_SOURCE_CHANGE = "DATASOURCE_MATCH_SOURCE_CHANGE";
 
-
+    /**
+     * 数据商变更赛事来源(推送下游)
+     */
+    public static final String DATASOURCE_MATCH_SOURCE_CHANGE_TO_RISK = "DATASOURCE_MATCH_SOURCE_CHANGE_TO_RISK";
     //======================================实时服务MQ常量结束===============================================
 
     //======================================赔率服务服务MQ常量开始===============================================

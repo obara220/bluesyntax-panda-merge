@@ -1198,6 +1198,7 @@ public class ThirdAllBatchMarketProcessor extends BaseProcessor {
         thirdSportMarketMessage.setOfferLineId(thirdMarketDTO.getOfferLineId());
         thirdSportMarketMessage.setModifyTime(thirdMarketDTO.getModifyTime());
         thirdSportMarketMessage.setOddsName(thirdMarketDTO.getOddsName());
+        thirdSportMarketMessage.setRemark(thirdMarketDTO.getRemark());
         MergeFunctionUtils.setNumberOfWinners( thirdSportMarketMessage, thirdMarketDTO.getNumberOfWinners());
         return thirdSportMarketMessage;
     }

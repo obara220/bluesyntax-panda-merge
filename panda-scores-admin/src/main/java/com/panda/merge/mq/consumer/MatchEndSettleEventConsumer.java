@@ -78,7 +78,7 @@ public class MatchEndSettleEventConsumer implements RocketMQListener<Request<Mat
         }
         String linkId = request.getLinkId();
         Long start = System.currentTimeMillis();
-        log.info("{} MatchSettleEventConsumer事件比分中心处理开始：{}", linkId, start);
+        log.info("{} MatchEndSettleEventConsumer事件比分中心处理开始：{}", linkId, start);
         if (request == null || request.getData() == null) {
             return;
         }
@@ -88,7 +88,7 @@ public class MatchEndSettleEventConsumer implements RocketMQListener<Request<Mat
         }
         //1、过滤不符合的消息
         if (!check(request.getData())) {
-            log.info("{} MatchSettleEventConsumer事件过滤:{}", linkId, request.getData());
+            log.info("{} MatchEndSettleEventConsumer事件过滤:{}", linkId, request.getData());
             return;
         }
 
@@ -108,7 +108,7 @@ public class MatchEndSettleEventConsumer implements RocketMQListener<Request<Mat
         }
 
 
-        log.info("{} MatchSettleEventConsumer事件比分中心处理结束耗时：{}", linkId, System.currentTimeMillis()-start);
+        log.info("{} MatchEndSettleEventConsumer事件比分中心处理结束耗时：{}", linkId, System.currentTimeMillis()-start);
     }
 
     /**
@@ -122,7 +122,7 @@ public class MatchEndSettleEventConsumer implements RocketMQListener<Request<Mat
             return false;
         }
         //非进球比分事件不对接
-        if(data.getEventType()==null ||  !data.getEventType().equals(1) || !data.getEventType().equals(3)){
+        if(data.getEventType()==null ||  !data.getEventType().equals(1)){
             return false;
         }
         return true;
@@ -139,7 +139,7 @@ public class MatchEndSettleEventConsumer implements RocketMQListener<Request<Mat
         thirdMatchInfoExample.createCriteria().andReferenceIdEqualTo(matchSettleEvent.getStandardMatchId());
         List<ThirdMatchInfo> thirdMatchInfos = thirdMatchInfoMapper.selectByExample(thirdMatchInfoExample);
         if(CollectionUtil.isEmpty(thirdMatchInfos)){
-            log.error("1--------{}",matchSettleEvent);
+            log.error("1--------,无三方赛事信息:{},,,,{}",request.getLinkId(),matchSettleEvent);
             return;
         }
 

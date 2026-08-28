@@ -790,4 +790,16 @@ public class ThirdMatchInfoProcessor extends BaseProcessor {
         }
     }
 
+    public void updateDataSourceMatchSource(Request<ThirdMatchDataSourceDTO> request){
+        ThirdMatchDataSourceDTO thirdMatchDataSourceDTO = request.getData();
+        //从缓存中获取三方赛事信息
+        ThirdMatchInfo item = thirdMatchInfoService.getItem(thirdMatchDataSourceDTO.getDataSourceCode(),thirdMatchDataSourceDTO.getThirdMatchSourceId());
+        if (null!=item){
+            item.setLiveEventSource(thirdMatchDataSourceDTO.getLiveEventSource());
+            thirdMatchInfoService.updateByPrimaryKeySelective(item,request.getLinkId());
+            thirdMatchInfoProducer.pushDataSourceMatchSource(request.getLinkId(),item);
+        }
+
+    }
+
 }

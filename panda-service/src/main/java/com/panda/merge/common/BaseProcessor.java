@@ -132,7 +132,8 @@ public class BaseProcessor {
         }
     }
     public boolean supportA99(String linkId,Long matchId,Integer marketType,Long categoryId){
-        String key = marketType==1?Constant.REDIS_KEY.RONGHE_A99_PRE_MATCH_IDS:Constant.REDIS_KEY.RONGHE_A99_LIVE_MATCH_IDS;
+        return false;
+/*        String key = marketType==1?Constant.REDIS_KEY.RONGHE_A99_PRE_MATCH_IDS:Constant.REDIS_KEY.RONGHE_A99_LIVE_MATCH_IDS;
         Map<String, Object> map = redisService.hGetAll(key);
         Set<String> matchSet = map.keySet();
         Set<Long> set = matchSet.stream()
@@ -157,7 +158,7 @@ public class BaseProcessor {
                 return true;
             }
         }
-        return false;
+        return false;*/
     }
     /**
      * 判断请求数据源种类是否为空和超长

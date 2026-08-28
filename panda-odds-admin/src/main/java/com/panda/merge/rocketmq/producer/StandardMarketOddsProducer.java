@@ -5,6 +5,7 @@ import cn.hutool.crypto.digest.DigestUtil;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
 import com.alibaba.nacos.api.config.annotation.NacosValue;
 import com.panda.merge.common.enums.Constant;
 import com.panda.merge.common.enums.DataSourceCodeEnum;
@@ -156,15 +157,15 @@ public class StandardMarketOddsProducer {
                         "STANDARD_MARKET_ODDS_ESPORT:" + standardMatchMarketMessage.getStandardMatchInfoId(),
                         builder.build(),
                         new SendCallback() {
-                    @Override
-                    public void onSuccess(SendResult sendResult) {
-                        log.info("::{}::,STANDARD_MARKET_ODDS_ESPORT send successful", linkId);
-                    }
+                            @Override
+                            public void onSuccess(SendResult sendResult) {
+                                log.info("::{}::,STANDARD_MARKET_ODDS_ESPORT send successful", linkId);
+                            }
 
-                    @Override
-                    public void onException(Throwable throwable) {
-                        log.error("::{}::TOPIC={}，send fail; ", linkId, "STANDARD_MARKET_ODDS_ESPORT", throwable);
-                    }
+                            @Override
+                            public void onException(Throwable throwable) {
+                                log.error("::{}::TOPIC={}，send fail; ", linkId, "STANDARD_MARKET_ODDS_ESPORT", throwable);
+                            }
                         },
                         standardMatchInfo.getId());
                 return standardMatchMarketMessage;
@@ -453,52 +454,57 @@ public class StandardMarketOddsProducer {
      * 篮球 +-1.5,+-0.5
      */
     private void checkWinnerBasket(String linkId,StandardMatchInfo standardMatchInfo, List<StandardMarketMessage> standardMarketMessageAllList,boolean isXts){
-        log.info("::{}:: 独赢赔率重新计算成功 true:{},matchType:{},matchType2:{}", linkId,(!StandardSportTypeEnum.Basketball.code.equals(standardMatchInfo.getSportId()) || isXts),standardMatchInfo.getMatchType(),standardMatchInfo.getMatchType()!=1);
-        if (!StandardSportTypeEnum.Basketball.code.equals(standardMatchInfo.getSportId()) || isXts){
-            return;
-        }
-        if (standardMarketMessageAllList == null || CollectionUtils.isEmpty(standardMarketMessageAllList)){
-            return;
-        }
-        int marketType = standardMarketMessageAllList.get(0).getMarketType();
-        // 获取玩法开售
-        Set<String> marketSellKeys = MarginCategoryConfig.HANDICAP_WINNER_LIST_BASKET.stream().map(inner->{
-            return standardMatchInfo.getId() + "-" + inner + "-" + marketType;
-        }).filter(Objects::nonNull).collect(Collectors.toSet());
-        List<MarketCategorySell> marketCategorySells = marketCategorySellService.getItems(marketSellKeys.stream().collect(Collectors.toList()));
-        //log.info("::{}:: 独赢赔率重新计算成功 marketCategorySells:{}", linkId,JSONUtil.toJsonStr(marketCategorySells));
-        Map<Long,Integer> map = marketCategorySells.stream().filter(e->e.getMarketCategoryId()!=null&&e.getMarketCount()!=null).collect(Collectors.toMap(MarketCategorySell::getMarketCategoryId,MarketCategorySell::getMarketCount));
-        List<StandardMarketMessage> marketList = standardMarketMessageAllList.stream().filter(e->MarginCategoryConfig.HANDICAP_WINNER_LIST_BASKET.contains(e.getMarketCategoryId())
-                &&e.getThirdMarketSourceStatus()==Constant.SPORT_MARKET.STATUS.ACTIVE
-                &&((map.containsKey(e.getMarketCategoryId()) && map.get(e.getMarketCategoryId())!=null &&map.get(e.getMarketCategoryId())>=e.getPlaceNum())||!map.containsKey(e.getMarketCategoryId()))).collect(Collectors.toList());
-        Map<Long,List<StandardMarketMessage>> mapList = marketList.stream().collect(Collectors.groupingBy(StandardMarketMessage::getMarketCategoryId));
-        String key = Constant.REDIS_KEY.RONGHE_STANDARD_MARKET_ODDS_WINNER_HANDCIP+standardMatchInfo.getId()+"-"+marketType;
-        Map<String,List<StandardMarketMessage>> temp = redisService.hGetAll(key);
-        for (Map.Entry<String, List<StandardMarketMessage>> entry : temp.entrySet()) {
-            List<StandardMarketMessage> messageList = entry.getValue();
-            Iterator<StandardMarketMessage> iterator = messageList.iterator();
-            while (iterator.hasNext()) {
-                StandardMarketMessage message = iterator.next();
-                if (!Constant.SPORT_MARKET.STATUS.ACTIVE.equals(message.getThirdMarketSourceStatus())) {
-                    iterator.remove();
+        //独赢赔率重算属于增强逻辑，失败只能跳过重算，不能阻断整批赔率下发
+        try {
+            log.info("::{}:: 独赢赔率重新计算成功 true:{},matchType:{},matchType2:{}", linkId,(!StandardSportTypeEnum.Basketball.code.equals(standardMatchInfo.getSportId()) || isXts),standardMatchInfo.getMatchType(),standardMatchInfo.getMatchType()!=1);
+            if (!StandardSportTypeEnum.Basketball.code.equals(standardMatchInfo.getSportId()) || isXts){
+                return;
+            }
+            if (standardMarketMessageAllList == null || CollectionUtils.isEmpty(standardMarketMessageAllList)){
+                return;
+            }
+            int marketType = standardMarketMessageAllList.get(0).getMarketType();
+            // 获取玩法开售
+            Set<String> marketSellKeys = MarginCategoryConfig.HANDICAP_WINNER_LIST_BASKET.stream().map(inner->{
+                return standardMatchInfo.getId() + "-" + inner + "-" + marketType;
+            }).filter(Objects::nonNull).collect(Collectors.toSet());
+            List<MarketCategorySell> marketCategorySells = marketCategorySellService.getItems(marketSellKeys.stream().collect(Collectors.toList()));
+            //log.info("::{}:: 独赢赔率重新计算成功 marketCategorySells:{}", linkId,JSONUtil.toJsonStr(marketCategorySells));
+            Map<Long,Integer> map = marketCategorySells.stream().filter(e->e.getMarketCategoryId()!=null&&e.getMarketCount()!=null).collect(Collectors.toMap(MarketCategorySell::getMarketCategoryId,MarketCategorySell::getMarketCount));
+            List<StandardMarketMessage> marketList = standardMarketMessageAllList.stream().filter(e->MarginCategoryConfig.HANDICAP_WINNER_LIST_BASKET.contains(e.getMarketCategoryId())
+                    &&e.getThirdMarketSourceStatus()==Constant.SPORT_MARKET.STATUS.ACTIVE
+                    &&((map.containsKey(e.getMarketCategoryId()) && map.get(e.getMarketCategoryId())!=null &&map.get(e.getMarketCategoryId())>=e.getPlaceNum())||!map.containsKey(e.getMarketCategoryId()))).collect(Collectors.toList());
+            Map<Long,List<StandardMarketMessage>> mapList = marketList.stream().collect(Collectors.groupingBy(StandardMarketMessage::getMarketCategoryId));
+            String key = Constant.REDIS_KEY.RONGHE_STANDARD_MARKET_ODDS_WINNER_HANDCIP+standardMatchInfo.getId()+"-"+marketType;
+            Map<String,List<StandardMarketMessage>> temp = redisService.hGetAll(key);
+            for (Map.Entry<String, List<StandardMarketMessage>> entry : temp.entrySet()) {
+                List<StandardMarketMessage> messageList = entry.getValue();
+                Iterator<StandardMarketMessage> iterator = messageList.iterator();
+                while (iterator.hasNext()) {
+                    StandardMarketMessage message = iterator.next();
+                    if (!Constant.SPORT_MARKET.STATUS.ACTIVE.equals(message.getThirdMarketSourceStatus())) {
+                        iterator.remove();
+                    }
                 }
             }
+            log.info("::{}:: 独赢赔率重新计算成功 marketList:{},temp:{}", linkId,marketList.size(),temp.size());
+            Map<String,List<StandardMarketMessage>> mapListTmep = standardMarketMessageAllList.stream().filter(e->MarginCategoryConfig.HANDICAP_WINNER_LIST_BASKET.contains(e.getMarketCategoryId())).collect(Collectors.groupingBy(e->e.getMarketCategoryId().toString()));
+            redisService.hSetAll(key,mapListTmep,marketCacheTime(standardMatchInfo.getBeginTime()));
+            mapList.forEach((k,v)->{
+                //根据让分触发校验独赢赔率
+                if (MarginCategoryConfig.HANDICAP_WINNER_LIST_BASKET_1.contains(k)){
+                    log.info("::{}:: 独赢赔率重新计算成功 calculateWinnerByHandicap:{}", linkId,k);
+                    calculateWinnerByHandicap(linkId,standardMatchInfo.getId(),v,mapList.get(MarginCategoryConfig.HANDICAP_WINNER_MAP_BASKET.get(k)),temp,standardMarketMessageAllList,standardMatchInfo);
+                }
+                //根据独赢触发校验独赢赔率
+                if (MarginCategoryConfig.HANDICAP_WINNER_LIST_BASKET_2.contains(k) && !mapList.containsKey(MarginCategoryConfig.HANDICAP_WINNER_MAP_BASKET_2.get(k))){
+                    log.info("::{}:: 独赢赔率重新计算成功 calculateWinnerByWinner:{}", linkId,k);
+                    calculateWinnerByWinner(linkId,standardMatchInfo.getId(),v,mapList.get(MarginCategoryConfig.HANDICAP_WINNER_MAP_BASKET_2.get(k)),temp,standardMarketMessageAllList,standardMatchInfo);
+                }
+            });
+        } catch (Exception e) {
+            log.error("::{}::checkWinnerBasket,独赢赔率重算异常,跳过重算继续下发,标准赛事id:{}", linkId, standardMatchInfo.getId(), e);
         }
-        log.info("::{}:: 独赢赔率重新计算成功 marketList:{},temp:{}", linkId,marketList.size(),temp.size());
-        Map<String,List<StandardMarketMessage>> mapListTmep = standardMarketMessageAllList.stream().filter(e->MarginCategoryConfig.HANDICAP_WINNER_LIST_BASKET.contains(e.getMarketCategoryId())).collect(Collectors.groupingBy(e->e.getMarketCategoryId().toString()));
-        redisService.hSetAll(key,mapListTmep,marketCacheTime(standardMatchInfo.getBeginTime()));
-        mapList.forEach((k,v)->{
-            //根据让分触发校验独赢赔率
-            if (MarginCategoryConfig.HANDICAP_WINNER_LIST_BASKET_1.contains(k)){
-                log.info("::{}:: 独赢赔率重新计算成功 calculateWinnerByHandicap:{}", linkId,k);
-                calculateWinnerByHandicap(linkId,standardMatchInfo.getId(),v,mapList.get(MarginCategoryConfig.HANDICAP_WINNER_MAP_BASKET.get(k)),temp,standardMarketMessageAllList,standardMatchInfo);
-            }
-            //根据独赢触发校验独赢赔率
-            if (MarginCategoryConfig.HANDICAP_WINNER_LIST_BASKET_2.contains(k) && !mapList.containsKey(MarginCategoryConfig.HANDICAP_WINNER_MAP_BASKET_2.get(k))){
-                log.info("::{}:: 独赢赔率重新计算成功 calculateWinnerByWinner:{}", linkId,k);
-                calculateWinnerByWinner(linkId,standardMatchInfo.getId(),v,mapList.get(MarginCategoryConfig.HANDICAP_WINNER_MAP_BASKET_2.get(k)),temp,standardMarketMessageAllList,standardMatchInfo);
-            }
-        });
     }
     private Long marketCacheTime(Long beginTime) {
         if (beginTime == null || beginTime == 0) {
@@ -513,20 +519,20 @@ public class StandardMarketOddsProducer {
         return (cacheTime / 1000) + (2L * RedisConfig.REDIS_DEFAULT_TIME);
     }
     private void calculateFootBallWinnerByHandicap(String linkId,
-                                           List<StandardMarketMessage> winnerMarket,
-                                           List<StandardMarketMessage> handicapMarket,
-                                           Map<String,List<StandardMarketMessage>> temp,
-                                           StandardMatchInfo standardMatchInfo){
+                                                   List<StandardMarketMessage> winnerMarket,
+                                                   List<StandardMarketMessage> handicapMarket,
+                                                   Map<String,List<StandardMarketMessage>> temp,
+                                                   StandardMatchInfo standardMatchInfo){
         if (winnerMarket == null || handicapMarket.isEmpty()){
             return;
         }
     }
     private void calculateFootBallWinnerByHandicap(String linkId,Long matchId,
-                                           List<StandardMarketMessage> standardMarketMessages1,
-                                           List<StandardMarketMessage> standardMarketMessages2,
-                                           Map<String,List<StandardMarketMessage>> temp,
-                                           List<StandardMarketMessage> resultList,
-                                           StandardMatchInfo standardMatchInfo){
+                                                   List<StandardMarketMessage> standardMarketMessages1,
+                                                   List<StandardMarketMessage> standardMarketMessages2,
+                                                   Map<String,List<StandardMarketMessage>> temp,
+                                                   List<StandardMarketMessage> resultList,
+                                                   StandardMatchInfo standardMatchInfo){
         if (standardMarketMessages1 == null || standardMarketMessages1.isEmpty()){
             log.info("::{}:: 足球独赢赔率重新计算成功 message1:{}", (standardMarketMessages1 == null || standardMarketMessages1.isEmpty()));
             return;
@@ -580,11 +586,11 @@ public class StandardMarketOddsProducer {
     }
     //根据独赢计算校验独赢赔率
     private void calculateFootBallWinnerByWinner(String linkId,Long matchId,
-                                         List<StandardMarketMessage> standardMarketMessages1,
-                                         List<StandardMarketMessage> standardMarketMessages2,
-                                         Map<String,List<StandardMarketMessage>> temp,
-                                         List<StandardMarketMessage> resultList,
-                                         StandardMatchInfo standardMatchInfo){
+                                                 List<StandardMarketMessage> standardMarketMessages1,
+                                                 List<StandardMarketMessage> standardMarketMessages2,
+                                                 Map<String,List<StandardMarketMessage>> temp,
+                                                 List<StandardMarketMessage> resultList,
+                                                 StandardMatchInfo standardMatchInfo){
         if (standardMarketMessages1 == null || standardMarketMessages1.isEmpty()){
             return;
         }
@@ -616,12 +622,12 @@ public class StandardMarketOddsProducer {
         calculateWinnerMarket(linkId,matchId,categoryId,standardMarketMessages2,standardMarketMessages1,standardMatchInfo);
     }
     private boolean calculateFootBallWinnerMarket(String linkId,Long matchId,Long categoryId,List<StandardMarketMessage> handcipMarkets,
-                                          List<StandardMarketMessage> winnerMarkets,StandardMatchInfo standardMatchInfo){
+                                                  List<StandardMarketMessage> winnerMarkets,StandardMatchInfo standardMatchInfo){
         return false;
     }
 
     private boolean calculateWinnerMarket(String linkId,Long matchId,Long categoryId,List<StandardMarketMessage> handcipMarkets,
-                                       List<StandardMarketMessage> winnerMarkets,StandardMatchInfo standardMatchInfo){
+                                          List<StandardMarketMessage> winnerMarkets,StandardMatchInfo standardMatchInfo){
         boolean result = false;
         String key = Constant.REDIS_KEY.RONGHE_BASKET_MARKET_WINNER_CONFIG;
         Object obj  = redisService.hGetAll(key);
@@ -629,7 +635,9 @@ public class StandardMarketOddsProducer {
         if (obj == null){
             return result;
         }
-        Map<String,BasketballConfigDTO> basketballConfigDTOS = (Map<String,BasketballConfigDTO>)obj;
+        //缓存中取出的是JSONObject，不能直接强转成BasketballConfigDTO，需显式反序列化
+        Map<String, BasketballConfigDTO> basketballConfigDTOS =
+                JSON.parseObject(JSON.toJSONString(obj), new TypeReference<Map<String, BasketballConfigDTO>>() {});
         //独赢赔率
         StandardMarketMessage standardMarketMessage = winnerMarkets.get(0);
         if (standardMarketMessage.getStatus()  >= 2){
@@ -955,18 +963,18 @@ public class StandardMarketOddsProducer {
         MessageBuilder<Request<StandardMatchMarketMessage>> builder = MessageBuilder.withPayload(request).setHeader(MessageConst.PROPERTY_KEYS, linkId);
 //        log.info("::{}::开始组装标准赔率消息并下发,topic:STANDARD_MARKET_ODDS_RISK,request:{}", linkId, JSON.toJSONString(request));
         mqTemplate.asyncSend("STANDARD_MARKET_ODDS_RISK:" + standardMatchMarketMessage.getStandardMatchInfoId(),
-                             builder.build(),
-                             new SendCallback() {
-            @Override
-            public void onSuccess(SendResult sendResult) {
-                log.info("::{}::STANDARD_MARKET_ODDS_RISK,send successful", linkId);
-            }
+                builder.build(),
+                new SendCallback() {
+                    @Override
+                    public void onSuccess(SendResult sendResult) {
+                        log.info("::{}::STANDARD_MARKET_ODDS_RISK,send successful", linkId);
+                    }
 
-            @Override
-            public void onException(Throwable throwable) {
-                log.error("::{}::TOPIC={}，send fail; ", linkId, "STANDARD_MARKET_ODDS", throwable);
-            }
-                             });
+                    @Override
+                    public void onException(Throwable throwable) {
+                        log.error("::{}::TOPIC={}，send fail; ", linkId, "STANDARD_MARKET_ODDS", throwable);
+                    }
+                });
         return standardMatchMarketMessage;
     }
 
@@ -1154,18 +1162,18 @@ public class StandardMarketOddsProducer {
         log.info("::{}::开始组装标准AO球头赔率消息并下发,topic:STANDARD_AO_MARKET_ODDS,request:{}", linkId, JSON.toJSONString(request));
         //第一个参数表示topic:tag
         mqTemplate.asyncSend("STANDARD_AO_MARKET_ODDS:" + standardMatchMarketMessage.getStandardMatchInfoId(),
-                             builder.build(),
-                             new SendCallback() {
-            @Override
-            public void onSuccess(SendResult sendResult) {
-                log.info("::{}::STANDARD_AO_MARKET_ODDS,send successful", linkId);
-            }
+                builder.build(),
+                new SendCallback() {
+                    @Override
+                    public void onSuccess(SendResult sendResult) {
+                        log.info("::{}::STANDARD_AO_MARKET_ODDS,send successful", linkId);
+                    }
 
-            @Override
-            public void onException(Throwable throwable) {
-                log.error("::{}::TOPIC={}，send fail; ", linkId, "STANDARD_MARKET_ODDS", throwable);
-            }
-                             }, 1000L);
+                    @Override
+                    public void onException(Throwable throwable) {
+                        log.error("::{}::TOPIC={}，send fail; ", linkId, "STANDARD_MARKET_ODDS", throwable);
+                    }
+                }, 1000L);
     }
 
     /**
@@ -1195,18 +1203,18 @@ public class StandardMarketOddsProducer {
         log.info("::{}::开始组装三方AO球头赔率消息并下发,topic:THIRD_MARKET_BALL_HEAD,request:{}", linkId, JSON.toJSONString(request));
         //第一个参数表示topic:tag
         mqTemplate.asyncSend("THIRD_MARKET_BALL_HEAD:" + standardMatchMarketMessage.getStandardMatchInfoId(),
-                             builder.build(),
-                             new SendCallback() {
-            @Override
-            public void onSuccess(SendResult sendResult) {
-                log.info("::{}::THIRD_MARKET_BALL_HEAD,send successful", linkId);
-            }
+                builder.build(),
+                new SendCallback() {
+                    @Override
+                    public void onSuccess(SendResult sendResult) {
+                        log.info("::{}::THIRD_MARKET_BALL_HEAD,send successful", linkId);
+                    }
 
-            @Override
-            public void onException(Throwable throwable) {
-                log.error("::{}::TOPIC={}，send fail; ", linkId, "THIRD_MARKET_BALL_HEAD", throwable);
-            }
-                             });
+                    @Override
+                    public void onException(Throwable throwable) {
+                        log.error("::{}::TOPIC={}，send fail; ", linkId, "THIRD_MARKET_BALL_HEAD", throwable);
+                    }
+                });
     }
 
     /**
@@ -1227,18 +1235,18 @@ public class StandardMarketOddsProducer {
         log.info("::{}::开始组装三方AO球头修改缓存消息并下发,topic:THIRD_MARKET_UP_STATUS,request:{}", linkId, JSON.toJSONString(request));
         //第一个参数表示topic:tag
         mqTemplate.asyncSend("THIRD_MARKET_UP_STATUS:" + standardMatchMarketMessage.getThirdMatchInfoId(),
-                             builder.build(),
-                             new SendCallback() {
-            @Override
-            public void onSuccess(SendResult sendResult) {
-                log.info("::{}::THIRD_MARKET_UP_STATUS,send successful", linkId);
-            }
+                builder.build(),
+                new SendCallback() {
+                    @Override
+                    public void onSuccess(SendResult sendResult) {
+                        log.info("::{}::THIRD_MARKET_UP_STATUS,send successful", linkId);
+                    }
 
-            @Override
-            public void onException(Throwable throwable) {
-                log.error("::{}::TOPIC={}，send fail; ", linkId, "THIRD_MARKET_UP_STATUS", throwable);
-            }
-                             });
+                    @Override
+                    public void onException(Throwable throwable) {
+                        log.error("::{}::TOPIC={}，send fail; ", linkId, "THIRD_MARKET_UP_STATUS", throwable);
+                    }
+                });
     }
 
     /**
@@ -1266,18 +1274,18 @@ public class StandardMarketOddsProducer {
         log.info("::{}::开始组装三方AO球头赔率消息并下发,topic:THIRD_MARKET_BASKETBALL_HEAD,request:{}", linkId, JSON.toJSONString(request));
         //第一个参数表示topic:tag
         mqTemplate.asyncSend("THIRD_MARKET_BASKETBALL_HEAD:" + standardMatchMarketMessage.getStandardMatchInfoId(),
-                             builder.build(),
-                             new SendCallback() {
-            @Override
-            public void onSuccess(SendResult sendResult) {
-                log.info("::{}::THIRD_MARKET_BASKETBALL_HEAD,send successful", linkId);
-            }
+                builder.build(),
+                new SendCallback() {
+                    @Override
+                    public void onSuccess(SendResult sendResult) {
+                        log.info("::{}::THIRD_MARKET_BASKETBALL_HEAD,send successful", linkId);
+                    }
 
-            @Override
-            public void onException(Throwable throwable) {
-                log.error("::{}::TOPIC={}，send fail; ", linkId, "THIRD_MARKET_BASKETBALL_HEAD", throwable);
-            }
-                             });
+                    @Override
+                    public void onException(Throwable throwable) {
+                        log.error("::{}::TOPIC={}，send fail; ", linkId, "THIRD_MARKET_BASKETBALL_HEAD", throwable);
+                    }
+                });
     }
 
     /**
@@ -1305,18 +1313,18 @@ public class StandardMarketOddsProducer {
         log.info("::{}::开始组装三方AO球头赔率消息并下发,topic:THIRD_MARKET_TABLE_TENNIS_HEAD,request:{}", linkId, JSON.toJSONString(request));
         //第一个参数表示topic:tag
         mqTemplate.asyncSend("THIRD_MARKET_TABLE_TENNIS_HEAD:" + standardMatchMarketMessage.getStandardMatchInfoId(),
-                             builder.build(),
-                             new SendCallback() {
-            @Override
-            public void onSuccess(SendResult sendResult) {
-                log.info("::{}::THIRD_MARKET_TABLE_TENNIS_HEAD,send successful", linkId);
-            }
+                builder.build(),
+                new SendCallback() {
+                    @Override
+                    public void onSuccess(SendResult sendResult) {
+                        log.info("::{}::THIRD_MARKET_TABLE_TENNIS_HEAD,send successful", linkId);
+                    }
 
-            @Override
-            public void onException(Throwable throwable) {
-                log.error("::{}::TOPIC={}，send fail; ", linkId, "THIRD_MARKET_TABLE_TENNIS_HEAD", throwable);
-            }
-                             });
+                    @Override
+                    public void onException(Throwable throwable) {
+                        log.error("::{}::TOPIC={}，send fail; ", linkId, "THIRD_MARKET_TABLE_TENNIS_HEAD", throwable);
+                    }
+                });
     }
 
     /**
@@ -1347,16 +1355,16 @@ public class StandardMarketOddsProducer {
                 "THIRD_MARKET_BASKETBALL_MAINLY_NOT_HEAD:" + standardMatchMarketMessage.getStandardMatchInfoId(),
                 builder.build(),
                 new SendCallback() {
-            @Override
-            public void onSuccess(SendResult sendResult) {
-                log.info("::{}::THIRD_MARKET_BASKETBALL_MAINLY_NOT_HEAD,send successful", linkId);
-            }
+                    @Override
+                    public void onSuccess(SendResult sendResult) {
+                        log.info("::{}::THIRD_MARKET_BASKETBALL_MAINLY_NOT_HEAD,send successful", linkId);
+                    }
 
-            @Override
-            public void onException(Throwable throwable) {
-                log.error("::{}::TOPIC={}，send fail; ", linkId, "THIRD_MARKET_BASKETBALL_MAINLY_NOT_HEAD", throwable);
-            }
-        });
+                    @Override
+                    public void onException(Throwable throwable) {
+                        log.error("::{}::TOPIC={}，send fail; ", linkId, "THIRD_MARKET_BASKETBALL_MAINLY_NOT_HEAD", throwable);
+                    }
+                });
     }
 
     /**
@@ -1404,7 +1412,7 @@ public class StandardMarketOddsProducer {
 
     /**
      * 下发玩法赔率最新更新时间到监控
-      * @param linkId
+     * @param linkId
      * @param sportId
      * @param matchId
      * @param matchPeriodId
@@ -1483,18 +1491,18 @@ public class StandardMarketOddsProducer {
         request.setDataSourceTime(dataSourceTime);
         MessageBuilder<Request<StandardMatchMarketMessage>> builder = MessageBuilder.withPayload(request).setHeader(MessageConst.PROPERTY_KEYS, linkId);
         mqTemplate.asyncSend("SCORE_SETTLE_SP_MARKET:" + standardMatchMarketMessage.getStandardMatchInfoId(),
-                             builder.build(),
-                             new SendCallback() {
-            @Override
-            public void onSuccess(SendResult sendResult) {
-                log.info("::{}::SCORE_SETTLE_SP_MARKET,send successful", linkId);
-            }
+                builder.build(),
+                new SendCallback() {
+                    @Override
+                    public void onSuccess(SendResult sendResult) {
+                        log.info("::{}::SCORE_SETTLE_SP_MARKET,send successful", linkId);
+                    }
 
-            @Override
-            public void onException(Throwable throwable) {
-                log.error("::{}::TOPIC={}，send fail; ", linkId, "SCORE_SETTLE_SP_MARKET", throwable);
-            }
-                             });
+                    @Override
+                    public void onException(Throwable throwable) {
+                        log.error("::{}::TOPIC={}，send fail; ", linkId, "SCORE_SETTLE_SP_MARKET", throwable);
+                    }
+                });
     }
 
     private void calculateOdds(String linkId,
@@ -1528,18 +1536,18 @@ public class StandardMarketOddsProducer {
             Map<Long, Integer> oddsCalcCategoryMap =
                     configSportCategoryGroupService.getBySportId(standardMatchInfo.getSportId());
             CalculateOddsUtils.calculateOddsByMatchLevelV1(configs,
-                                                           standardMatchMarketMessage,
-                                                           oddsCalcCategoryMap,
-                                                           matchTradType,
-                                                           discountOddsConfigDTOMap,
-                                                           originalOddsValueMap);
+                    standardMatchMarketMessage,
+                    oddsCalcCategoryMap,
+                    matchTradType,
+                    discountOddsConfigDTOMap,
+                    originalOddsValueMap);
         } else {
             log.warn("odds calc using old version");
             CalculateOddsUtils.calculateOddsByMatchLevel(configs,
-                                                         standardMatchMarketMessage,
-                                                         matchTradType,
-                                                         discountOddsConfigDTOMap,
-                                                         originalOddsValueMap);
+                    standardMatchMarketMessage,
+                    matchTradType,
+                    discountOddsConfigDTOMap,
+                    originalOddsValueMap);
         }
     }
 
@@ -1567,17 +1575,17 @@ public class StandardMarketOddsProducer {
         Integer level =
                 (tournamentLevel <= 3 && tournamentLevel >= 1) ? tournamentLevel : tournamentLevel == 20 ? 20 : 21;
         log.info("::{}::开始组装标准赔率消息并下发,联赛等级:{},运动种类：{}",
-                 linkId,
-                 level,
-                 standardMatchInfo.getSportId());
+                linkId,
+                level,
+                standardMatchInfo.getSportId());
         List<ConfigMarketLevel> configs = configMarketLevelService.getItemLevel(
                 MarginCategoryConfig.SOPRT_TYPE.contains(standardMatchInfo.getSportId()) ?
                         standardMatchInfo.getSportId() : -1, level);
         log.info("::{}::开始组装标准赔率消息并下发,联赛等级:{},运动种类：{},等级配置参数：{}",
-                 linkId,
-                 level,
-                 standardMatchInfo.getSportId(),
-                 JSON.toJSON(configs));
+                linkId,
+                level,
+                standardMatchInfo.getSportId(),
+                JSON.toJSON(configs));
         List<String> topicList = new ArrayList<>();
         if (!ObjectUtil.isEmpty(configs) && !CollectionUtils.isEmpty(standardMatchMarketMessage.getMarketList())) {
             Map<Integer, List<ConfigMarketLevel>> configsMap =
@@ -1767,27 +1775,27 @@ public class StandardMarketOddsProducer {
                     MessageBuilder<Request<StandardMatchMarketMessage>> builder =
                             MessageBuilder.withPayload(request).setHeader(MessageConst.PROPERTY_KEYS, linkId);
                     log.info("::{}::开始组装标准赔率消息并下发,topic:STANDARD_MARKET_ODDS_LEVEL_:{}",
-                             linkId,
-                             entry.getKey());
+                            linkId,
+                            entry.getKey());
                     //第一个参数表示topic0:tag
                     mqDelegate.asyncSend("STANDARD_MARKET_ODDS_LEVEL_" + entry.getKey() + ":" +
-                                                 standardMatchMarketMessageLevel.getStandardMatchInfoId(),
-                                         builder.build(),
-                                         new SendCallback() {
-                                             @Override
-                                             public void onSuccess(SendResult sendResult) {
-                                                 log.info("::{}::,send successful to STANDARD_MARKET_ODDS_LEVEL_" +
-                                                                  entry.getKey(), linkId);
-                                             }
+                                    standardMatchMarketMessageLevel.getStandardMatchInfoId(),
+                            builder.build(),
+                            new SendCallback() {
+                                @Override
+                                public void onSuccess(SendResult sendResult) {
+                                    log.info("::{}::,send successful to STANDARD_MARKET_ODDS_LEVEL_" +
+                                            entry.getKey(), linkId);
+                                }
 
-                                             @Override
-                                             public void onException(Throwable throwable) {
-                                                 log.error("::{}::TOPIC={}，send fail; ",
-                                                           linkId,
-                                                           "STANDARD_MARKET_ODDS_LEVEL_" + entry.getKey(),
-                                                           throwable);
-                                             }
-                                         });
+                                @Override
+                                public void onException(Throwable throwable) {
+                                    log.error("::{}::TOPIC={}，send fail; ",
+                                            linkId,
+                                            "STANDARD_MARKET_ODDS_LEVEL_" + entry.getKey(),
+                                            throwable);
+                                }
+                            });
                 }
             }
         } else {
@@ -1800,28 +1808,28 @@ public class StandardMarketOddsProducer {
             if (!CollectionUtils.isEmpty(topicList)) {
                 for (String topicStr : topicList) {
                     log.info("::{}::开始组装标准赔率消息并下发,topic:{},request:{}",
-                             linkId,
-                             topicStr,
-                             JSON.toJSONString(request));
+                            linkId,
+                            topicStr,
+                            JSON.toJSONString(request));
                     //第一个参数表示topic0:tag
                     mqDelegate.asyncSend(topicStr + ":" + standardMatchMarketMessage.getStandardMatchInfoId(),
-                                         builder.build(),
-                                         new SendCallback() {
-                                             @Override
-                                             public void onSuccess(SendResult sendResult) {
-                                                 log.info("::{}::,send successful to :{}", linkId, topicStr);
-                                             }
+                            builder.build(),
+                            new SendCallback() {
+                                @Override
+                                public void onSuccess(SendResult sendResult) {
+                                    log.info("::{}::,send successful to :{}", linkId, topicStr);
+                                }
 
-                                             @Override
-                                             public void onException(Throwable throwable) {
-                                                 log.error("::{}::TOPIC={}，send fail; ", linkId, topicStr, throwable);
-                                             }
-                                         });
+                                @Override
+                                public void onException(Throwable throwable) {
+                                    log.error("::{}::TOPIC={}，send fail; ", linkId, topicStr, throwable);
+                                }
+                            });
                 }
             } else {
                 log.info("::{}::开始组装标准赔率消息并下发,topic:STANDARD_MARKET_ODDS_LEVEL_1,request:{}",
-                         linkId,
-                         JSON.toJSONString(request));
+                        linkId,
+                        JSON.toJSONString(request));
                 //第一个参数表示topic0:tag
                 mqDelegate.asyncSend(
                         "STANDARD_MARKET_ODDS_LEVEL_1:" + standardMatchMarketMessage.getStandardMatchInfoId(),
@@ -1835,9 +1843,9 @@ public class StandardMarketOddsProducer {
                             @Override
                             public void onException(Throwable throwable) {
                                 log.error("::{}::TOPIC={}，send fail; ",
-                                          linkId,
-                                          "STANDARD_MARKET_ODDS_LEVEL_1",
-                                          throwable);
+                                        linkId,
+                                        "STANDARD_MARKET_ODDS_LEVEL_1",
+                                        throwable);
                             }
                         });
             }

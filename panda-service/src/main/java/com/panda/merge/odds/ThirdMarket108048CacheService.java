@@ -37,36 +37,40 @@ public class ThirdMarket108048CacheService {
         if (matchId == null || categoryId == null || CollectionUtils.isEmpty(markets)) {
             return;
         }
-        //百家赔一次下发默认是同一个站点(L01-Bet365/L01-Fonbet...)，站点编码可能在 internalDataSourceCode，
-        //也可能直接是盘口的 dataSourceCode。编码口径与原来完全一致(resolveDataSourceCode)，
-        //只是改成按盘口逐个分组，避免一次下发混站点时只保留最后更新的那一个站点；
-        //盘口自己没有任何编码时，归到本次下发的编码，而不是丢出一个空编码的field。
         String pushSourceCode = ThirdMarket108048Helper.resolvePushDataSourceCode(markets, dataSourceCode);
-        Map<String, List<ThirdMarketDTO>> marketsBySource = new HashMap<>();
+        Map<Integer, Map<String, List<ThirdMarketDTO>>> marketsByTypeAndSource = new HashMap<>();
         for (ThirdMarketDTO market : markets) {
             if (market == null) {
                 continue;
             }
+            Integer marketType = ThirdMarket108048Helper.resolveMarketType(market, null);
+            if (marketType == null) {
+                continue;
+            }
             String sourceCode = ThirdMarket108048Helper.resolveDataSourceCode(market, pushSourceCode);
-            marketsBySource.computeIfAbsent(sourceCode, k -> new ArrayList<>()).add(market);
+            marketsByTypeAndSource
+                    .computeIfAbsent(marketType, k -> new HashMap<>())
+                    .computeIfAbsent(sourceCode, k -> new ArrayList<>())
+                    .add(market);
         }
-        Map<String, ThirdMarketModifytimeDTO> updates = new HashMap<>(marketsBySource.size());
-        for (Map.Entry<String, List<ThirdMarketDTO>> entry : marketsBySource.entrySet()) {
-            ThirdMarketModifytimeDTO dto = ThirdMarket108048Helper.fromMarkets(matchId, categoryId, entry.getKey(), entry.getValue());
-            if (dto == null) {
-                continue;
+        Map<String, ThirdMarketModifytimeDTO> updates = new HashMap<>();
+        for (Map.Entry<Integer, Map<String, List<ThirdMarketDTO>>> typeEntry : marketsByTypeAndSource.entrySet()) {
+            for (Map.Entry<String, List<ThirdMarketDTO>> entry : typeEntry.getValue().entrySet()) {
+                ThirdMarketModifytimeDTO dto = ThirdMarket108048Helper.fromMarkets(
+                        matchId, categoryId, typeEntry.getKey(), entry.getKey(), entry.getValue());
+                if (dto == null) {
+                    continue;
+                }
+                dto.setDateSourceCode(entry.getKey());
+                String fieldKey = ThirdMarket108048Helper.buildFieldKey(categoryId, typeEntry.getKey(), dto.getDateSourceCode());
+                if (!ThirdMarket108048Helper.isValidFieldKey(fieldKey)) {
+                    continue;
+                }
+                updates.put(fieldKey, dto);
             }
-            //以分组编码为准，保证缓存field与分组一一对应
-            dto.setDateSourceCode(entry.getKey());
-            String fieldKey = ThirdMarket108048Helper.buildFieldKey(categoryId, dto.getDateSourceCode());
-            if (!ThirdMarket108048Helper.isValidFieldKey(fieldKey)) {
-                continue;
-            }
-            updates.put(fieldKey, dto);
         }
-        //108048 验证日志：百家赔(W2)写缓存，能看到解析出的站点编码和最终写入的 field
-        log.info("::108048::cacheFromMarkets 写缓存,matchId={},categoryId={},下发编码={},解析站点={},写入field={}",
-                matchId, categoryId, dataSourceCode, marketsBySource.keySet(), updates.keySet());
+        log.info("::108048::cacheFromMarkets 写缓存,matchId={},categoryId={},下发编码={},写入field={}",
+                matchId, categoryId, dataSourceCode, updates.keySet());
         flush(matchId, updates);
     }
 
@@ -87,8 +91,12 @@ public class ThirdMarket108048CacheService {
             if (categoryId == null) {
                 continue;
             }
+            Integer marketType = ThirdMarket108048Helper.resolveMarketType(market, wrapper.getMarketType());
+            if (marketType == null) {
+                continue;
+            }
             String dataSourceCode = ThirdMarket108048Helper.resolveDataSourceCode(market, wrapper.getDataSourceCode());
-            String fieldKey = ThirdMarket108048Helper.buildFieldKey(categoryId, dataSourceCode);
+            String fieldKey = ThirdMarket108048Helper.buildFieldKey(categoryId, marketType, dataSourceCode);
             if (!ThirdMarket108048Helper.isValidFieldKey(fieldKey)) {
                 continue;
             }
@@ -104,14 +112,14 @@ public class ThirdMarket108048CacheService {
             for (Map.Entry<String, List<ThirdMarketDTO>> fieldEntry : matchEntry.getValue().entrySet()) {
                 String fieldKey = fieldEntry.getKey();
                 Long categoryId = ThirdMarket108048Helper.parseCategoryId(fieldKey);
-                String dataSourceCode = fieldKey.contains(":") ? fieldKey.substring(fieldKey.indexOf(':') + 1) : "";
+                Integer marketType = ThirdMarket108048Helper.parseMarketType(fieldKey);
+                String dataSourceCode = ThirdMarket108048Helper.parseDataSourceCode(fieldKey);
                 ThirdMarketModifytimeDTO dto = ThirdMarket108048Helper.fromMarkets(
-                        matchEntry.getKey(), categoryId, dataSourceCode, fieldEntry.getValue());
+                        matchEntry.getKey(), categoryId, marketType, dataSourceCode, fieldEntry.getValue());
                 if (dto != null) {
                     updates.put(fieldEntry.getKey(), dto);
                 }
             }
-            //108048 验证日志：常规数据源(W1，含 AO)写缓存，AO 正常应写出 "玩法ID:AO"
             log.info("::108048::cacheFromWrappers 写缓存,matchId={},写入field={}", matchEntry.getKey(), updates.keySet());
             flush(matchEntry.getKey(), updates);
         }
@@ -127,15 +135,13 @@ public class ThirdMarket108048CacheService {
         for (Map.Entry<String, ThirdMarketModifytimeDTO> entry : updates.entrySet()) {
             merged.put(entry.getKey(), ThirdMarket108048Helper.mergeLatest(existing.get(entry.getKey()), entry.getValue()));
         }
-        //缓存必须有过期时间，否则赛事结束后的field会一直残留
-        //108048 验证日志：本次写入的 field 与 redis 里已有的 field，可对比确认站点是否被合并保留
         log.info("::108048::flush 写入redis,matchId={},本次field={},已有field={}", matchId, updates.keySet(), existing.keySet());
         redisService.hSetAll(redisKey, merged, CACHE_EXPIRE_SECONDS);
         cleanLegacyFields(redisKey, existing);
     }
 
     /**
-     * 清理历史版本写入的非法field(只有玩法ID、没有数据源编码)，风控取不到且不会过期，会一直返回过期状态
+     * 清理历史版本写入的非法 field（无 marketType 或缺少数据源编码）。
      */
     private void cleanLegacyFields(String redisKey, Map<String, ThirdMarketModifytimeDTO> existing) {
         if (MapUtils.isEmpty(existing)) {
@@ -148,8 +154,7 @@ public class ThirdMarket108048CacheService {
             }
         }
         if (!legacyFields.isEmpty()) {
-            //108048 验证日志：残留的非法 field（如只有 "4"）被清理，能证明旧 AO key 被自愈
-            log.info("::108048::清理历史非法field(无数据源编码),redisKey={},删除={}", redisKey, legacyFields);
+            log.info("::108048::清理历史非法field(非玩法ID:marketType:数据源编码),redisKey={},删除={}", redisKey, legacyFields);
             redisService.hDel(redisKey, legacyFields.toArray());
         }
     }

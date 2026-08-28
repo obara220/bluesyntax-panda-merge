@@ -70,5 +70,18 @@ public class ThirdMatchInfoProducer extends BaseProcessor {
         log.info("【"+ PROJECT_ID_NOREALTIME +" ："+ THIRD_MATCH_INFO_API+"】【{} : {}】推送三方赛事给比分网后台完成【topic : "+ THIRD_MATCH_INFO_PLS +"】 ,id:{},thirdMatchSourceId:{}", dataSource.getCode(),linkId,item.getId(),item.getThirdMatchSourceId());
     }
 
+    /**
+     * 数据商变更赛事来源时有实时更新
+     * @param linkId
+     * @param item
+     */
+    public void pushDataSourceMatchSource(String linkId,  ThirdMatchInfo item) {
+        Request<ThirdMatchInfo> request = new Request<>();
+        request.setData(item);
+        request.setLinkId(linkId);
+        MessageBuilder<String> builder = MessageBuilder.withPayload(JSONUtil.toJsonStr(request)).setHeader(MessageConst.PROPERTY_KEYS, linkId);
+        rocketMqTemplate.syncSend(DATASOURCE_MATCH_SOURCE_CHANGE_TO_RISK +":"+ item.getThirdMatchSourceId(), builder.build(), SECOND_1 * THREE,ONE);
+        log.info("【"+ PROJECT_ID_NOREALTIME +" ："+ DATASOURCE_MATCH_SOURCE_CHANGE_TO_RISK+"】【{}:推送数据商变更赛事来源时有实时更新完成【topic : "+ DATASOURCE_MATCH_SOURCE_CHANGE_TO_RISK +"】 ,id:{},thirdMatchSourceId:{}", linkId,item.getId(),item.getThirdMatchSourceId());
+    }
 
 }

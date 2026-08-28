@@ -25,6 +25,21 @@ public class TableTennisScores extends  AbstractSportScores{
     @ScoresProperty(eventName = "黄牌",eventCode ={"yellow_card"})
     private CommonItem yellowCard ;
 
+    @ScoresProperty(eventName = "发球次数", eventCode = {"current_serve_tabletennis"})
+    private CommonItem serve;
+
+    @ScoresProperty(eventName = "先发球", eventCode = {"which_team_serves_first"})
+    private CommonItem kickoff;
+
+    @ScoresProperty(eventName = "重新发球", eventCode = {"re_serve"})
+    private CommonItem reServe;
+
+    @ScoresProperty(eventName = "加速模式", eventCode = {"expedite_mode"})
+    private CommonItem expediteMode;
+
+    @ScoresProperty(eventName = "红黄牌同手", eventCode = {"yellowred_card_same_hand"})
+    private CommonItem yellowRedCardSameHand;
+
     public TableTennisScores() {
         super.init(this);
     }
