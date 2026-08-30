@@ -7768,6 +7768,8 @@ public class ThirdMatchMarketProcessor extends BaseProcessor {
                         marketDataMessage.setDataSourceCodePA("PA");
                         redisService.hSet(fistKey, key, marketDataMessage);
                         redisService.hSet(fistMatchKey, standardMatchInfo.getId().toString(), standardMatchInfo.getBeginTime());
+                        //初盘已写入缓存，下发消息不再携带该标记，避免下游按PA数据源匹配不到盘口
+                        marketDataMessage.setDataSourceCodePA(null);
                     }
                 }
             });
