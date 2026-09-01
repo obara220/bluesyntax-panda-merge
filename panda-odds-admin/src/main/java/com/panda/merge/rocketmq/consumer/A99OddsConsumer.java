@@ -1,3 +1,4 @@
+/*
 package com.panda.merge.rocketmq.consumer;
 
 import com.alibaba.fastjson.JSON;
@@ -23,9 +24,11 @@ import static com.panda.merge.constant.ConstantSystem.A99_STANDARD_ODDS_API;
 import static com.panda.merge.constant.ConstantSystem.DATACENTER;
 
 
+*/
 /**
  * a01 延长开售
- */
+ *//*
+
 @Slf4j
 @Component
 @RocketMQMessageListener(topic = A99_STANDARD_ODDS_API,
@@ -40,9 +43,11 @@ public class A99OddsConsumer implements RocketMQListener<Request<List<StandardMa
     @Autowired
     private ThirdMatchInfoService thirdMatchInfoService;
 
-    /**
+    */
+/**
      * 数据中心赔率状态开关 1开 0关
-     */
+     *//*
+
     @NacosValue(value = "${datacenter.odds.status:1}", autoRefreshed = true)
     private Integer datacenterOddsStatus;
 
@@ -67,3 +72,4 @@ public class A99OddsConsumer implements RocketMQListener<Request<List<StandardMa
         a99OddsProcessor.execute(request);
     }
 }
+*/

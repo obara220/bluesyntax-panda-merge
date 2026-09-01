@@ -750,44 +750,6 @@ public class LiveDataScoresNewConsumer extends AbstractSingleMessageMQConsumer<R
         log.info("linkId::{}::pushMatchStandScores,livedata 推送比分中心标准比分到WS服务", linkId);
 
     }
-
-    /**
-     * 综合球种阶段转换
-     * @param sportId
-     * @param matchPeriodId
-     * @return
-     */
-    private Long changePeriodByExtryPeriodEvent(Long sportId,Long matchPeriodId) {
-        if(sportId==5L){
-            if(matchPeriodId>=800){
-                return matchPeriodId/100;
-            }
-        }
-//        //非乒乓球，直接返回阶段
-//        if(sportId!=8L && sportId!=5L){
-//            return matchPeriodId;
-//        }
-        if(301L == matchPeriodId){
-            return 8L;
-        }
-        if(302L == matchPeriodId){
-            return 9L;
-        }
-        if(303L == matchPeriodId){
-            return 10L;
-        }
-        if(304L == matchPeriodId){
-            return 11L;
-        }
-        if(305L == matchPeriodId){
-            return 12L;
-        }
-        if(306L == matchPeriodId){
-            return 441L;
-        }
-
-        return matchPeriodId;
-    }
     /**
      * 比分计算逻辑(标准比分不下发的赛种 5网，8乒，9排，10羽赛种)
      * @param matchScoresInfo 比分

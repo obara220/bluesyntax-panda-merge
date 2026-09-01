@@ -21,6 +21,7 @@ import com.panda.merge.calculation.impl.BasketballCalculationServiceImpl;
 import com.panda.merge.calculation.impl.FootballCalculationServiceImpl;
 import com.panda.merge.calculation.impl.HandballCalculationServiceImpl;
 import com.panda.merge.common.enums.*;
+import com.panda.merge.common.utils.StringPool;
 import com.panda.merge.common.utils.TimeUtils;
 import com.panda.merge.component.UUIdUtils;
 import com.panda.merge.config.RedisConfig;
@@ -1954,10 +1955,10 @@ public class ScoresCenterApiImpl implements IScoresCenterApi {
         for(Long period : list){
             FootballScores footballScores = allPeriodScores.get(period);
             if(footballScores!=null){
-                sb.append(footballScores.getYellowCard().doCountScoreStr()).append("|");
-                sb.append(footballScores.getRedCard().doCountScoreStr()).append("|");
-                sb.append(footballScores.getCorner().doCountScoreStr()).append("|");
-                sb.append(footballScores.getGoal().doCountScoreStr()).append("|");
+                sb.append(footballScores.getYellowCard().doCountScoreStr()).append(StringPool.PIPE);
+                sb.append(footballScores.getRedCard().doCountScoreStr()).append(StringPool.PIPE);
+                sb.append(footballScores.getCorner().doCountScoreStr()).append(StringPool.PIPE);
+                sb.append(footballScores.getGoal().doCountScoreStr()).append(StringPool.PIPE);
             }
         }
         log.info("保存结算日志比分{}：{}",standardMatchScores.getMatchManageId(),sb.toString());
@@ -1986,54 +1987,54 @@ public class ScoresCenterApiImpl implements IScoresCenterApi {
         }
         for(Long period : list){
             if(period==6L){
-                sb.append(FootballBallPeroidEnum.HF_YELLOW.getCode()).append("|");
-                sb.append(FootballBallPeroidEnum.HF_RED.getCode()).append("|");
-                sb.append(FootballBallPeroidEnum.HF_CORNER.getCode()).append("|");
-                sb.append(FootballBallPeroidEnum.HF_GOAL.getCode()).append("|");
+                sb.append(FootballBallPeroidEnum.HF_YELLOW.getCode()).append(StringPool.PIPE);
+                sb.append(FootballBallPeroidEnum.HF_RED.getCode()).append(StringPool.PIPE);
+                sb.append(FootballBallPeroidEnum.HF_CORNER.getCode()).append(StringPool.PIPE);
+                sb.append(FootballBallPeroidEnum.HF_GOAL.getCode()).append(StringPool.PIPE);
             }else if(period==7L){
-                sb.append(FootballBallPeroidEnum.FT_YELLOW.getCode()).append("|");
-                sb.append(FootballBallPeroidEnum.FT_RED.getCode()).append("|");
-                sb.append(FootballBallPeroidEnum.FT_CORNER.getCode()).append("|");
-                sb.append(FootballBallPeroidEnum.FT_GOAL.getCode()).append("|");
+                sb.append(FootballBallPeroidEnum.FT_YELLOW.getCode()).append(StringPool.PIPE);
+                sb.append(FootballBallPeroidEnum.FT_RED.getCode()).append(StringPool.PIPE);
+                sb.append(FootballBallPeroidEnum.FT_CORNER.getCode()).append(StringPool.PIPE);
+                sb.append(FootballBallPeroidEnum.FT_GOAL.getCode()).append(StringPool.PIPE);
             }else if(period==41L || period==42L){
                 if(StrUtil.isNotEmpty(sb) && sb.toString().contains("16")){
                     //避免重复添加
                     continue;
                 }
-                sb.append(FootballBallPeroidEnum.OT_YELLOW.getCode()).append("|");
-                sb.append(FootballBallPeroidEnum.OT_RED.getCode()).append("|");
-                sb.append(FootballBallPeroidEnum.OT_CORNER.getCode()).append("|");
-                sb.append(FootballBallPeroidEnum.OT_GOAL.getCode()).append("|");
+                sb.append(FootballBallPeroidEnum.OT_YELLOW.getCode()).append(StringPool.PIPE);
+                sb.append(FootballBallPeroidEnum.OT_RED.getCode()).append(StringPool.PIPE);
+                sb.append(FootballBallPeroidEnum.OT_CORNER.getCode()).append(StringPool.PIPE);
+                sb.append(FootballBallPeroidEnum.OT_GOAL.getCode()).append(StringPool.PIPE);
             }else if(period==60899L){
-                sb.append(FootballBallPeroidEnum.MIN_0_15_YELLOW_CARD.getCode()).append("|");
-                sb.append(FootballBallPeroidEnum.MIN_0_15_RED_CARD.getCode()).append("|");
-                sb.append(FootballBallPeroidEnum.MIN_0_15_CORNER.getCode()).append("|");
-                sb.append(FootballBallPeroidEnum.MIN_0_15_GOAL.getCode()).append("|");
+                sb.append(FootballBallPeroidEnum.MIN_0_15_YELLOW_CARD.getCode()).append(StringPool.PIPE);
+                sb.append(FootballBallPeroidEnum.MIN_0_15_RED_CARD.getCode()).append(StringPool.PIPE);
+                sb.append(FootballBallPeroidEnum.MIN_0_15_CORNER.getCode()).append(StringPool.PIPE);
+                sb.append(FootballBallPeroidEnum.MIN_0_15_GOAL.getCode()).append(StringPool.PIPE);
             }else if(period==61799L){
-                sb.append(FootballBallPeroidEnum.MIN_15_30_YELLOW_CARD.getCode()).append("|");
-                sb.append(FootballBallPeroidEnum.MIN_15_30_RED_CARD.getCode()).append("|");
-                sb.append(FootballBallPeroidEnum.MIN_15_30_CORNER.getCode()).append("|");
-                sb.append(FootballBallPeroidEnum.MIN_15_30_GOAL.getCode()).append("|");
+                sb.append(FootballBallPeroidEnum.MIN_15_30_YELLOW_CARD.getCode()).append(StringPool.PIPE);
+                sb.append(FootballBallPeroidEnum.MIN_15_30_RED_CARD.getCode()).append(StringPool.PIPE);
+                sb.append(FootballBallPeroidEnum.MIN_15_30_CORNER.getCode()).append(StringPool.PIPE);
+                sb.append(FootballBallPeroidEnum.MIN_15_30_GOAL.getCode()).append(StringPool.PIPE);
             }else if(period==62699L){
-                sb.append(FootballBallPeroidEnum.MIN_30_45_YELLOW_CARD.getCode()).append("|");
-                sb.append(FootballBallPeroidEnum.MIN_30_45_RED_CARD.getCode()).append("|");
-                sb.append(FootballBallPeroidEnum.MIN_30_45_CORNER.getCode()).append("|");
-                sb.append(FootballBallPeroidEnum.MIN_30_45_GOAL.getCode()).append("|");
+                sb.append(FootballBallPeroidEnum.MIN_30_45_YELLOW_CARD.getCode()).append(StringPool.PIPE);
+                sb.append(FootballBallPeroidEnum.MIN_30_45_RED_CARD.getCode()).append(StringPool.PIPE);
+                sb.append(FootballBallPeroidEnum.MIN_30_45_CORNER.getCode()).append(StringPool.PIPE);
+                sb.append(FootballBallPeroidEnum.MIN_30_45_GOAL.getCode()).append(StringPool.PIPE);
             }else if(period==73599L){
-                sb.append(FootballBallPeroidEnum.MIN_45_60_YELLOW_CARD.getCode()).append("|");
-                sb.append(FootballBallPeroidEnum.MIN_45_60_RED_CARD.getCode()).append("|");
-                sb.append(FootballBallPeroidEnum.MIN_45_60_CORNER.getCode()).append("|");
-                sb.append(FootballBallPeroidEnum.MIN_45_60_GOAL.getCode()).append("|");
+                sb.append(FootballBallPeroidEnum.MIN_45_60_YELLOW_CARD.getCode()).append(StringPool.PIPE);
+                sb.append(FootballBallPeroidEnum.MIN_45_60_RED_CARD.getCode()).append(StringPool.PIPE);
+                sb.append(FootballBallPeroidEnum.MIN_45_60_CORNER.getCode()).append(StringPool.PIPE);
+                sb.append(FootballBallPeroidEnum.MIN_45_60_GOAL.getCode()).append(StringPool.PIPE);
             }else if(period==74499L){
-                sb.append(FootballBallPeroidEnum.MIN_60_75_YELLOW_CARD.getCode()).append("|");
-                sb.append(FootballBallPeroidEnum.MIN_60_75_RED_CARD.getCode()).append("|");
-                sb.append(FootballBallPeroidEnum.MIN_60_75_CORNER.getCode()).append("|");
-                sb.append(FootballBallPeroidEnum.MIN_60_75_GOAL.getCode()).append("|");
+                sb.append(FootballBallPeroidEnum.MIN_60_75_YELLOW_CARD.getCode()).append(StringPool.PIPE);
+                sb.append(FootballBallPeroidEnum.MIN_60_75_RED_CARD.getCode()).append(StringPool.PIPE);
+                sb.append(FootballBallPeroidEnum.MIN_60_75_CORNER.getCode()).append(StringPool.PIPE);
+                sb.append(FootballBallPeroidEnum.MIN_60_75_GOAL.getCode()).append(StringPool.PIPE);
             }else if(period==75399L){
-                sb.append(FootballBallPeroidEnum.MIN_75_90_YELLOW_CARD.getCode()).append("|");
-                sb.append(FootballBallPeroidEnum.MIN_75_90_RED_CARD.getCode()).append("|");
-                sb.append(FootballBallPeroidEnum.MIN_75_90_CORNER.getCode()).append("|");
-                sb.append(FootballBallPeroidEnum.MIN_75_90_GOAL.getCode()).append("|");
+                sb.append(FootballBallPeroidEnum.MIN_75_90_YELLOW_CARD.getCode()).append(StringPool.PIPE);
+                sb.append(FootballBallPeroidEnum.MIN_75_90_RED_CARD.getCode()).append(StringPool.PIPE);
+                sb.append(FootballBallPeroidEnum.MIN_75_90_CORNER.getCode()).append(StringPool.PIPE);
+                sb.append(FootballBallPeroidEnum.MIN_75_90_GOAL.getCode()).append(StringPool.PIPE);
             }
         }
         log.info("保存结算日志参数{}：{}",standardMatchScores.getMatchManageId(),sb.toString());

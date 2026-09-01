@@ -15,6 +15,8 @@ public class SportPeriodConstant {
      */
     public static final List<Long> TIME_EVENT_PERIOD = Arrays.asList(6L, 7L, 41L, 42L, 31L, 32L, 33L);
 
+    public static final Long matchEnd = 999L;
+
     public static abstract class SportPeriod  {
         //代表
         public static Long WHOLE_MATCH= -1L;
@@ -215,7 +217,40 @@ public class SportPeriodConstant {
 
             return null;
         }
-
+        public static Long period_6 = 6L;
+        public static Long period_7 = 7L;
+        public static Long period_31 = 31L;
+        public static Long period_41 = 41L;
+        public static Long period_42 = 42L;
+        public static Long period_110 = 110L;
+        public static Long period_50 = 50L;
+        public static Long period_100 = 100L;
+        public static Long period_60899 = 60899L;
+        public static Long period_61799 = 61799L;
+        public static Long period_62699 = 62699L;
+        public static Long period_73599 = 73599L;
+        public static Long period_74499 = 74499L;
+        public static Long period_75399 = 75399L;
+        public static Long period_6005 = 6005L;
+        public static Long period_6010 = 6010L;
+        public static Long period_6015 = 6015L;
+        public static Long period_6020 = 6020L;
+        public static Long period_6025 = 6025L;
+        public static Long period_6030 = 6030L;
+        public static Long period_6035 = 6035L;
+        public static Long period_6040 = 6040L;
+        public static Long period_6045 = 6045L;
+        public static Long period_6050 = 6050L;
+        public static Long period_7050 = 7050L;
+        public static Long period_7055 = 7055L;
+        public static Long period_7060 = 7060L;
+        public static Long period_7065 = 7065L;
+        public static Long period_7070 = 7070L;
+        public static Long period_7075 = 7075L;
+        public static Long period_7080 = 7080L;
+        public static Long period_7085 = 7085L;
+        public static Long period_7090 = 7090L;
+        public static Long period_7095 = 7095L;
 
     }
 

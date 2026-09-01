@@ -42,6 +42,7 @@ import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.rocketmq.common.message.MessageExt;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -117,6 +118,8 @@ public class MatchEventInfoProcessor extends BaseProcessor {
 
     @Resource(name = "ProcessTradeSystemThreadPool")
     private TaskExecutor processTradeSystemThreadPool;
+    @Autowired
+    private ApplicationContext applicationContext;
 
     /**
      *  优化单79713，需要告警的足球事件
@@ -826,7 +829,7 @@ public class MatchEventInfoProcessor extends BaseProcessor {
                 MatchEventInfo matchEventInfo = getMatchEventInfo(matchEventInfoDTO, oldThirdMatchInfo, thirdSportTeam, sportId, newLinkId,matchEventInfoList);
                 log.info("linkId=【{}】process2MatchEvent，生成三方赛事事件信息完成,三方数据源赛事id={},三方事件信息={}", newLinkId, oldThirdMatchInfo.getThirdMatchSourceId(), JSON.toJSONString(matchEventInfo));
                 //足球999事件特殊处理，AO初盘需要做事件统计
-                this.runAoMatchEventHistory(matchEventInfo);
+                applicationContext.getBean(MatchEventInfoProcessor.class).runAoMatchEventHistory(matchEventInfo);
                 //标准赛事信息相关处理逻辑
                 if (null != standardMatchInfo) {
                     if (matchEventInfoDTO.getDataSourceCode().equalsIgnoreCase(businessEventCode)) {
@@ -1589,25 +1592,20 @@ public class MatchEventInfoProcessor extends BaseProcessor {
     /**
      * 处理足球999事件的时候下发全量进球角球罚牌到 AO初盘统计
      */
-    private void runAoMatchEventHistory(MatchEventInfo matchEventInfo) {
+    @Async("AoMatchEventHistory")
+    void runAoMatchEventHistory(MatchEventInfo matchEventInfo) {
         try {
             if (StandardSportTypeEnum.FootBall.getCode().equals(matchEventInfo.getSportId())
                     && EventCodeEnum.MATCH_STATUS.code.equalsIgnoreCase(matchEventInfo.getEventCode())
                     && MatchPeriodForMatchOverEnum.Ended999.value.equals(matchEventInfo.getMatchPeriodId())) {
                 //异步执行逻辑
-                Thread runAoEventT = new Thread() {
-                    @Override
-                    public void run() {
-                        List<MatchEventInfo> list = matchEventInfoService.getEventHistoryByEndEvent(matchEventInfo);
-                        //取消事件处理
-                        List<MatchEventInfo> allMatchEvents = MatchEventUtils.doCancelEvent(list);
-                        //封装成AO初盘事件统计
-                        AoMatchEventsHistoryDto aoMatchEvents = new AoMatchEventsHistoryDto(matchEventInfo, allMatchEvents);
-                        //下发到下游
-                        aoEventsHistoryProducer.pushModifyMatchInfoMessage(aoMatchEvents);
-                    }
-                };
-                runAoEventT.start();
+                List<MatchEventInfo> list = matchEventInfoService.getEventHistoryByEndEvent(matchEventInfo);
+                //取消事件处理
+                List<MatchEventInfo> allMatchEvents = MatchEventUtils.doCancelEvent(list);
+                //封装成AO初盘事件统计
+                AoMatchEventsHistoryDto aoMatchEvents = new AoMatchEventsHistoryDto(matchEventInfo, allMatchEvents);
+                //下发到下游
+                aoEventsHistoryProducer.pushModifyMatchInfoMessage(aoMatchEvents);
             }
         } catch (Exception e) {
             log.error("runAoMatchEventHistory error={},link {}", e, matchEventInfo.getLinkId());

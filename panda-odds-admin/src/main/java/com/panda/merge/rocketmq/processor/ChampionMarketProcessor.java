@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.panda.merge.common.BaseProcessor;
 import com.panda.merge.common.enums.Constant;
 import com.panda.merge.common.utils.TimeUtils;
+import com.panda.merge.component.UUIdUtils;
 import com.panda.merge.config.RedisConfig;
 import com.panda.merge.constant.SaleMatchSellStausEnum;
 import com.panda.merge.dto.*;
@@ -17,6 +18,7 @@ import com.panda.merge.model.*;
 import com.panda.merge.rocketmq.producer.StandardMarketOddsProducer;
 import com.panda.merge.service.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Lazy;
@@ -151,9 +153,12 @@ public class ChampionMarketProcessor extends BaseProcessor {
                 Boolean delStatus = redisService.del(key);
                 log.info("::{}::processChampionMarketSetting的投注项的清理, key:{}, 清理结果:{}", linkId, key, delStatus);
                 StandardSportMarketOdds standardSportMarketOdds = standardSportMarketOddsService.getItem(oddsDTO.getDataSourceCode(), oddsDTO.getThirdOddsFieldSourceId(), standardSportMarket.getId());
-                if ( null != standardSportMarketOdds ) {
-                    standardSportMarketOddsList.add(standardSportMarketOdds);
+                if ( null == standardSportMarketOdds ) {
+                    standardSportMarketOdds = buildStandardSportMarketOddsFromDTO(oddsDTO, standardSportMarket);
+                    standardSportMarketOddsService.create(linkId, standardSportMarketOdds);
+                    log.info("::{}::processChampionMarketSetting补建标准盘口投注项,投注项源id:{},orderOdds:{}", linkId, oddsDTO.getThirdOddsFieldSourceId(), standardSportMarketOdds.getOrderOdds());
                 }
+                standardSportMarketOddsList.add(standardSportMarketOdds);
             }
         }
 
@@ -196,6 +201,27 @@ public class ChampionMarketProcessor extends BaseProcessor {
             standardMarketOddsProducer.standardMarketOddsAsyncSend(request.getLinkId(), standardMatchInfo, sendStandardMarketMessageList, request.getDataSourceTime(),false);
         }
 
+    }
+
+    /**
+     * 根据下发的投注项DTO补建标准盘口投注项
+     * @param oddsDTO
+     * @param standardSportMarket 标准盘口
+     */
+    private StandardSportMarketOdds buildStandardSportMarketOddsFromDTO(StandardMarketOddsDTO oddsDTO, StandardSportMarket standardSportMarket) {
+        StandardSportMarketOdds standardSportMarketOdds = new StandardSportMarketOdds();
+        BeanUtils.copyProperties(oddsDTO, standardSportMarketOdds);
+        standardSportMarketOdds.setId(UUIdUtils.getId());
+        standardSportMarketOdds.setMarketId(standardSportMarket.getId());
+        standardSportMarketOdds.setRelationMarketId(standardSportMarket.getRelationMarketId());
+        standardSportMarketOdds.setRelationMarketOddsId(Long.parseLong(oddsDTO.getId()));
+        standardSportMarketOdds.setStandardMatchId(standardSportMarket.getStandardMatchInfoId());
+        standardSportMarketOdds.setCreateTime(TimeUtils.millsSecondsEast8ZoneGmt());
+        standardSportMarketOdds.setModifyTime(TimeUtils.millsSecondsEast8ZoneGmt());
+        if (null == standardSportMarketOdds.getNameCode()) {
+            standardSportMarketOdds.setNameCode(standardSportMarketOdds.getId());
+        }
+        return standardSportMarketOdds;
     }
 
 }

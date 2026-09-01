@@ -6,6 +6,7 @@ import com.alibaba.fastjson.TypeReference;
 import com.panda.merge.common.enums.DataSourceCodeEnum;
 import com.panda.merge.common.enums.SellStatusEnum;
 import com.panda.merge.constant.SourceTypeEnum;
+import com.panda.merge.constant.SportPeriodConstant;
 import com.panda.merge.constant.SportTypeEnum;
 import com.panda.merge.dto.CommonItem;
 import com.panda.merge.dto.FootballScores;
@@ -257,75 +258,75 @@ public class SoldMessageStandardScoreProcessor {
                 if(thirdScores==null){
                     thirdScores = new FootballScores(entry.getKey());
                 }
-                FootballScores footballMinScores1 = standardScores.get(60899L);
-                FootballScores footballMinScores2 = standardScores.get(61799L);
-                FootballScores footballMinScores3 = standardScores.get(62699L);
+                FootballScores footballMinScores1 = standardScores.get(SportPeriodConstant.FootballPeriod.period_60899);
+                FootballScores footballMinScores2 = standardScores.get(SportPeriodConstant.FootballPeriod.period_61799);
+                FootballScores footballMinScores3 = standardScores.get(SportPeriodConstant.FootballPeriod.period_62699);
                 if (footballMinScores1 == null) {
-                    footballMinScores1 = new FootballScores(60899L);
-                    standardScores.put(60899L, footballMinScores1);
+                    footballMinScores1 = new FootballScores(SportPeriodConstant.FootballPeriod.period_60899);
+                    standardScores.put(SportPeriodConstant.FootballPeriod.period_60899, footballMinScores1);
                 }
                 if (footballMinScores2 == null) {
-                    footballMinScores2 = new FootballScores(61799L);
-                    standardScores.put(61799L, footballMinScores2);
+                    footballMinScores2 = new FootballScores(SportPeriodConstant.FootballPeriod.period_61799);
+                    standardScores.put(SportPeriodConstant.FootballPeriod.period_61799, footballMinScores2);
                 }
                 if (footballMinScores3 == null) {
-                    footballMinScores3 = new FootballScores(62699L);
-                    standardScores.put(62699L, footballMinScores3);
+                    footballMinScores3 = new FootballScores(SportPeriodConstant.FootballPeriod.period_62699);
+                    standardScores.put(SportPeriodConstant.FootballPeriod.period_62699, footballMinScores3);
                 }
                 if (footballSwitch.getGoalHf() == 1) {
                     standScores.setGoal(thirdScores.getGoal());
-                    if (allPeriodScores.get(60899L) != null) {
-                        footballMinScores1.setGoal(allPeriodScores.get(60899L).getGoal());
+                    if (allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_60899) != null) {
+                        footballMinScores1.setGoal(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_60899).getGoal());
                     }
-                    if (allPeriodScores.get(61799L) != null) {
-                        footballMinScores2.setGoal(allPeriodScores.get(61799L).getGoal());
+                    if (allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_61799) != null) {
+                        footballMinScores2.setGoal(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_61799).getGoal());
                     }
-                    if (allPeriodScores.get(62699L) != null) {
-                        footballMinScores3.setGoal(allPeriodScores.get(62699L).getGoal());
+                    if (allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_62699) != null) {
+                        footballMinScores3.setGoal(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_62699).getGoal());
                     }
                 }
                 if (footballSwitch.getCornerHf() == 1) {
                     standScores.setCorner(thirdScores.getCorner());
-                    if (allPeriodScores.get(60899L) != null) {
-                        footballMinScores1.setCorner(allPeriodScores.get(60899L).getCorner());
+                    if (allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_60899) != null) {
+                        footballMinScores1.setCorner(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_60899).getCorner());
                     }
-                    if (allPeriodScores.get(61799L) != null) {
-                        footballMinScores2.setCorner(allPeriodScores.get(61799L).getCorner());
+                    if (allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_61799) != null) {
+                        footballMinScores2.setCorner(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_61799).getCorner());
                     }
-                    if (allPeriodScores.get(62699L) != null) {
-                        footballMinScores3.setCorner(allPeriodScores.get(62699L).getCorner());
+                    if (allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_62699) != null) {
+                        footballMinScores3.setCorner(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_62699).getCorner());
                     }
                 }
                 if (footballSwitch.getYellowHf() == 1) {
                     standScores.setYellowCard(thirdScores.getYellowCard());
-                    if (allPeriodScores.get(60899L) != null) {
-                        footballMinScores1.setYellowCard(allPeriodScores.get(60899L).getYellowCard());
+                    if (allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_60899) != null) {
+                        footballMinScores1.setYellowCard(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_60899).getYellowCard());
                     }
-                    if (allPeriodScores.get(61799L) != null) {
-                        footballMinScores2.setYellowCard(allPeriodScores.get(61799L).getYellowCard());
+                    if (allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_61799) != null) {
+                        footballMinScores2.setYellowCard(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_61799).getYellowCard());
                     }
-                    if (allPeriodScores.get(62699L) != null) {
-                        footballMinScores3.setYellowCard(allPeriodScores.get(62699L).getYellowCard());
+                    if (allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_62699) != null) {
+                        footballMinScores3.setYellowCard(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_62699).getYellowCard());
                     }
                 }
                 if (footballSwitch.getRedHf() == 1) {
                     standScores.setRedCard(thirdScores.getRedCard());
-                    if (allPeriodScores.get(60899L) != null) {
-                        footballMinScores1.setRedCard(allPeriodScores.get(60899L).getRedCard());
+                    if (allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_60899) != null) {
+                        footballMinScores1.setRedCard(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_60899).getRedCard());
                     }
-                    if (allPeriodScores.get(61799L) != null) {
-                        footballMinScores2.setRedCard(allPeriodScores.get(61799L).getRedCard());
+                    if (allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_61799) != null) {
+                        footballMinScores2.setRedCard(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_61799).getRedCard());
                     }
-                    if (allPeriodScores.get(62699L) != null) {
-                        footballMinScores3.setRedCard(allPeriodScores.get(62699L).getRedCard());
+                    if (allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_62699) != null) {
+                        footballMinScores3.setRedCard(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_62699).getRedCard());
                     }
                 }
                 //三方的进攻危险进攻射正射偏控球率数据同步
                 this.setOther(standScores, thirdScores);
                 standardScores.put(6L, standScores);
-                standardScores.put(60899L, footballMinScores1);
-                standardScores.put(61799L, footballMinScores2);
-                standardScores.put(62699L, footballMinScores3);
+                standardScores.put(SportPeriodConstant.FootballPeriod.period_60899, footballMinScores1);
+                standardScores.put(SportPeriodConstant.FootballPeriod.period_61799, footballMinScores2);
+                standardScores.put(SportPeriodConstant.FootballPeriod.period_62699, footballMinScores3);
             }
 
             if (entry.getKey() == 7L) {
@@ -334,75 +335,75 @@ public class SoldMessageStandardScoreProcessor {
                 if(thirdScores==null){
                     thirdScores = new FootballScores(entry.getKey());
                 }
-                FootballScores footballMinScores1 = standardScores.get(73599L);
-                FootballScores footballMinScores2 = standardScores.get(74499L);
-                FootballScores footballMinScores3 = standardScores.get(75399L);
+                FootballScores footballMinScores1 = standardScores.get(SportPeriodConstant.FootballPeriod.period_73599);
+                FootballScores footballMinScores2 = standardScores.get(SportPeriodConstant.FootballPeriod.period_74499);
+                FootballScores footballMinScores3 = standardScores.get(SportPeriodConstant.FootballPeriod.period_75399);
                 if (footballMinScores1 == null) {
-                    footballMinScores1 = new FootballScores(73599L);
-                    standardScores.put(73599L, footballMinScores1);
+                    footballMinScores1 = new FootballScores(SportPeriodConstant.FootballPeriod.period_73599);
+                    standardScores.put(SportPeriodConstant.FootballPeriod.period_73599, footballMinScores1);
                 }
                 if (footballMinScores2 == null) {
-                    footballMinScores2 = new FootballScores(74499L);
-                    standardScores.put(74499L, footballMinScores2);
+                    footballMinScores2 = new FootballScores(SportPeriodConstant.FootballPeriod.period_74499);
+                    standardScores.put(SportPeriodConstant.FootballPeriod.period_74499, footballMinScores2);
                 }
                 if (footballMinScores3 == null) {
-                    footballMinScores3 = new FootballScores(75399L);
-                    standardScores.put(75399L, footballMinScores3);
+                    footballMinScores3 = new FootballScores(SportPeriodConstant.FootballPeriod.period_75399);
+                    standardScores.put(SportPeriodConstant.FootballPeriod.period_75399, footballMinScores3);
                 }
                 if (footballSwitch.getGoalFt() == 1) {
                     standScores.setGoal(thirdScores.getGoal());
-                    if (allPeriodScores.get(73599L) != null) {
-                        footballMinScores1.setGoal(allPeriodScores.get(73599L).getGoal());
+                    if (allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_73599) != null) {
+                        footballMinScores1.setGoal(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_73599).getGoal());
                     }
-                    if (allPeriodScores.get(74499L) != null) {
-                        footballMinScores2.setGoal(allPeriodScores.get(74499L).getGoal());
+                    if (allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_74499) != null) {
+                        footballMinScores2.setGoal(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_74499).getGoal());
                     }
-                    if (allPeriodScores.get(75399L) != null) {
-                        footballMinScores3.setGoal(allPeriodScores.get(75399L).getGoal());
+                    if (allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_75399) != null) {
+                        footballMinScores3.setGoal(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_75399).getGoal());
                     }
                 }
                 if (footballSwitch.getCornerFt() == 1) {
                     standScores.setCorner(thirdScores.getCorner());
-                    if (allPeriodScores.get(73599L) != null) {
-                        footballMinScores1.setCorner(allPeriodScores.get(73599L).getCorner());
+                    if (allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_73599) != null) {
+                        footballMinScores1.setCorner(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_73599).getCorner());
                     }
-                    if (allPeriodScores.get(74499L) != null) {
-                        footballMinScores2.setCorner(allPeriodScores.get(74499L).getCorner());
+                    if (allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_74499) != null) {
+                        footballMinScores2.setCorner(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_74499).getCorner());
                     }
-                    if (allPeriodScores.get(75399L) != null) {
-                        footballMinScores3.setCorner(allPeriodScores.get(75399L).getCorner());
+                    if (allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_75399) != null) {
+                        footballMinScores3.setCorner(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_75399).getCorner());
                     }
                 }
                 if (footballSwitch.getYellowFt() == 1) {
                     standScores.setYellowCard(thirdScores.getYellowCard());
-                    if (allPeriodScores.get(73599L) != null) {
-                        footballMinScores1.setYellowCard(allPeriodScores.get(73599L).getYellowCard());
+                    if (allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_73599) != null) {
+                        footballMinScores1.setYellowCard(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_73599).getYellowCard());
                     }
-                    if (allPeriodScores.get(74499L) != null) {
-                        footballMinScores2.setYellowCard(allPeriodScores.get(74499L).getYellowCard());
+                    if (allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_74499) != null) {
+                        footballMinScores2.setYellowCard(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_74499).getYellowCard());
                     }
-                    if (allPeriodScores.get(75399L) != null) {
-                        footballMinScores3.setYellowCard(allPeriodScores.get(75399L).getYellowCard());
+                    if (allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_75399) != null) {
+                        footballMinScores3.setYellowCard(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_75399).getYellowCard());
                     }
                 }
                 if (footballSwitch.getRedFt() == 1) {
                     standScores.setRedCard(thirdScores.getRedCard());
-                    if (allPeriodScores.get(73599L) != null) {
-                        footballMinScores1.setRedCard(allPeriodScores.get(73599L).getRedCard());
+                    if (allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_73599) != null) {
+                        footballMinScores1.setRedCard(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_73599).getRedCard());
                     }
-                    if (allPeriodScores.get(74499L) != null) {
-                        footballMinScores2.setRedCard(allPeriodScores.get(74499L).getRedCard());
+                    if (allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_74499) != null) {
+                        footballMinScores2.setRedCard(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_74499).getRedCard());
                     }
-                    if (allPeriodScores.get(75399L) != null) {
-                        footballMinScores3.setRedCard(allPeriodScores.get(75399L).getRedCard());
+                    if (allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_75399) != null) {
+                        footballMinScores3.setRedCard(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_75399).getRedCard());
                     }
                 }
                 //三方的进攻危险进攻射正射偏控球率数据同步
                 this.setOther(standScores, thirdScores);
                 standardScores.put(7L, standScores);
-                standardScores.put(73599L, footballMinScores1);
-                standardScores.put(74499L, footballMinScores2);
-                standardScores.put(75399L, footballMinScores3);
+                standardScores.put(SportPeriodConstant.FootballPeriod.period_73599, footballMinScores1);
+                standardScores.put(SportPeriodConstant.FootballPeriod.period_74499, footballMinScores2);
+                standardScores.put(SportPeriodConstant.FootballPeriod.period_75399, footballMinScores3);
             }
             if (entry.getKey() == 41L) {
                 //获取三方比分当前阶段的比分

@@ -38,10 +38,7 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.panda.merge.common.enums.Constant.PD_FOOTBALL_EVENT_MONITOR;
@@ -247,6 +244,11 @@ public class SoldMessageScoresConsumer implements RocketMQListener<Request<SaleU
                 buildPossession(scores, request.getData());
                 footballCalculationService.save15MinToCacheByStandardId(request.getData().getMatchId());
             }
+            if((data.getBusinessEventCode().equals("PD")&&data.getBusinessEventCodeOld().equals("PD2"))||(data.getBusinessEventCode().equals("PD2")&&data.getBusinessEventCodeOld().equals("PD"))){
+                log.info("【SoldMessageScoresConsumer:"+ SOLD_MESSAGE+"】【::"+request.getData().getMatchId()+"::】PD、PD2之间不复制标准比分.");
+                return;
+            }
+            log.info("【SoldMessageScoresConsumer:"+ SOLD_MESSAGE+"】【::"+request.getData().getMatchId()+"::】切换事件源完成,复制标准比分并下发.");
             copyStandardScores(scores, request.getLinkId());
         } catch (Exception e) {
             log.error("【SoldMessageScoresConsumer:" + SOLD_MESSAGE + "】【::" + request.getLinkId() + "::】开售处理后补发比分异常:{}", e);
@@ -367,112 +369,112 @@ public class SoldMessageScoresConsumer implements RocketMQListener<Request<SaleU
             if (standScores == null) {
                 standScores = new FootballScores(entry.getKey());
             }
-            if (entry.getKey() == 60899L) {
-                FootballScores footballMinScores1 = standardScores.get(60899L);
+            if (Objects.equals(entry.getKey(), SportPeriodConstant.FootballPeriod.period_60899)) {
+                FootballScores footballMinScores1 = standardScores.get(SportPeriodConstant.FootballPeriod.period_60899);
                 log.info("{},获取标准比分60899:{}",linkId,footballMinScores1);
                 if (footballMinScores1 == null) {
-                    footballMinScores1 = new FootballScores(60899L);
-                    standardScores.put(60899L, footballMinScores1);
+                    footballMinScores1 = new FootballScores(SportPeriodConstant.FootballPeriod.period_60899);
+                    standardScores.put(SportPeriodConstant.FootballPeriod.period_60899, footballMinScores1);
                 }
                 log.info("{},获取开关 getGoal60899:{}",linkId,footballSwitch.getGoal60899());
                 //0-15分钟进球
                 if(footballSwitch.getGoal60899()==1){
-                    if(allPeriodScores.get(60899L)!=null){
-                        log.info("{},获取比分 60899L:{}",linkId,allPeriodScores.get(60899L).getGoal());
-                        footballMinScores1.setGoal(allPeriodScores.get(60899L).getGoal());
+                    if(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_60899)!=null){
+                        log.info("{},获取比分 60899L:{}",linkId,allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_60899).getGoal());
+                        footballMinScores1.setGoal(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_60899).getGoal());
                     }
                 }
                 //0-15分钟角球
                 if(footballSwitch.getCorner60899()==1){
-                    if(allPeriodScores.get(60899L)!=null){
-                        footballMinScores1.setCorner(allPeriodScores.get(60899L).getCorner());
+                    if(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_60899)!=null){
+                        footballMinScores1.setCorner(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_60899).getCorner());
                     }
                 }
                 //0-15分钟黄牌
                 if(footballSwitch.getYellowCard60899()==1){
-                    if(allPeriodScores.get(60899L)!=null){
-                        footballMinScores1.setYellowCard(allPeriodScores.get(60899L).getYellowCard());
+                    if(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_60899)!=null){
+                        footballMinScores1.setYellowCard(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_60899).getYellowCard());
                     }
                 }
                 //0-15分钟红牌
                 if(footballSwitch.getYellowCard60899()==1){
-                    if(allPeriodScores.get(60899L)!=null){
-                        footballMinScores1.setRedCard(allPeriodScores.get(60899L).getRedCard());
+                    if(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_60899)!=null){
+                        footballMinScores1.setRedCard(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_60899).getRedCard());
                     }
                 }
-                standardScores.put(60899L, footballMinScores1);
+                standardScores.put(SportPeriodConstant.FootballPeriod.period_60899, footballMinScores1);
                 log.info("{},切换事件源后同步比分60899L:{}",linkId,footballMinScores1.getGoal());
-            }else if(entry.getKey() == 61799L) {
-                FootballScores footballMinScores2 = standardScores.get(61799L);
+            }else if(entry.getKey() == SportPeriodConstant.FootballPeriod.period_61799) {
+                FootballScores footballMinScores2 = standardScores.get(SportPeriodConstant.FootballPeriod.period_61799);
                 log.info("{},获取标准比分61799:{}",linkId,footballMinScores2);
                 if (footballMinScores2 == null) {
-                    footballMinScores2 = new FootballScores(61799L);
-                    standardScores.put(61799L, footballMinScores2);
+                    footballMinScores2 = new FootballScores(SportPeriodConstant.FootballPeriod.period_61799);
+                    standardScores.put(SportPeriodConstant.FootballPeriod.period_61799, footballMinScores2);
                 }
                 log.info("{},获取开关 getGoal61799:{}",linkId,footballSwitch.getGoal61799());
                 //15-30分钟进球
                 if(footballSwitch.getGoal61799()==1){
-                    if(allPeriodScores.get(61799L)!=null){
-                        log.info("{},获取比分 61799L:{}",linkId,allPeriodScores.get(61799L).getGoal());
-                        footballMinScores2.setGoal(allPeriodScores.get(61799L).getGoal());
+                    if(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_61799)!=null){
+                        log.info("{},获取比分 61799L:{}",linkId,allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_61799).getGoal());
+                        footballMinScores2.setGoal(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_61799).getGoal());
                     }
                 }
                 //15-30分钟角球
                 if(footballSwitch.getCorner61799()==1){
-                    if(allPeriodScores.get(61799L)!=null){
-                        footballMinScores2.setCorner(allPeriodScores.get(61799L).getCorner());
+                    if(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_61799)!=null){
+                        footballMinScores2.setCorner(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_61799).getCorner());
                     }
                 }
                 //15-30分钟黄牌
                 if(footballSwitch.getYellowCard61799()==1){
-                    if(allPeriodScores.get(61799L)!=null){
-                        footballMinScores2.setYellowCard(allPeriodScores.get(61799L).getYellowCard());
+                    if(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_61799)!=null){
+                        footballMinScores2.setYellowCard(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_61799).getYellowCard());
                     }
                 }
                 //15-30分钟红牌
                 if(footballSwitch.getYellowCard61799()==1){
-                    if(allPeriodScores.get(61799L)!=null){
-                        footballMinScores2.setRedCard(allPeriodScores.get(61799L).getRedCard());
+                    if(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_61799)!=null){
+                        footballMinScores2.setRedCard(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_61799).getRedCard());
                     }
                 }
-                standardScores.put(61799L, footballMinScores2);
+                standardScores.put(SportPeriodConstant.FootballPeriod.period_61799, footballMinScores2);
                 log.info("{},切换事件源后同步比分61799L:{}",linkId,footballMinScores2.getGoal());
-            }else if (entry.getKey() == 62699L){
-                FootballScores footballMinScores3 = standardScores.get(62699L);
+            }else if (entry.getKey() == SportPeriodConstant.FootballPeriod.period_62699){
+                FootballScores footballMinScores3 = standardScores.get(SportPeriodConstant.FootballPeriod.period_62699);
                 log.info("{},获取标准比分62699:{}",linkId,footballMinScores3);
                 if (footballMinScores3 == null) {
-                    footballMinScores3 = new FootballScores(62699L);
-                    standardScores.put(62699L, footballMinScores3);
+                    footballMinScores3 = new FootballScores(SportPeriodConstant.FootballPeriod.period_62699);
+                    standardScores.put(SportPeriodConstant.FootballPeriod.period_62699, footballMinScores3);
                 }
                 log.info("{},获取开关 获取标准比分62699:{}",linkId,footballSwitch.getGoal62699());
                 //30-45分钟进球
                 if(footballSwitch.getGoal62699()==1){
-                    if(allPeriodScores.get(62699L)!=null){
-                        log.info("{},获取比分 62699L:{}",linkId,allPeriodScores.get(62699L).getGoal());
-                        footballMinScores3.setGoal(allPeriodScores.get(62699L).getGoal());
+                    if(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_62699)!=null){
+                        log.info("{},获取比分 62699L:{}",linkId,allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_62699).getGoal());
+                        footballMinScores3.setGoal(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_62699).getGoal());
                     }
                 }
                 //30-45分钟角球
                 if(footballSwitch.getCorner62699()==1){
-                    if(allPeriodScores.get(62699L)!=null){
-                        footballMinScores3.setCorner(allPeriodScores.get(62699L).getCorner());
+                    if(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_62699)!=null){
+                        footballMinScores3.setCorner(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_62699).getCorner());
                     }
                 }
                 //30-45分钟黄牌
                 if(footballSwitch.getYellowCard62699()==1){
-                    if(allPeriodScores.get(62699L)!=null){
-                        footballMinScores3.setYellowCard(allPeriodScores.get(62699L).getYellowCard());
+                    if(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_62699)!=null){
+                        footballMinScores3.setYellowCard(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_62699).getYellowCard());
                     }
                 }
                 //30-45分钟红牌
                 if(footballSwitch.getYellowCard62699()==1){
-                    if(allPeriodScores.get(62699L)!=null){
-                        footballMinScores3.setRedCard(allPeriodScores.get(62699L).getRedCard());
+                    if(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_62699)!=null){
+                        footballMinScores3.setRedCard(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_62699).getRedCard());
                     }
                 }
-                standardScores.put(62699L, footballMinScores3);
+                standardScores.put(SportPeriodConstant.FootballPeriod.period_62699, footballMinScores3);
                 log.info("{},切换事件源后同步比分62699L:{}",linkId,footballMinScores3.getGoal());
-            }else if (entry.getKey() == 6L) {
+            }else if (entry.getKey() == SportPeriodConstant.FootballPeriod.period_6) {
                 //获取三方比分当前阶段的比分
                 FootballScores thirdScores = entry.getValue();
                 if(thirdScores==null){
@@ -493,101 +495,101 @@ public class SoldMessageScoresConsumer implements RocketMQListener<Request<SaleU
                 //三方的进攻危险进攻射正射偏控球率数据同步
                 this.setOther(standScores, thirdScores);
                 standardScores.put(6L, standScores);
-            }else if (entry.getKey() == 73599L) {
-                FootballScores footballMinScores1 = standardScores.get(73599L);
+            }else if (entry.getKey() == SportPeriodConstant.FootballPeriod.period_73599) {
+                FootballScores footballMinScores1 = standardScores.get(SportPeriodConstant.FootballPeriod.period_73599);
                 if (footballMinScores1 == null) {
-                    footballMinScores1 = new FootballScores(73599L);
-                    standardScores.put(73599L, footballMinScores1);
+                    footballMinScores1 = new FootballScores(SportPeriodConstant.FootballPeriod.period_73599);
+                    standardScores.put(SportPeriodConstant.FootballPeriod.period_73599, footballMinScores1);
                 }
                 //45-60钟进球
                 if(footballSwitch.getGoal73599()==1){
-                    if(allPeriodScores.get(73599L)!=null){
-                        footballMinScores1.setGoal(allPeriodScores.get(73599L).getGoal());
+                    if(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_73599)!=null){
+                        footballMinScores1.setGoal(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_73599).getGoal());
                     }
                 }
                 //45-60钟角球
                 if(footballSwitch.getCorner73599()==1){
-                    if(allPeriodScores.get(73599L)!=null){
-                        footballMinScores1.setCorner(allPeriodScores.get(73599L).getCorner());
+                    if(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_73599)!=null){
+                        footballMinScores1.setCorner(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_73599).getCorner());
                     }
                 }
                 //45-60钟黄牌
                 if(footballSwitch.getYellowCard73599()==1){
-                    if(allPeriodScores.get(73599L)!=null){
-                        footballMinScores1.setYellowCard(allPeriodScores.get(73599L).getYellowCard());
+                    if(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_73599)!=null){
+                        footballMinScores1.setYellowCard(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_73599).getYellowCard());
                     }
                 }
                 //45-60钟红牌
                 if(footballSwitch.getRedCard73599()==1){
-                    if(allPeriodScores.get(73599L)!=null){
-                        footballMinScores1.setRedCard(allPeriodScores.get(73599L).getRedCard());
+                    if(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_73599)!=null){
+                        footballMinScores1.setRedCard(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_73599).getRedCard());
                     }
                 }
-                standardScores.put(73599L, footballMinScores1);
-            } else if (entry.getKey() == 74499L) {
-                FootballScores footballMinScores2 = standardScores.get(74499L);
+                standardScores.put(SportPeriodConstant.FootballPeriod.period_73599, footballMinScores1);
+            } else if (entry.getKey() == SportPeriodConstant.FootballPeriod.period_74499) {
+                FootballScores footballMinScores2 = standardScores.get(SportPeriodConstant.FootballPeriod.period_74499);
                 if (footballMinScores2 == null) {
-                    footballMinScores2 = new FootballScores(74499L);
-                    standardScores.put(74499L, footballMinScores2);
+                    footballMinScores2 = new FootballScores(SportPeriodConstant.FootballPeriod.period_74499);
+                    standardScores.put(SportPeriodConstant.FootballPeriod.period_74499, footballMinScores2);
                 }
                 //60-75分钟进球
                 if(footballSwitch.getGoal74499()==1){
-                    if(allPeriodScores.get(74499L)!=null){
-                        footballMinScores2.setGoal(allPeriodScores.get(74499L).getGoal());
+                    if(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_74499)!=null){
+                        footballMinScores2.setGoal(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_74499).getGoal());
                     }
                 }
                 //60-75分钟角球
                 if(footballSwitch.getCorner74499()==1){
-                    if(allPeriodScores.get(74499L)!=null){
-                        footballMinScores2.setCorner(allPeriodScores.get(74499L).getCorner());
+                    if(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_74499)!=null){
+                        footballMinScores2.setCorner(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_74499).getCorner());
                     }
                 }
                 //60-75分钟黄牌
                 if(footballSwitch.getYellowCard74499()==1){
-                    if(allPeriodScores.get(74499L)!=null){
-                        footballMinScores2.setYellowCard(allPeriodScores.get(74499L).getYellowCard());
+                    if(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_74499)!=null){
+                        footballMinScores2.setYellowCard(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_74499).getYellowCard());
                     }
                 }
                 //60-75分钟红牌
                 if(footballSwitch.getRedCard74499()==1){
-                    if(allPeriodScores.get(74499L)!=null){
-                        footballMinScores2.setRedCard(allPeriodScores.get(74499L).getRedCard());
+                    if(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_74499)!=null){
+                        footballMinScores2.setRedCard(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_74499).getRedCard());
                     }
                 }
-                standardScores.put(74499L, footballMinScores2);
-            } else if (entry.getKey() == 75399L) {
-                FootballScores footballMinScores3 = standardScores.get(75399L);
+                standardScores.put(SportPeriodConstant.FootballPeriod.period_74499, footballMinScores2);
+            } else if (entry.getKey() == SportPeriodConstant.FootballPeriod.period_75399) {
+                FootballScores footballMinScores3 = standardScores.get(SportPeriodConstant.FootballPeriod.period_75399);
                 if (footballMinScores3 == null) {
-                    footballMinScores3 = new FootballScores(75399L);
-                    standardScores.put(75399L, footballMinScores3);
+                    footballMinScores3 = new FootballScores(SportPeriodConstant.FootballPeriod.period_75399);
+                    standardScores.put(SportPeriodConstant.FootballPeriod.period_75399, footballMinScores3);
                 }
 
                 //75-90分钟进球
                 if(footballSwitch.getGoal75399()==1){
-                    if(allPeriodScores.get(75399L)!=null){
-                        footballMinScores3.setGoal(allPeriodScores.get(75399L).getGoal());
+                    if(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_75399)!=null){
+                        footballMinScores3.setGoal(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_75399).getGoal());
                     }
                 }
                 //75-90分钟角球
                 if(footballSwitch.getCorner75399()==1){
-                    if(allPeriodScores.get(75399L)!=null){
-                        footballMinScores3.setCorner(allPeriodScores.get(75399L).getCorner());
+                    if(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_75399)!=null){
+                        footballMinScores3.setCorner(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_75399).getCorner());
                     }
                 }
                 //75-90分钟黄牌
                 if(footballSwitch.getYellowCard75399()==1){
-                    if(allPeriodScores.get(75399L)!=null){
-                        footballMinScores3.setYellowCard(allPeriodScores.get(75399L).getYellowCard());
+                    if(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_75399)!=null){
+                        footballMinScores3.setYellowCard(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_75399).getYellowCard());
                     }
                 }
                 //75-90分钟红牌
                 if(footballSwitch.getRedCard75399()==1){
-                    if(allPeriodScores.get(75399L)!=null){
-                        footballMinScores3.setRedCard(allPeriodScores.get(75399L).getRedCard());
+                    if(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_75399)!=null){
+                        footballMinScores3.setRedCard(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_75399).getRedCard());
                     }
                 }
-                standardScores.put(75399L, footballMinScores3);
-            }else if (entry.getKey() == 7L) {
+                standardScores.put(SportPeriodConstant.FootballPeriod.period_75399, footballMinScores3);
+            }else if (entry.getKey() == SportPeriodConstant.FootballPeriod.period_7) {
                 //获取三方比分当前阶段的比分
                 FootballScores thirdScores = entry.getValue();
                 if(thirdScores==null){
@@ -607,9 +609,9 @@ public class SoldMessageScoresConsumer implements RocketMQListener<Request<SaleU
                 }
                 //三方的进攻危险进攻射正射偏控球率数据同步
                 this.setOther(standScores, thirdScores);
-                standardScores.put(7L, standScores);
+                standardScores.put(SportPeriodConstant.FootballPeriod.period_7, standScores);
             }
-            if (entry.getKey() == 41L) {
+            if (entry.getKey() == SportPeriodConstant.FootballPeriod.period_41) {
                 //获取三方比分当前阶段的比分
                 FootballScores thirdScores = entry.getValue();
                 if(thirdScores==null){
@@ -629,9 +631,9 @@ public class SoldMessageScoresConsumer implements RocketMQListener<Request<SaleU
                 }
                 //三方的进攻危险进攻射正射偏控球率数据同步
                 this.setOther(standScores, thirdScores);
-                standardScores.put(41L, standScores);
+                standardScores.put(SportPeriodConstant.FootballPeriod.period_41, standScores);
             }
-            if (entry.getKey() == 42L) {
+            if (entry.getKey() == SportPeriodConstant.FootballPeriod.period_42) {
                 //获取三方比分当前阶段的比分
                 FootballScores thirdScores = entry.getValue();
                 if(thirdScores==null){
@@ -651,11 +653,11 @@ public class SoldMessageScoresConsumer implements RocketMQListener<Request<SaleU
                 }
                 //三方的进攻危险进攻射正射偏控球率数据同步
                 this.setOther(standScores, thirdScores);
-                standardScores.put(42L, standScores);
+                standardScores.put(SportPeriodConstant.FootballPeriod.period_42, standScores);
             }
-            if (entry.getKey() == 41L || entry.getKey() == 42L) {
+            if (entry.getKey() == SportPeriodConstant.FootballPeriod.period_41 || entry.getKey() == SportPeriodConstant.FootballPeriod.period_42) {
                 hasOt = true;
-                FootballScores ot1 = allPeriodScores.get(41L);
+                FootballScores ot1 = allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_41);
                 otHomeGoal += ot1.getGoal().getHome();
                 otAwayGoal += ot1.getGoal().getAway();
                 otHomeCorner += ot1.getCorner().getHome();
@@ -678,7 +680,7 @@ public class SoldMessageScoresConsumer implements RocketMQListener<Request<SaleU
                 otShotHome += ot1.getShot().getHome();
                 otShotAway += ot1.getShot().getAway();
             }
-            if (entry.getKey() == 6L || entry.getKey() == 7L) {
+            if (entry.getKey() == SportPeriodConstant.FootballPeriod.period_6 || entry.getKey() == SportPeriodConstant.FootballPeriod.period_7) {
                 FootballScores ftScore = entry.getValue();
                 if (ftScore != null) {
                     homeGoal += ftScore.getGoal().getHome();
@@ -704,7 +706,7 @@ public class SoldMessageScoresConsumer implements RocketMQListener<Request<SaleU
                     shotAway += ftScore.getShot().getAway();
                 }
             }
-            if (entry.getKey() == 50L) {
+            if (entry.getKey() == SportPeriodConstant.FootballPeriod.period_50) {
                 //获取三方比分当前阶段的比分
                 FootballScores thirdScores = entry.getValue();
                 if(thirdScores==null){
@@ -715,15 +717,15 @@ public class SoldMessageScoresConsumer implements RocketMQListener<Request<SaleU
                     standScores.setGoal(thirdScores.getGoal());
                 }
                 log.info("{}，同步点球大战比分2：{}", footballSwitch.getPenalty(), standScores);
-                standardScores.put(50L, standScores);
+                standardScores.put(SportPeriodConstant.FootballPeriod.period_50, standScores);
             }
         }
         //存在加时赛
         if(hasOt){
-            FootballScores standScoresOts = standardScores.get(110L);
+            FootballScores standScoresOts = standardScores.get(SportPeriodConstant.FootballPeriod.period_110);
             if (standScoresOts == null) {
-                standScoresOts = new FootballScores(110L);
-                standardScores.put(110L, standScoresOts);
+                standScoresOts = new FootballScores(SportPeriodConstant.FootballPeriod.period_110);
+                standardScores.put(SportPeriodConstant.FootballPeriod.period_110, standScoresOts);
             }
             if (footballSwitch.getGoalOt() == 1) {
                 standScoresOts.setGoal(new CommonItem(otHomeGoal, otAwayGoal));
@@ -749,14 +751,14 @@ public class SoldMessageScoresConsumer implements RocketMQListener<Request<SaleU
             standScoresOts.setShotOff(new CommonItem(otShotOffHome, otShotOffAway));
             standScoresOts.setShot(new CommonItem(otShotHome, otShotAway));
             //阶段41|| 42
-            standardScores.put(110L, standScoresOts);
+            standardScores.put(SportPeriodConstant.FootballPeriod.period_110, standScoresOts);
         }
 
 
-        FootballScores standScoresEnd = standardScores.get(100L);
+        FootballScores standScoresEnd = standardScores.get(SportPeriodConstant.FootballPeriod.period_100);
         if (standScoresEnd == null) {
-            standScoresEnd = new FootballScores(100L);
-            standardScores.put(100L, standScoresEnd);
+            standScoresEnd = new FootballScores(SportPeriodConstant.FootballPeriod.period_100);
+            standardScores.put(SportPeriodConstant.FootballPeriod.period_100, standScoresEnd);
         }
         standScoresEnd.setGoal(new CommonItem(homeGoal, awayGoal));
         standScoresEnd.setCorner(new CommonItem(homeCorner, awayCorner));
@@ -772,7 +774,7 @@ public class SoldMessageScoresConsumer implements RocketMQListener<Request<SaleU
         standScoresEnd.setShotOn(new CommonItem(shotOnHome, shotOnAway));
         standScoresEnd.setShotOff(new CommonItem(shotOffHome, shotOffAway));
         standScoresEnd.setShot(new CommonItem(shotHome, shotAway));
-        standardScores.put(100L, standScoresEnd);
+        standardScores.put(SportPeriodConstant.FootballPeriod.period_100, standScoresEnd);
 
 
 //        FootballScores wholeStands = standardScores.get(WHOLE_MATCH);
@@ -844,7 +846,7 @@ public class SoldMessageScoresConsumer implements RocketMQListener<Request<SaleU
             FootballScores newWholeSores= newScores.get(WHOLE_MATCH);
             newWholeSores.setBallPossessionPercentage(possession);
             newWholeSores.setPossessionTime(possessionTime);
-            newScores.put(-1L,newWholeSores);
+            newScores.put(WHOLE_MATCH,newWholeSores);
             scores.setScoresJson(JSONObject.toJSONString(newFootballScoreJson));
             //复制旧事件源的控球率、控球时长到新事件源的比分并入库
             log.info("【SoldMessageScoresConsumer:"+ SOLD_MESSAGE+"】【::"+data.getMatchId()+"::】切换事件源复制比分:控球率对象复制完成");
