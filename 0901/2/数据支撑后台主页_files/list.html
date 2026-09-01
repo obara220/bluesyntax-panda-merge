@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<!-- saved from url=(0111)http://test-panda-send-manager.dbsportxxxifbdxm2.com/panda/standardMatch/list?matchManageId=4414118713140705355 -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+        <title>数据支撑后台</title>
+    
+    
+
+    
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="数据支撑后台管理系统">
+    <meta name="keywords" content="数据支撑, 数据支撑后台管理系统, SpringBoot, Jpa, Thymeleaf, Shiro">
+
+    <link rel="shortcut icon" href="http://test-panda-send-manager.dbsportxxxifbdxm2.com/mo-favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="./font-awesome.min.css" media="all">
+    <link rel="stylesheet" href="./layui.css" media="all">
+    <link rel="stylesheet" href="./main.css" media="all">
+    
+
+    
+    <script>
+        //定义函数 $ 根据元素id获得页面元素,提高效率
+        function $(id){
+            return document.getElementById(id);
+        }
+    </script>
+    
+        <script src="./jquery-2.2.4.js.download" charset="utf-8"></script>
+    
+<link id="layuicss-layer" rel="stylesheet" href="./layer.css" media="all"></head>
+<body class="timo-layout-page">
+<div class="layui-card">
+    <div class="layui-card-header timo-card-header">
+        <span><i class="fa fa-bars"></i> 标准赛事</span>
+    </div>
+    <div class="layui-card-body">
+        <div class="layui-row timo-card-screen">
+            <div class="pull-left layui-form-pane timo-search-box">
+                <div class="layui-inline">
+                    <label class="layui-form-label">标准赛事ID</label>
+                    <div class="layui-input-block">
+                        <input type="number" name="standardMatchId" placeholder="请输入标准赛事ID" autocomplete="off" value="" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">赛事管理ID</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="matchManageId" placeholder="请输入赛事管理ID" autocomplete="off" value="4414118713140705355" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">三方赛事原始ID</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="thirdMatchSourceId" placeholder="请输入三方赛事原始ID" autocomplete="off" value="" class="layui-input">
+                    </div>
+
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">数据源</label>
+                    <div class="layui-input-block timo-search-status">
+                        <select class="timo-search-select" name="dataSourceCode"><option value="">数据源</option><option value="SR">SR</option><option value="BC">BC</option><option value="BG">BG</option><option value="RB">RB</option><option value="188">188</option><option value="QT">QT</option><option value="SBA">SBA</option><option value="SBO">SBO</option><option value="TS">TS</option><option value="TX">TX</option><option value="AO">AO</option><option value="PI">PI</option><option value="LS">LS</option><option value="L02">L02</option><option value="F01">F01</option><option value="N01">N01</option><option value="N02">N02</option><option value="N03">N03</option><option value="D01">D01</option></select>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <button class="layui-btn timo-search-btn">
+                        <i class="fa fa-search"></i>
+                    </button>
+                    <button class="layui-btn layui-btn-primary" onclick="reset({&quot;matchManageId&quot;:[&quot;4414118713140705355&quot;]})">重置</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="layui-card">
+    <div class="layui-card-header timo-card-header">
+        <span><i class="fa fa-bars"></i> 标准赛事信息</span>
+    </div>
+    <table class="layui-table timo-table">
+        <tbody><tr>
+            <td>ID：<span>40705355</span></td>
+<!--            <td>体育种类：<span th:text="${#matchStatusUtil.sportType(standardMatchInfo?.sportId)}"></span></td>-->
+            <td>体育种类：<span>足球</span></td>
+            <td>标准联赛ID：<span>821982</span></td>
+            <td>第三方比赛ID：<span>2092901723404046338</span></td>
+        </tr>
+        <tr>
+            <td>比赛进行时间：<span>0</span></td>
+            <td>是否开放赛前盘：
+                <span>开放</span>
+            </td>
+            <td>是否开放滚球：
+                <span>不开放</span>
+            </td>
+            <td>比赛开盘标识：
+                <span>开盘</span>
+            </td>
+        </tr>
+        <tr>
+            <td>比赛开始时间：
+                <span>2026-09-02 03:00:00</span>
+            </td>
+            <td>赛事状态：<span>赛事未开始</span></td>
+            <td>赛事管理ID：<span>4414118713140705355</span></td>
+            <td>数据编码：<span>LS</span></td>
+        </tr>
+        <tr>
+            <td>第三方赛事原始ID：<span>19924921</span></td>
+            <td>比赛阶段：
+                <span>未开赛</span>
+            </td>
+            <td>(网羽兵斯棒)赛制：<span>0</span></td>
+            <td>(足篮冰美)赛制：<span>0</span></td>
+        </tr>
+        <tr>
+            <td>赛事双方对阵信息：<span>Torino vs. AC Monza</span></td>
+            <td>比赛是否结束：<span>否</span></td>
+            <td>滚球赔率标识：<span>0</span></td>
+        </tr>
+        <tr>
+            <td>账务时间：<span>2026-09-01 15:00:00</span></td>
+            <td>修改时间：<span>2026-09-01 16:15:20</span></td>
+        </tr>
+    </tbody></table>
+</div>
+
+<div class="layui-card">
+    <div class="layui-card-header timo-card-header">
+        <span><i class="fa fa-bars"></i> 开售信息</span>
+    </div>
+    <table class="layui-table timo-table">
+        <tbody>
+        <tr>
+            <td>赛前操盘平台：<span>PA</span></td>
+            <td>赛前数据服务商：<span>AO</span></td>
+            <td>滚球操盘平台：<span></span></td>
+            <td>滚球数据服务商：<span></span></td>
+        </tr>
+        <tr>
+            <td>是否支持滚球：
+                <span>支持</span>
+            </td>
+            <td>赛前开售时间：<span>2026-08-30 11:47:49</span>
+            </td>
+            <td>滚球开售时间：<span>2026-09-02 03:00:00</span>
+            </td>
+            <td>商业事件源编码：<span>SR</span></td>
+        </tr>
+        <tr>
+            <td>赛前开售状态：<span>开售</span>
+            </td>
+            <td>滚球开售状态：<span>未售</span>
+            </td>
+            <td>赛前使用过的赔率源：<span>AO</span></td>
+            <td>滚球使用过的赔率源：<span></span></td>
+        </tr>
+        <tr>
+            <td>赛事状态源：<span>SR</span></td>
+            <td>修改时间：<span>2026-09-01 16:15:20</span></td>
+            <td>视频源：<span>TS</span></td>
+            <td>动画源：<span>Z01</span></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+
+<div class="layui-card">
+    <div class="layui-card-header timo-card-header">
+        <span><i class="fa fa-bars"></i> 三方赛事信息</span>
+    </div>
+    <div class="timo-table-wrap">
+        <table class="layui-table timo-table">
+            <thead>
+            <tr>
+                <th data-field="id" style="width: 148px">三方赛事ID</th>
+                <th data-field="sportId">赛种</th>
+                <th data-field="dataSourceCode">数据编码</th>
+                <th data-field="thirdMatchSourceId" style="width: 63px">源赛事ID</th>
+                <th data-field="referenceId" style="width: 55px">标准赛事ID</th>
+                <th data-field="tournamentId" style="width: 39px">三方联赛ID</th>
+                <th data-field="beginTime" style="width: 71px">比赛开始时间</th>
+                <th data-field="homeAwayInfo" style="width: 141px">双方对阵信息</th>
+                <th data-field="matchOver">比赛是否结束</th>
+                <th data-field="matchStatus">赛事状态</th>
+                <th data-field="matchPeriod">比赛阶段</th>
+                <th data-field="secondsMatchStart">比赛进行时间</th>
+                <th data-field="homeAwayOpposite">主客队是否相反</th>
+                <th data-field="active">是否激活</th>
+                <th data-field="visible">比赛是否可见</th>
+                <th data-field="liveOddSupport">是否支持滚球</th>
+                <th data-field="neutralGround">是否为中立场</th>
+                <th data-field="booked">是否被预定</th>
+                <th data-field="roundType">局数赛制</th>
+                <th data-field="modifyTime" style="width: 71px">创建时间</th>
+                <th data-field="modifyTime" style="width: 71px">修改时间</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>761989993098330114</td>
+                <td>足球</td>
+                <td>AO</td>
+                <td>761989993098330114</td>
+                <td>40705355</td>
+                <td>1574704898687717378</td>
+                <td>2026-09-02 03:00:00</td>
+                <td>Torino .vs AC Monza Brianza</td>
+                <td>否</td>
+                <td>赛事未开始</td>
+                <td>未开赛</td>
+                <td>0</td>
+                <td>否</td>
+                <td>激活</td>
+                <td>是</td>
+                <td>支持</td>
+                <td>否</td>
+                <td>否</td>
+                <td>matchLength = null, roundType = 0</td>
+                <td>2026-08-27 17:07:09</td>
+                <td>2026-08-31 00:00:47</td>
+            </tr>
+            <tr>
+                <td>2089284338354380802</td>
+                <td>足球</td>
+                <td>TS</td>
+                <td>14466773</td>
+                <td>40705355</td>
+                <td>1380397151022043138</td>
+                <td>2026-09-02 03:00:00</td>
+                <td>都灵 .vs 蒙扎</td>
+                <td>否</td>
+                <td>赛事未开始</td>
+                <td>未开赛</td>
+                <td>0</td>
+                <td>否</td>
+                <td>激活</td>
+                <td>是</td>
+                <td>支持</td>
+                <td>否</td>
+                <td>否</td>
+                <td>matchLength = null, roundType = 0</td>
+                <td>2026-08-17 17:32:57</td>
+                <td>2026-09-01 03:21:43</td>
+            </tr>
+            <tr>
+                <td>2092901723404046338</td>
+                <td>足球</td>
+                <td>LS</td>
+                <td>19924921</td>
+                <td>40705355</td>
+                <td>1574704898687717378</td>
+                <td>2026-09-02 03:00:00</td>
+                <td>Torino .vs AC Monza Brianza</td>
+                <td>否</td>
+                <td>赛事未开始</td>
+                <td>未开赛</td>
+                <td>0</td>
+                <td>否</td>
+                <td>激活</td>
+                <td>是</td>
+                <td>支持</td>
+                <td>否</td>
+                <td>否</td>
+                <td>matchLength = null, roundType = 0</td>
+                <td>2026-08-27 17:07:09</td>
+                <td>2026-08-31 00:00:47</td>
+            </tr>
+            <tr>
+                <td>2093008608488656898</td>
+                <td>足球</td>
+                <td>SR</td>
+                <td>73786060</td>
+                <td>40705355</td>
+                <td>1380234008667967489</td>
+                <td>2026-09-02 03:00:00</td>
+                <td>Torino FC .vs AC Monza</td>
+                <td>否</td>
+                <td>赛事未开始</td>
+                <td>未开赛</td>
+                <td>0</td>
+                <td>否</td>
+                <td>激活</td>
+                <td>是</td>
+                <td>支持</td>
+                <td>否</td>
+                <td>否</td>
+                <td>matchLength = 0, roundType = 0</td>
+                <td>2026-08-28 00:11:53</td>
+                <td>2026-08-31 00:00:47</td>
+            </tr>
+            <tr>
+                <td>2094092972952997890</td>
+                <td>足球</td>
+                <td>BG</td>
+                <td>14325942</td>
+                <td>40705355</td>
+                <td>1380207569616850945</td>
+                <td>2026-09-02 03:00:00</td>
+                <td>Torino .vs Monza</td>
+                <td>否</td>
+                <td>赛事未开始</td>
+                <td>未开赛</td>
+                <td>0</td>
+                <td>否</td>
+                <td>激活</td>
+                <td>是</td>
+                <td>支持</td>
+                <td>否</td>
+                <td>否</td>
+                <td>matchLength = 0, roundType = 0</td>
+                <td>2026-08-31 00:00:45</td>
+                <td>2026-08-31 03:01:06</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+        //定义函数 $ 根据元素id获得页面元素,提高效率
+        function $(id){
+            return document.getElementById(id);
+        }
+    </script><script src="./jquery-2.2.4.js.download" charset="utf-8"></script>
+        <script src="./layui.js.download" charset="utf-8"></script>
+        <script src="./main.js.download" charset="utf-8"></script>
+    
+
+</body></html>

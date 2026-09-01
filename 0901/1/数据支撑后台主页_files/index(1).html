@@ -1,0 +1,1389 @@
+<!DOCTYPE html>
+<!-- saved from url=(0147)http://test-panda-send-manager.dbsportxxxifbdxm2.com/panda/factMarket/index?dataDate=2026-09-01&matchId=40705355&marketCategoryId=19&size=30&page=1 -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+        <title>数据支撑后台</title>
+    
+    
+
+    
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="数据支撑后台管理系统">
+    <meta name="keywords" content="数据支撑, 数据支撑后台管理系统, SpringBoot, Jpa, Thymeleaf, Shiro">
+
+    <link rel="shortcut icon" href="http://test-panda-send-manager.dbsportxxxifbdxm2.com/mo-favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="./font-awesome.min.css" media="all">
+    <link rel="stylesheet" href="./layui.css" media="all">
+    <link rel="stylesheet" href="./main.css" media="all">
+    
+
+    
+    <script>
+        //定义函数 $ 根据元素id获得页面元素,提高效率
+        function $(id){
+            return document.getElementById(id);
+        }
+    </script>
+    
+        <script src="./jquery-2.2.4.js.download" charset="utf-8"></script>
+    
+<link id="layuicss-laydate" rel="stylesheet" href="./laydate.css" media="all"><link id="layuicss-layer" rel="stylesheet" href="./layer.css" media="all"></head>
+<body class="timo-layout-page">
+<div class="layui-card">
+    <div class="layui-card-header timo-card-header">
+        <span><i class="fa fa-bars"></i>推送业务盘口赔率</span>
+        
+    </div>
+    <div class="layui-card-body">
+        <div class="layui-row timo-card-screen">
+            <div class="pull-left layui-form-pane timo-search-box">
+                <div class="layui-inline">
+                    <label class="layui-form-label required">数据日期</label>
+                    <div class="layui-input-block" style="width: 150px">
+                        <input type="text" name="dataDate" width="150px" value="2026-09-01" placeholder="--请选择日期--" id="datePicker" readonly="" class="layui-input" lay-key="1">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">标准赛事ID</label>
+                    <div class="layui-input-block">
+                        <input type="number" name="matchId" value="40705355" placeholder="请输入标准赛事ID" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">标准玩法ID</label>
+                    <div class="layui-input-block">
+                        <input type="number" name="marketCategoryId" value="19" placeholder="请输入标准玩法ID" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">统一标准盘口ID</label>
+                    <div class="layui-input-block">
+                        <input type="number" name="marketId" value="" placeholder="请输入统一标准盘口ID" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">三方盘口源ID</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="thirdMarketSourceId" value="" placeholder="请输入三方盘口源ID" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                <label class="layui-form-label">数据源</label>
+                <div class="layui-input-block">
+                    <input type="text" name="dataSourceCode" value="" placeholder="请输入三方数据源" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">盘口位置id</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="placeNumId" value="" placeholder="请输入盘口位置id" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">LINKID</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="linkId" value="" placeholder="请输入LINKID" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">风控状态</label>
+                    <div class="layui-input-block timo-search-status">
+                        <select class="timo-search-select" name="riskState"><option value="">全部</option><option value="0">数据源</option><option value="1">分时节点</option><option value="2">跳分</option><option value="3">跳水</option><option value="4">封盘/开盘</option><option value="-1">其他</option></select>
+                    </div>
+                </div>
+
+
+                <div class="layui-inline">
+                    <button class="layui-btn timo-search-btn">
+                        <i class="fa fa-search"></i>
+                    </button>
+                    <button class="layui-btn layui-btn-primary" onclick="reset({&quot;dataDate&quot;:[&quot;2026-09-01&quot;],&quot;matchId&quot;:[&quot;40705355&quot;],&quot;marketCategoryId&quot;:[&quot;19&quot;],&quot;size&quot;:[&quot;30&quot;],&quot;page&quot;:[&quot;1&quot;]})">重置</button>
+                </div>
+            </div>
+        </div>
+        <div class="timo-table-wrap">
+            <table class="layui-table timo-table">
+                <thead>
+                <tr>
+                    <th data-field="marketOddsList">盘口投注项</th>
+                    <th data-field="matchId">标准赛事ID</th>
+                    <th data-field="marketCategoryId">标准玩法ID</th>
+                    <th data-field="modifyTime">上游下发时间</th>
+                    <th data-field="marketType">盘口类型</th>
+                    <th data-field="marketId">统一盘口ID</th>
+                    <th data-field="thirdMarketSourceId">三方盘口源ID</th>
+                    <th data-field="placeNumId">盘口位置Id</th>
+                    <th data-field="marketHeadGap">盘口差</th>
+                    <th data-field="status">盘口状态</th>
+<!--                    <th data-field="endEdStatus">操盘是否收盘</th>-->
+                    <th data-field="thirdMarketSourceStatus"> 数据源盘口状态</th>
+<!--                    <th data-field="placeNumStatus"> 盘口位置状态</th>-->
+<!--                    <th data-field="paStatus">PA状态理由</th>-->
+<!--                    <th data-field="paStatusReason"> PA状态</th>-->
+                    <th data-field="tradeType">操盘方式</th>
+                    <th data-field="scopeId">玩法所属时段</th>
+                    <th data-field="thirdMarketSourceId">替换风控盘口id</th>
+                    <th data-field="linkId">linkId</th>
+                    <th data-field="id">盘口ID</th>
+                    <th data-field="oddsName">盘口名称</th>
+                    <th data-field="placeNum">盘口位置</th>
+                    <th data-field="internalDataSourceCode">内部数据源</th>
+                    <th data-field="createTime">入库时间</th>
+                    <th data-field="riskState">风控状态</th>
+                    <th data-field="addition1">附加字段1</th>
+                    <th data-field="addition2">附加字段2</th>
+                    <th data-field="addition3">附加字段3</th>
+                    <th data-field="addition4">附加字段4</th>
+                    <th data-field="addition5">附加字段5</th>
+                    <th data-field="dataSourceCode">数据源</th>
+                    <th data-field="marketSource">构建标识</th>
+                    <th data-field="extraInfo">额外信息</th>
+                    <th data-field="remark">备注</th>
+
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://test-panda-send-manager.dbsportxxxifbdxm2.com/panda/factMarket/index?dataDate=2026-09-01&amp;matchId=40705355&amp;marketCategoryId=19&amp;size=30&amp;page=1#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/143334440547742361/LS_0af4204520260901174120163d24a248__fonBet_PANDA?dataDate=2026-09-01">投注项列表</a>
+                    </td>
+                    <td>40705355</td>
+                    <td>19</td>
+                    <td>2026-09-01 17:41:20.589</td>
+                    <td>赛前盘</td>
+                    <td>143334440547742361</td>
+                    <td>19924921_64_1_-1.5</td>
+                    <td>40705355_19_19_3</td>
+                    <td>0</td>
+                    <td>开盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>active</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动操盘</td>
+                    <td>1</td>
+                    <td>19924921_64_1_-1.5</td>
+                    <td>LS_0af4204520260901174120163d24a248__fonBet_PANDA</td>
+                    <td>2094722264912289793</td>
+                    <td>Asian Handicap - 1st Period</td>
+                    <td>3</td>
+                    <td>L01-Fonbet</td>
+                    <td>2026-09-01 17:41:20.178</td>
+                    <td>数据源</td>
+                    <td>-1.5</td>
+                    <td>-1.5</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+
+                    <td>LS</td>
+                    <td>0</td>
+                    <td></td>
+                    <td>LS-Fonbet</td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://test-panda-send-manager.dbsportxxxifbdxm2.com/panda/factMarket/index?dataDate=2026-09-01&amp;matchId=40705355&amp;marketCategoryId=19&amp;size=30&amp;page=1#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/143700413542849635/LS_0af4204520260901174120163d24a248__fonBet_PANDA?dataDate=2026-09-01">投注项列表</a>
+                    </td>
+                    <td>40705355</td>
+                    <td>19</td>
+                    <td>2026-09-01 17:41:20.588</td>
+                    <td>赛前盘</td>
+                    <td>143700413542849635</td>
+                    <td>19924921_64_1_-1</td>
+                    <td>40705355_19_19_2</td>
+                    <td>0</td>
+                    <td>开盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>active</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动操盘</td>
+                    <td>1</td>
+                    <td>19924921_64_1_-1</td>
+                    <td>LS_0af4204520260901174120163d24a248__fonBet_PANDA</td>
+                    <td>2094722264891318273</td>
+                    <td>Asian Handicap - 1st Period</td>
+                    <td>2</td>
+                    <td>L01-Fonbet</td>
+                    <td>2026-09-01 17:41:20.178</td>
+                    <td>数据源</td>
+                    <td>-1</td>
+                    <td>-1</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+
+                    <td>LS</td>
+                    <td>0</td>
+                    <td></td>
+                    <td>LS-Fonbet</td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://test-panda-send-manager.dbsportxxxifbdxm2.com/panda/factMarket/index?dataDate=2026-09-01&amp;matchId=40705355&amp;marketCategoryId=19&amp;size=30&amp;page=1#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/141443678162451405/LS_0af4204520260901174120163d24a248__fonBet_PANDA?dataDate=2026-09-01">投注项列表</a>
+                    </td>
+                    <td>40705355</td>
+                    <td>19</td>
+                    <td>2026-09-01 17:41:20.591</td>
+                    <td>赛前盘</td>
+                    <td>141443678162451405</td>
+                    <td>19924921_64_1_0</td>
+                    <td>40705355_19_19_1</td>
+                    <td>0</td>
+                    <td>开盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>active</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动操盘</td>
+                    <td>1</td>
+                    <td>19924921_64_1_0</td>
+                    <td>LS_0af4204520260901174120163d24a248__fonBet_PANDA</td>
+                    <td>2094722264924872706</td>
+                    <td>Asian Handicap - 1st Period</td>
+                    <td>1</td>
+                    <td>L01-Fonbet</td>
+                    <td>2026-09-01 17:41:20.178</td>
+                    <td>数据源</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+
+                    <td>LS</td>
+                    <td>0</td>
+                    <td></td>
+                    <td>LS-Fonbet</td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://test-panda-send-manager.dbsportxxxifbdxm2.com/panda/factMarket/index?dataDate=2026-09-01&amp;matchId=40705355&amp;marketCategoryId=19&amp;size=30&amp;page=1#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/143700413542849635/LS_0af40c9620260901173248384ae91d7c__fonBet_PANDA?dataDate=2026-09-01">投注项列表</a>
+                    </td>
+                    <td>40705355</td>
+                    <td>19</td>
+                    <td>2026-09-01 17:32:48.584</td>
+                    <td>赛前盘</td>
+                    <td>143700413542849635</td>
+                    <td>19924921_64_1_-1</td>
+                    <td>40705355_19_19_2</td>
+                    <td>0</td>
+                    <td>开盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>active</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动操盘</td>
+                    <td>1</td>
+                    <td>19924921_64_1_-1</td>
+                    <td>LS_0af40c9620260901173248384ae91d7c__fonBet_PANDA</td>
+                    <td>2094720117250043905</td>
+                    <td>Asian Handicap - 1st Period</td>
+                    <td>2</td>
+                    <td>L01-Fonbet</td>
+                    <td>2026-09-01 17:32:48.391</td>
+                    <td>数据源</td>
+                    <td>-1</td>
+                    <td>-1</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+
+                    <td>LS</td>
+                    <td>0</td>
+                    <td></td>
+                    <td>LS-Fonbet</td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://test-panda-send-manager.dbsportxxxifbdxm2.com/panda/factMarket/index?dataDate=2026-09-01&amp;matchId=40705355&amp;marketCategoryId=19&amp;size=30&amp;page=1#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/143334440547742361/LS_0af40c9620260901173248384ae91d7c__fonBet_PANDA?dataDate=2026-09-01">投注项列表</a>
+                    </td>
+                    <td>40705355</td>
+                    <td>19</td>
+                    <td>2026-09-01 17:32:48.585</td>
+                    <td>赛前盘</td>
+                    <td>143334440547742361</td>
+                    <td>19924921_64_1_-1.5</td>
+                    <td>40705355_19_19_3</td>
+                    <td>0</td>
+                    <td>开盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>active</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动操盘</td>
+                    <td>1</td>
+                    <td>19924921_64_1_-1.5</td>
+                    <td>LS_0af40c9620260901173248384ae91d7c__fonBet_PANDA</td>
+                    <td>2094720117275209730</td>
+                    <td>Asian Handicap - 1st Period</td>
+                    <td>3</td>
+                    <td>L01-Fonbet</td>
+                    <td>2026-09-01 17:32:48.391</td>
+                    <td>数据源</td>
+                    <td>-1.5</td>
+                    <td>-1.5</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+
+                    <td>LS</td>
+                    <td>0</td>
+                    <td></td>
+                    <td>LS-Fonbet</td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://test-panda-send-manager.dbsportxxxifbdxm2.com/panda/factMarket/index?dataDate=2026-09-01&amp;matchId=40705355&amp;marketCategoryId=19&amp;size=30&amp;page=1#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/141443678162451405/LS_0af40c9620260901173248384ae91d7c__fonBet_PANDA?dataDate=2026-09-01">投注项列表</a>
+                    </td>
+                    <td>40705355</td>
+                    <td>19</td>
+                    <td>2026-09-01 17:32:48.585</td>
+                    <td>赛前盘</td>
+                    <td>141443678162451405</td>
+                    <td>19924921_64_1_0</td>
+                    <td>40705355_19_19_1</td>
+                    <td>0</td>
+                    <td>开盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>active</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动操盘</td>
+                    <td>1</td>
+                    <td>19924921_64_1_0</td>
+                    <td>LS_0af40c9620260901173248384ae91d7c__fonBet_PANDA</td>
+                    <td>2094720117291986946</td>
+                    <td>Asian Handicap - 1st Period</td>
+                    <td>1</td>
+                    <td>L01-Fonbet</td>
+                    <td>2026-09-01 17:32:48.391</td>
+                    <td>数据源</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+
+                    <td>LS</td>
+                    <td>0</td>
+                    <td></td>
+                    <td>LS-Fonbet</td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://test-panda-send-manager.dbsportxxxifbdxm2.com/panda/factMarket/index?dataDate=2026-09-01&amp;matchId=40705355&amp;marketCategoryId=19&amp;size=30&amp;page=1#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/143334440547742361/LS_0af40c96202609011730493114907826__fonBet_PANDA?dataDate=2026-09-01">投注项列表</a>
+                    </td>
+                    <td>40705355</td>
+                    <td>19</td>
+                    <td>2026-09-01 17:30:49.498</td>
+                    <td>赛前盘</td>
+                    <td>143334440547742361</td>
+                    <td>19924921_64_1_-1.5</td>
+                    <td>40705355_19_19_3</td>
+                    <td>0</td>
+                    <td>开盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>active</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动操盘</td>
+                    <td>1</td>
+                    <td>19924921_64_1_-1.5</td>
+                    <td>LS_0af40c96202609011730493114907826__fonBet_PANDA</td>
+                    <td>2094719617783934977</td>
+                    <td>Asian Handicap - 1st Period</td>
+                    <td>3</td>
+                    <td>L01-Fonbet</td>
+                    <td>2026-09-01 17:30:49.348</td>
+                    <td>数据源</td>
+                    <td>-1.5</td>
+                    <td>-1.5</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+
+                    <td>LS</td>
+                    <td>0</td>
+                    <td></td>
+                    <td>LS-Fonbet</td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://test-panda-send-manager.dbsportxxxifbdxm2.com/panda/factMarket/index?dataDate=2026-09-01&amp;matchId=40705355&amp;marketCategoryId=19&amp;size=30&amp;page=1#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/141443678162451405/LS_0af40c96202609011730493114907826__fonBet_PANDA?dataDate=2026-09-01">投注项列表</a>
+                    </td>
+                    <td>40705355</td>
+                    <td>19</td>
+                    <td>2026-09-01 17:30:49.499</td>
+                    <td>赛前盘</td>
+                    <td>141443678162451405</td>
+                    <td>19924921_64_1_0</td>
+                    <td>40705355_19_19_1</td>
+                    <td>0</td>
+                    <td>开盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>active</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动操盘</td>
+                    <td>1</td>
+                    <td>19924921_64_1_0</td>
+                    <td>LS_0af40c96202609011730493114907826__fonBet_PANDA</td>
+                    <td>2094719617800712193</td>
+                    <td>Asian Handicap - 1st Period</td>
+                    <td>1</td>
+                    <td>L01-Fonbet</td>
+                    <td>2026-09-01 17:30:49.348</td>
+                    <td>数据源</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+
+                    <td>LS</td>
+                    <td>0</td>
+                    <td></td>
+                    <td>LS-Fonbet</td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://test-panda-send-manager.dbsportxxxifbdxm2.com/panda/factMarket/index?dataDate=2026-09-01&amp;matchId=40705355&amp;marketCategoryId=19&amp;size=30&amp;page=1#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/143700413542849635/LS_0af40c96202609011730493114907826__fonBet_PANDA?dataDate=2026-09-01">投注项列表</a>
+                    </td>
+                    <td>40705355</td>
+                    <td>19</td>
+                    <td>2026-09-01 17:30:49.497</td>
+                    <td>赛前盘</td>
+                    <td>143700413542849635</td>
+                    <td>19924921_64_1_-1</td>
+                    <td>40705355_19_19_2</td>
+                    <td>0</td>
+                    <td>开盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>active</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动操盘</td>
+                    <td>1</td>
+                    <td>19924921_64_1_-1</td>
+                    <td>LS_0af40c96202609011730493114907826__fonBet_PANDA</td>
+                    <td>2094719617767157762</td>
+                    <td>Asian Handicap - 1st Period</td>
+                    <td>2</td>
+                    <td>L01-Fonbet</td>
+                    <td>2026-09-01 17:30:49.348</td>
+                    <td>数据源</td>
+                    <td>-1</td>
+                    <td>-1</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+
+                    <td>LS</td>
+                    <td>0</td>
+                    <td></td>
+                    <td>LS-Fonbet</td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://test-panda-send-manager.dbsportxxxifbdxm2.com/panda/factMarket/index?dataDate=2026-09-01&amp;matchId=40705355&amp;marketCategoryId=19&amp;size=30&amp;page=1#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/143334440547742361/LS_0af40c96202609011729474582361239__fonBet_PANDA?dataDate=2026-09-01">投注项列表</a>
+                    </td>
+                    <td>40705355</td>
+                    <td>19</td>
+                    <td>2026-09-01 17:29:47.662</td>
+                    <td>赛前盘</td>
+                    <td>143334440547742361</td>
+                    <td>19924921_64_1_-1.5</td>
+                    <td>40705355_19_19_3</td>
+                    <td>0</td>
+                    <td>开盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>active</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动操盘</td>
+                    <td>1</td>
+                    <td>19924921_64_1_-1.5</td>
+                    <td>LS_0af40c96202609011729474582361239__fonBet_PANDA</td>
+                    <td>2094719358559170562</td>
+                    <td>Asian Handicap - 1st Period</td>
+                    <td>3</td>
+                    <td>L01-Fonbet</td>
+                    <td>2026-09-01 17:29:47.459</td>
+                    <td>数据源</td>
+                    <td>-1.5</td>
+                    <td>-1.5</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+
+                    <td>LS</td>
+                    <td>0</td>
+                    <td></td>
+                    <td>LS-Fonbet</td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://test-panda-send-manager.dbsportxxxifbdxm2.com/panda/factMarket/index?dataDate=2026-09-01&amp;matchId=40705355&amp;marketCategoryId=19&amp;size=30&amp;page=1#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/141443678162451405/LS_0af40c96202609011729474582361239__fonBet_PANDA?dataDate=2026-09-01">投注项列表</a>
+                    </td>
+                    <td>40705355</td>
+                    <td>19</td>
+                    <td>2026-09-01 17:29:47.662</td>
+                    <td>赛前盘</td>
+                    <td>141443678162451405</td>
+                    <td>19924921_64_1_0</td>
+                    <td>40705355_19_19_1</td>
+                    <td>0</td>
+                    <td>开盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>active</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动操盘</td>
+                    <td>1</td>
+                    <td>19924921_64_1_0</td>
+                    <td>LS_0af40c96202609011729474582361239__fonBet_PANDA</td>
+                    <td>2094719358580142082</td>
+                    <td>Asian Handicap - 1st Period</td>
+                    <td>1</td>
+                    <td>L01-Fonbet</td>
+                    <td>2026-09-01 17:29:47.459</td>
+                    <td>数据源</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+
+                    <td>LS</td>
+                    <td>0</td>
+                    <td></td>
+                    <td>LS-Fonbet</td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://test-panda-send-manager.dbsportxxxifbdxm2.com/panda/factMarket/index?dataDate=2026-09-01&amp;matchId=40705355&amp;marketCategoryId=19&amp;size=30&amp;page=1#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/143700413542849635/LS_0af40c96202609011729474582361239__fonBet_PANDA?dataDate=2026-09-01">投注项列表</a>
+                    </td>
+                    <td>40705355</td>
+                    <td>19</td>
+                    <td>2026-09-01 17:29:47.662</td>
+                    <td>赛前盘</td>
+                    <td>143700413542849635</td>
+                    <td>19924921_64_1_-1</td>
+                    <td>40705355_19_19_2</td>
+                    <td>0</td>
+                    <td>开盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>active</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动操盘</td>
+                    <td>1</td>
+                    <td>19924921_64_1_-1</td>
+                    <td>LS_0af40c96202609011729474582361239__fonBet_PANDA</td>
+                    <td>2094719358534004738</td>
+                    <td>Asian Handicap - 1st Period</td>
+                    <td>2</td>
+                    <td>L01-Fonbet</td>
+                    <td>2026-09-01 17:29:47.459</td>
+                    <td>数据源</td>
+                    <td>-1</td>
+                    <td>-1</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+
+                    <td>LS</td>
+                    <td>0</td>
+                    <td></td>
+                    <td>LS-Fonbet</td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://test-panda-send-manager.dbsportxxxifbdxm2.com/panda/factMarket/index?dataDate=2026-09-01&amp;matchId=40705355&amp;marketCategoryId=19&amp;size=30&amp;page=1#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/143334440547742361/ced947b3e5644b30999931f1c772e535_task_margain_trade_PANDA?dataDate=2026-09-01">投注项列表</a>
+                    </td>
+                    <td>40705355</td>
+                    <td>19</td>
+                    <td>2026-09-01 16:43:40.771</td>
+                    <td>赛前盘</td>
+                    <td>143334440547742361</td>
+                    <td>19924921_64_1_-1.5</td>
+                    <td>40705355_19_19_3</td>
+                    <td>0</td>
+                    <td>开盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>active</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动操盘</td>
+                    <td>1</td>
+                    <td>19924921_64_1_-1.5</td>
+                    <td>ced947b3e5644b30999931f1c772e535_task_margain_trade_PANDA</td>
+                    <td>2094707753199263745</td>
+                    <td>Asian Handicap - 1st Period</td>
+                    <td>3</td>
+                    <td>L01-Fonbet</td>
+                    <td>2026-09-01 16:43:40.728</td>
+                    <td>分时节点</td>
+                    <td>-1.5</td>
+                    <td>-1.5</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+
+                    <td>LS</td>
+                    <td>0</td>
+                    <td></td>
+                    <td>LS-Fonbet</td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://test-panda-send-manager.dbsportxxxifbdxm2.com/panda/factMarket/index?dataDate=2026-09-01&amp;matchId=40705355&amp;marketCategoryId=19&amp;size=30&amp;page=1#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/141443678162451405/ced947b3e5644b30999931f1c772e535_task_margain_trade_PANDA?dataDate=2026-09-01">投注项列表</a>
+                    </td>
+                    <td>40705355</td>
+                    <td>19</td>
+                    <td>2026-09-01 16:43:40.771</td>
+                    <td>赛前盘</td>
+                    <td>141443678162451405</td>
+                    <td>19924921_64_1_0</td>
+                    <td>40705355_19_19_1</td>
+                    <td>0</td>
+                    <td>开盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>active</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动操盘</td>
+                    <td>1</td>
+                    <td>19924921_64_1_0</td>
+                    <td>ced947b3e5644b30999931f1c772e535_task_margain_trade_PANDA</td>
+                    <td>2094707753220235265</td>
+                    <td>Asian Handicap - 1st Period</td>
+                    <td>1</td>
+                    <td>L01-Fonbet</td>
+                    <td>2026-09-01 16:43:40.728</td>
+                    <td>分时节点</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+
+                    <td>LS</td>
+                    <td>0</td>
+                    <td></td>
+                    <td>LS-Fonbet</td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://test-panda-send-manager.dbsportxxxifbdxm2.com/panda/factMarket/index?dataDate=2026-09-01&amp;matchId=40705355&amp;marketCategoryId=19&amp;size=30&amp;page=1#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/143700413542849635/ced947b3e5644b30999931f1c772e535_task_margain_trade_PANDA?dataDate=2026-09-01">投注项列表</a>
+                    </td>
+                    <td>40705355</td>
+                    <td>19</td>
+                    <td>2026-09-01 16:43:40.770</td>
+                    <td>赛前盘</td>
+                    <td>143700413542849635</td>
+                    <td>19924921_64_1_-1</td>
+                    <td>40705355_19_19_2</td>
+                    <td>0</td>
+                    <td>开盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>active</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动操盘</td>
+                    <td>1</td>
+                    <td>19924921_64_1_-1</td>
+                    <td>ced947b3e5644b30999931f1c772e535_task_margain_trade_PANDA</td>
+                    <td>2094707753178292226</td>
+                    <td>Asian Handicap - 1st Period</td>
+                    <td>2</td>
+                    <td>L01-Fonbet</td>
+                    <td>2026-09-01 16:43:40.728</td>
+                    <td>分时节点</td>
+                    <td>-1</td>
+                    <td>-1</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+
+                    <td>LS</td>
+                    <td>0</td>
+                    <td></td>
+                    <td>LS-Fonbet</td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://test-panda-send-manager.dbsportxxxifbdxm2.com/panda/factMarket/index?dataDate=2026-09-01&amp;matchId=40705355&amp;marketCategoryId=19&amp;size=30&amp;page=1#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/141443678162451405/7214ae172acf432f926763e097a15ce3_task_margain_trade_PANDA?dataDate=2026-09-01">投注项列表</a>
+                    </td>
+                    <td>40705355</td>
+                    <td>19</td>
+                    <td>2026-09-01 16:43:40.753</td>
+                    <td>赛前盘</td>
+                    <td>141443678162451405</td>
+                    <td>19924921_64_1_0</td>
+                    <td>40705355_19_19_1</td>
+                    <td>0</td>
+                    <td>开盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>active</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动操盘</td>
+                    <td>1</td>
+                    <td>19924921_64_1_0</td>
+                    <td>7214ae172acf432f926763e097a15ce3_task_margain_trade_PANDA</td>
+                    <td>2094707753249595393</td>
+                    <td>Asian Handicap - 1st Period</td>
+                    <td>1</td>
+                    <td>L01-Fonbet</td>
+                    <td>2026-09-01 16:43:40.709</td>
+                    <td>分时节点</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+
+                    <td>LS</td>
+                    <td>0</td>
+                    <td></td>
+                    <td>LS-Fonbet</td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://test-panda-send-manager.dbsportxxxifbdxm2.com/panda/factMarket/index?dataDate=2026-09-01&amp;matchId=40705355&amp;marketCategoryId=19&amp;size=30&amp;page=1#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/143334440547742361/7214ae172acf432f926763e097a15ce3_task_margain_trade_PANDA?dataDate=2026-09-01">投注项列表</a>
+                    </td>
+                    <td>40705355</td>
+                    <td>19</td>
+                    <td>2026-09-01 16:43:40.752</td>
+                    <td>赛前盘</td>
+                    <td>143334440547742361</td>
+                    <td>19924921_64_1_-1.5</td>
+                    <td>40705355_19_19_3</td>
+                    <td>0</td>
+                    <td>开盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>active</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动操盘</td>
+                    <td>1</td>
+                    <td>19924921_64_1_-1.5</td>
+                    <td>7214ae172acf432f926763e097a15ce3_task_margain_trade_PANDA</td>
+                    <td>2094707753228623875</td>
+                    <td>Asian Handicap - 1st Period</td>
+                    <td>3</td>
+                    <td>L01-Fonbet</td>
+                    <td>2026-09-01 16:43:40.709</td>
+                    <td>分时节点</td>
+                    <td>-1.5</td>
+                    <td>-1.5</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+
+                    <td>LS</td>
+                    <td>0</td>
+                    <td></td>
+                    <td>LS-Fonbet</td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://test-panda-send-manager.dbsportxxxifbdxm2.com/panda/factMarket/index?dataDate=2026-09-01&amp;matchId=40705355&amp;marketCategoryId=19&amp;size=30&amp;page=1#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/143700413542849635/7214ae172acf432f926763e097a15ce3_task_margain_trade_PANDA?dataDate=2026-09-01">投注项列表</a>
+                    </td>
+                    <td>40705355</td>
+                    <td>19</td>
+                    <td>2026-09-01 16:43:40.751</td>
+                    <td>赛前盘</td>
+                    <td>143700413542849635</td>
+                    <td>19924921_64_1_-1</td>
+                    <td>40705355_19_19_2</td>
+                    <td>0</td>
+                    <td>开盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>active</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动操盘</td>
+                    <td>1</td>
+                    <td>19924921_64_1_-1</td>
+                    <td>7214ae172acf432f926763e097a15ce3_task_margain_trade_PANDA</td>
+                    <td>2094707753207652356</td>
+                    <td>Asian Handicap - 1st Period</td>
+                    <td>2</td>
+                    <td>L01-Fonbet</td>
+                    <td>2026-09-01 16:43:40.709</td>
+                    <td>分时节点</td>
+                    <td>-1</td>
+                    <td>-1</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+
+                    <td>LS</td>
+                    <td>0</td>
+                    <td></td>
+                    <td>LS-Fonbet</td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://test-panda-send-manager.dbsportxxxifbdxm2.com/panda/factMarket/index?dataDate=2026-09-01&amp;matchId=40705355&amp;marketCategoryId=19&amp;size=30&amp;page=1#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/143334440547742361/72751e05383644a7be8285013dbc725d_task_margain_trade_PANDA?dataDate=2026-09-01">投注项列表</a>
+                    </td>
+                    <td>40705355</td>
+                    <td>19</td>
+                    <td>2026-09-01 16:43:40.722</td>
+                    <td>赛前盘</td>
+                    <td>143334440547742361</td>
+                    <td>19924921_64_1_-1.5</td>
+                    <td>40705355_19_19_3</td>
+                    <td>0</td>
+                    <td>开盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>active</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动操盘</td>
+                    <td>1</td>
+                    <td>19924921_64_1_-1.5</td>
+                    <td>72751e05383644a7be8285013dbc725d_task_margain_trade_PANDA</td>
+                    <td>2094707753102794753</td>
+                    <td>Asian Handicap - 1st Period</td>
+                    <td>3</td>
+                    <td>L01-Fonbet</td>
+                    <td>2026-09-01 16:43:40.684</td>
+                    <td>分时节点</td>
+                    <td>-1.5</td>
+                    <td>-1.5</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+
+                    <td>LS</td>
+                    <td>0</td>
+                    <td></td>
+                    <td>LS-Fonbet</td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://test-panda-send-manager.dbsportxxxifbdxm2.com/panda/factMarket/index?dataDate=2026-09-01&amp;matchId=40705355&amp;marketCategoryId=19&amp;size=30&amp;page=1#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/143700413542849635/72751e05383644a7be8285013dbc725d_task_margain_trade_PANDA?dataDate=2026-09-01">投注项列表</a>
+                    </td>
+                    <td>40705355</td>
+                    <td>19</td>
+                    <td>2026-09-01 16:43:40.722</td>
+                    <td>赛前盘</td>
+                    <td>143700413542849635</td>
+                    <td>19924921_64_1_-1</td>
+                    <td>40705355_19_19_2</td>
+                    <td>0</td>
+                    <td>开盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>active</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动操盘</td>
+                    <td>1</td>
+                    <td>19924921_64_1_-1</td>
+                    <td>72751e05383644a7be8285013dbc725d_task_margain_trade_PANDA</td>
+                    <td>2094707753077628930</td>
+                    <td>Asian Handicap - 1st Period</td>
+                    <td>2</td>
+                    <td>L01-Fonbet</td>
+                    <td>2026-09-01 16:43:40.684</td>
+                    <td>分时节点</td>
+                    <td>-1</td>
+                    <td>-1</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+
+                    <td>LS</td>
+                    <td>0</td>
+                    <td></td>
+                    <td>LS-Fonbet</td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://test-panda-send-manager.dbsportxxxifbdxm2.com/panda/factMarket/index?dataDate=2026-09-01&amp;matchId=40705355&amp;marketCategoryId=19&amp;size=30&amp;page=1#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/141443678162451405/72751e05383644a7be8285013dbc725d_task_margain_trade_PANDA?dataDate=2026-09-01">投注项列表</a>
+                    </td>
+                    <td>40705355</td>
+                    <td>19</td>
+                    <td>2026-09-01 16:43:40.723</td>
+                    <td>赛前盘</td>
+                    <td>141443678162451405</td>
+                    <td>19924921_64_1_0</td>
+                    <td>40705355_19_19_1</td>
+                    <td>0</td>
+                    <td>开盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>active</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动操盘</td>
+                    <td>1</td>
+                    <td>19924921_64_1_0</td>
+                    <td>72751e05383644a7be8285013dbc725d_task_margain_trade_PANDA</td>
+                    <td>2094707753119571970</td>
+                    <td>Asian Handicap - 1st Period</td>
+                    <td>1</td>
+                    <td>L01-Fonbet</td>
+                    <td>2026-09-01 16:43:40.684</td>
+                    <td>分时节点</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+
+                    <td>LS</td>
+                    <td>0</td>
+                    <td></td>
+                    <td>LS-Fonbet</td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://test-panda-send-manager.dbsportxxxifbdxm2.com/panda/factMarket/index?dataDate=2026-09-01&amp;matchId=40705355&amp;marketCategoryId=19&amp;size=30&amp;page=1#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/141443678162451405/f4dfa26dd052498bac49a0e85fe1efdb_place_PANDA?dataDate=2026-09-01">投注项列表</a>
+                    </td>
+                    <td>40705355</td>
+                    <td>19</td>
+                    <td>2026-09-01 16:43:37.800</td>
+                    <td>赛前盘</td>
+                    <td>141443678162451405</td>
+                    <td>19924921_64_1_0</td>
+                    <td>40705355_19_19_1</td>
+                    <td>0</td>
+                    <td>开盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>active</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动操盘</td>
+                    <td>1</td>
+                    <td>19924921_64_1_0</td>
+                    <td>f4dfa26dd052498bac49a0e85fe1efdb_place_PANDA</td>
+                    <td>2094707741024956417</td>
+                    <td>Asian Handicap - 1st Period</td>
+                    <td>1</td>
+                    <td>L01-Fonbet</td>
+                    <td>2026-09-01 16:43:37.663</td>
+                    <td>封盘/开盘</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+
+                    <td>LS</td>
+                    <td>0</td>
+                    <td></td>
+                    <td>LS-Fonbet</td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://test-panda-send-manager.dbsportxxxifbdxm2.com/panda/factMarket/index?dataDate=2026-09-01&amp;matchId=40705355&amp;marketCategoryId=19&amp;size=30&amp;page=1#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/143700413542849635/f4dfa26dd052498bac49a0e85fe1efdb_place_PANDA?dataDate=2026-09-01">投注项列表</a>
+                    </td>
+                    <td>40705355</td>
+                    <td>19</td>
+                    <td>2026-09-01 16:43:37.798</td>
+                    <td>赛前盘</td>
+                    <td>143700413542849635</td>
+                    <td>19924921_64_1_-1</td>
+                    <td>40705355_19_19_2</td>
+                    <td>0</td>
+                    <td>开盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>active</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动操盘</td>
+                    <td>1</td>
+                    <td>19924921_64_1_-1</td>
+                    <td>f4dfa26dd052498bac49a0e85fe1efdb_place_PANDA</td>
+                    <td>2094707740983013378</td>
+                    <td>Asian Handicap - 1st Period</td>
+                    <td>2</td>
+                    <td>L01-Fonbet</td>
+                    <td>2026-09-01 16:43:37.663</td>
+                    <td>封盘/开盘</td>
+                    <td>-1</td>
+                    <td>-1</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+
+                    <td>LS</td>
+                    <td>0</td>
+                    <td></td>
+                    <td>LS-Fonbet</td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://test-panda-send-manager.dbsportxxxifbdxm2.com/panda/factMarket/index?dataDate=2026-09-01&amp;matchId=40705355&amp;marketCategoryId=19&amp;size=30&amp;page=1#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/143334440547742361/f4dfa26dd052498bac49a0e85fe1efdb_place_PANDA?dataDate=2026-09-01">投注项列表</a>
+                    </td>
+                    <td>40705355</td>
+                    <td>19</td>
+                    <td>2026-09-01 16:43:37.799</td>
+                    <td>赛前盘</td>
+                    <td>143334440547742361</td>
+                    <td>19924921_64_1_-1.5</td>
+                    <td>40705355_19_19_3</td>
+                    <td>0</td>
+                    <td>开盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>active</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动操盘</td>
+                    <td>1</td>
+                    <td>19924921_64_1_-1.5</td>
+                    <td>f4dfa26dd052498bac49a0e85fe1efdb_place_PANDA</td>
+                    <td>2094707741003984898</td>
+                    <td>Asian Handicap - 1st Period</td>
+                    <td>3</td>
+                    <td>L01-Fonbet</td>
+                    <td>2026-09-01 16:43:37.663</td>
+                    <td>封盘/开盘</td>
+                    <td>-1.5</td>
+                    <td>-1.5</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+
+                    <td>LS</td>
+                    <td>0</td>
+                    <td></td>
+                    <td>LS-Fonbet</td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://test-panda-send-manager.dbsportxxxifbdxm2.com/panda/factMarket/index?dataDate=2026-09-01&amp;matchId=40705355&amp;marketCategoryId=19&amp;size=30&amp;page=1#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/143334440547742361/82437cdd334f44608b23ef34b4e4e92a_trade_LS_CATEGORY_PANDA?dataDate=2026-09-01">投注项列表</a>
+                    </td>
+                    <td>40705355</td>
+                    <td>19</td>
+                    <td>2026-09-01 16:43:36.940</td>
+                    <td>赛前盘</td>
+                    <td>143334440547742361</td>
+                    <td>19924921_64_1_-1.5</td>
+                    <td>40705355_19_19_3</td>
+                    <td>0</td>
+                    <td>封盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>active</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动操盘</td>
+                    <td>1</td>
+                    <td>19924921_64_1_-1.5</td>
+                    <td>82437cdd334f44608b23ef34b4e4e92a_trade_LS_CATEGORY_PANDA</td>
+                    <td>2094707737449652225</td>
+                    <td>Asian Handicap - 1st Period</td>
+                    <td>3</td>
+                    <td>L01-Fonbet</td>
+                    <td>2026-09-01 16:43:36.536</td>
+                    <td>数据源</td>
+                    <td>-1.5</td>
+                    <td>-1.5</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+
+                    <td>LS</td>
+                    <td>0</td>
+                    <td></td>
+                    <td>LS-Fonbet;PLACE_NUM</td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://test-panda-send-manager.dbsportxxxifbdxm2.com/panda/factMarket/index?dataDate=2026-09-01&amp;matchId=40705355&amp;marketCategoryId=19&amp;size=30&amp;page=1#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/141443678162451405/82437cdd334f44608b23ef34b4e4e92a_trade_LS_CATEGORY_PANDA?dataDate=2026-09-01">投注项列表</a>
+                    </td>
+                    <td>40705355</td>
+                    <td>19</td>
+                    <td>2026-09-01 16:43:36.941</td>
+                    <td>赛前盘</td>
+                    <td>141443678162451405</td>
+                    <td>19924921_64_1_0</td>
+                    <td>40705355_19_19_1</td>
+                    <td>0</td>
+                    <td>封盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>active</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动操盘</td>
+                    <td>1</td>
+                    <td>19924921_64_1_0</td>
+                    <td>82437cdd334f44608b23ef34b4e4e92a_trade_LS_CATEGORY_PANDA</td>
+                    <td>2094707737466429441</td>
+                    <td>Asian Handicap - 1st Period</td>
+                    <td>1</td>
+                    <td>L01-Fonbet</td>
+                    <td>2026-09-01 16:43:36.536</td>
+                    <td>数据源</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+
+                    <td>LS</td>
+                    <td>0</td>
+                    <td></td>
+                    <td>LS-Fonbet;PLACE_NUM</td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://test-panda-send-manager.dbsportxxxifbdxm2.com/panda/factMarket/index?dataDate=2026-09-01&amp;matchId=40705355&amp;marketCategoryId=19&amp;size=30&amp;page=1#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/143700413542849635/82437cdd334f44608b23ef34b4e4e92a_trade_LS_CATEGORY_PANDA?dataDate=2026-09-01">投注项列表</a>
+                    </td>
+                    <td>40705355</td>
+                    <td>19</td>
+                    <td>2026-09-01 16:43:36.939</td>
+                    <td>赛前盘</td>
+                    <td>143700413542849635</td>
+                    <td>19924921_64_1_-1</td>
+                    <td>40705355_19_19_2</td>
+                    <td>0</td>
+                    <td>封盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>active</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动操盘</td>
+                    <td>1</td>
+                    <td>19924921_64_1_-1</td>
+                    <td>82437cdd334f44608b23ef34b4e4e92a_trade_LS_CATEGORY_PANDA</td>
+                    <td>2094707737428680706</td>
+                    <td>Asian Handicap - 1st Period</td>
+                    <td>2</td>
+                    <td>L01-Fonbet</td>
+                    <td>2026-09-01 16:43:36.536</td>
+                    <td>数据源</td>
+                    <td>-1</td>
+                    <td>-1</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+
+                    <td>LS</td>
+                    <td>0</td>
+                    <td></td>
+                    <td>LS-Fonbet;PLACE_NUM</td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://test-panda-send-manager.dbsportxxxifbdxm2.com/panda/factMarket/index?dataDate=2026-09-01&amp;matchId=40705355&amp;marketCategoryId=19&amp;size=30&amp;page=1#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/142457346605502330/82437cdd334f44608b23ef34b4e4e92a_trade_PANDA?dataDate=2026-09-01">投注项列表</a>
+                    </td>
+                    <td>40705355</td>
+                    <td>19</td>
+                    <td>2026-09-01 16:43:35.624</td>
+                    <td>赛前盘</td>
+                    <td>142457346605502330</td>
+                    <td>761989993098330114_20004_-0.25</td>
+                    <td>40705355_19_19_2</td>
+                    <td>0</td>
+                    <td>封盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>suspended</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动操盘</td>
+                    <td>1</td>
+                    <td>761989993098330114_20004_-0.25</td>
+                    <td>82437cdd334f44608b23ef34b4e4e92a_trade_PANDA</td>
+                    <td>2094707731868790786</td>
+                    <td>1st half - Asian Handicap</td>
+                    <td>2</td>
+                    <td></td>
+                    <td>2026-09-01 16:43:35.396</td>
+                    <td>其他</td>
+                    <td>-0.25</td>
+                    <td>-0.25</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td></td>
+
+                    <td>LS</td>
+                    <td>0</td>
+                    <td></td>
+                    <td>操盘后台切换玩法数据源1，该数据源玩法关盘;PLACE_NUM</td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://test-panda-send-manager.dbsportxxxifbdxm2.com/panda/factMarket/index?dataDate=2026-09-01&amp;matchId=40705355&amp;marketCategoryId=19&amp;size=30&amp;page=1#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/141443678162451405/82437cdd334f44608b23ef34b4e4e92a_trade_PANDA?dataDate=2026-09-01">投注项列表</a>
+                    </td>
+                    <td>40705355</td>
+                    <td>19</td>
+                    <td>2026-09-01 16:43:35.625</td>
+                    <td>赛前盘</td>
+                    <td>141443678162451405</td>
+                    <td>761989993098330114_20004_0</td>
+                    <td>40705355_19_19_1</td>
+                    <td>0</td>
+                    <td>封盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>suspended</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动操盘</td>
+                    <td>1</td>
+                    <td>761989993098330114_20004_0</td>
+                    <td>82437cdd334f44608b23ef34b4e4e92a_trade_PANDA</td>
+                    <td>2094707731927511043</td>
+                    <td>1st half - Asian Handicap</td>
+                    <td>1</td>
+                    <td>L01-Fonbet</td>
+                    <td>2026-09-01 16:43:35.396</td>
+                    <td>其他</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td></td>
+
+                    <td>LS</td>
+                    <td>0</td>
+                    <td></td>
+                    <td>操盘后台切换玩法数据源后无赔率，该数据源玩法关盘;DATA_SOURCE_SWITCH_OLD_CLOSE;PLACE_NUM</td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://test-panda-send-manager.dbsportxxxifbdxm2.com/panda/factMarket/index?dataDate=2026-09-01&amp;matchId=40705355&amp;marketCategoryId=19&amp;size=30&amp;page=1#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/144302615733203652/82437cdd334f44608b23ef34b4e4e92a_trade_PANDA?dataDate=2026-09-01">投注项列表</a>
+                    </td>
+                    <td>40705355</td>
+                    <td>19</td>
+                    <td>2026-09-01 16:43:35.625</td>
+                    <td>赛前盘</td>
+                    <td>144302615733203652</td>
+                    <td>761989993098330114_20004_0.25</td>
+                    <td>40705355_19_19_3</td>
+                    <td>0</td>
+                    <td>封盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>suspended</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动操盘</td>
+                    <td>1</td>
+                    <td>761989993098330114_20004_0.25</td>
+                    <td>82437cdd334f44608b23ef34b4e4e92a_trade_PANDA</td>
+                    <td>2094707731893956612</td>
+                    <td>1st half - Asian Handicap</td>
+                    <td>3</td>
+                    <td></td>
+                    <td>2026-09-01 16:43:35.396</td>
+                    <td>其他</td>
+                    <td>0.25</td>
+                    <td>0.25</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td></td>
+
+                    <td>LS</td>
+                    <td>0</td>
+                    <td></td>
+                    <td>操盘后台切换玩法数据源1，该数据源玩法关盘;PLACE_NUM</td>
+
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        
+    <div class="layui-row">
+        <div class="layui-col-sm4">
+            <div class="page-info">
+                <span>显示 1/30 条，共 60 条记录</span>
+                <select class="timo-select page-number">
+                    <option value="10">10 条/页</option>
+                    <option value="20">20 条/页</option>
+                    <option value="30" selected="selected">30 条/页</option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-col-sm7" style="float: right;">
+            <ul class="pagination list-page">
+                
+                <li class="page-item active">
+                    <a class="page-link" href="http://test-panda-send-manager.dbsportxxxifbdxm2.com/panda/factMarket/index?dataDate=2026-09-01&amp;matchId=40705355&amp;marketCategoryId=19&amp;size=30&amp;page=1">1</a>
+                    
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="http://test-panda-send-manager.dbsportxxxifbdxm2.com/panda/factMarket/index?dataDate=2026-09-01&amp;matchId=40705355&amp;marketCategoryId=19&amp;size=30&amp;page=2">2</a>
+                    
+                </li>
+                <li class="page-item"><a class="page-link" href="http://test-panda-send-manager.dbsportxxxifbdxm2.com/panda/factMarket/index?dataDate=2026-09-01&amp;matchId=40705355&amp;marketCategoryId=19&amp;size=30&amp;page=2">下一页</a>
+                </li>
+               <li class="page-item">
+                    <span class="page-link noHover">
+                        跳到第
+                    </span>
+               </li>
+                <li class="page-item">
+                    <input id="pageParamHrefSkip" type="hidden" value="/panda/factMarket/index?dataDate=2026-09-01&amp;matchId=40705355&amp;marketCategoryId=19&amp;size=30&amp;">
+                    <input class="page-link" style="text-align: center; width: 50px" id="pageNumberSkip" type="number" min="1" value="1">
+                </li>
+                <li class="page-item">
+                    <span class="page-link noHover">页</span>
+                </li>
+                <li class="page-item">
+                    <button type="button" class="page-link page-number-skip">确定</button>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    </div>
+</div>
+<script>
+        //定义函数 $ 根据元素id获得页面元素,提高效率
+        function $(id){
+            return document.getElementById(id);
+        }
+    </script><script src="./jquery-2.2.4.js.download" charset="utf-8"></script>
+        <script src="./layui.js.download" charset="utf-8"></script>
+        <script src="./main.js.download" charset="utf-8"></script>
+    
+<script type="text/javascript">
+    $(document).ready(function(){
+    });
+    layui.use('laydate', function () {
+        var laydate = layui.laydate;
+        laydate.render({
+            elem: '#datePicker',
+            type: 'date',
+            format: 'yyyy-MM-dd'
+        });
+    });
+</script>
+
+</body></html>
