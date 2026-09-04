@@ -13,7 +13,7 @@
 
     <update id="updateList" parameterType="java.util.List">
         <foreach collection="list" item="item" separator=";">
-            UPDATE i18nnames_outright_match_name
+            UPDATE language_internation
             <set>
                 <if test="item.text != null">
                     text = #{item.text},

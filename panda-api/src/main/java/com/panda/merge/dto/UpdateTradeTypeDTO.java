@@ -11,9 +11,6 @@ public class UpdateTradeTypeDTO implements Serializable {
 
     private Long sportId;
     private Long matchId;
-    /**
-     * 总玩法
-     */
     private List<Long> playIds;
     /**
      * 子玩法存在，以子玩法入库，总玩法触发赔率下发

@@ -20,17 +20,4 @@ public interface StandardSportMarketOddsDao {
 
     List<StandardSportMarketOdds> getMarketOddsByMatchIdList(@Param("marketIdList") List<Long> marketIdList);
 
-    /**
-     * 批量创建
-     */
-    int insertList(@Param("list") List<StandardSportMarketOdds> standardSportMarketOdds, @Param("tableShardingValue") Long tableShardingValue);
-
-    /**
-     * 批量修改
-     *
-     * @param standardSportMarketOdds
-     * @return
-     */
-    int upDataList(@Param("list") List<StandardSportMarketOdds> standardSportMarketOdds, @Param("tableShardingValue") Long tableShardingValue);
-
 }

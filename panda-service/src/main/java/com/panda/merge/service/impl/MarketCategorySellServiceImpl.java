@@ -93,7 +93,7 @@ public class MarketCategorySellServiceImpl implements MarketCategorySellService 
         if(CollectionUtils.isEmpty(requiredCallItems)){
             return result;
         }
-        log.info("2724,查询标准玩法开售数据库：{}", requiredCallItems);
+
         MarketCategorySellExample example = new MarketCategorySellExample();
         for (String category : requiredCallItems) {
             String[] array = category.split("-");         // dataSourceCode: array   thirdMarketCategorySourceId: arr[1]

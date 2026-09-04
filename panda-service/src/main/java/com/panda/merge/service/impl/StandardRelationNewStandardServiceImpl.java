@@ -37,11 +37,4 @@ public class StandardRelationNewStandardServiceImpl implements StandardRelationN
         }
         return null;
     }
-
-    @Override
-    public List<StandardRelationNewStandard> listStandardRelationNewStandard(Long sourceStandardId) {
-        StandardRelationNewStandardExample standardRelationNewStandardExample = new StandardRelationNewStandardExample();
-        standardRelationNewStandardExample.createCriteria().andSourceStandardIdEqualTo(sourceStandardId);
-        return standardRelationNewStandardMapper.selectByExample(standardRelationNewStandardExample);
-    }
 }

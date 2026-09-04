@@ -1,6 +1,5 @@
 package com.panda.merge;
 
-import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.nacos.spring.context.annotation.config.NacosPropertySource;
 
 import org.apache.dubbo.config.spring.context.annotation.EnableDubbo;
@@ -20,11 +19,11 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableDubbo
 @EnableCaching
 @NacosPropertySource(dataId = "panda-websocket-admin", autoRefreshed = true)
+@NacosPropertySource(dataId = "panda-data-common", autoRefreshed = true)
 public class MergeWebSocketApplication {
 
 
     public static void main(String[] args) {
-        ParserConfig.getGlobalInstance().setAutoTypeSupport(false);
         SpringApplication.run(MergeWebSocketApplication.class, args);
     }
 

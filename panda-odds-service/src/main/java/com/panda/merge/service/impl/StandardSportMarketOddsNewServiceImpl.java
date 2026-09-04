@@ -1,7 +1,6 @@
 package com.panda.merge.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.panda.merge.common.OddsWrapper;
 import com.panda.merge.common.RedisHelper;
 import com.panda.merge.common.enums.Constant;
 import com.panda.merge.common.enums.DataSourceCodeEnum;
@@ -113,7 +112,7 @@ public class StandardSportMarketOddsNewServiceImpl implements StandardSportMarke
         if(CollectionUtils.isEmpty(requiredCallItems)){
             return result;
         }
-        log.info("2724,查询标准盘口赔率数据库：{}", requiredCallItems);
+
         Map<Long, List<String[]>> keys = new HashMap<>();
         for(String item : requiredCallItems) {
             String[] array = item.split("->");
@@ -267,9 +266,8 @@ public class StandardSportMarketOddsNewServiceImpl implements StandardSportMarke
         if (MarginCategoryConfig.STANDARD_OUTRIGHT_CATEGORY.contains(marketGategoryId)) {
             StringBuffer redisKey = new StringBuffer(Constant.REDIS_KEY.RONGHE_STANDARD_MARKET_ODDS_RELATION_MARKET_ODDS_ID);
             String key = redisKey.append(standardSportMarketOdds.getRelationMarketId()).append("_").append(standardSportMarketOdds.getOddsType()).toString();
-            Object object =redisService.get(key);
-            if (object != null && !StringUtils.isEmpty(object.toString())) {
-                return Long.valueOf(object.toString());
+            if (redisService.get(key) != null && !StringUtils.isEmpty(redisService.get(key).toString())) {
+                return Long.valueOf(redisService.get(key).toString());
             }
         }
         String redisKey = RelationKeyFactory.getMarketOddsRelationKey(standardSportMarketOdds.getRelationMarketId(), standardSportMarketOdds, marketGategoryId);

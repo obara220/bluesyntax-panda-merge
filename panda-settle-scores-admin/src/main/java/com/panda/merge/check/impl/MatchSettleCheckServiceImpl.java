@@ -147,15 +147,15 @@
 //
 //    private static final MatchSettleCheckInfo constantCheckInfo = new MatchSettleCheckInfo();
 //
-//    List<String> goalDelaySettleNum = Arrays.asList("102","1034","1035","1036","103","1037","1038","1039","1040","1041","106","1044","1045","1046","107","1047","1048","1049","1050","1051");
-//    List<String> cornerDelaySettleNum = Arrays.asList("2011","2012","2014","2015");
-//    List<String> bookingDelaySettleNum = Arrays.asList("301","302","305","306");
+//    List<String> goalDelaySettleNum = Arrays.asList("105","109","1010","102","1034","1035","1036","103","1037","1038","1039","104","1040","1041","1042","106","1044","1045","1046","107","1047","1048","1049","108","1050","1051","1052","1043","1053");
+//    List<String> cornerDelaySettleNum = Arrays.asList("201","202","203","2011","2012","2014","2015");
+//    List<String> bookingDelaySettleNum = Arrays.asList("308","304","309","301","302","305","306");
 //
 //    List<String> bookingEventDelaySettleNum = Arrays.asList("3019","3020");
 //    List<String> cornerEventDelaySettleNum = Arrays.asList("204","205");
 //
-//    List<String> goal15SettleNum =  Arrays.asList("102","103","106","107");
-//    List<String> goal5SettleNum = Arrays.asList("1034", "1035", "1036", "1037", "1038", "1039", "1040","1041", "1044", "1045", "1046", "1047", "1048", "1049", "1050", "1051");
+//    List<String> goal15SettleNum =  Arrays.asList("102","103","104","106","107","108","105","109","1010");
+//    List<String> goal5SettleNum = Arrays.asList("1034", "1035", "1036", "1037", "1038", "1039", "1040","1041", "1042", "1044", "1045", "1046", "1047", "1048", "1049", "1050", "1051", "1052");
 //    //重要核对校验阶段
 //    @Override
 //    public boolean checkMatchThirdSettleScores(MatchSettleThirdScore matchSettleThirdScore, String linkedId, Long second, CheckIsGreyDto checkIsGreyDto) {
@@ -196,7 +196,7 @@
 //
 //        //3.1 查询比分核对类是否存在
 //        MatchSettleCheckInfoExample checkInfoExample = new MatchSettleCheckInfoExample();
-//        checkInfoExample.createCriteria().andSettleScoreEventIdEqualTo(matchSettleScore.getId()).andDataSourceCodeEqualTo(matchSettleThirdScore.getDataSourceCode());
+//        checkInfoExample.createCriteria().andSettleScoreEventIdEqualTo(matchSettleScore.getId()).andCheckTypeEqualTo(1).andDataSourceCodeEqualTo(matchSettleThirdScore.getDataSourceCode());
 //        long checkInfoStartTime = System.currentTimeMillis();
 //        List<MatchSettleCheckInfo> list = matchSettleCheckInfoMapper.selectByExample(checkInfoExample);
 //        long checkInfoCost = System.currentTimeMillis()-checkInfoStartTime;
@@ -215,8 +215,8 @@
 //                log.error("linkId::{}::eventId:{} settleNum:{} checkMatchThirdSettleScores 事件核对并发生成:{}", linkedId, matchSettleThirdScore.getId(),matchSettleThirdScore.getSettleNum(), list.size());
 //            }
 //            matchSettleCheckInfo = list.get(0);
-//            if (!StringUtils.isAnyEmpty(matchSettleThirdScore.getOperater()) && (matchSettleThirdScore.getDataSourceCode().equals(DataSourceCodeEnum.PD.getCode()) || matchSettleThirdScore.getDataSourceCode().equals(DataSourceCodeEnum.PD2.getCode()))){
-//                matchSettleCheckInfo.setUserName(matchSettleThirdScore.getOperater() + "(" + matchSettleThirdScore.getDataSourceCode() +")");
+//            if (!StringUtils.isAnyEmpty(matchSettleThirdScore.getOperater()) && (matchSettleThirdScore.getDataSourceCode().equals(DataSourceCodeEnum.PD.getCode()) || matchSettleThirdScore.getDataSourceCode().equals(DataSourceCodeEnum.PD2.getCode()))) {
+//                matchSettleCheckInfo.setUserName(matchSettleThirdScore.getOperater() + "(" + matchSettleThirdScore.getDataSourceCode() + ")");
 //            }
 //            //如果已经核对过的数据商的比分，未结算的，不会再进行结算： 场景
 //            // 1. 15分钟比分 错过阶段没结算说明 上个15分钟阶段数据商的比分有问题不准确，所以下一个阶段 也不用数据商的比分结算，除非人工结算掉后，才判断应该没问题
@@ -246,8 +246,8 @@
 //            // 8月 15日新版推送几率很大
 //            //3.3 不存在创建核对比分
 //            matchSettleCheckInfo = SettleCheckUtils.initMatchSettleScores(matchSettleScore, matchSettleThirdScore);
-//            if (!StringUtils.isAnyEmpty(matchSettleThirdScore.getOperater()) && (matchSettleThirdScore.getDataSourceCode().equals(DataSourceCodeEnum.PD.getCode()) || matchSettleThirdScore.getDataSourceCode().equals(DataSourceCodeEnum.PD2.getCode()))){
-//                matchSettleCheckInfo.setUserName(matchSettleThirdScore.getOperater() + "(" + matchSettleThirdScore.getDataSourceCode() +")");
+//            if (!StringUtils.isAnyEmpty(matchSettleThirdScore.getOperater()) && (matchSettleThirdScore.getDataSourceCode().equals(DataSourceCodeEnum.PD.getCode()) || matchSettleThirdScore.getDataSourceCode().equals(DataSourceCodeEnum.PD2.getCode()))) {
+//                matchSettleCheckInfo.setUserName(matchSettleThirdScore.getOperater() + "(" + matchSettleThirdScore.getDataSourceCode() + ")");
 //            }
 //            matchSettleCheckInfo.setIsGrey(matchSettleThirdScore.getIsGrey());
 //            matchSettleCheckInfo.setCheckStatus(MatchSettleCheckConstant.CheckStatus.EDIT);
@@ -261,7 +261,7 @@
 //            if (strings.contains(matchSettleThirdScore.getSettleNum())) {
 //                matchSettleCheckInfo.setFiveMinSection(fiveMinuteMap.get(matchSettleThirdScore.getSettleNum()));
 //            }
-//            if(matchSettleCheckInfo.getIsGrey()==null){
+//            if (matchSettleCheckInfo.getIsGrey() == null) {
 //                matchSettleCheckInfo.setIsGrey(0);
 //            }
 //            matchSettleCheckInfoMapper.insert(matchSettleCheckInfo);
@@ -403,7 +403,7 @@
 //        }
 //        //3.1 查询比分核对类是否存在
 //        MatchSettleCheckInfoExample checkInfoExample = new MatchSettleCheckInfoExample();
-//        checkInfoExample.createCriteria().andSettleScoreEventIdEqualTo(matchSettleEvent.getId()).andDataSourceCodeEqualTo(matchSettleThirdEvent.getDataSourceCode());
+//        checkInfoExample.createCriteria().andSettleScoreEventIdEqualTo(matchSettleEvent.getId()).andCheckTypeEqualTo(1).andDataSourceCodeEqualTo(matchSettleThirdEvent.getDataSourceCode());
 //        List<MatchSettleCheckInfo> list = matchSettleCheckInfoMapper.selectByExample(checkInfoExample);
 //        MatchSettleCheckInfo matchSettleCheckInfo = null;
 //        //3.2 已经存在则修改比分
@@ -414,8 +414,8 @@
 //                log.error("linkId::{}::eventId:{} checkMatchThirdSettleScores :{}: 事件核对并发生成:{}", linkedId, matchSettleThirdEvent.getThirdEventSourceId(), list.size());
 //            }
 //            matchSettleCheckInfo = list.get(0);
-//            if (!StringUtils.isAnyEmpty(matchSettleThirdEvent.getOperater()) && (matchSettleThirdEvent.getDataSourceCode().equals(DataSourceCodeEnum.PD.getCode()) || matchSettleThirdEvent.getDataSourceCode().equals(DataSourceCodeEnum.PD2.getCode()))){
-//                matchSettleCheckInfo.setUserName(matchSettleThirdEvent.getOperater() + "(" + matchSettleThirdEvent.getDataSourceCode() +")");
+//            if (!StringUtils.isAnyEmpty(matchSettleThirdEvent.getOperater()) && (matchSettleThirdEvent.getDataSourceCode().equals(DataSourceCodeEnum.PD.getCode()) || matchSettleThirdEvent.getDataSourceCode().equals(DataSourceCodeEnum.PD2.getCode()))) {
+//                matchSettleCheckInfo.setUserName(matchSettleThirdEvent.getOperater() + "(" + matchSettleThirdEvent.getDataSourceCode() + ")");
 //            }
 //            //比分修正
 //            SettleCheckUtils.copyMatchSettleEvent(matchSettleThirdEvent, matchSettleCheckInfo);
@@ -450,23 +450,23 @@
 //            if (matchSettleThirdEvent.getIsGrey() != 2) {
 //                matchSettleCheckInfo.setFiveMinSection(period5);
 //            }
-//            if(matchSettleCheckInfo.getEventCode().equals("corner")||matchSettleCheckInfo.getEventCode().equals("fa_card")||matchSettleCheckInfo.getEventCode().equals("yellow_card")||matchSettleCheckInfo.getEventCode().equals("red_card")){
+//            if (matchSettleCheckInfo.getEventCode().equals("corner") || matchSettleCheckInfo.getEventCode().equals("fa_card") || matchSettleCheckInfo.getEventCode().equals("yellow_card") || matchSettleCheckInfo.getEventCode().equals("red_card")) {
 //                matchSettleCheckInfo.setFiveMinSection(null);
 //            }
 //            //角球返回是1 则判断为15分钟灰色区间 todo
-//            if(matchSettleThirdEvent.getIsGrey()!=1&&(matchSettleCheckInfo.getEventCode().equals("corner")||matchSettleCheckInfo.getEventCode().equals("fa_card")||matchSettleCheckInfo.getEventCode().equals("yellow_card")||matchSettleCheckInfo.getEventCode().equals("red_card"))){
+//            if (matchSettleThirdEvent.getIsGrey() != 1 && (matchSettleCheckInfo.getEventCode().equals("corner") || matchSettleCheckInfo.getEventCode().equals("fa_card") || matchSettleCheckInfo.getEventCode().equals("yellow_card") || matchSettleCheckInfo.getEventCode().equals("red_card"))) {
 //                //1.计算出角球15分钟区间
 //                //2.设置15分钟区间
 //                Long period15 = SportPeriodConstant.FootballPeriod.get15MinPeriod(matchSettleThirdEvent.getPeriodId(), second);
-//                if(period15!=null){
+//                if (period15 != null) {
 //                    matchSettleCheckInfo.setFiveMinSection(period15.toString());
 //                }
 //            }
 //
 //            matchSettleCheckInfo.setCheckStatus(MatchSettleCheckConstant.CheckStatus.EDIT);
 //            matchSettleCheckInfo.setThirdSettleScoreEventId(matchSettleThirdEvent.getId());
-//            if (!StringUtils.isAnyEmpty(matchSettleThirdEvent.getOperater()) && (matchSettleThirdEvent.getDataSourceCode().equals(DataSourceCodeEnum.PD.getCode()) || matchSettleThirdEvent.getDataSourceCode().equals(DataSourceCodeEnum.PD2.getCode()))){
-//                matchSettleCheckInfo.setUserName(matchSettleThirdEvent.getOperater() + "(" + matchSettleThirdEvent.getDataSourceCode() +")");
+//            if (!StringUtils.isAnyEmpty(matchSettleThirdEvent.getOperater()) && (matchSettleThirdEvent.getDataSourceCode().equals(DataSourceCodeEnum.PD.getCode()) || matchSettleThirdEvent.getDataSourceCode().equals(DataSourceCodeEnum.PD2.getCode()))) {
+//                matchSettleCheckInfo.setUserName(matchSettleThirdEvent.getOperater() + "(" + matchSettleThirdEvent.getDataSourceCode() + ")");
 //            }
 //            matchSettleCheckInfoMapper.insert(matchSettleCheckInfo);
 //            initDelaySettleEvent(matchSettleEvent,matchSettleCheckInfo);
@@ -497,7 +497,7 @@
 //        }
 //
 //        //4.触发比分核对 建议异步吧
-//        log.info("linkId::{}::eventId:{} checkMatchThirdSettleEvent end",linkedId, matchSettleThirdEvent.getThirdEventSourceId());
+//        log.info("linkId::{}::eventId:{} checkMatchThirdSettleEvent end", linkedId, matchSettleThirdEvent.getThirdEventSourceId());
 //        //当前进球事件不用自动结算
 ////        checkCommonMatchSettleScoreEvent(matchSettleEvent,matchSettleCheckInfo,createCheck);
 //
@@ -565,16 +565,16 @@
 //        //篮球结算顺序拦截
 //        if (matchSettleScoreEvent instanceof MatchSettleScore) {
 //            MatchSettleScore matchSettleScore = (MatchSettleScore) matchSettleScoreEvent;
-//            if(matchSettleInfo.getSportId().equals(2L)){
-//                if(!this.checkBasketPeriodScoreOrder(matchSettleScore)){
+//            if (matchSettleInfo.getSportId().equals(2L)) {
+//                if (!this.checkBasketPeriodScoreOrder(matchSettleScore)) {
 //                    log.info("eventId::{}::settleEventId:{}:checkCommonMatchSettleScoreEvent 篮球结算顺序拦截不处理", matchSettleCheckInfo.getThirdSettleScoreEventId(), matchSettleCheckInfo.getSettleScoreEventId());
 //                    return Pair.of(false, alreadySettled);
 //                }
 //            }
 //        }
 //        //需求2477,联赛对应的数据源结算为关闭状态，只显示赛果不参与结算
-//        Integer levelDataSourceStatus = matchSettleDataSourceConfigService.getTournamentLevelStatus(matchSettleCheckInfo.getStandardMatchId(),matchSettleCheckInfo.getDataSourceCode(),matchSettleCheckInfo.getEventCode());
-//        if (levelDataSourceStatus==null || levelDataSourceStatus.equals(Constant.OUTRIGHT_ZERO)){
+//        Integer levelDataSourceStatus = matchSettleDataSourceConfigService.getTournamentLevelStatus(matchSettleCheckInfo.getStandardMatchId(), matchSettleCheckInfo.getDataSourceCode(), matchSettleCheckInfo.getEventCode());
+//        if (levelDataSourceStatus == null || levelDataSourceStatus.equals(Constant.OUTRIGHT_ZERO)) {
 //            log.info("eventId::{}::settleEventId:{}:checkCommonMatchSettleScoreEvent 只显示赛果不参与结算", matchSettleCheckInfo.getThirdSettleScoreEventId(), matchSettleCheckInfo.getSettleScoreEventId());
 //            matchDelaySettleInfoMapper.updateSettleStatusByCheckInfoId(matchSettleCheckInfo.getId(),2);
 //            return Pair.of(false, alreadySettled);
@@ -593,17 +593,17 @@
 ////            return Pair.of(false, alreadySettled);
 ////        }
 //        //阶段比分 数据商灰色区间不走自动结算
-//        if(matchSettleScoreEvent instanceof MatchSettleScore){
+//        if (matchSettleScoreEvent instanceof MatchSettleScore) {
 //            MatchSettleScore matchSettleScore = (MatchSettleScore) matchSettleScoreEvent;
-//            if(matchSettleScore.getIsGrey() != null && matchSettleScore.getIsGrey() != 0&& (!matchSettleCheckInfo.getDataSourceCode().equals("PA"))){
-//                list= new ArrayList<>();
+//            if (matchSettleScore.getIsGrey() != null && matchSettleScore.getIsGrey() != 0 && (!matchSettleCheckInfo.getDataSourceCode().equals("PA"))) {
+//                list = new ArrayList<>();
 //            }
 //        }
 //        //设置灰色区间核对数量为2 [3139需求改成权重上限100,1家数据商就能触发结算]
 //        Integer needCheckNumber = 1;
 //        boolean settled = false;
 //        //用来计算当前需要结算的录入核对数据 TODO
-//        String checkKey ="";
+//        String checkKey = "";
 //        //2.核对比分分组 进球角球会计算 5分钟 和15分钟
 //        Map<String, List<MatchSettleCheckInfo>> checkGroupMap = null;
 //        Map<String, List<MatchSettleCheckInfo>> oldCheckGroupMap = null;
@@ -618,7 +618,7 @@
 //            checkKey = SettleCheckUtils.countSettleCheckGroupKey(matchSettleCheckInfo);
 //            oldCheckGroupMap = SettleCheckUtils.groupBySettleCheck(oldList);
 //        }
-//        if(matchSettleInfo.getSportId().equals(2L)){
+//        if (matchSettleInfo.getSportId().equals(2L)) {
 //            checkGroupMap = SettleCheckUtils.groupByBasketBallCheck(list);
 //            oldCheckGroupMap = SettleCheckUtils.groupByBasketBallCheck(oldList);
 //            checkKey = SettleCheckUtils.countSettleCheckGroupBasketballKey(matchSettleCheckInfo);
@@ -638,11 +638,11 @@
 //        for (Map.Entry<String, List<MatchSettleCheckInfo>> entry : checkGroupMap.entrySet()) {
 ////            Integer sameScoreNumber = entry.getValue().size();
 //            //计算权重根据工具方法类
-//            Integer dataSourceWeightSum =0;
-//            if(matchSettleInfo.getSportId().equals(1L)){
-//                dataSourceWeightSum = SettleTemplateWeightUtils.countFootballWeightDataSourceCheck(matchSettleTemplate,entry.getValue());
-//            }else {
-//                dataSourceWeightSum = SettleTemplateWeightUtils.countBasketballWeightDataSourceCheck(matchSettleTemplate,entry.getValue());
+//            Integer dataSourceWeightSum = 0;
+//            if (matchSettleInfo.getSportId().equals(1L)) {
+//                dataSourceWeightSum = SettleTemplateWeightUtils.countFootballWeightDataSourceCheck(matchSettleTemplate, entry.getValue());
+//            } else {
+//                dataSourceWeightSum = SettleTemplateWeightUtils.countBasketballWeightDataSourceCheck(matchSettleTemplate, entry.getValue());
 //            }
 //            log.info("eventId::{}::settleEventId:{}:Template:matchId:{},dataSourceWeightSum:{},matchSettleCheckInfo:{}",matchSettleCheckInfo.getThirdSettleScoreEventId(),matchSettleCheckInfo.getSettleScoreEventId(),matchSettleCheckInfo.getStandardMatchId(), dataSourceWeightSum,matchSettleCheckInfo);
 //            if(dataSourceWeightSum>=100){
@@ -716,14 +716,14 @@
 //                for (Map.Entry<String, List<MatchSettleCheckInfo>> entry : checkGroupMap.entrySet()) {
 ////                    Integer sameScoreNumber = entry.getValue().size();
 //                    //计算权重根据工具方法类
-//                    Integer dataSourceWeightSum =0;
-//                    if(matchSettleInfo.getSportId().equals(1L)){
-//                        dataSourceWeightSum = SettleTemplateWeightUtils.countFootballWeightDataSourceCheck(matchSettleTemplate,entry.getValue());
-//                    }else {
-//                        dataSourceWeightSum = SettleTemplateWeightUtils.countBasketballWeightDataSourceCheck(matchSettleTemplate,entry.getValue());
+//                    Integer dataSourceWeightSum = 0;
+//                    if (matchSettleInfo.getSportId().equals(1L)) {
+//                        dataSourceWeightSum = SettleTemplateWeightUtils.countFootballWeightDataSourceCheck(matchSettleTemplate, entry.getValue());
+//                    } else {
+//                        dataSourceWeightSum = SettleTemplateWeightUtils.countBasketballWeightDataSourceCheck(matchSettleTemplate, entry.getValue());
 //                    }
 //                    log.info("eventId::{}::settleEventId:{}:Template:matchId:{},dataSourceWeightSum:{},matchSettleCheckInfo:{}",matchSettleCheckInfo.getThirdSettleScoreEventId(),matchSettleCheckInfo.getSettleScoreEventId(),matchSettleCheckInfo.getStandardMatchId(), dataSourceWeightSum,matchSettleCheckInfo);
-//                    if(dataSourceWeightSum>=100){
+//                    if (dataSourceWeightSum >= 100) {
 //                        //判断当前通过的比分是否与输入的比分一致，不一致则不成功 TODO
 //                        boolean tag = entry.getKey().equals(checkKey);
 //                        log.info("eventId::{}::settleEventId:{}:Tag2matchSettleCheckInfo_id:{},matchSettleCheckInfo:{},Tag:{}",matchSettleCheckInfo.getThirdSettleScoreEventId(),matchSettleCheckInfo.getSettleScoreEventId(),matchSettleCheckInfo.getId(),matchSettleCheckInfo,tag);
@@ -761,9 +761,9 @@
 ////                        footballMatchScoresSettleApi.autoSettle();
 //                if (settle_t1 != null && settle_t2 != null) {
 //                    if (settle_t1.equals(matchSettleCheckInfo.getT1()) && settle_t2.equals(matchSettleCheckInfo.getT2())) {
-//                        if(matchSettleScoreEvent instanceof MatchSettleScore ){
-//                            MatchSettleScore matchSettleScore = (MatchSettleScore)matchSettleScoreEvent;
-//                            if(!this.checkSettleScoreAndAutoSettleNonEvent(matchSettleScore,matchSettleCheckInfo)){
+//                        if (matchSettleScoreEvent instanceof MatchSettleScore) {
+//                            MatchSettleScore matchSettleScore = (MatchSettleScore) matchSettleScoreEvent;
+//                            if (!this.checkSettleScoreAndAutoSettleNonEvent(matchSettleScore, matchSettleCheckInfo)) {
 //                                return Pair.of(false, alreadySettled);
 //                            }
 //                        }
@@ -813,10 +813,10 @@
 //            //比分数量>=需要的数量但 比分不一致返回结算失败
 //
 //            if (list.size() >= needCheckNumber) {
-//                if (list.size()==1&&matchSettleCheckInfo.getDataSourceCode().equals("PA")){ //人工第一次编辑
+//                if (list.size() == 1 && matchSettleCheckInfo.getDataSourceCode().equals("PA")) { //人工第一次编辑
 //                    log.info("eventId::{}::settleEventId:{}:checkCommonMatchSettleScoreEvent 人工第一次编辑", matchSettleCheckInfo.getThirdSettleScoreEventId(),matchSettleCheckInfo.getSettleScoreEventId());
 //                    return Pair.of(false, alreadySettled);
-//                }else {
+//                } else {
 //                    log.info("eventId::{}::settleEventId:{}:checkCommonMatchSettleScoreEvent 非人工第一次编辑", matchSettleCheckInfo.getThirdSettleScoreEventId(),matchSettleCheckInfo.getSettleScoreEventId());
 //                    return Pair.of(true, alreadySettled);
 //                }
@@ -853,63 +853,66 @@
 //     * 1.如果关闭数据商开关，则 PA事件(人工录入) 以及主事件源的事件 可以触发结算，
 //     * 其他事件不能触发结算，如果开启数据商自动结算开关，则可以查询所有关联数据源的比分和事件 做自动核对
 //     * 2.是灰色区间比分的时候 有不同的数据商比分核对机制以及 灰色区间触发结算机制 ，如果是事件
-//     *  灰色区间应该正常结算但不触发5分钟玩法结算，如果是比分则只能通过PA比分(人工录入比分)触发结算
+//     * 灰色区间应该正常结算但不触发5分钟玩法结算，如果是比分则只能通过PA比分(人工录入比分)触发结算
 //     * 3.因为部分情况会造成redis锁失效，所以并发高的时候可能会触发单个事件源产生多个相同的阶段比分，从而数数的时候>1而导致
 //     * 单数据商触发结算，所以开头需要先去除当前触发自动结算核对的数据源(除了PA人工录入的之外)，然后上述逻辑得到数据商查询条件后，将当前触发的事件源的数据
 //     * 重新加入数据商查询条件，从而得到去重的效果
-//     * */
+//     */
 //    private List<MatchSettleCheckInfo> searchSettleCheckInfoListByCheckInfo(Object matchSettleScoreEvent, MatchSettleCheckInfo matchSettleCheckInfo, MatchSettleInfo matchSettleInfo) {
+//        log.info("eventId::{}::settleEventId:{}:searchSettleCheckInfoListByCheckInfo 初始化参数 matchSettleScoreEvent:{} matchSettleInfo:{}",
+//                matchSettleCheckInfo.getThirdSettleScoreEventId(), matchSettleCheckInfo.getSettleScoreEventId(),matchSettleScoreEvent, matchSettleInfo);
 //        List<String> dataSourceCodes = new ArrayList<>();
 //        //[3139需求]将足球数据商开关做单独事件控制
 //        String eventCode = matchSettleCheckInfo.getEventCode();
 //        MatchSettleDataSourceSwitchExample example = new MatchSettleDataSourceSwitchExample();
-//        Map<String,Integer>  map= null;
-//        if(eventCode.equals("corner")) {
+//        Map<String, Integer> map = null;
+//        if (eventCode.equals("corner")) {
 //            example.createCriteria().andCornerEqualTo("1").andSportIdEqualTo(matchSettleInfo.getSportId());
-//        }else if(eventCode.equals("goal")||eventCode.equals("kick_off")||eventCode.equals("score_change")){
+//        } else if (eventCode.equals("goal") || eventCode.equals("kick_off") || eventCode.equals("score_change")) {
 //            example.createCriteria().andGoalEqualTo("1").andSportIdEqualTo(matchSettleInfo.getSportId());
-//        }else {
+//        } else {
 //            example.createCriteria().andBookingEqualTo("1").andSportIdEqualTo(matchSettleInfo.getSportId());
 //        }
 //        List<MatchSettleDataSourceSwitch> switches = matchSettleDataSourceSwitchMapper.selectByExample(example);
-//        if (null!=switches&&switches.size()>0){
+//        if (null != switches && switches.size() > 0) {
 //            dataSourceCodes = switches.stream().map(MatchSettleDataSourceSwitch::getDataSourceCode).distinct().collect(Collectors.toList());
 //        }
 //        dataSourceCodes.add("PA");
-//
+//        log.info("eventId::{}::settleEventId:{}:searchSettleCheckInfoListByCheckInfo 数据源开关情况", matchSettleCheckInfo.getThirdSettleScoreEventId(), matchSettleCheckInfo.getSettleScoreEventId());
 //        //如果赛事级数据商关闭，则只查主数据源 + PA
-//        if(matchSettleInfo.getIsAutoSettleDataSource()!=null&&matchSettleInfo.getIsAutoSettleDataSource()==0){
-//            dataSourceCodes =this.getNotMainEventThirdSources(matchSettleInfo,matchSettleCheckInfo.getDataSourceCode());
+//        if (matchSettleInfo.getIsAutoSettleDataSource() != null && matchSettleInfo.getIsAutoSettleDataSource() == 0) {
+//            dataSourceCodes = this.getNotMainEventThirdSources(matchSettleInfo, matchSettleCheckInfo.getDataSourceCode());
 //        }
-//        if(!matchSettleCheckInfo.getDataSourceCode().equals("PA")){
+//        if (!matchSettleCheckInfo.getDataSourceCode().equals("PA")) {
 //            dataSourceCodes.remove(matchSettleCheckInfo.getDataSourceCode());
 //        }
+//        log.info("eventId::{}::settleEventId:{}:searchSettleCheckInfoListByCheckInfo 赛事级切换后数据源开关情况", matchSettleCheckInfo.getThirdSettleScoreEventId(), matchSettleCheckInfo.getSettleScoreEventId());
 //        //--新增条件 20230502 去除重复数据商编码
 //        //matchSettleScoreEvent 判断 如果是 事件的 如果是事件的则直接查询，如果是比分的 灰色区间则 不需要查询数据商，只需要查询人工录入的
-//        boolean scoreIsGray =false;
-//        if(matchSettleScoreEvent   instanceof MatchSettleEvent){
+//        boolean scoreIsGray = false;
+//        if (matchSettleScoreEvent instanceof MatchSettleEvent) {
 //            MatchSettleEvent matchSettleEvent = (MatchSettleEvent) matchSettleScoreEvent;
-//            return this.searchEventSettleCheckByCheckInfo(dataSourceCodes,scoreIsGray,matchSettleEvent ,  matchSettleCheckInfo,  matchSettleInfo);
-//        }else if(matchSettleScoreEvent   instanceof MatchSettleScore ){
+//            return this.searchEventSettleCheckByCheckInfo(dataSourceCodes, scoreIsGray, matchSettleEvent, matchSettleCheckInfo, matchSettleInfo);
+//        } else if (matchSettleScoreEvent instanceof MatchSettleScore) {
 //            MatchSettleScore matchSettleScore = (MatchSettleScore) matchSettleScoreEvent;
-//            if((matchSettleScore.getIsGrey()!=null&&matchSettleScore.getIsGrey()==1)||(matchSettleCheckInfo.getIsGrey()!=null&&matchSettleCheckInfo.getIsGrey()==1)){
-//                scoreIsGray=true;
+//            if ((matchSettleScore.getIsGrey() != null && matchSettleScore.getIsGrey() == 1) || (matchSettleCheckInfo.getIsGrey() != null && matchSettleCheckInfo.getIsGrey() == 1)) {
+//                scoreIsGray = true;
 //            }
-//            return this.searchScoreSettleCheckByCheckInfo(dataSourceCodes,scoreIsGray,matchSettleScore ,  matchSettleCheckInfo,  matchSettleInfo);
+//            return this.searchScoreSettleCheckByCheckInfo(dataSourceCodes, scoreIsGray, matchSettleScore, matchSettleCheckInfo, matchSettleInfo);
 //        }
 //        //事件的灰色区间查全部
-//        return  new ArrayList<>();
+//        return new ArrayList<>();
 //    }
 //
 //    //事件自动结算审核查询
-//    private List<MatchSettleCheckInfo> searchEventSettleCheckByCheckInfo(   List<String> dataSourceCodes,boolean scoreIsGray, MatchSettleEvent matchSettleScore, MatchSettleCheckInfo matchSettleCheckInfo, MatchSettleInfo matchSettleInfo) {
+//    private List<MatchSettleCheckInfo> searchEventSettleCheckByCheckInfo(List<String> dataSourceCodes, boolean scoreIsGray, MatchSettleEvent matchSettleScore, MatchSettleCheckInfo matchSettleCheckInfo, MatchSettleInfo matchSettleInfo) {
 //        MatchSettleCheckInfoExample checkInfoExample = new MatchSettleCheckInfoExample();
 //        //玩法级赛事自动结算
-//        boolean isEventAutoSettle = this.getDataSouceAutoSettle(matchSettleInfo,matchSettleCheckInfo, matchSettleScore.getSettleNum());
+//        boolean isEventAutoSettle = this.getDataSouceAutoSettle(matchSettleInfo, matchSettleCheckInfo, matchSettleScore.getSettleNum());
 //        //关闭数据商只查人工+主数据商
-//        if(!isEventAutoSettle){
+//        if (!isEventAutoSettle) {
 //            //关闭数据商自动结算 获取主事件源+PA
-//            List<String> mainEventThirdSources = this.getNotMainEventThirdSources(matchSettleInfo,matchSettleCheckInfo.getDataSourceCode());
+//            List<String> mainEventThirdSources = this.getNotMainEventThirdSources(matchSettleInfo, matchSettleCheckInfo.getDataSourceCode());
 //            checkInfoExample.createCriteria().andSettleScoreEventIdEqualTo(matchSettleCheckInfo.getSettleScoreEventId())
 //                    .andStandardMatchIdEqualTo(matchSettleCheckInfo.getStandardMatchId()).andCheckStatusEqualTo(MatchSettleCheckConstant.CheckStatus.CONFIRM)
 //                    .andDataSourceCodeIn(mainEventThirdSources);
@@ -919,28 +922,29 @@
 //                    .andDataSourceCodeIn(dataSourceCodes);
 //        }
 //        List<MatchSettleCheckInfo> list = matchSettleCheckInfoMapper.selectByExample(checkInfoExample);
-//        if(!matchSettleCheckInfo.getDataSourceCode().equals("PA")){
-//            if(!isEventAutoSettle){
-//                dataSourceCodes =this.getNotMainEventThirdSources(matchSettleInfo,matchSettleCheckInfo.getDataSourceCode());
-//                if(dataSourceCodes.contains(matchSettleCheckInfo.getDataSourceCode())){
+//        if (!matchSettleCheckInfo.getDataSourceCode().equals("PA")) {
+//            if (!isEventAutoSettle) {
+//                dataSourceCodes = this.getNotMainEventThirdSources(matchSettleInfo, matchSettleCheckInfo.getDataSourceCode());
+//                if (dataSourceCodes.contains(matchSettleCheckInfo.getDataSourceCode())) {
 //                    list.add(matchSettleCheckInfo);
 //                }
-//            }else {
+//            } else {
 //                list.add(matchSettleCheckInfo);
 //            }
 //        }
 //        return list;
 //    }
+//
 //    //比分自动结算审核查询下
-//    private List<MatchSettleCheckInfo> searchScoreSettleCheckByCheckInfo(   List<String> dataSourceCodes,boolean scoreIsGray, MatchSettleScore matchSettleScore, MatchSettleCheckInfo matchSettleCheckInfo, MatchSettleInfo matchSettleInfo) {
+//    private List<MatchSettleCheckInfo> searchScoreSettleCheckByCheckInfo(List<String> dataSourceCodes, boolean scoreIsGray, MatchSettleScore matchSettleScore, MatchSettleCheckInfo matchSettleCheckInfo, MatchSettleInfo matchSettleInfo) {
 //        MatchSettleCheckInfoExample checkInfoExample = new MatchSettleCheckInfoExample();
 //        //玩法级赛事自动结算
-//        boolean isEventAutoSettle = this.getDataSouceAutoSettle(matchSettleInfo,matchSettleCheckInfo, matchSettleScore.getSettleNum());
-//        if(scoreIsGray==false){
+//        boolean isEventAutoSettle = this.getDataSouceAutoSettle(matchSettleInfo, matchSettleCheckInfo, matchSettleScore.getSettleNum());
+//        if (scoreIsGray == false) {
 //            //不是灰色区间
-//            if(!isEventAutoSettle){
+//            if (!isEventAutoSettle) {
 //                //关闭数据商自动结算 获取主事件源+PA
-//                List<String> mainEventThirdSources = this.getNotMainEventThirdSources(matchSettleInfo,matchSettleCheckInfo.getDataSourceCode());
+//                List<String> mainEventThirdSources = this.getNotMainEventThirdSources(matchSettleInfo, matchSettleCheckInfo.getDataSourceCode());
 //                checkInfoExample.createCriteria().andSettleScoreEventIdEqualTo(matchSettleCheckInfo.getSettleScoreEventId())
 //                        .andStandardMatchIdEqualTo(matchSettleCheckInfo.getStandardMatchId()).andCheckStatusEqualTo(MatchSettleCheckConstant.CheckStatus.CONFIRM)
 //                        .andDataSourceCodeIn(mainEventThirdSources);
@@ -951,18 +955,18 @@
 //                        .andDataSourceCodeIn(dataSourceCodes);
 //            }
 //            List<MatchSettleCheckInfo> list = matchSettleCheckInfoMapper.selectByExample(checkInfoExample);
-//            if(!matchSettleCheckInfo.getDataSourceCode().equals("PA")){
-//                if(!isEventAutoSettle){
-//                    dataSourceCodes =this.getNotMainEventThirdSources(matchSettleInfo,matchSettleCheckInfo.getDataSourceCode());
-//                    if(dataSourceCodes.contains(matchSettleCheckInfo.getDataSourceCode())){
+//            if (!matchSettleCheckInfo.getDataSourceCode().equals("PA")) {
+//                if (!isEventAutoSettle) {
+//                    dataSourceCodes = this.getNotMainEventThirdSources(matchSettleInfo, matchSettleCheckInfo.getDataSourceCode());
+//                    if (dataSourceCodes.contains(matchSettleCheckInfo.getDataSourceCode())) {
 //                        list.add(matchSettleCheckInfo);
 //                    }
-//                }else {
+//                } else {
 //                    list.add(matchSettleCheckInfo);
 //                }
 //            }
 //            return list;
-//        }else {
+//        } else {
 //
 //            //比分的灰色区间只查人工
 //            checkInfoExample.createCriteria().andSettleScoreEventIdEqualTo(matchSettleCheckInfo.getSettleScoreEventId())
@@ -977,29 +981,30 @@
 //
 //    private boolean getDataSouceAutoSettle(MatchSettleInfo matchSettleInfo, MatchSettleCheckInfo matchSettleCheckInfo, String settleNum) {
 //        //1.赛事级优先
-//        if(matchSettleInfo.getIsAutoSettleDataSource() == null || matchSettleInfo.getIsAutoSettleDataSource() == 0) {
+//        if (matchSettleInfo.getIsAutoSettleDataSource() == null || matchSettleInfo.getIsAutoSettleDataSource() == 0) {
 //            return false;
 //        }
-//        if(matchSettleInfo.getSportId() == 2 && (!basketball6Mns.contains(settleNum))){
+//        if (matchSettleInfo.getSportId() == 2 && (!basketball6Mns.contains(settleNum))) {
 //            return true;
 //        }
 //
 //        //2.赛事级打开则 玩法级优先
-//        if(matchSettleCheckInfo.getEventCode().equals("goal")||matchSettleCheckInfo.getEventCode().equals("kick_off")||matchSettleCheckInfo.getEventCode().equals("score_change")){
-//            Integer goalAutoSettle= matchSettleInfo.getGoalAutoSettleDataSource()==null?0:matchSettleInfo.getGoalAutoSettleDataSource();
-//            return goalAutoSettle==1?true:false;
-//        }else if(matchSettleCheckInfo.getEventCode().equals("corner")){
-//            Integer cornerAutoSettle= matchSettleInfo.getCornerAutoSettleDataSource()==null?0:matchSettleInfo.getCornerAutoSettleDataSource();
-//            return cornerAutoSettle==1?true:false;
-//        }else {
-//            Integer faAutoSettle= matchSettleInfo.getBookingAutoSettleDataSource()==null?0:matchSettleInfo.getBookingAutoSettleDataSource();
-//            return faAutoSettle==1?true:false;
+//        if (matchSettleCheckInfo.getEventCode().equals("goal") || matchSettleCheckInfo.getEventCode().equals("kick_off") || matchSettleCheckInfo.getEventCode().equals("score_change")) {
+//            Integer goalAutoSettle = matchSettleInfo.getGoalAutoSettleDataSource() == null ? 0 : matchSettleInfo.getGoalAutoSettleDataSource();
+//            return goalAutoSettle == 1 ? true : false;
+//        } else if (matchSettleCheckInfo.getEventCode().equals("corner")) {
+//            Integer cornerAutoSettle = matchSettleInfo.getCornerAutoSettleDataSource() == null ? 0 : matchSettleInfo.getCornerAutoSettleDataSource();
+//            return cornerAutoSettle == 1 ? true : false;
+//        } else {
+//            Integer faAutoSettle = matchSettleInfo.getBookingAutoSettleDataSource() == null ? 0 : matchSettleInfo.getBookingAutoSettleDataSource();
+//            return faAutoSettle == 1 ? true : false;
 //        }
 //    }
+//
 //    /**
 //     * 查询标准赛事的主事件源的数据商编码list
 //     */
-//    private List<String> getNotMainEventThirdSources(MatchSettleInfo matchSettleInfo,String sourceCode) {
+//    private List<String> getNotMainEventThirdSources(MatchSettleInfo matchSettleInfo, String sourceCode) {
 //        List<String> list = new ArrayList<>();
 //        list.add("PA");
 //        if (!matchSettleInfo.getSportId().equals(1l)){
@@ -1014,7 +1019,7 @@
 //            list.add(businessEvent);
 //        }
 //        //新增条件 20230502 去除重复数据商编码--
-//        if(!sourceCode.equals("PA")){
+//        if (!sourceCode.equals("PA")) {
 //            list.remove(sourceCode);
 //        }
 //        return list;
@@ -1062,7 +1067,7 @@
 //            limitArray = JSONArray.parseArray(limitArrayStr);
 //        }
 //        //篮球用旧审核员
-//        if(matchSettleInfo.getSportId().equals(2l)){
+//        if (matchSettleInfo.getSportId().equals(2l)) {
 //            JSONArray jsonArray = JSONArray.parseArray(matchSettleInfo.getAuditorActiveArray());
 //            JSONArray newArray = new JSONArray();
 //            for (Object o : jsonArray) {
@@ -1074,13 +1079,13 @@
 //                }
 //            }
 //            matchSettleInfo.setAuditorActiveArray(newArray.toJSONString());
-//        }else if(matchSettleInfo.getSportId().equals(1L)){
+//        } else if (matchSettleInfo.getSportId().equals(1L)) {
 //            //足球尝试新 审核员
-//            try{
+//            try {
 //                AuditorFootBallJsonVo auditorFootBallJsonVo = JSONObject.parseObject(matchSettleInfo.getAuditorActiveArray(), AuditorFootBallJsonVo.class);
-//                List<String> cornerList =new ArrayList<>();
-//                List<String> goalList =new ArrayList<>();
-//                List<String> facardList =new ArrayList<>();
+//                List<String> cornerList = new ArrayList<>();
+//                List<String> goalList = new ArrayList<>();
+//                List<String> facardList = new ArrayList<>();
 //                for (String s : auditorFootBallJsonVo.getCornerAuditorList()) {
 //                    if (s == null) {
 //                        continue;
@@ -1109,7 +1114,7 @@
 //                auditorFootBallJsonVo.setFacardAuditorList(facardList);
 //                auditorFootBallJsonVo.setGoalAuditorList(goalList);
 //                matchSettleInfo.setAuditorActiveArray(JSONObject.toJSONString(auditorFootBallJsonVo));
-//            }catch (Exception e){
+//            } catch (Exception e) {
 //                //报错用旧审核员
 //                JSONArray jsonArray = JSONArray.parseArray(matchSettleInfo.getAuditorActiveArray());
 //                JSONArray newArray = new JSONArray();
@@ -1130,7 +1135,7 @@
 //        matchSettleInfo.setModifyTime(System.currentTimeMillis());
 //        matchSettleInfoRepository.updateMatchSettleInfoToRedis(matchSettleInfo,false);
 //        //赛事结算2.0审核失败人员预警
-//        sendMango(matchSettleInfo.getSportId(),standardMatchId, userNameList);
+//        sendMango(matchSettleInfo.getSportId(), standardMatchId, userNameList);
 //        return false;
 //    }
 //
@@ -1175,7 +1180,7 @@
 ////                if (array.contains(matchSettleCheckInfo.getUserName())) {
 ////                    checkNumber++;
 ////                }
-//                if(str.contains(matchSettleCheckInfo.getUserName())){
+//                if (str.contains(matchSettleCheckInfo.getUserName())) {
 //                    checkNumber++;
 //                }
 //            }
@@ -1185,14 +1190,14 @@
 //            //3.更新核对比分次序
 //            if (matchSettleScoreEvent instanceof MatchSettleScore) {
 //                MatchSettleScore score = (MatchSettleScore) matchSettleScoreEvent;
-//                if(checkNumber>=score.getCheckNumber()){
+//                if (checkNumber >= score.getCheckNumber()) {
 //                    score.setCheckNumber(checkNumber);
 //                }
 //                matchSettleScoreMapper.updateByPrimaryKey(score);
 //            }
 //            if (matchSettleScoreEvent instanceof MatchSettleEvent) {
 //                MatchSettleEvent event = (MatchSettleEvent) matchSettleScoreEvent;
-//                if(checkNumber>=event.getCheckNumber()){
+//                if (checkNumber >= event.getCheckNumber()) {
 //                    event.setCheckNumber(checkNumber);
 //                }
 //                matchSettleEventMapper.updateByPrimaryKey(event);
@@ -1298,6 +1303,18 @@
 //            }
 //        }
 //    }
+//
+//    private MatchSettleInfo getMatchSettleInfoByStandardMatchId(Long standardMatchId) {
+//        MatchSettleInfoExample example = new MatchSettleInfoExample();
+//        example.createCriteria().andStandardMatchIdEqualTo(standardMatchId);
+//        List<MatchSettleInfo> list = matchSettleInfoMapper.selectByExample(example);
+//        if (list.size() == 0) {
+//            return null;
+//        } else {
+//            return list.get(0);
+//        }
+//    }
+//
 //    @Override
 //    public void searchCheckStatusByEventList(List<MatchSettleEventDto> matchSettleScoreDtos, String OperatorName) {
 //        //有WS推送的情况这个时候没操作人
@@ -1343,7 +1360,7 @@
 //
 //    @Override
 //    public void autoSettle(Object matchSettleScoreEventInfo, MatchSettleCheckInfo checkInfo) {
-//        log.info("eventId::{}::autoSettle 进入自动结算流程,matchId:{},scoreEventId:{}", checkInfo.getThirdSettleScoreEventId(),checkInfo.getStandardMatchId(), checkInfo.getSettleScoreEventId());
+//        log.info("eventId::{}::autoSettle 进入自动结算流程,matchId:{},scoreEventId:{}", checkInfo.getThirdSettleScoreEventId(), checkInfo.getStandardMatchId(), checkInfo.getSettleScoreEventId());
 //        if (matchSettleScoreEventInfo instanceof MatchSettleScore) {
 //            //比分结算
 //            this.settleMatchScore((MatchSettleScore) matchSettleScoreEventInfo, checkInfo);
@@ -1351,7 +1368,7 @@
 //            //事件结算
 //            this.settleMatchSettleEvent((MatchSettleEvent) matchSettleScoreEventInfo, checkInfo);
 //        } else {
-//            log.error("eventId::{}::autoSettle checkInfo:{}:传入类型错误", checkInfo.getThirdSettleScoreEventId(),checkInfo);
+//            log.error("eventId::{}::autoSettle checkInfo:{}:传入类型错误", checkInfo.getThirdSettleScoreEventId(), checkInfo);
 //        }
 //        updateMatchCurrentEventStatus(checkInfo.getStandardMatchId());
 //        log.info("eventId::{}::autoSettle end", checkInfo.getThirdSettleScoreEventId());
@@ -1722,14 +1739,14 @@
 //        if (checkInfo.getCheckDataType().equals(2)) {
 //            userName = checkInfo.getUserName() + ",(第" + matchSettleEvent.getCheckNumber() + "人)";
 //        } else {
-//            if(StringUtils.isNotEmpty(checkInfo.getDataSourceCode())&&
-//                    (!checkInfo.getDataSourceCode().equals("PD")&&!checkInfo.getDataSourceCode().equals("PD2"))){
+//            if (StringUtils.isNotEmpty(checkInfo.getDataSourceCode()) &&
+//                    (!checkInfo.getDataSourceCode().equals("PD") && !checkInfo.getDataSourceCode().equals("PD2"))) {
 //                userName = checkInfo.getDataSourceCode();
-//            }else {
-//                if (null!=checkInfo.getUserName()){
-//                    userName=checkInfo.getUserName();
-//                }else {
-//                    userName=checkInfo.getDataSourceCode();
+//            } else {
+//                if (null != checkInfo.getUserName()) {
+//                    userName = checkInfo.getUserName();
+//                } else {
+//                    userName = checkInfo.getDataSourceCode();
 //                }
 //            }
 //        }
@@ -1754,7 +1771,7 @@
 //            this.settlePenaltyTeamFirst(matchSettleEvent);
 //        } else {
 //            //７.下发MQ
-//            if (matchSettleEvent.getPeriodId()==100 && (matchSettleEvent.getSettleNum().equals(MatchPeriodEnum.GOAL_10.getCode().toString()) ||
+//            if (matchSettleEvent.getPeriodId() == 100 && (matchSettleEvent.getSettleNum().equals(MatchPeriodEnum.GOAL_10.getCode().toString()) ||
 //                    matchSettleEvent.getSettleNum().equals(MatchPeriodEnum.Corner_3.getCode().toString()) ||
 //                    matchSettleEvent.getSettleNum().equals(MatchPeriodEnum.BOOKINGS_9.getCode().toString()))) {
 //                try {
@@ -1819,7 +1836,7 @@
 //        //70555
 //        if (matchSettleScore.getSportId().equals(2L)){
 //            validateBasketBallSettleScore(matchSettleScore);
-////            basketballMatchScoresSettleApi.verifyScoresIsSame(matchSettleScore);
+//            basketballMatchScoresSettleApi.verifyScoresIsSame(matchSettleScore);
 //        }
 //        //结算时把回滚订单数清零
 //        matchSettleService.settleRollBackSetNullOrderCount(matchSettleScore.getId());
@@ -1833,11 +1850,12 @@
 //                matchSettleScore.getSettleNum().equals(MatchPeriodEnum.BOOKINGS_9.getCode().toString()))) {
 //            matchSettleScoresProducer.sendMatchSettleScores(matchSettleScore, 2);
 //        } else {
+//
 //            matchSettleScoresProducer.sendMatchSettleScores(matchSettleScore);
 //        }
 //
-//        if (matchSettleScore.getSettleNum().equals("105") || matchSettleScore.getSettleNum().equals("1010")||
-//                matchSettleScore.getSettleNum().equals("bk_1ht")|| matchSettleScore.getSettleNum().equals("bk_ft_et")) {
+//        if (matchSettleScore.getSettleNum().equals("105") || matchSettleScore.getSettleNum().equals("1010") ||
+//                matchSettleScore.getSettleNum().equals("bk_1ht") || matchSettleScore.getSettleNum().equals("bk_ft_et")) {
 //            recordScore(matchSettleScore);
 //        }
 //        //3.WS 推送
@@ -1870,14 +1888,14 @@
 //            }
 //
 //        } else {
-//            if(StringUtils.isNotEmpty(checkInfo.getDataSourceCode())&&
-//                    (!checkInfo.getDataSourceCode().equals("PD")&&!checkInfo.getDataSourceCode().equals("PD2"))){
+//            if (StringUtils.isNotEmpty(checkInfo.getDataSourceCode()) &&
+//                    (!checkInfo.getDataSourceCode().equals("PD") && !checkInfo.getDataSourceCode().equals("PD2"))) {
 //                userName = checkInfo.getDataSourceCode();
-//            }else {
-//                if (null!=checkInfo.getUserName()){
-//                    userName=checkInfo.getUserName();
-//                }else {
-//                    userName=checkInfo.getDataSourceCode();
+//            } else {
+//                if (null != checkInfo.getUserName()) {
+//                    userName = checkInfo.getUserName();
+//                } else {
+//                    userName = checkInfo.getDataSourceCode();
 //                }
 //
 //            }
@@ -1887,114 +1905,116 @@
 //        log.info("eventId::{}::settleMatchScore end", checkInfo.getThirdSettleScoreEventId());
 //
 //    }
+//
 //    /**
 //     * 结算事件的时候
 //     * 1. 上半场事件 校验已结算上半场结算 和全场结算是否比分一致 一致则触发 上半场 或者 全场最终事件
 //     * 2. 下半场事件 校验已结算 全场比分 是否一致 一致则结算 全场最终事件
-//     * */
+//     */
 //    public void endEventSettleByEvent(MatchSettleEvent matchSettleEvent) {
 //        //1.上半场下半场 进球角球 发牌
 //        List<String> eventCodes = EndEventUtils.eventCodesFootballByEventCode(matchSettleEvent.getEventCode());
-//        if(eventCodes.size()==0){
+//        if (eventCodes.size() == 0) {
 //            return;
 //        }
 //        //1.阶段条件获取 上半场 或者全场 上半场事件可能会导致 全场结算 或者 上半场结算
 //        //1.2 下半场事件则可能触发全场结算
-//        List<Long> periods =  EndEventUtils.periodsFootballByEventPeriod(matchSettleEvent.getPeriodId());
+//        List<Long> periods = EndEventUtils.periodsFootballByEventPeriod(matchSettleEvent.getPeriodId());
 //        //不是31 也不是100 事件则直接返回
-//        if(periods==null){
+//        if (periods == null) {
 //            return;
 //        }
 //        //2.查询对应事件编码和阶段编码已经结算的比分 而且比分相同
-//        MatchSettleScoreExample scoreExample = new  MatchSettleScoreExample();
+//        MatchSettleScoreExample scoreExample = new MatchSettleScoreExample();
 //        scoreExample.createCriteria().andEventCodeIn(eventCodes).andPeriodIdIn(periods)
 //                .andStatusEqualTo(SETTLED).andStandardMatchIdEqualTo(matchSettleEvent.getStandardMatchId())
 //                .andT1EqualTo(matchSettleEvent.getT1()).andT2EqualTo(matchSettleEvent.getT2());
 //        List<MatchSettleScore> scoreList = matchSettleScoreMapper.selectByExample(scoreExample);
-//        if(scoreList.size()==0){
+//        if (scoreList.size() == 0) {
 //            return;
 //        }
 //        for (MatchSettleScore matchSettleScore : scoreList) {
 //            //符合全场结算 编辑add2
-//            if(matchSettleScore.getPeriodId().equals(100L)){
+//            if (matchSettleScore.getPeriodId().equals(100L)) {
 //                matchSettleEvent.setAddition2(matchSettleEvent.getHomeAway());
 //            }
 //            //符合上半场结算 编辑add1
-//            if(matchSettleScore.getPeriodId().equals(31L)){
+//            if (matchSettleScore.getPeriodId().equals(31L)) {
 //                matchSettleEvent.setAddition1(matchSettleEvent.getHomeAway());
 //            }
 //        }
 //        log.info("结算比分编辑最终事件::赛事id：{},事件阶段:{},事件类型:{} add1:{} add2:{}",
-//                matchSettleEvent.getStandardMatchId(),matchSettleEvent.getPeriodId(),matchSettleEvent.getEventCode()
-//                ,matchSettleEvent.getAddition1(),matchSettleEvent.getAddition2());
+//                matchSettleEvent.getStandardMatchId(), matchSettleEvent.getPeriodId(), matchSettleEvent.getEventCode()
+//                , matchSettleEvent.getAddition1(), matchSettleEvent.getAddition2());
 //    }
+//
 //    /**
 //     * 结算比分的时候校验上半场 全场比分结算 的话 查询对应事件判断是否比分一致，如果上半场一致则触发上半场比分结算
 //     * 如果全场结算，则触发全场结算
-//     * */
+//     */
 //    public void endEventSettleByScore(MatchSettleScore matchSettleScore) {
 //        //0.事件编码分类
 //        List<String> eventCodes = EndEventUtils.eventCodesFootballByEventCode(matchSettleScore.getEventCode());
-//        if(eventCodes.size()==0){
+//        if (eventCodes.size() == 0) {
 //            return;
 //        }
 //        //1.阶段条件获取 上半场 或者全场
-//        List<Long> periods =  EndEventUtils.periodsFootballByScorePeriod(matchSettleScore.getPeriodId());
+//        List<Long> periods = EndEventUtils.periodsFootballByScorePeriod(matchSettleScore.getPeriodId());
 //        //不是31 也不是100 事件则直接返回
-//        if(periods==null){
+//        if (periods == null) {
 //            return;
 //        }
 //        //2.查询对应事件编码和阶段编码已经结算的事件
-//        MatchSettleEventExample eventExample = new  MatchSettleEventExample();
+//        MatchSettleEventExample eventExample = new MatchSettleEventExample();
 //        eventExample.createCriteria().andEventCodeIn(eventCodes).andPeriodIdIn(periods)
 //                .andStatusEqualTo(SETTLED).andStandardMatchIdEqualTo(matchSettleScore.getStandardMatchId())
 //                .andHomeAwayIn(EndEventUtils.HOME_AWAY);
 //        //3.取比分最大的事件
-//        List<MatchSettleEvent> eventList =  matchSettleEventMapper.selectByExample(eventExample);
-//        if(eventList.size()==0){
+//        List<MatchSettleEvent> eventList = matchSettleEventMapper.selectByExample(eventExample);
+//        if (eventList.size() == 0) {
 //            return;
 //        }
-//        Integer t1=0;
-//        Integer t2=0;
-//        String homeAway ="none";
-//        Long id =null;
+//        Integer t1 = 0;
+//        Integer t2 = 0;
+//        String homeAway = "none";
+//        Long id = null;
 //        for (MatchSettleEvent matchSettleEvent : eventList) {
-//            if(matchSettleEvent.getT1()!=null&&matchSettleEvent.getT2()!=null){
-//                Integer sum = matchSettleEvent.getT1()+matchSettleEvent.getT2();
-//                if((t1+t2)<=sum){
+//            if (matchSettleEvent.getT1() != null && matchSettleEvent.getT2() != null) {
+//                Integer sum = matchSettleEvent.getT1() + matchSettleEvent.getT2();
+//                if ((t1 + t2) <= sum) {
 //                    //罚牌比分也是取 事件的 t1 t2
-//                    t1=matchSettleEvent.getT1();
-//                    t2=matchSettleEvent.getT2();
-//                    homeAway=matchSettleEvent.getHomeAway();
-//                    id=matchSettleEvent.getId();
+//                    t1 = matchSettleEvent.getT1();
+//                    t2 = matchSettleEvent.getT2();
+//                    homeAway = matchSettleEvent.getHomeAway();
+//                    id = matchSettleEvent.getId();
 //                }
 //            }
 //        }
 //        //id= null 取不到对应事件过滤
-//        if(id==null){
+//        if (id == null) {
 //            return;
-//        }else {
+//        } else {
 //            //还有可能 结算的事件比分是0 则无需编辑 或者编辑为none
-//            if(!EndEventUtils.HOME_AWAY.contains(homeAway)){
-//                homeAway="none";
+//            if (!EndEventUtils.HOME_AWAY.contains(homeAway)) {
+//                homeAway = "none";
 //            }
 //        }
 //        //4.根据比分最大的事件和结算事件做比对
 //        //4.1如果相等 则编辑addition1 或者 addition2 主客队
-//        if(matchSettleScore.getT1()!=null&&matchSettleScore.getT2()!=null){
-//            if(matchSettleScore.getT1().equals(t1)&&matchSettleScore.getT2().equals(t2)){
+//        if (matchSettleScore.getT1() != null && matchSettleScore.getT2() != null) {
+//            if (matchSettleScore.getT1().equals(t1) && matchSettleScore.getT2().equals(t2)) {
 //                //如果是全场打完 则编辑 add2
-//                if(matchSettleScore.getPeriodId().equals(100L)){
+//                if (matchSettleScore.getPeriodId().equals(100L)) {
 //                    matchSettleScore.setAddition2(homeAway);
 //                    //如果是上半场休息 则编辑add1
-//                }else if(matchSettleScore.getPeriodId().equals(31L)) {
+//                } else if (matchSettleScore.getPeriodId().equals(31L)) {
 //                    matchSettleScore.setAddition1(homeAway);
 //                }
 //                log.info("结算比分编辑最终事件::赛事id：{}，选择事件id:{},事件阶段:{},事件类型:{} add1:{} add2:{}",
-//                        matchSettleScore.getStandardMatchId(),id,matchSettleScore.getPeriodId(),matchSettleScore.getEventCode()
-//                        ,matchSettleScore.getAddition1(),matchSettleScore.getAddition2());
+//                        matchSettleScore.getStandardMatchId(), id, matchSettleScore.getPeriodId(), matchSettleScore.getEventCode()
+//                        , matchSettleScore.getAddition1(), matchSettleScore.getAddition2());
 //            }
-//        }else {
+//        } else {
 //            //4.2如果不相等 则直接返回
 //            return;
 //        }
@@ -2005,10 +2025,10 @@
 //        if (matchSettleInfo != null) {
 //
 //            matchSettleInfo.setModifyTime(System.currentTimeMillis());
-//            if (matchSettleScore.getSettleNum().equals("105")||matchSettleScore.getSettleNum().equals("bk_1ht")) {
+//            if (matchSettleScore.getSettleNum().equals("105") || matchSettleScore.getSettleNum().equals("bk_1ht")) {
 //                matchSettleInfo.setH1T1(matchSettleScore.getT1());
 //                matchSettleInfo.setH1T2(matchSettleScore.getT2());
-//            } else if (matchSettleScore.getSettleNum().equals("1010")||matchSettleScore.getSettleNum().equals("bk_ft_et")) {
+//            } else if (matchSettleScore.getSettleNum().equals("1010") || matchSettleScore.getSettleNum().equals("bk_ft_et")) {
 //                matchSettleInfo.setFtT1(matchSettleScore.getT1());
 //                matchSettleInfo.setFtT2(matchSettleScore.getT2());
 //            }
@@ -2039,7 +2059,7 @@
 //                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 //                String time = sdf.format(new Date());
 //                String sport = "FootBall";//默认足球
-//                if(sportId.equals(2L)){
+//                if (sportId.equals(2L)) {
 //                    sport = "BasketBall";
 //                }
 //                /*for(StandardSportTypeEnum em:StandardSportTypeEnum.values()){
@@ -2082,7 +2102,7 @@
 //
 //    @Override
 //    public void confirmGoalDoFilter(List<MatchEventInfo> data) {
-//        if(CollectionUtil.isEmpty(data)){
+//        if (CollectionUtil.isEmpty(data)) {
 //            return;
 //        }
 //        try {
@@ -2108,16 +2128,6 @@
 //                    continue;
 //                }
 //                if (event.getDataSourceCode().equals("F01") && MatchSettleCheckConstant.GoalConfirmEventCode.KO.equals(event.getEventCode())) {
-//                    this.updateMatchSettleGoalStatus(event);
-//                    this.confirmDataSourceSettleEvent(event);
-//                    continue;
-//                }
-//                if (event.getDataSourceCode().equals("N01") && MatchSettleCheckConstant.GoalConfirmEventCode.KO.equals(event.getEventCode())) {
-//                    this.updateMatchSettleGoalStatus(event);
-//                    this.confirmDataSourceSettleEvent(event);
-//                    continue;
-//                }
-//                if (event.getDataSourceCode().equals("LS") && MatchSettleCheckConstant.GoalConfirmEventCode.KO.equals(event.getEventCode())) {
 //                    this.updateMatchSettleGoalStatus(event);
 //                    this.confirmDataSourceSettleEvent(event);
 //                    continue;
@@ -2244,22 +2254,6 @@
 //                log.info("linkId::{}::eventId:{} updateMatchSettleGoalStatus  进球确认更新状态:CONFIRM", matchEventInfo.getLinkId(), matchEventInfo.getThirdEventId());
 //                return;
 //            }
-//            //N01
-//            if (MatchSettleCheckConstant.GoalConfirmEventCode.N01.equals(matchEventInfo.getEventCode())&& matchEventInfo.getDataSourceCode().equals("N01") ) {
-//                goalStatus.setGoalStatus(MatchSettleCheckConstant.GoalStatus.CONFIRM);
-//                goalStatus.setModifyTime(System.currentTimeMillis());
-//                matchSettleGoalStatusRepository.updateOrInsertMatchSettleGoalStatus(goalStatus,false);
-//                log.info("linkId::{}::eventId:{} updateMatchSettleGoalStatus  进球确认更新状态:CONFIRM", matchEventInfo.getLinkId(), matchEventInfo.getThirdEventId());
-//                return;
-//            }
-//            //L01
-//            if (MatchSettleCheckConstant.GoalConfirmEventCode.LS.equals(matchEventInfo.getEventCode())&& matchEventInfo.getDataSourceCode().equals("LS") ) {
-//                goalStatus.setGoalStatus(MatchSettleCheckConstant.GoalStatus.CONFIRM);
-//                goalStatus.setModifyTime(System.currentTimeMillis());
-//                matchSettleGoalStatusRepository.updateOrInsertMatchSettleGoalStatus(goalStatus,false);
-//                log.info("linkId::{}::eventId:{} updateMatchSettleGoalStatus  进球确认更新状态:CONFIRM", matchEventInfo.getLinkId(), matchEventInfo.getThirdEventId());
-//                return;
-//            }
 //            log.info("linkId::{}::eventId:{} updateMatchSettleGoalStatus 处理完成", matchEventInfo.getLinkId(), matchEventInfo.getThirdEventId());
 //        } catch (Exception e) {
 //            log.error("linkId::{}::eventId:{} updateMatchSettleGoalStatus error:", matchEventInfo.getLinkId(), matchEventInfo.getThirdEventId(), e);
@@ -2274,7 +2268,7 @@
 //            if (goalStatus == null || goalStatus.getGoalStatus() == null || goalStatus.getGoalStatus() == MatchSettleCheckConstant.GoalStatus.CONFIRM) {
 //                return true;
 //            }
-//            if (goalStatus.getDataSourceCode().equals("BT") || goalStatus.getDataSourceCode().equals("1X")|| goalStatus.getDataSourceCode().equals("LS")) {
+//            if (goalStatus.getDataSourceCode().equals("BT") || goalStatus.getDataSourceCode().equals("1X") || goalStatus.getDataSourceCode().equals("LS")) {
 //                return true;
 //            }
 //            return false;
@@ -2282,8 +2276,8 @@
 //            if (goalStatus == null || goalStatus.getCornerStatus() == null || goalStatus.getCornerStatus() == MatchSettleCheckConstant.GoalStatus.CONFIRM) {
 //                return true;
 //            }
-//            if (goalStatus.getDataSourceCode().equals("BT") || goalStatus.getDataSourceCode().equals("RB")||goalStatus.getDataSourceCode().equals("BG")||
-//                    goalStatus.getDataSourceCode().equals("KO")|| goalStatus.getDataSourceCode().equals("LS")) {
+//            if (goalStatus.getDataSourceCode().equals("BT") || goalStatus.getDataSourceCode().equals("RB") || goalStatus.getDataSourceCode().equals("BG") ||
+//                    goalStatus.getDataSourceCode().equals("KO") || goalStatus.getDataSourceCode().equals("LS")) {
 //                return true;
 //            }
 //            return false;
@@ -2294,7 +2288,7 @@
 //    //处理三方赛事删除事件 -方案1 物理删除核对事件记录
 //    @Override
 //    public void canceledCheckMatchThirdSettleEvent(MatchSettleThirdEvent settleThirdEvent, MatchEventInfo data, Integer order) {
-//        log.info("linkId::{}::eventId:{} canceledCheckMatchThirdSettleEvent start",data.getLinkId(), data.getThirdEventId());
+//        log.info("linkId::{}::eventId:{} canceledCheckMatchThirdSettleEvent start", data.getLinkId(), data.getThirdEventId());
 //        try {
 //            MatchEventInfo oldEvent = this.getOldMatchInfoByCancel(data);
 //            if (oldEvent == null) {
@@ -2304,12 +2298,12 @@
 //            MatchSettleCheckInfoExample example = new MatchSettleCheckInfoExample();
 //            example.createCriteria().andStandardMatchIdEqualTo(data.getStandardMatchId()).andDataSourceCodeEqualTo(data.getDataSourceCode()).andThirdSettleScoreEventIdEqualTo(settleThirdEvent.getId());
 //            //先试下物理删除是否有用呢
-//            List<MatchSettleCheckInfo> list =  matchSettleCheckInfoMapper.selectByExample(example);
-//            if(list.size()==0){
-//                log.error("linkId::{}::eventId:{} 没有找到被删除事件的核对记录",data.getLinkId(), data.getThirdEventId());
+//            List<MatchSettleCheckInfo> list = matchSettleCheckInfoMapper.selectByExample(example);
+//            if (list.size() == 0) {
+//                log.error("linkId::{}::eventId:{} 没有找到被删除事件的核对记录", data.getLinkId(), data.getThirdEventId());
 //                return;
 //            }
-//            MatchSettleCheckInfo matchSettleCheckInfo =list.get(0);
+//            MatchSettleCheckInfo matchSettleCheckInfo = list.get(0);
 //            matchSettleCheckInfoMapper.deleteByExample(example);
 //            MatchSettleEvent matchSettleEvent =matchSettleEventMapper .selectByPrimaryKey(matchSettleCheckInfo.getSettleScoreEventId());
 //
@@ -2326,7 +2320,7 @@
 //            List<String> deleteSettleNums = new ArrayList<>();
 //            //删除事件标记阶段比分
 //            matchScoresSettleInitChainFilter.deleteEventPeriodScorefilter(oldEvent, deleteSettleNums);
-//            if(deleteSettleNums.size()!=0){
+//            if (deleteSettleNums.size() != 0) {
 //                MatchSettleScore matchSettleScore = new MatchSettleScore();
 //                matchSettleScore.setHasDeleteEvent(1);
 //                matchSettleScore.setCurrentEventStatus(2);
@@ -2347,8 +2341,8 @@
 //            }
 //            wsPushService.pushSettleMatchList(new MatchListSettleDto(data.getStandardMatchId(), data.getEventCode(), null, null, 4));
 //            deleteAuditorCheckInfo(matchSettleCheckInfo.getSettleScoreEventId());
-//        }catch (Exception e){
-//            log.error("linkId::{}::eventId:{} canceledCheckMatchThirdSettleEvent ERROR:",data.getLinkId(), data.getThirdEventId(),e);
+//        } catch (Exception e) {
+//            log.error("linkId::{}::eventId:{} canceledCheckMatchThirdSettleEvent ERROR:", data.getLinkId(), data.getThirdEventId(), e);
 //        }
 //    }
 //
@@ -2394,11 +2388,11 @@
 //    }
 //
 //    private void confirmDataSourceGoalSettleEvent(MatchSettleCheckInfo goalCheckInfo) {
-//        log.info("eventId::{}::confirmDataSourceGoalSettleEvent start",goalCheckInfo.getThirdSettleScoreEventId());
+//        log.info("eventId::{}::confirmDataSourceGoalSettleEvent start", goalCheckInfo.getThirdSettleScoreEventId());
 //        goalCheckInfo.setCheckStatus(MatchSettleCheckConstant.CheckStatus.CONFIRM);
 //        goalCheckInfo.setModifyTime(System.currentTimeMillis());
 //        matchSettleCheckInfoMapper.updateByPrimaryKey(goalCheckInfo);
-//        log.info("eventId::{}::standardMatchId::{}::confirmDataSourceGoalSettleEvent  BT-1X-F01 更新进球事件为确认状态",goalCheckInfo.getThirdSettleScoreEventId(), goalCheckInfo.getStandardMatchId());
+//        log.info("eventId::{}::standardMatchId::{}::confirmDataSourceGoalSettleEvent  BT-1X-F01 更新进球事件为确认状态", goalCheckInfo.getThirdSettleScoreEventId(), goalCheckInfo.getStandardMatchId());
 //        MatchSettleEvent matchSettleEvent = matchSettleEventMapper.selectByPrimaryKey(goalCheckInfo.getSettleScoreEventId());
 //        if (!matchSettleCheckService.isPeriodScoresBeforeSettledByEvent(matchSettleEvent)) {
 //            log.info("eventId::{}::standardMatchId::{}::confirmDataSourceGoalSettleEvent  BT-1X-F01 之前的阶段没结算", goalCheckInfo.getThirdSettleScoreEventId(), goalCheckInfo.getStandardMatchId());
@@ -2418,14 +2412,14 @@
 //
 //    private MatchSettleCheckInfo searchGoalEventCheckInfoByEvent(MatchEventInfo event) {
 //        // 处理match_status事件编码
-//        if("match_status".equals(event.getEventCode())) {
+//        if ("match_status".equals(event.getEventCode())) {
 //            MatchSettleCheckInfoExample example = new MatchSettleCheckInfoExample();
 //            example.createCriteria().andDataSourceCodeEqualTo(event.getDataSourceCode()).andStandardMatchIdEqualTo(event.getStandardMatchId())
 //                    .andEventCodeEqualTo("goal").andCheckTypeEqualTo(MatchSettleCheckConstant.CheckType.EVENT_SCORE).andCheckDataTypeEqualTo(MatchSettleCheckConstant.CheckDataType.DATA_SOURCE);
 //            example.setOrderByClause("create_time desc");
 //            List<MatchSettleCheckInfo> list = matchSettleCheckInfoMapper.selectByExample(example);
 //            log.info("::{}::根据match_status编码, 查询到需要确认的进球事件数量:{}", event.getLinkId(), list.size());
-//            if(!CollectionUtils.isEmpty(list)) {
+//            if (!CollectionUtils.isEmpty(list)) {
 //                log.info("::{}::根据match_status编码, 查询到需要确认的进球事件:{}", event.getLinkId(), list.get(0));
 //                return list.get(0);
 //            }
@@ -2447,8 +2441,8 @@
 //            }
 //        }
 //        String eventCode = "goal";
-//        if(event.getEventCode().equals("corner_taken")){
-//            eventCode="corner";
+//        if (event.getEventCode().equals("corner_taken")) {
+//            eventCode = "corner";
 //        }
 //        MatchSettleCheckInfoExample example = new MatchSettleCheckInfoExample();
 //        example.createCriteria().andDataSourceCodeEqualTo(event.getDataSourceCode()).andStandardMatchIdEqualTo(event.getStandardMatchId())
@@ -2601,7 +2595,7 @@
 //    }
 //
 //    @Override
-//    public Integer isPeriodScoreEquile(MatchSettleScore matchSettleScore,MatchSettleCheckInfo checkInfo, MatchSettleInfo matchSettleInfo) {
+//    public Integer isPeriodScoreEquile(MatchSettleScore matchSettleScore, MatchSettleCheckInfo checkInfo, MatchSettleInfo matchSettleInfo) {
 //        //1.根据当前传入足球的阶段比分的 结算编码 settleNum 得到需要核对的 15分钟比分 或者 5分钟比分 或者半场比分 的结算编码 settleNum
 //        //1.2 需要核对的结算编码settleNum list.size ==0 return 0 成功该类型比分无需核对
 //        //2.根据上面的 settleNum 和 标准赛事ID  查询 结算阶段比分表已经结算的比分
@@ -2615,7 +2609,7 @@
 //         * 2,全部结算:核对已经结算的3个15分钟区间比分和是否一致
 //         */
 //        List<String> settleNumList = MatchPeriodEnum.getFootBallPeriodSettleNumList(matchSettleScore.getSettleNum());
-//        if (allMins15Codes.contains(matchSettleScore.getSettleNum()) && (checkInfo != null || matchSettleInfo.getFiveMinSwitch() == 0)){
+//        if (allMins15Codes.contains(matchSettleScore.getSettleNum()) && (checkInfo != null || matchSettleInfo.getFiveMinSwitch() == 0)) {
 //            settleNumList = null;
 //        }
 //
@@ -2691,16 +2685,16 @@
 //        List<MatchEventInfo> oldMatchInfos =matchEventInfoRepository.getMatchEventInfoCaseOne(data.getThirdMatchId(),data.getExtraInfo(),data.getDataSourceCode(),data.getSportId());
 //        if(oldMatchInfos.size()==0){
 //            //事件未消费
-//            log.error("canleEvent 事件未消费入库"+data.getEventCode()+"事件ID:"+data.getThirdEventId());
+//            log.error("canleEvent 事件未消费入库" + data.getEventCode() + "事件ID:" + data.getThirdEventId());
 //            return null;
 //        }
-//        MatchEventInfo oldEvent= oldMatchInfos.get(0);
+//        MatchEventInfo oldEvent = oldMatchInfos.get(0);
 ////        if(oldEvent.getEventCode().equals(DELETE_EVENT)){
 ////            data.setExtraInfo(oldEvent.getThirdEventId());
 ////            return getOldMatchInfoByCancel(data);
 ////        }
-//        if(!EffectScoresCode.chargeEffectScores(data.getSportId(),oldEvent.getEventCode())){
-//            return  null;
+//        if (!EffectScoresCode.chargeEffectScores(data.getSportId(), oldEvent.getEventCode())) {
+//            return null;
 //        }
 //        return oldEvent;
 ////        String eventKey="SCORES_DELETE:"+data.getDataSourceCode()+":"+data.getStandardMatchId()+data.getExtraInfo();
@@ -2717,6 +2711,7 @@
 ////            return null;
 ////        }
 //    }
+//
 //    /**
 //     * 入参: 需要结算的比分
 //     * 返回:  true 可以结算  false 不能结算
@@ -2725,9 +2720,9 @@
 //     * 2. 比分和比分对比逻辑
 //     * 3.顺序结算按钮开关的阶段比分逻辑
 //     * 4.自动补充 无事件逻辑
-//     * */
+//     */
 //    @Override
-//    public boolean checkSettleScoreAndAutoSettleNonEvent(MatchSettleScore matchSettleScore,MatchSettleCheckInfo checkInfo) {
+//    public boolean checkSettleScoreAndAutoSettleNonEvent(MatchSettleScore matchSettleScore, MatchSettleCheckInfo checkInfo) {
 //        try {
 //            MatchSettleInfo matchSettleInfo = matchSettleInfoRepository.getMatchSettleInfo(matchSettleScore.getStandardMatchId());
 //            if(checkInfo!=null){
@@ -2740,9 +2735,9 @@
 //                return this.normalCheckAutoSettleNonEvent(matchSettleScore, matchSettleInfo);
 //            }
 //            //2 阶段事件比分是否一致 不一致则 返回 false 不一致
-//            Integer x= isPeriodScoreEquile(matchSettleScore, checkInfo, matchSettleInfo);
-//            if ( x!= 0) {
-//                log.error("阶段比分结算拦截1: {}-{} 赛事id:{},原因 x:{}",matchSettleScore.getEventName(),matchSettleScore.getSettleNum(), matchSettleScore.getStandardMatchId(),x);
+//            Integer x = isPeriodScoreEquile(matchSettleScore, checkInfo, matchSettleInfo);
+//            if (x != 0) {
+//                log.error("阶段比分结算拦截1: {}-{} 赛事id:{},原因 x:{}", matchSettleScore.getEventName(), matchSettleScore.getSettleNum(), matchSettleScore.getStandardMatchId(), x);
 //                return false;
 //            }
 //            if (matchSettleScore.getSettleNum().equals(MatchPeriodEnum.GOAL_5.getCode().toString()) || matchSettleScore.getSettleNum().equals(MatchPeriodEnum.GOAL_9.getCode().toString())) {
@@ -2761,15 +2756,15 @@
 ////            }
 //            //5.返回 true
 //            return true;
-//        }catch (Exception e){
-//            log.error("checkSettleScoreAndAutoSettleNonEvent error:",e);
+//        } catch (Exception e) {
+//            log.error("checkSettleScoreAndAutoSettleNonEvent error:", e);
 //            return false;
 //        }
 //    }
 //
 //    /**
 //     * 篮球独有校验机制
-//     * */
+//     */
 //    @Override
 //    public boolean checkBasketPeriodScoreOrder(MatchSettleScore matchSettleScore) {
 //        Long standardMatchId = matchSettleScore.getStandardMatchId();
@@ -2786,19 +2781,22 @@
 //                matchSettleInfo.getSettleOrderClosed() != 0) {
 //            return true;
 //        }
-//        List<Integer > statusList =new ArrayList<>();
-//        statusList.add(1);   statusList.add(0);   statusList.add(2);  statusList.add(4);
+//        List<Integer> statusList = new ArrayList<>();
+//        statusList.add(1);
+//        statusList.add(0);
+//        statusList.add(2);
+//        statusList.add(4);
 //        //1.根据当前结算编码得到他之前的结算编码
-//        List<String> settleNumList = SettleNumUtils.countBasketballScoreSettleNumBefore(matchSettleScore.getSettleNum(),standardMatchInfo.getMatchLength());
-//        if(settleNumList.size()==0){
+//        List<String> settleNumList = SettleNumUtils.countBasketballScoreSettleNumBefore(matchSettleScore.getSettleNum(), standardMatchInfo.getMatchLength());
+//        if (settleNumList.size() == 0) {
 //            return true;
 //        }
 //        MatchSettleScoreExample example = new MatchSettleScoreExample();
 //        example.createCriteria().andSettleNumIn(settleNumList).andStandardMatchIdEqualTo(standardMatchId).andStatusIn(statusList);
-//        List<MatchSettleScore> list =matchSettleScoreMapper.selectByExample(example);
+//        List<MatchSettleScore> list = matchSettleScoreMapper.selectByExample(example);
 //
 //        //2.判断之前的结算编码是否已经结算，如果没有结算则不能结算返回false
-//        if(list.size()!=0){
+//        if (list.size() != 0) {
 //            return false;
 //        }
 //        return true;
@@ -2829,7 +2827,7 @@
 //            matchSettleInfo.setIsGray(0);
 //            matchSettleInfoRepository.updateMatchSettleInfoToRedis(matchSettleInfo,false);
 //            return false;
-//        }catch (Exception e){
+//        } catch (Exception e) {
 //
 //        }
 //        return false;
@@ -2838,21 +2836,21 @@
 //    private void sendNoneEventSettled(MatchSettleInfo matchSettleInfo, MatchSettleScore matchSettleScore, CheckPeriodEventEquileDto checkPeriodEventEquileDto) {
 //        try {
 //            //1.查询需要生成的non 事件 没有则生成
-//            MatchSettleEvent matchSettleEvent=null;
-//            MatchSettleEventExample eventExample =new MatchSettleEventExample();
+//            MatchSettleEvent matchSettleEvent = null;
+//            MatchSettleEventExample eventExample = new MatchSettleEventExample();
 //            eventExample.createCriteria().andEventCodeEqualTo(matchSettleScore.getEventCode()).andPeriodIdEqualTo(checkPeriodEventEquileDto.getPeriod()).andEventOrderEqualTo(checkPeriodEventEquileDto.getOrderNum())
 //                    .andStandardMatchIdEqualTo(matchSettleInfo.getStandardMatchId()).andEventTypeEqualTo(1);
-//            List<MatchSettleEvent> list =matchSettleEventMapper.selectByExample(eventExample);
-//            if(list.size()!=0){
-//                matchSettleEvent =list.get(0);
-//            }else {
-//                matchSettleEvent =new MatchSettleEvent();
+//            List<MatchSettleEvent> list = matchSettleEventMapper.selectByExample(eventExample);
+//            if (list.size() != 0) {
+//                matchSettleEvent = list.get(0);
+//            } else {
+//                matchSettleEvent = new MatchSettleEvent();
 //                matchSettleEvent.setId(IdWorker.getId());
 //                matchSettleEvent.setEventCode(matchSettleScore.getEventCode());
 //                matchSettleEvent.setStandardMatchId(matchSettleInfo.getStandardMatchId());
 //                matchSettleEvent.setSportId(matchSettleInfo.getSportId());
 //                //需要計算
-//                String SettleNum= SettleNumUtils.getEventSettleNumByPeriodAndEventCode(matchSettleScore.getEventCode(),checkPeriodEventEquileDto.getPeriod());
+//                String SettleNum = SettleNumUtils.getEventSettleNumByPeriodAndEventCode(matchSettleScore.getEventCode(), checkPeriodEventEquileDto.getPeriod());
 //                matchSettleEvent.setSettleNum(SettleNum);
 //                matchSettleEvent.setCreateTime(System.currentTimeMillis());
 //                matchSettleEvent.setEventType(1);
@@ -2867,7 +2865,7 @@
 //                matchSettleEvent.setCheckNumber(1);
 //                matchSettleEvent.setThirdEventSourceId(matchSettleEvent.getId());
 //                matchSettleEventMapper.insert(matchSettleEvent);
-//                MatchSettleEvent extryEvent =new MatchSettleEvent();
+//                MatchSettleEvent extryEvent = new MatchSettleEvent();
 //                extryEvent.setId(IdWorker.getId());
 //                extryEvent.setEventCode(matchSettleScore.getEventCode());
 //                extryEvent.setStandardMatchId(matchSettleInfo.getStandardMatchId());
@@ -2945,142 +2943,153 @@
 //            Thread.sleep(1000);
 //            matchSettleEventMapper.updateByPrimaryKey(matchSettleEvent);
 //        } catch (InterruptedException e) {
-//            log.error("sendNoneEventSettled error:",e);
+//            log.error("sendNoneEventSettled error:", e);
 //        }
 //        //5.返回成功
 //    }
 //
 //    /**
 //     * 校验当前的阶段比分是否和事件一致
-//     * */
+//     */
 //    private CheckPeriodEventEquileDto isPeriodEventEquile(MatchSettleScore matchSettleScore) {
-//        CheckPeriodEventEquileDto checkPeriodEventEquileDto=new CheckPeriodEventEquileDto();
-//        List<String> goalPeriodSettleNum =new ArrayList<>();
-//        goalPeriodSettleNum.add("105");goalPeriodSettleNum.add("109");goalPeriodSettleNum.add("1014");goalPeriodSettleNum.add("1018");
-//        List<String> cornerPeriodSettleNum =new ArrayList<>();
-//        cornerPeriodSettleNum.add("201");cornerPeriodSettleNum.add("202");cornerPeriodSettleNum.add("206");cornerPeriodSettleNum.add("207");
-//        List<String> facardPeriodSettleNum =new ArrayList<>();
-//        facardPeriodSettleNum.add("304");facardPeriodSettleNum.add("308");facardPeriodSettleNum.add("3013");facardPeriodSettleNum.add("3017");
+//        CheckPeriodEventEquileDto checkPeriodEventEquileDto = new CheckPeriodEventEquileDto();
+//        List<String> goalPeriodSettleNum = new ArrayList<>();
+//        goalPeriodSettleNum.add("105");
+//        goalPeriodSettleNum.add("109");
+//        goalPeriodSettleNum.add("1014");
+//        goalPeriodSettleNum.add("1018");
+//        List<String> cornerPeriodSettleNum = new ArrayList<>();
+//        cornerPeriodSettleNum.add("201");
+//        cornerPeriodSettleNum.add("202");
+//        cornerPeriodSettleNum.add("206");
+//        cornerPeriodSettleNum.add("207");
+//        List<String> facardPeriodSettleNum = new ArrayList<>();
+//        facardPeriodSettleNum.add("304");
+//        facardPeriodSettleNum.add("308");
+//        facardPeriodSettleNum.add("3013");
+//        facardPeriodSettleNum.add("3017");
 //
-//        Long period =SettleNumUtils.countEventPeriodBySettleScore(matchSettleScore.getSettleNum());
-//        if(period==null){
+//        Long period = SettleNumUtils.countEventPeriodBySettleScore(matchSettleScore.getSettleNum());
+//        if (period == null) {
 //            return checkPeriodEventEquileDto;
 //        }
-//        MatchSettleEventExample eventExample =new MatchSettleEventExample();
-//        Integer homeScore=0;
-//        Integer awayScore=0;
-//        Integer eventT1=0;
-//        Integer eventT2=0;
+//        MatchSettleEventExample eventExample = new MatchSettleEventExample();
+//        Integer homeScore = 0;
+//        Integer awayScore = 0;
+//        Integer eventT1 = 0;
+//        Integer eventT2 = 0;
 //        //發牌
-//        Integer eventFirstT1=0;
-//        Integer eventFirstT2=0;
-//        Integer eventSecondT1=0;
-//        Integer eventSecondT2=0;
+//        Integer eventFirstT1 = 0;
+//        Integer eventFirstT2 = 0;
+//        Integer eventSecondT1 = 0;
+//        Integer eventSecondT2 = 0;
 //        //过滤不需要校验的阶段比分
-//        if(matchSettleScore.getEventCode().equals("goal")){
+//        if (matchSettleScore.getEventCode().equals("goal")) {
 //            //过滤不需要校验的阶段比分
-//            if(!goalPeriodSettleNum.contains(matchSettleScore.getSettleNum())){
+//            if (!goalPeriodSettleNum.contains(matchSettleScore.getSettleNum())) {
 //                return checkPeriodEventEquileDto;
 //            }
 //            //预设置需要补充
 //            checkPeriodEventEquileDto.setNeedNoneEvent(true);
 //            eventExample.createCriteria().andPeriodIdEqualTo(period).andEventCodeEqualTo("goal")
 //                    .andStandardMatchIdEqualTo(matchSettleScore.getStandardMatchId()).andStatusEqualTo(3).andEventTypeEqualTo(1);
-//            List<MatchSettleEvent> goalList =matchSettleEventMapper.selectByExample(eventExample);
+//            List<MatchSettleEvent> goalList = matchSettleEventMapper.selectByExample(eventExample);
 //            for (MatchSettleEvent matchSettleEvent : goalList) {
-//                if("home".equals(matchSettleEvent.getHomeAway())){
+//                if ("home".equals(matchSettleEvent.getHomeAway())) {
 //                    homeScore++;
-//                }else if("away".equals(matchSettleEvent.getHomeAway())){
+//                } else if ("away".equals(matchSettleEvent.getHomeAway())) {
 //                    awayScore++;
-//                }else {
+//                } else {
 //                    //增加阶段 如果是上半场，则必须是上半场无进球 下半场 则 必须是下半场无进球 TODO
 //
 //                    checkPeriodEventEquileDto.setNeedNoneEvent(false);
 //                }
-//                if(eventT1<matchSettleEvent.getT1()){
-//                    eventT1=matchSettleEvent.getT1();
+//                if (eventT1 < matchSettleEvent.getT1()) {
+//                    eventT1 = matchSettleEvent.getT1();
 //                }
-//                if(eventT2<matchSettleEvent.getT2()){
-//                    eventT2=matchSettleEvent.getT2();
+//                if (eventT2 < matchSettleEvent.getT2()) {
+//                    eventT2 = matchSettleEvent.getT2();
 //                }
 //            }
-//            checkPeriodEventEquileDto.setOrderNum(goalList.size()+1);
+//            checkPeriodEventEquileDto.setOrderNum(goalList.size() + 1);
 //        }
-//        if(matchSettleScore.getEventCode().equals("corner")){
+//        if (matchSettleScore.getEventCode().equals("corner")) {
 //            //过滤不需要校验的阶段比分
-//            if(!cornerPeriodSettleNum.contains(matchSettleScore.getSettleNum())){
+//            if (!cornerPeriodSettleNum.contains(matchSettleScore.getSettleNum())) {
 //                return checkPeriodEventEquileDto;
 //            }
 //            //预设置需要补充
 //            checkPeriodEventEquileDto.setNeedNoneEvent(true);
 //            eventExample.createCriteria().andPeriodIdEqualTo(period).andEventCodeEqualTo("corner")
 //                    .andStandardMatchIdEqualTo(matchSettleScore.getStandardMatchId()).andStatusEqualTo(3).andEventTypeEqualTo(1);
-//            List<MatchSettleEvent> goalList =matchSettleEventMapper.selectByExample(eventExample);
+//            List<MatchSettleEvent> goalList = matchSettleEventMapper.selectByExample(eventExample);
 //            for (MatchSettleEvent matchSettleEvent : goalList) {
-//                if("home".equals(matchSettleEvent.getHomeAway())){
+//                if ("home".equals(matchSettleEvent.getHomeAway())) {
 //                    homeScore++;
-//                }else if("away".equals(matchSettleEvent.getHomeAway())){
+//                } else if ("away".equals(matchSettleEvent.getHomeAway())) {
 //                    awayScore++;
-//                }else {
+//                } else {
 //                    checkPeriodEventEquileDto.setNeedNoneEvent(false);
 //                }
-//                if(eventT1<matchSettleEvent.getT1()){
-//                    eventT1=matchSettleEvent.getT1();
+//                if (eventT1 < matchSettleEvent.getT1()) {
+//                    eventT1 = matchSettleEvent.getT1();
 //                }
-//                if(eventT2<matchSettleEvent.getT2()){
-//                    eventT2=matchSettleEvent.getT2();
+//                if (eventT2 < matchSettleEvent.getT2()) {
+//                    eventT2 = matchSettleEvent.getT2();
 //                }
 //            }
-//            checkPeriodEventEquileDto.setOrderNum(goalList.size()+1);
+//            checkPeriodEventEquileDto.setOrderNum(goalList.size() + 1);
 //        }
-//        if(matchSettleScore.getEventCode().equals("fa_card")){
+//        if (matchSettleScore.getEventCode().equals("fa_card")) {
 //            //过滤不需要校验的阶段比分
-//            if(!facardPeriodSettleNum.contains(matchSettleScore.getSettleNum())){
+//            if (!facardPeriodSettleNum.contains(matchSettleScore.getSettleNum())) {
 //                return checkPeriodEventEquileDto;
 //            }
 //            //预设置需要补充
 //            checkPeriodEventEquileDto.setNeedNoneEvent(true);
-//            List<String> bookingSettleNum =new ArrayList<>();
-//            bookingSettleNum.add("fa_card");bookingSettleNum.add("yellow_card");bookingSettleNum.add("red_card");
+//            List<String> bookingSettleNum = new ArrayList<>();
+//            bookingSettleNum.add("fa_card");
+//            bookingSettleNum.add("yellow_card");
+//            bookingSettleNum.add("red_card");
 //            eventExample.createCriteria().andPeriodIdEqualTo(period).andEventCodeIn(bookingSettleNum)
 //                    .andStandardMatchIdEqualTo(matchSettleScore.getStandardMatchId()).andStatusEqualTo(3).andEventTypeEqualTo(1);
-//            List<MatchSettleEvent> goalList =matchSettleEventMapper.selectByExample(eventExample);
+//            List<MatchSettleEvent> goalList = matchSettleEventMapper.selectByExample(eventExample);
 //            for (MatchSettleEvent matchSettleEvent : goalList) {
-//                if(matchSettleEvent.getEventCode().equals("red_card")){
-//                    if("home".equals(matchSettleEvent.getHomeAway())){
-//                        homeScore+=2;
-//                    }else if("away".equals(matchSettleEvent.getHomeAway())){
-//                        awayScore+=2;
+//                if (matchSettleEvent.getEventCode().equals("red_card")) {
+//                    if ("home".equals(matchSettleEvent.getHomeAway())) {
+//                        homeScore += 2;
+//                    } else if ("away".equals(matchSettleEvent.getHomeAway())) {
+//                        awayScore += 2;
 //                    }
-//                }else if(matchSettleEvent.getEventCode().equals("yellow_card")){
-//                    if("home".equals(matchSettleEvent.getHomeAway())){
+//                } else if (matchSettleEvent.getEventCode().equals("yellow_card")) {
+//                    if ("home".equals(matchSettleEvent.getHomeAway())) {
 //                        homeScore++;
-//                    }else if("away".equals(matchSettleEvent.getHomeAway())){
+//                    } else if ("away".equals(matchSettleEvent.getHomeAway())) {
 //                        awayScore++;
-//                    }else {
+//                    } else {
 //                        checkPeriodEventEquileDto.setNeedNoneEvent(false);
 //                    }
 //                }
-//                if(eventT1<matchSettleEvent.getT1()){
-//                    eventT1=matchSettleEvent.getT1();
+//                if (eventT1 < matchSettleEvent.getT1()) {
+//                    eventT1 = matchSettleEvent.getT1();
 //                }
-//                if(eventT2<matchSettleEvent.getT2()){
-//                    eventT2=matchSettleEvent.getT2();
+//                if (eventT2 < matchSettleEvent.getT2()) {
+//                    eventT2 = matchSettleEvent.getT2();
 //                }
-//                if(eventFirstT1<matchSettleEvent.getFirstT1()){
-//                    eventFirstT1=matchSettleEvent.getFirstT1();
+//                if (eventFirstT1 < matchSettleEvent.getFirstT1()) {
+//                    eventFirstT1 = matchSettleEvent.getFirstT1();
 //                }
-//                if(eventFirstT2<matchSettleEvent.getFirstT2()){
-//                    eventFirstT2=matchSettleEvent.getFirstT2();
+//                if (eventFirstT2 < matchSettleEvent.getFirstT2()) {
+//                    eventFirstT2 = matchSettleEvent.getFirstT2();
 //                }
-//                if(eventSecondT1<matchSettleEvent.getSecondT1()){
-//                    eventSecondT1=matchSettleEvent.getSecondT1();
+//                if (eventSecondT1 < matchSettleEvent.getSecondT1()) {
+//                    eventSecondT1 = matchSettleEvent.getSecondT1();
 //                }
-//                if(eventSecondT2<matchSettleEvent.getSecondT2()){
-//                    eventSecondT2=matchSettleEvent.getSecondT2();
+//                if (eventSecondT2 < matchSettleEvent.getSecondT2()) {
+//                    eventSecondT2 = matchSettleEvent.getSecondT2();
 //                }
 //            }
-//            checkPeriodEventEquileDto.setOrderNum(goalList.size()+1);
+//            checkPeriodEventEquileDto.setOrderNum(goalList.size() + 1);
 //        }
 //        checkPeriodEventEquileDto.setEventT1(eventT1);
 //        checkPeriodEventEquileDto.setEventT2(eventT2);
@@ -3089,10 +3098,10 @@
 //        checkPeriodEventEquileDto.setEventSecondT1(eventSecondT1);
 //        checkPeriodEventEquileDto.setEventSecondT2(eventSecondT2);
 //        checkPeriodEventEquileDto.setPeriod(period);
-//        if(matchSettleScore.getT1()!=null&&matchSettleScore.getT2()!=null){
-//            if(homeScore==matchSettleScore.getT1()&&awayScore==matchSettleScore.getT2()){
+//        if (matchSettleScore.getT1() != null && matchSettleScore.getT2() != null) {
+//            if (homeScore == matchSettleScore.getT1() && awayScore == matchSettleScore.getT2()) {
 //                return checkPeriodEventEquileDto;
-//            }else {
+//            } else {
 //                checkPeriodEventEquileDto.setPassCheck(false);
 //                return checkPeriodEventEquileDto;
 //            }
@@ -3129,22 +3138,22 @@
 //
 //    private boolean normalCheckAutoSettleNonEvent(MatchSettleScore matchSettleScore, MatchSettleInfo matchSettleInfo) {
 //        //只需要校验 全场结算的时候 全场= 上半场 +下半场
-//        if(matchSettleScore.getEventCode().equals("goal")){
-//            if(!matchSettleScore.getSettleNum().equals("1010")){
+//        if (matchSettleScore.getEventCode().equals("goal")) {
+//            if (!matchSettleScore.getSettleNum().equals("1010")) {
 //                return true;
 //            }
 //        }
-//        if(matchSettleScore.getEventCode().equals("corner")){
-//            if(!matchSettleScore.getSettleNum().equals("203")){
+//        if (matchSettleScore.getEventCode().equals("corner")) {
+//            if (!matchSettleScore.getSettleNum().equals("203")) {
 //                return true;
 //            }
 //        }
-//        if(matchSettleScore.getEventCode().equals("fa_card")){
-//            if(!matchSettleScore.getSettleNum().equals("309")){
+//        if (matchSettleScore.getEventCode().equals("fa_card")) {
+//            if (!matchSettleScore.getSettleNum().equals("309")) {
 //                return true;
 //            }
 //        }
-//        if(isPeriodScoreEquile(matchSettleScore, constantCheckInfo, matchSettleInfo)==0){
+//        if (isPeriodScoreEquile(matchSettleScore, constantCheckInfo, matchSettleInfo) == 0) {
 //            return true;
 //        }
 //        return false;
@@ -3154,49 +3163,49 @@
 //    public void updateMatchCurrentEventStatus(Long standardMatchId) {
 //
 //        try {
-//            int deleteGoal=0;
-//            int grayGoal=0;
+//            int deleteGoal = 0;
+//            int grayGoal = 0;
 //
 //            MatchSettleInfo matchSettleInfo = matchSettleInfoRepository.getMatchSettleInfo(standardMatchId);
 //            if (matchSettleInfo!=null && matchSettleInfo.getSportId()!=null && (matchSettleInfo.getSportId().intValue()!=1 && matchSettleInfo.getSportId().intValue()!=2)){
 //                return;
 //            }
-//            MatchSettleEventExample goalEvent=new MatchSettleEventExample();
+//            MatchSettleEventExample goalEvent = new MatchSettleEventExample();
 //            goalEvent.createCriteria().andStandardMatchIdEqualTo(standardMatchId).andStatusNotEqualTo(3);
-//            List<MatchSettleEvent> goalEventList =matchSettleEventMapper.selectByExample(goalEvent);
+//            List<MatchSettleEvent> goalEventList = matchSettleEventMapper.selectByExample(goalEvent);
 //            for (MatchSettleEvent matchSettleEvent : goalEventList) {
-//                if(matchSettleEvent.getIsGrey()!=null&&matchSettleEvent.getIsGrey()==1){
-//                    grayGoal=1;
+//                if (matchSettleEvent.getIsGrey() != null && matchSettleEvent.getIsGrey() == 1) {
+//                    grayGoal = 1;
 //                }
-//                if(matchSettleEvent.getHasDeleteEvent()!=null&&matchSettleEvent.getHasDeleteEvent()==1){
-//                    deleteGoal=1;
+//                if (matchSettleEvent.getHasDeleteEvent() != null && matchSettleEvent.getHasDeleteEvent() == 1) {
+//                    deleteGoal = 1;
 //                }
 //            }
-//            MatchSettleScoreExample goalScoreExa=new MatchSettleScoreExample();
+//            MatchSettleScoreExample goalScoreExa = new MatchSettleScoreExample();
 //            goalScoreExa.createCriteria().andStandardMatchIdEqualTo(standardMatchId).andStatusNotEqualTo(3);
-//            List< MatchSettleScore> goalScoreList = matchSettleScoreMapper.selectByExample(goalScoreExa);
+//            List<MatchSettleScore> goalScoreList = matchSettleScoreMapper.selectByExample(goalScoreExa);
 //
 //            for (MatchSettleScore matchSettleScore : goalScoreList) {
-//                if(matchSettleScore.getIsGrey()!=null&&matchSettleScore.getIsGrey()==1){
-//                    grayGoal=1;
+//                if (matchSettleScore.getIsGrey() != null && matchSettleScore.getIsGrey() == 1) {
+//                    grayGoal = 1;
 //                }
-//                if(matchSettleScore.getHasDeleteEvent()!=null&&matchSettleScore.getHasDeleteEvent()==1){
-//                    deleteGoal=1;
+//                if (matchSettleScore.getHasDeleteEvent() != null && matchSettleScore.getHasDeleteEvent() == 1) {
+//                    deleteGoal = 1;
 //                }
 //            }
-//            if(deleteGoal==1 && grayGoal==1){
+//            if (deleteGoal == 1 && grayGoal == 1) {
 //                matchSettleInfo.setIsGray(1);
 //                matchSettleInfo.setHasDeleteEvent(1);
 //                matchSettleInfo.setCurrentEventStatus(1);
-//            }else if(deleteGoal==1 && grayGoal==0){
+//            } else if (deleteGoal == 1 && grayGoal == 0) {
 //                matchSettleInfo.setIsGray(0);
 //                matchSettleInfo.setHasDeleteEvent(1);
 //                matchSettleInfo.setCurrentEventStatus(2);
-//            }else if(deleteGoal==0 && grayGoal==1){
+//            } else if (deleteGoal == 0 && grayGoal == 1) {
 //                matchSettleInfo.setIsGray(1);
 //                matchSettleInfo.setHasDeleteEvent(0);
 //                matchSettleInfo.setCurrentEventStatus(1);
-//            }else{
+//            } else {
 //                matchSettleInfo.setIsGray(0);
 //                matchSettleInfo.setHasDeleteEvent(0);
 //                matchSettleInfo.setCurrentEventStatus(0);
@@ -3209,7 +3218,7 @@
 //
 //
 //    @Override
-//    public void updateMatchFifteenMinGraySettleFactor(Long standardMatchId,String settleNum) {
+//    public void updateMatchFifteenMinGraySettleFactor(Long standardMatchId, String settleNum) {
 //
 //        try {
 //
@@ -3223,7 +3232,7 @@
 //            matchSettleScoreExample.createCriteria().andStandardMatchIdEqualTo(standardMatchId)
 //                    .andSettleNumEqualTo(fifteenSettleNum).andStatusEqualTo(SETTLED);
 //            List<MatchSettleScore> matchSettleScoreList = matchSettleScoreMapper.selectByExample(matchSettleScoreExample);
-//            if (matchSettleScoreList.isEmpty()){
+//            if (matchSettleScoreList.isEmpty()) {
 //                return;
 //            }
 //            //3,半场已经结算,判断已经结算的阶段总比分是否跟半场一致,如果一致,取消半场还未结算的灰色区间
@@ -3233,7 +3242,7 @@
 //            matchSettleNumExample.createCriteria().andStandardMatchIdEqualTo(standardMatchId)
 //                    .andSettleNumIn(settleNumList).andStatusEqualTo(SETTLED);
 //            List<MatchSettleScore> matchSettleNumList = matchSettleScoreMapper.selectByExample(matchSettleNumExample);
-//            if (matchSettleNumList.isEmpty()){
+//            if (matchSettleNumList.isEmpty()) {
 //                return;
 //            }
 //            Integer sumScoreT1 = 0;
@@ -3250,31 +3259,31 @@
 //                MatchSettleScoreExample matchSettleScoreGrayExample = new MatchSettleScoreExample();
 //                matchSettleScoreGrayExample.createCriteria().andStandardMatchIdEqualTo(standardMatchId).andStatusEqualTo(NOT_EDIT).andSettleNumIn(settleNumList);
 //                List<MatchSettleScore> matchSettleScoreGrayList = matchSettleScoreMapper.selectByExample(matchSettleScoreGrayExample);
-//                for (MatchSettleScore matchSettleScoreGray:matchSettleScoreGrayList){
+//                for (MatchSettleScore matchSettleScoreGray : matchSettleScoreGrayList) {
 //                    matchSettleScoreGray.setIsGrey(NOT_EDIT);
 //                    matchSettleScoreGray.setCurrentEventStatus(NOT_EDIT);
 //                    matchSettleScoreMapper.updateByPrimaryKey(matchSettleScoreGray);
 //                }
 //            }
-//        }catch (Exception e){
-//            log.error("标准赛事Id:"+standardMatchId+",更新15分钟灰色区间:"+settleNum+",的结算因子出错:",e);
+//        } catch (Exception e) {
+//            log.error("标准赛事Id:" + standardMatchId + ",更新15分钟灰色区间:" + settleNum + ",的结算因子出错:", e);
 //        }
 //    }
 //
-//    private String getCheckUserName(String userName,List<String> auditors){
-//        int number = auditors.indexOf(userName)+1;
-//        userName =userName + ",(第" + number + "人)";
+//    private String getCheckUserName(String userName, List<String> auditors) {
+//        int number = auditors.indexOf(userName) + 1;
+//        userName = userName + ",(第" + number + "人)";
 //        return userName;
 //    }
 //
 //
-//    public void validateDeleteEvent(MatchSettleEvent matchSettleEvent, List<String> deleteSettleNums, MatchEventInfo data){
-//        log.info("linkId::{}::eventId:{} addSettleMention with settleEventId:{} start!",data.getLinkId(), data.getThirdEventId(), matchSettleEvent.getId());
+//    public void validateDeleteEvent(MatchSettleEvent matchSettleEvent, List<String> deleteSettleNums, MatchEventInfo data) {
+//        log.info("linkId::{}::eventId:{} addSettleMention with settleEventId:{} start!", data.getLinkId(), data.getThirdEventId(), matchSettleEvent.getId());
 //        Map<String, Object> parameters = new HashMap<>();
 //        parameters.put("matchSettleEvent", matchSettleEvent);
 //        parameters.put("deleteSettleNums", deleteSettleNums);
 //        settleMentionFactory.getProcessor(SettleMentionEnum.FOOTBALL_DELETE_EVENT).addSettleMention(parameters);
-//        log.info("linkId::{}::eventId:{} addSettleMention with settleEventId:{} end!",data.getLinkId(), data.getThirdEventId(), matchSettleEvent.getId());
+//        log.info("linkId::{}::eventId:{} addSettleMention with settleEventId:{} end!", data.getLinkId(), data.getThirdEventId(), matchSettleEvent.getId());
 //    }
 //
 //    private boolean validGoalSettle(MatchSettleScore matchSettleScore) {
@@ -3291,12 +3300,12 @@
 //        MatchSettleScoreExample example = new MatchSettleScoreExample();
 //        example.createCriteria().andStandardMatchIdEqualTo(matchSettleScore.getStandardMatchId()).andStatusEqualTo(SETTLED).andEventCodeEqualTo(SettleEventCodeEnum.FOOTBALL_GOAL.getValue());
 //        List<MatchSettleScore> settleScores = matchSettleScoreMapper.selectByExample(example);
-//        Map<String, MatchSettleScore> settleScoreMap = settleScores.stream().collect(Collectors.toMap(MatchSettleScore::getSettleNum, t->t, (v1, v2)->v1));
+//        Map<String, MatchSettleScore> settleScoreMap = settleScores.stream().collect(Collectors.toMap(MatchSettleScore::getSettleNum, t -> t, (v1, v2) -> v1));
 //
 //        // valid child nodes
 //        int sumScoreT1 = 0;
 //        int sumScoreT2 = 0;
-//        for(String settleNum : childSettleNumList) {
+//        for (String settleNum : childSettleNumList) {
 //            MatchSettleScore settleScore = settleScoreMap.getOrDefault(settleNum, null);
 //            if (settleScore == null) {
 //                continue;
@@ -3317,7 +3326,7 @@
 //        }
 //        sumScoreT1 = matchSettleScore.getT1();
 //        sumScoreT2 = matchSettleScore.getT2();
-//        for(String settleNum : brotherSettleNumList){
+//        for (String settleNum : brotherSettleNumList) {
 //            MatchSettleScore settleScore = settleScoreMap.getOrDefault(settleNum, null);
 //            if (settleScore == null) {
 //                continue;
@@ -3329,7 +3338,7 @@
 //                sumScoreT2 += settleScore.getT2();
 //            }
 //        }
-//        if(sumScoreT1 > settleScoreMap.get(parentSettleNum).getT1() || sumScoreT2 > settleScoreMap.get(parentSettleNum).getT2()){
+//        if (sumScoreT1 > settleScoreMap.get(parentSettleNum).getT1() || sumScoreT2 > settleScoreMap.get(parentSettleNum).getT2()) {
 //            return false;
 //        }
 //        return true;

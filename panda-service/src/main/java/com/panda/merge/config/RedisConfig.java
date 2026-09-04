@@ -145,8 +145,8 @@ public class RedisConfig extends CachingConfigurerSupport {
         return cacheErrorHandler;
     }
 
-/*    @Bean
+    @Bean
     public RedisService redisService() {
         return new RedisServiceImpl();
-    }*/
+    }
 }

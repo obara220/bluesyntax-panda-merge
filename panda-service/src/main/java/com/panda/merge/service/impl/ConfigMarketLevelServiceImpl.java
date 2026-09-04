@@ -27,8 +27,8 @@ public class ConfigMarketLevelServiceImpl implements ConfigMarketLevelService {
     @Autowired
     private RedisService redisService;
 
-    @Override
     @Cacheable(key = "'ConfigMarketLevel:'+ #sportId + '-' +#level",unless = "#result == null || #result.size() == 0")
+    @Override
     public List<ConfigMarketLevel> getItemLevel(Long sportId,Integer level) {
         ConfigMarketLevelExample configMarketLevelExample = new ConfigMarketLevelExample();
         configMarketLevelExample.createCriteria().andSportIdEqualTo(sportId).andTournamentLevelEqualTo(level);

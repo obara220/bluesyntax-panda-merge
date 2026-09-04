@@ -13,9 +13,9 @@
     <result column="name_code" jdbcType="BIGINT" property="nameCode" />
     <result column="season_name_code" jdbcType="BIGINT" property="seasonNameCode" />
     <result column="data_source_code" jdbcType="VARCHAR" property="dataSourceCode" />
+    <result column="current_season_id" jdbcType="VARCHAR" property="currentSeasonId" />
     <result column="father_tournament_id" jdbcType="VARCHAR" property="fatherTournamentId" />
     <result column="simple_flage" jdbcType="INTEGER" property="simpleFlage" />
-    <result column="current_season_id" jdbcType="VARCHAR" property="currentSeasonId" />
     <result column="current_round_type" jdbcType="VARCHAR" property="currentRoundType" />
     <result column="current_round_number" jdbcType="INTEGER" property="currentRoundNumber" />
     <result column="current_round_name" jdbcType="VARCHAR" property="currentRoundName" />
@@ -28,7 +28,6 @@
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.panda.merge.model.ThirdSportTournament">
     <result column="season" jdbcType="LONGVARCHAR" property="season" />
-    <result column="zs_tournament_rule" jdbcType="LONGVARCHAR" property="zsTournamentRule" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -90,12 +89,12 @@
   </sql>
   <sql id="Base_Column_List">
     id, sport_id, region_id, reference_id, third_tournament_source_id, third_season_source_id, 
-    logo_url, logo_url_thumb, name_code, season_name_code, data_source_code, father_tournament_id,
-    simple_flage, current_season_id, current_round_type, current_round_number, current_round_name,
+    logo_url, logo_url_thumb, name_code, season_name_code, data_source_code, current_season_id, 
+    father_tournament_id, simple_flage, current_round_type, current_round_number, current_round_name, 
     remark, name_spell, name, create_time, modify_time, match_type
   </sql>
   <sql id="Blob_Column_List">
-    season, zs_tournament_rule
+    season
   </sql>
   <select id="selectByExampleWithBLOBs" parameterType="com.panda.merge.model.ThirdSportTournamentExample" resultMap="ResultMapWithBLOBs">
     select
@@ -149,21 +148,19 @@
     insert into third_sport_tournament (id, sport_id, region_id, 
       reference_id, third_tournament_source_id, third_season_source_id, 
       logo_url, logo_url_thumb, name_code, 
-      season_name_code, data_source_code, father_tournament_id,
-      simple_flage, current_season_id, current_round_type,
+      season_name_code, data_source_code, current_season_id, 
+      father_tournament_id, simple_flage, current_round_type, 
       current_round_number, current_round_name, remark, 
       name_spell, name, create_time, 
-      modify_time, match_type, season,
-      zs_tournament_rule)
+      modify_time, season,match_type)
     values (#{id,jdbcType=BIGINT}, #{sportId,jdbcType=BIGINT}, #{regionId,jdbcType=BIGINT}, 
       #{referenceId,jdbcType=BIGINT}, #{thirdTournamentSourceId,jdbcType=VARCHAR}, #{thirdSeasonSourceId,jdbcType=VARCHAR}, 
       #{logoUrl,jdbcType=VARCHAR}, #{logoUrlThumb,jdbcType=VARCHAR}, #{nameCode,jdbcType=BIGINT}, 
-      #{seasonNameCode,jdbcType=BIGINT}, #{dataSourceCode,jdbcType=VARCHAR}, #{fatherTournamentId,jdbcType=VARCHAR},
-      #{simpleFlage,jdbcType=INTEGER}, #{currentSeasonId,jdbcType=VARCHAR}, #{currentRoundType,jdbcType=VARCHAR},
+      #{seasonNameCode,jdbcType=BIGINT}, #{dataSourceCode,jdbcType=VARCHAR}, #{currentSeasonId,jdbcType=VARCHAR}, 
+      #{fatherTournamentId,jdbcType=VARCHAR}, #{simpleFlage,jdbcType=INTEGER}, #{currentRoundType,jdbcType=VARCHAR}, 
       #{currentRoundNumber,jdbcType=INTEGER}, #{currentRoundName,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, 
       #{nameSpell,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
-      #{modifyTime,jdbcType=BIGINT}, #{matchType,jdbcType=INTEGER}, #{season,jdbcType=LONGVARCHAR},
-      #{zsTournamentRule,jdbcType=LONGVARCHAR})
+      #{modifyTime,jdbcType=BIGINT}, #{season,jdbcType=LONGVARCHAR}, #{matchType,jdbcType=INTEGER})
   </insert>
   <insert id="insertSelective" parameterType="com.panda.merge.model.ThirdSportTournament">
     insert into third_sport_tournament
@@ -201,14 +198,14 @@
       <if test="dataSourceCode != null">
         data_source_code,
       </if>
+      <if test="currentSeasonId != null">
+        current_season_id,
+      </if>
       <if test="fatherTournamentId != null">
         father_tournament_id,
       </if>
       <if test="simpleFlage != null">
         simple_flage,
-      </if>
-      <if test="currentSeasonId != null">
-        current_season_id,
       </if>
       <if test="currentRoundType != null">
         current_round_type,
@@ -234,14 +231,11 @@
       <if test="modifyTime != null">
         modify_time,
       </if>
-      <if test="matchType != null">
-        match_type,
-      </if>
       <if test="season != null">
         season,
       </if>
-      <if test="zsTournamentRule != null">
-        zs_tournament_rule,
+      <if test="matchType != null">
+        match_type,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -278,14 +272,14 @@
       <if test="dataSourceCode != null">
         #{dataSourceCode,jdbcType=VARCHAR},
       </if>
+      <if test="currentSeasonId != null">
+        #{currentSeasonId,jdbcType=VARCHAR},
+      </if>
       <if test="fatherTournamentId != null">
         #{fatherTournamentId,jdbcType=VARCHAR},
       </if>
       <if test="simpleFlage != null">
         #{simpleFlage,jdbcType=INTEGER},
-      </if>
-      <if test="currentSeasonId != null">
-        #{currentSeasonId,jdbcType=VARCHAR},
       </if>
       <if test="currentRoundType != null">
         #{currentRoundType,jdbcType=VARCHAR},
@@ -311,14 +305,11 @@
       <if test="modifyTime != null">
         #{modifyTime,jdbcType=BIGINT},
       </if>
-      <if test="matchType != null">
-        #{matchType,jdbcType=INTEGER},
-      </if>
       <if test="season != null">
         #{season,jdbcType=LONGVARCHAR},
       </if>
-      <if test="zsTournamentRule != null">
-        #{zsTournamentRule,jdbcType=LONGVARCHAR},
+      <if test="matchType != null">
+        #{matchType,jdbcType=INTEGER},
       </if>
     </trim>
   </insert>
@@ -364,14 +355,14 @@
       <if test="record.dataSourceCode != null">
         data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
       </if>
+      <if test="record.currentSeasonId != null">
+        current_season_id = #{record.currentSeasonId,jdbcType=VARCHAR},
+      </if>
       <if test="record.fatherTournamentId != null">
         father_tournament_id = #{record.fatherTournamentId,jdbcType=VARCHAR},
       </if>
       <if test="record.simpleFlage != null">
         simple_flage = #{record.simpleFlage,jdbcType=INTEGER},
-      </if>
-      <if test="record.currentSeasonId != null">
-        current_season_id = #{record.currentSeasonId,jdbcType=VARCHAR},
       </if>
       <if test="record.currentRoundType != null">
         current_round_type = #{record.currentRoundType,jdbcType=VARCHAR},
@@ -397,14 +388,11 @@
       <if test="record.modifyTime != null">
         modify_time = #{record.modifyTime,jdbcType=BIGINT},
       </if>
-      <if test="record.matchType != null">
-        match_type = #{record.matchType,jdbcType=INTEGER},
-      </if>
       <if test="record.season != null">
         season = #{record.season,jdbcType=LONGVARCHAR},
       </if>
-      <if test="record.zsTournamentRule != null">
-        zs_tournament_rule = #{record.zsTournamentRule,jdbcType=LONGVARCHAR},
+      <if test="record.matchType != null">
+        match_type = #{record.matchType,jdbcType=INTEGER},
       </if>
     </set>
     <if test="_parameter != null">
@@ -424,9 +412,9 @@
       name_code = #{record.nameCode,jdbcType=BIGINT},
       season_name_code = #{record.seasonNameCode,jdbcType=BIGINT},
       data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+      current_season_id = #{record.currentSeasonId,jdbcType=VARCHAR},
       father_tournament_id = #{record.fatherTournamentId,jdbcType=VARCHAR},
       simple_flage = #{record.simpleFlage,jdbcType=INTEGER},
-      current_season_id = #{record.currentSeasonId,jdbcType=VARCHAR},
       current_round_type = #{record.currentRoundType,jdbcType=VARCHAR},
       current_round_number = #{record.currentRoundNumber,jdbcType=INTEGER},
       current_round_name = #{record.currentRoundName,jdbcType=VARCHAR},
@@ -435,9 +423,8 @@
       name = #{record.name,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       modify_time = #{record.modifyTime,jdbcType=BIGINT},
-      match_type = #{record.matchType,jdbcType=INTEGER},
       season = #{record.season,jdbcType=LONGVARCHAR},
-      zs_tournament_rule = #{record.zsTournamentRule,jdbcType=LONGVARCHAR}
+      match_type = #{record.matchType,jdbcType=INTEGER}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -455,9 +442,9 @@
       name_code = #{record.nameCode,jdbcType=BIGINT},
       season_name_code = #{record.seasonNameCode,jdbcType=BIGINT},
       data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR},
+      current_season_id = #{record.currentSeasonId,jdbcType=VARCHAR},
       father_tournament_id = #{record.fatherTournamentId,jdbcType=VARCHAR},
       simple_flage = #{record.simpleFlage,jdbcType=INTEGER},
-      current_season_id = #{record.currentSeasonId,jdbcType=VARCHAR},
       current_round_type = #{record.currentRoundType,jdbcType=VARCHAR},
       current_round_number = #{record.currentRoundNumber,jdbcType=INTEGER},
       current_round_name = #{record.currentRoundName,jdbcType=VARCHAR},
@@ -504,14 +491,14 @@
       <if test="dataSourceCode != null">
         data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
       </if>
+      <if test="currentSeasonId != null">
+        current_season_id = #{currentSeasonId,jdbcType=VARCHAR},
+      </if>
       <if test="fatherTournamentId != null">
         father_tournament_id = #{fatherTournamentId,jdbcType=VARCHAR},
       </if>
       <if test="simpleFlage != null">
         simple_flage = #{simpleFlage,jdbcType=INTEGER},
-      </if>
-      <if test="currentSeasonId != null">
-        current_season_id = #{currentSeasonId,jdbcType=VARCHAR},
       </if>
       <if test="currentRoundType != null">
         current_round_type = #{currentRoundType,jdbcType=VARCHAR},
@@ -537,15 +524,13 @@
       <if test="modifyTime != null">
         modify_time = #{modifyTime,jdbcType=BIGINT},
       </if>
-      <if test="matchType != null">
-        match_type = #{matchType,jdbcType=INTEGER},
-      </if>
       <if test="season != null">
         season = #{season,jdbcType=LONGVARCHAR},
       </if>
-      <if test="zsTournamentRule != null">
-        zs_tournament_rule = #{zsTournamentRule,jdbcType=LONGVARCHAR},
+      <if test="matchType != null">
+        match_type = #{matchType,jdbcType=INTEGER},
       </if>
+
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
@@ -561,9 +546,9 @@
       name_code = #{nameCode,jdbcType=BIGINT},
       season_name_code = #{seasonNameCode,jdbcType=BIGINT},
       data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
+      current_season_id = #{currentSeasonId,jdbcType=VARCHAR},
       father_tournament_id = #{fatherTournamentId,jdbcType=VARCHAR},
       simple_flage = #{simpleFlage,jdbcType=INTEGER},
-      current_season_id = #{currentSeasonId,jdbcType=VARCHAR},
       current_round_type = #{currentRoundType,jdbcType=VARCHAR},
       current_round_number = #{currentRoundNumber,jdbcType=INTEGER},
       current_round_name = #{currentRoundName,jdbcType=VARCHAR},
@@ -572,9 +557,8 @@
       name = #{name,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       modify_time = #{modifyTime,jdbcType=BIGINT},
-      match_type = #{matchType,jdbcType=INTEGER},
       season = #{season,jdbcType=LONGVARCHAR},
-      zs_tournament_rule = #{zsTournamentRule,jdbcType=LONGVARCHAR}
+      match_type = #{matchType,jdbcType=INTEGER}
     where id = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.panda.merge.model.ThirdSportTournament">
@@ -589,9 +573,9 @@
       name_code = #{nameCode,jdbcType=BIGINT},
       season_name_code = #{seasonNameCode,jdbcType=BIGINT},
       data_source_code = #{dataSourceCode,jdbcType=VARCHAR},
+      current_season_id = #{currentSeasonId,jdbcType=VARCHAR},
       father_tournament_id = #{fatherTournamentId,jdbcType=VARCHAR},
       simple_flage = #{simpleFlage,jdbcType=INTEGER},
-      current_season_id = #{currentSeasonId,jdbcType=VARCHAR},
       current_round_type = #{currentRoundType,jdbcType=VARCHAR},
       current_round_number = #{currentRoundNumber,jdbcType=INTEGER},
       current_round_name = #{currentRoundName,jdbcType=VARCHAR},

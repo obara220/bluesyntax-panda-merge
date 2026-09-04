@@ -3,7 +3,6 @@ package com.panda.merge.v2.check.processor;
 import com.panda.merge.dto.settle.MatchListSettleDto;
 import com.panda.merge.filter.basketball.BasketballScoreFilter;
 import com.panda.merge.model.*;
-import com.panda.merge.mq.consumer.FlowControlConsumer;
 import com.panda.merge.v2.repository.MatchSettleInfoRepository;
 import com.panda.merge.service.IMatchSettleService;
 import com.panda.merge.service.IWsPushService;
@@ -20,7 +19,6 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 @Service
 @Slf4j
@@ -43,9 +41,6 @@ public class BasketBallEventProcessor {
     @Autowired
     private MatchSettleCheckInfoRepository matchSettleCheckInfoRepository;
 
-    @Autowired
-    private FlowControlConsumer flowControlConsumer;
-
     public void processorScore(List<MatchEventInfo> list) {
         MatchSettleInfo matchSettleInfo =matchSettleInfoRepository.getModelMatchSettleInfo(list.get(0).getStandardMatchId());
         if(matchSettleInfo==null){
@@ -54,14 +49,8 @@ public class BasketBallEventProcessor {
         if(matchSettleInfo.getSettleType()==null||matchSettleInfo.getSettleType()==1){
             return;
         }
-        Set<Long> limitedMatchIds = flowControlConsumer.getLimitedMatchIds();
-
         //阶段过滤
         for (MatchEventInfo matchEventInfo : list) {
-            if(!matchEventInfo.getDataSourceCode().equals("PD")&&limitedMatchIds.contains(matchEventInfo.getStandardMatchId())) {
-                log.info("StandardMatchScoreConsumer 该赛事id:{}以及数据源进行限流了", matchEventInfo.getStandardMatchId());
-                continue;
-            }
             if(matchEventInfo.getCanceled().equals(1)){
                 if(matchEventInfo.getEventCode().equals("score_change")){
                     //篮球比分删除事件逻辑开始

@@ -140,11 +140,6 @@ public class MatchSettleScoreFootBallServiceImpl implements IMatchSettleScoreFoo
     @Autowired
     private IMatchSettleEventService matchSettleEventService;
 
-    /**
-     * 管理员编辑阶段比分
-     * @param matchSettleScoreDto
-     * @return
-     */
     @Override
     public Response updateMatchSettleScore(UpdateMatchSettleScoreDto matchSettleScoreDto) {
         log.info("[IFootballMatchScoresSettleApiImpl] updateMatchSettleScore-v2 with linkId:{} and param:{} start!",matchSettleScoreDto.getLinkedId(), matchSettleScoreDto);
@@ -257,11 +252,6 @@ public class MatchSettleScoreFootBallServiceImpl implements IMatchSettleScoreFoo
         }
     }
 
-    /**
-     * 管理员确认阶段比分
-     * @param matchSettleScoreDto
-     * @return
-     */
     @Override
     public Response confirmMatchSettleScore(ConfirmMatchSettleScoreDto matchSettleScoreDto) {
         log.info("[IFootballMatchScoresSettleApiImpl] confirmMatchSettleScore-v2 with linkId:{} and param:{} start!",matchSettleScoreDto.getLinkedId(), matchSettleScoreDto);
@@ -307,11 +297,6 @@ public class MatchSettleScoreFootBallServiceImpl implements IMatchSettleScoreFoo
         }
     }
 
-    /**
-     * 管理员结算阶段比分
-     * @param matchSettleScoreDto
-     * @return
-     */
     @Override
     public Response settleMatchScore(SettleMatchScoreDto matchSettleScoreDto) {
         log.info("[IFootballMatchScoresSettleApiImpl] settleMatchScore with linkId:{} and param:{} start!",matchSettleScoreDto.getLinkedId(), matchSettleScoreDto);
@@ -418,11 +403,6 @@ public class MatchSettleScoreFootBallServiceImpl implements IMatchSettleScoreFoo
         }
     }
 
-    /**
-     * 管理员新增次序
-     * @param addMatchSettleEventDto
-     * @return
-     */
     @Override
     public Response addMatchSettleEvent(AddMatchSettleEventDto addMatchSettleEventDto) {
         log.info("addMatchSettleEvent param,addMatchSettleEventDto: {}",addMatchSettleEventDto);
@@ -514,12 +494,6 @@ public class MatchSettleScoreFootBallServiceImpl implements IMatchSettleScoreFoo
         }
     }
 
-    /**
-     * 管理员编辑次序比分
-     * @param editMatchSettleEventDto
-     * @return
-     */
-
     @Override
     public Response editMatchSettleEvent(EditMatchSettleEventDto editMatchSettleEventDto) {
         log.info("editMatchSettleEvent param,editMatchSettleEvent-v2: {}",editMatchSettleEventDto);
@@ -577,15 +551,12 @@ public class MatchSettleScoreFootBallServiceImpl implements IMatchSettleScoreFoo
                         matchSettleEvent.setEventCode(scoreEvent.getEventCode());
                     }
                 }
-                if(StringUtils.isEmpty(editMatchSettleEventDto.getHomeAway())){
-                    return Response.failed("1031939");
-                }
-                if(matchSettleEvent.getEventType() == 3 && StringUtils.isEmpty(editMatchSettleEventDto.getFiveMinSection())){
-                    return Response.failed("1031939");
-                }
+
                 if(editMatchSettleEventDto.getEventCode().equals("goal")){
                     // matchSettleEvent已经在上面获取了，如果为null则重新获取
-
+                    if(StringUtils.isEmpty(editMatchSettleEventDto.getHomeAway())){
+                        return Response.failed("1031939");
+                    }
                     if(!matchSettleCheckInfoHelper.isPeriodScoresBeforeSettledByEvent(matchSettleEvent)){
                         return Response.failed("10138");
                     }
@@ -685,13 +656,9 @@ public class MatchSettleScoreFootBallServiceImpl implements IMatchSettleScoreFoo
                     //2.阶段比分
                 }else if(editMatchSettleEventDto.getEventCode().equals("fa_card")){
                     //1.根据facard条件设置 主客队和 罚牌类型
-//                    if(StringUtils.isEmpty(editMatchSettleEventDto.getHomeAway())){
-//                        return Response.failed("1031939");
-//                    }
-//
-//                    if(matchSettleEvent.getEventType() == 3 && StringUtils.isEmpty(editMatchSettleEventDto.getFiveMinSection())){
-//                        return Response.failed("1031939");
-//                    }
+                    if(StringUtils.isEmpty(editMatchSettleEventDto.getHomeAway())){
+                        return Response.failed("1031939");
+                    }
 
                     //2.自动计算罚牌比分
                     if (matchSettleEvent.getEventType() == 1) {
@@ -797,12 +764,6 @@ public class MatchSettleScoreFootBallServiceImpl implements IMatchSettleScoreFoo
         }
     }
 
-    /**
-     *
-     * 管理员编辑次序跟球员玩法
-     * @param editMatchSettleEventDto
-     * @return
-     */
     @Override
     public Response editMatchSettleEventMethodAndPlayer(EditMatchSettleEventDto editMatchSettleEventDto) {
         log.info("editMatchSettleEventMethodAndPlayer param,editMatchSettleEventDto: {}",editMatchSettleEventDto);
@@ -850,11 +811,6 @@ public class MatchSettleScoreFootBallServiceImpl implements IMatchSettleScoreFoo
         }
     }
 
-    /**
-     * 管理员确认次序比分
-     * @param matchSettleEventDto
-     * @return
-     */
     @Override
     public Response confirmMatchSettleEvent(EditMatchSettleEventDto matchSettleEventDto) {
         log.info("confirmMatchSettleEvent param,matchSettleEventDto: {}",matchSettleEventDto);
@@ -894,11 +850,6 @@ public class MatchSettleScoreFootBallServiceImpl implements IMatchSettleScoreFoo
         }
     }
 
-    /**
-     * 管理员结算次序比分
-     * @param matchSettleScoreDto
-     * @return
-     */
     @Override
     public Response settleMatchSettleEvent(EditMatchSettleEventDto matchSettleScoreDto) {
         log.info("settleMatchSettleEvent param,matchSettleScoreDto: {}",matchSettleScoreDto);
@@ -1009,11 +960,6 @@ public class MatchSettleScoreFootBallServiceImpl implements IMatchSettleScoreFoo
         }
     }
 
-    /**
-     * 查询点球大战比分
-     * @param settleScoreSearchDto
-     * @return
-     */
     @Override
     public Response<PenaltyScoresVo> searchPenaltyScores(MatchSettleScoreSearchDto settleScoreSearchDto) {
         PenaltyScoresVo penaltyScoresVo =new PenaltyScoresVo();
@@ -1115,11 +1061,6 @@ public class MatchSettleScoreFootBallServiceImpl implements IMatchSettleScoreFoo
         return Response.success(penaltyScoresVo);
     }
 
-    /**
-     * 新增点球大赛比分
-     * @param settleScoreSearchDto
-     * @return
-     */
     @Override
     public Response addPenaltyScores(MatchSettleScoreSearchDto settleScoreSearchDto) {
         log.info("addPenaltyScores param,settleScoreSearchDto: {}",settleScoreSearchDto);
@@ -1183,11 +1124,6 @@ public class MatchSettleScoreFootBallServiceImpl implements IMatchSettleScoreFoo
         return Response.success();
     }
 
-    /**
-     * 设置点球大赛比分
-     * @param settleScoreSearchDto
-     * @return
-     */
     @Override
     public Response setPenaltyScores(EditMatchSettleEventDto settleScoreSearchDto) {
         log.info("setPenaltyScores param,settleScoreSearchDto: {}",settleScoreSearchDto);
@@ -1262,11 +1198,6 @@ public class MatchSettleScoreFootBallServiceImpl implements IMatchSettleScoreFoo
         }
     }
 
-    /**
-     * 审核员回滚次序比分
-     * @param matchSettleScoreDto
-     * @return
-     */
     @Override
     public Response reSettleMatchEvent(EditMatchSettleEventDto matchSettleScoreDto) {
         log.info("reSettleMatchEvent param,matchSettleScoreDto: {}",matchSettleScoreDto);
@@ -1315,11 +1246,6 @@ public class MatchSettleScoreFootBallServiceImpl implements IMatchSettleScoreFoo
         }
     }
 
-    /**
-     * 审核员回滚阶段比分
-     * @param matchSettleScoreDto
-     * @return
-     */
     @Override
     public Response reSettleMatchScore(UpdateMatchSettleScoreDto matchSettleScoreDto) {
         log.info("reSettleMatchScore param,matchSettleScoreDto: {}",matchSettleScoreDto);
@@ -1370,11 +1296,6 @@ public class MatchSettleScoreFootBallServiceImpl implements IMatchSettleScoreFoo
         }
     }
 
-    /**
-     * 审核员回滚阶段比分
-     * @param matchSettleScoreDto
-     * @return
-     */
     @Override
     public Response rollBackSettleMatchScores(UpdateMatchSettleScoreDto matchSettleScoreDto) {
         log.info("rollBackSettleMatchScores param,matchSettleScoreDto: {}",matchSettleScoreDto);
@@ -1431,11 +1352,6 @@ public class MatchSettleScoreFootBallServiceImpl implements IMatchSettleScoreFoo
         }
     }
 
-    /**
-     * 审核员回滚次序比分
-     * @param matchSettleScoreDto
-     * @return
-     */
     @Override
     public Response rollBackSettleMatchEvent(EditMatchSettleEventDto matchSettleScoreDto) {
         log.info("rollBackSettleMatchEvent param,matchSettleScoreDto:{}",matchSettleScoreDto);
@@ -1506,11 +1422,6 @@ public class MatchSettleScoreFootBallServiceImpl implements IMatchSettleScoreFoo
         }
     }
 
-    /**
-     * 查询赛事阶段比分
-     * @param matchPeriodQueryDto
-     * @return
-     */
     @Override
     public Response matchPeriodQuery(MatchPeriodQueryDto matchPeriodQueryDto) {
         List<String> num = Arrays.asList("1011", "1012", "1013", "1014", "1015", "1016", "1017", "1018", "1019");
@@ -1627,11 +1538,6 @@ public class MatchSettleScoreFootBallServiceImpl implements IMatchSettleScoreFoo
         return Response.success();
     }
 
-    /**
-     * 校验阶段次序比分
-     * @param dto
-     * @return
-     */
     @Override
     public Response checkScoresOrEvent(MatchCheckSettleScoreEventDto dto) {
         try {
@@ -1653,13 +1559,6 @@ public class MatchSettleScoreFootBallServiceImpl implements IMatchSettleScoreFoo
         }
         return Response.failed("比分异常");
     }
-
-    /**
-     * 郊野次序比分
-     * @param matchSettleEvent
-     * @param dto
-     * @return
-     */
     private Response checkMatchSettleEvent(MatchSettleEvent matchSettleEvent, MatchCheckSettleScoreEventDto dto) {
         MatchSettleCheckResultDto resultDto =new MatchSettleCheckResultDto();
         resultDto.setId(matchSettleEvent.getId());
@@ -1691,12 +1590,6 @@ public class MatchSettleScoreFootBallServiceImpl implements IMatchSettleScoreFoo
         return Response.success(resultDto);
     }
 
-    /**
-     * 校验阶段比分
-     * @param matchSettleScore
-     * @param dto
-     * @return
-     */
     private Response checkMatchSettleScores(MatchSettleScore matchSettleScore, MatchCheckSettleScoreEventDto dto) {
         MatchSettleCheckResultDto resultDto =new MatchSettleCheckResultDto();
         resultDto.setId(matchSettleScore.getId());
@@ -1773,11 +1666,6 @@ public class MatchSettleScoreFootBallServiceImpl implements IMatchSettleScoreFoo
         settleEvent.setT2(t2);
         return true;
     }
-
-    /**
-     * 更新点球大战比分
-     * @param settleScoreSearchDto
-     */
     public void updateGoWaterPenaltyScores(EditMatchSettleEventDto settleScoreSearchDto) {
         //查询
         List<MatchSettleEvent> list =matchSettleEventRepository.getModelByStandardMatchIdAndSettleNums(settleScoreSearchDto.getStandardMatchId(), Arrays.asList("1054"));
@@ -2273,12 +2161,6 @@ public class MatchSettleScoreFootBallServiceImpl implements IMatchSettleScoreFoo
         matchSettleCenterProducer.doSendLogToRiskByType(standardMatchInfo,settleQueryDTO,forwText);
         return Response.success();
     }
-
-    /**
-     * 审核员赛事重推
-     * @param settleQueryDTO
-     * @return
-     */
     private Response matchReSettle(SettleQueryDTO settleQueryDTO){
         log.info("matchReSettle param,settleQueryDTO: {}",settleQueryDTO);
         //1.查询比分
@@ -2416,11 +2298,6 @@ public class MatchSettleScoreFootBallServiceImpl implements IMatchSettleScoreFoo
         return Response.success();
     }
 
-    /**
-     * 编辑阶段比分
-     * @param matchSettleScoreDto
-     * @return
-     */
 
     @Override
     public Response editMatchSettleScorev2(UpdateMatchSettleScoreDto matchSettleScoreDto) {
@@ -2607,11 +2484,6 @@ public class MatchSettleScoreFootBallServiceImpl implements IMatchSettleScoreFoo
         return Response.success();
     }
 
-    /**
-     * 编辑次序比分
-     * @param editMatchSettleEventDto
-     * @return
-     */
     @Override
     public Response editMatchSettleEventV2(EditMatchSettleEventDto editMatchSettleEventDto) {
         log.info("editMatchSettleEvent New param,editMatchSettleEventDto: {}",editMatchSettleEventDto);
@@ -2662,11 +2534,7 @@ public class MatchSettleScoreFootBallServiceImpl implements IMatchSettleScoreFoo
         //4.返回成功
     }
 
-    /**
-     * 编辑发牌次序
-     * @param editMatchSettleEventDto
-     * @return
-     */
+
     private Response editFaCardEvent(EditMatchSettleEventDto editMatchSettleEventDto) {
         log.info("editFaCardEvent New editMatchSettleEventDto: {}",editMatchSettleEventDto);
         //1.根据facard条件设置 主客队和 罚牌类型
@@ -2689,7 +2557,7 @@ public class MatchSettleScoreFootBallServiceImpl implements IMatchSettleScoreFoo
         if(matchSettleEvent==null){
             return Response.failed("1031935");
         }
-        if(matchSettleEvent.getEventType() == 3 && StringUtils.isEmpty(editMatchSettleEventDto.getFiveMinSection())){
+        if(StringUtils.isEmpty(editMatchSettleEventDto.getHomeAway())){
             return Response.failed("1031939");
         }
         // 审核员编辑时，不更新matchSettleEvent，只更新checkinfo
@@ -2751,16 +2619,8 @@ public class MatchSettleScoreFootBallServiceImpl implements IMatchSettleScoreFoo
 
     }
 
-    /**
-     * 编辑角球次序
-     * @param editMatchSettleEventDto
-     * @return
-     */
     private Response editCornerEvent(EditMatchSettleEventDto editMatchSettleEventDto) {
         log.info("editCornerEvent New editMatchSettleEventDto: {}",editMatchSettleEventDto);
-        if(StringUtils.isEmpty(editMatchSettleEventDto.getHomeAway())){
-            return Response.failed("1031939");
-        }
         MatchSettleCheckInfoEntity matchSettleCheckInfo=  matchSettleCheckInfoHelper.searchCheckInfoByUser(editMatchSettleEventDto.getEventId(),editMatchSettleEventDto.getStandardMatchId(),
                 editMatchSettleEventDto.getOperatorName());
         MatchSettleCheckInfoEntity checkInfo =new  MatchSettleCheckInfoEntity();
@@ -2879,11 +2739,6 @@ public class MatchSettleScoreFootBallServiceImpl implements IMatchSettleScoreFoo
         }
     }
 
-    /**
-     * 编辑进球次序
-     * @param editMatchSettleEventDto
-     * @return
-     */
     private Response editGoalEvent(EditMatchSettleEventDto editMatchSettleEventDto) {
         log.info("editGoalEvent New param,editMatchSettleEventDto :{}",editMatchSettleEventDto);
         MatchSettleCheckInfoEntity matchSettleCheckInfo=  matchSettleCheckInfoHelper.searchCheckInfoByUser(editMatchSettleEventDto.getEventId(),editMatchSettleEventDto.getStandardMatchId(),
@@ -2904,9 +2759,6 @@ public class MatchSettleScoreFootBallServiceImpl implements IMatchSettleScoreFoo
             return Response.failed("1031935");
         }
         if(StringUtils.isEmpty(editMatchSettleEventDto.getHomeAway())){
-            return Response.failed("1031939");
-        }
-        if(matchSettleEvent.getEventType() == 3 && StringUtils.isEmpty(editMatchSettleEventDto.getFiveMinSection())){
             return Response.failed("1031939");
         }
         if(!matchSettleCheckInfoHelper.isPeriodScoresBeforeSettledByEvent(matchSettleEvent)){
@@ -2980,10 +2832,6 @@ public class MatchSettleScoreFootBallServiceImpl implements IMatchSettleScoreFoo
      */
     private Response editPeriodEvent(EditMatchSettleEventDto editMatchSettleEventDto, MatchSettleEvent matchSettleEvent) {
         try {
-            if(matchSettleEvent.getEventType() == 3 && StringUtils.isEmpty(editMatchSettleEventDto.getFiveMinSection())){
-                return Response.failed("1031939");
-            }
-
             // 编辑时段(eventType=3)时：将“对应次序(eventType=1)的checkinfo比分”复制到时段事件/时段checkinfo中
             MatchSettleEvent scoreEvent = null;
             try {
@@ -3392,11 +3240,6 @@ public class MatchSettleScoreFootBallServiceImpl implements IMatchSettleScoreFoo
         }
     }
 
-    /**
-     * 确认次序比分
-     * @param matchSettleEventDto
-     * @return
-     */
     @Override
     public Response confirmMatchSettleEventV2(EditMatchSettleEventDto matchSettleEventDto) {
         log.info("confirmMatchSettleEvent New param,matchSettleEventDto: {}",matchSettleEventDto);
@@ -3467,11 +3310,6 @@ public class MatchSettleScoreFootBallServiceImpl implements IMatchSettleScoreFoo
         }
     }
 
-    /**
-     * 编辑点球大战比分
-     * @param settleScoreSearchDto
-     * @return
-     */
     @Override
     public Response setPenaltyScoresV2(EditMatchSettleEventDto settleScoreSearchDto) {
         log.info("setPenaltyScores New param,settleScoreSearchDto: {}",settleScoreSearchDto);
@@ -3565,11 +3403,6 @@ public class MatchSettleScoreFootBallServiceImpl implements IMatchSettleScoreFoo
         }
     }
 
-    /**
-     * 确认点球大战比分
-     * @param matchSettleEventDto
-     * @return
-     */
     @Override
     public Response confirmPenaltyScoresV2(EditMatchSettleEventDto matchSettleEventDto) {
         log.info("confirmPenaltyScores New param,matchSettleEventDto: {}",matchSettleEventDto);
@@ -3614,12 +3447,6 @@ public class MatchSettleScoreFootBallServiceImpl implements IMatchSettleScoreFoo
         }
     }
 
-    /**
-     * 检查赛事锁定
-     * @param standardMatchId
-     * @param userName
-     * @return
-     */
     @Override
     public boolean isLockedByMatchSettleV2(Long standardMatchId, String userName) {
         MatchSettleInfoEntity matchSettleInfo =matchSettleInfoRepository.getMatchSettleInfo(standardMatchId);
@@ -3693,11 +3520,6 @@ public class MatchSettleScoreFootBallServiceImpl implements IMatchSettleScoreFoo
         }
     }
 
-    /**
-     * 结算球员玩法
-     * @param matchSettleScoreDto
-     * @return
-     */
     @Override
     public Response settleMatchSettlePlayerAndMethodV2(EditMatchSettleEventDto matchSettleScoreDto) {
         log.info("settleMatchSettlePlayerAndMethod New param,matchSettleScoreDto: {}",matchSettleScoreDto);
@@ -3774,11 +3596,6 @@ public class MatchSettleScoreFootBallServiceImpl implements IMatchSettleScoreFoo
         }
     }
 
-    /**
-     * 结算点球大战获胜队伍
-     * @param matchSettleScoreDto
-     * @return
-     */
     @Override
     public Response setPenaltyTeamFirstV2(EditMatchSettleEventDto matchSettleScoreDto) {
         log.info("setPenaltyTeamFirst New param,matchSettleScoreDto: {}",matchSettleScoreDto);
@@ -3974,11 +3791,6 @@ public class MatchSettleScoreFootBallServiceImpl implements IMatchSettleScoreFoo
         }
     }
 
-    /**
-     * 取消删除事件按钮
-     * @param matchSettleSwitcherDto
-     * @return
-     */
     @Override
     public Response cancelDeleteStatusV2(MatchSettleSwitcherDto matchSettleSwitcherDto) {
         log.info("cancelDeleteStatus New param,matchSettleSwitcherDto: {}",matchSettleSwitcherDto);
@@ -4133,23 +3945,16 @@ public class MatchSettleScoreFootBallServiceImpl implements IMatchSettleScoreFoo
         return Response.success(playerDeleteStatus) ;
     }
 
-    /**
-     * 获取赛事标记
-     * @param mentionQueryRequest
-     * @return
-     */
     @Override
     public Response<AbstractMentionQueryDto> getSettleEventMentionStatusV2(MentionQueryRequest mentionQueryRequest) {
         try {
             if(mentionQueryRequest.getMentionType() == 0) {
                 Map<String, AbstractMentionStatus> mentionStatusMap = matchServiceHelper.getAllMentionStatus(mentionQueryRequest);
-                log.info("getSettleEventMentionStatusV2 matchIds:{} mentionStatusMap:{}", mentionQueryRequest.getMatchId(), mentionStatusMap);
                 if (mentionQueryRequest.getSportId() == 1L) {
                     MentionQueryDto mentionQueryDto = new MentionQueryDto();
                     if (!MapUtils.isEmpty(mentionStatusMap)) {
                         for (String v : mentionStatusMap.keySet()) {
                             MentionQueryDto.FootballMentionStatus subMentionStatus = settleMentionConverter.convertFootballMentionStatus((FootballMentionStatus)mentionStatusMap.get(v));
-                            log.info("getSettleEventMentionStatusV2 matchIds:{} subMentionStatus:{}", mentionQueryRequest.getMatchId(), subMentionStatus);
                             switch (v){
                                 case "deleteStatus":
                                     mentionQueryDto.setDeleteStatus(subMentionStatus);
@@ -4237,834 +4042,6 @@ public class MatchSettleScoreFootBallServiceImpl implements IMatchSettleScoreFoo
         } catch (Exception e) {
             log.error("[FootballNewMatchScoresSettleApiImpl] cancelSettleEventMention error: ", e);
             return Response.failed(e.getMessage());
-        }
-    }
-
-    @Override
-    public Response updateMatchSettleScoreV3(UpdateMatchSettleScoreDto matchSettleScoreDto) {
-        log.info("[IFootballMatchScoresSettleApiImpl] updateMatchSettleScore-v2 with linkId:{} and param:{} start!",matchSettleScoreDto.getLinkedId(), matchSettleScoreDto);
-        String key = CommonConstant.MATCH_PHASE_SCORE_SETTLE+ matchSettleScoreDto.getStandardMatchId();
-        if(matchServiceHelper.checkIfOverSettleTime(matchSettleScoreDto.getStandardMatchId())){
-            return Response.failed("1031930");
-        }
-        try {
-
-            if(redisService.tryLock(key,key,2,5)) {
-                //0.加redis锁
-                StandardMatchInfo standardMatchInfo = standardMatchInfoService.getItem(matchSettleScoreDto.getStandardMatchId());
-                if (standardMatchInfo == null) {
-                    return Response.failed("1031931");
-                }
-                MatchSettleScore matchSettleScore = null;
-                MatchSettleScore matchSettleBefore = new MatchSettleScore();
-                String forwScore ="" ;
-                if (matchSettleScoreDto.getMatchScoreId() != null && matchSettleScoreDto.getMatchScoreId() != 0) {
-                    matchSettleScore = matchSettleScoreRepository.getById(matchSettleScoreDto.getMatchScoreId());
-                    BeanUtils.copyProperties(matchSettleScore,matchSettleBefore);
-                    if (matchSettleScore == null) {
-                        return Response.failed("1031931");
-                    }
-                    if(!matchSettleCheckInfoHelper.isAllPeriodScoresBeforeSettled(matchSettleScore) &&
-                            !matchSettleScoreDto.getSettleNum().equals(MatchPeriodEnum.GOAL_5.getCode().toString()) &&
-                            !matchSettleScoreDto.getSettleNum().equals(MatchPeriodEnum.GOAL_9.getCode().toString())) {
-                        // 请确保上一个比分已结算。
-                        return Response.failed("1031946");
-                    }
-                    if(matchSettleScore.getEventCode().equals("kick_off")||matchSettleScore.getSettleNum().equals("1020")){
-                        if(matchSettleScoreDto.getT1()!=null&&matchSettleScoreDto.getT2()!=null){
-                            if(!((matchSettleScoreDto.getT1()==0&&matchSettleScoreDto.getT2()==1)||(matchSettleScoreDto.getT1()==1&&matchSettleScoreDto.getT2()==0))){
-                                if(matchSettleScoreDto.getGoWaterStatus()==null||matchSettleScoreDto.getGoWaterStatus()==0){
-                                    return Response.failed("1031939");
-                                }
-                            }
-                        }else {
-                            if(matchSettleScoreDto.getGoWaterStatus()==null||matchSettleScoreDto.getGoWaterStatus()==0){
-                                return Response.failed("1031939");
-                            }
-                        }
-                    }
-                    //修改前比分
-                    forwScore= matchSettleScore.getT1()+"-"+ matchSettleScore.getT2();
-                    String t1 =matchSettleScore.getT1()==null ?"":matchSettleScore.getT1().toString();
-                    String t2 =matchSettleScore.getT2()==null ?"":matchSettleScore.getT2().toString();
-                    forwScore= t1+"-"+t2;
-
-                    List<Integer> integers = Arrays.asList(1021,1031,1032,1033);
-                    List<String> corner = Arrays.asList("206","207","208");
-                    if (integers.contains(matchSettleScoreDto.getSettleNum())) {
-                        String extryInfo = matchSettleScore.getExtryInfo();
-                        Integer integer = null;
-                        if (!StringUtils.isBlank(extryInfo) ) {
-                            integer = Integer.valueOf(extryInfo);
-                            forwScore = processedScore(forwScore, matchSettleScoreDto.getSettleNum(), integer);
-                        }else if(matchSettleScore.getGoWaterStatus()!=null && "1".equals(matchSettleScore.getGoWaterStatus().toString())){
-                            forwScore = WinningMethodEnum.Method_8.getCode().toString();
-                        }
-                    }
-                    if (corner.contains(matchSettleScore.getSettleNum())) {
-                        Integer goWaterStatus = matchSettleScore.getGoWaterStatus();
-                        //角球走水 10031
-                        if (goWaterStatus!=null && goWaterStatus.equals(1))  forwScore = OperateLogTypeEnum.SCORES_SETTLE_10031.getCode().toString();
-                    }
-                }else {
-                    return Response.failed("1031931");
-                }
-                matchSettleScore.setT1(matchSettleScoreDto.getT1());
-                matchSettleScore.setT2(matchSettleScoreDto.getT2());
-                matchSettleScore.setStatus(NOT_CONFIRM);
-                matchSettleScore.setOperater(matchSettleScoreDto.getOperatorName());
-                if(matchSettleScoreDto.getGoWaterStatus()!=null&&matchSettleScoreDto.getGoWaterStatus()==1){
-                    matchSettleScore.setGoWaterStatus(1);
-                }else {
-                    matchSettleScore.setGoWaterStatus(0);
-                }
-                matchSettleScore.setExtryInfo(matchSettleScoreDto.getExtryInfo());
-                matchSettleScore.setModifyTime(System.currentTimeMillis());
-                //比分判断是否相同
-//                if(MatchEventInfoSettleUtils.equileMatchSettleScores(matchSettleBefore,matchSettleScore)){
-//                    return Response.failed("1031940");
-//                }
-                //1 判断顺序 结算开关是否开启，如果没开启则返回 简单校验逻辑();
-                if (!matchSettleInfoHelper.checkSettleScoreAndAutoSettleNonEvent(matchSettleScore,null)){
-                    return Response.failed("1031946");
-                }
-                matchSettleScoreRepository.updateById(matchSettleScore);
-
-                //2.判断更新上半场(5)和全场比分(10) 更新结算信息
-                if (matchSettleScore.getSettleNum().equals("105") || matchSettleScore.getSettleNum().equals("1010")) {
-                    recordScore(matchSettleScoreDto);
-                }
-                wsPushService.pushStandardSettleScores(matchSettleScoreDto.getStandardMatchId(),
-                        matchSettleScoreDto.getEventCode());
-
-                //3.操作日志记录
-                matchSettleOperateLogService.updateMatchSettleScoreAddLog(matchSettleScoreDto,forwScore,matchSettleScore,standardMatchInfo,OperateLogTypeEnum.EDIT.getCode().toString());
-                log.info("[IFootballMatchScoresSettleApiImpl] updateMatchSettleScore with linkId:{} end!",matchSettleScoreDto.getLinkedId());
-                return Response.success();
-            }else {
-                return Response.failed("1031933");
-            }
-        }catch (Exception e){
-            log.error("[IFootballMatchScoresSettleApiImpl] updateMatchSettleScore with linkId:{} error:",matchSettleScoreDto.getLinkedId(), e);
-            return Response.failed();
-        }finally {
-            redisService.unLock(key,key);
-        }
-    }
-
-    @Override
-    public Response confirmMatchSettleScoreV3(ConfirmMatchSettleScoreDto matchSettleScoreDto) {
-        log.info("[IFootballMatchScoresSettleApiImpl] confirmMatchSettleScore-v2 with linkId:{} and param:{} start!",matchSettleScoreDto.getLinkedId(), matchSettleScoreDto);
-        //0.加redis锁
-        String key =CommonConstant.MATCH_PHASE_SCORE_SETTLE+ matchSettleScoreDto.getStandardMatchId();
-        if(matchServiceHelper.checkIfOverSettleTime(matchSettleScoreDto.getStandardMatchId())){
-            return Response.failed("1031930");
-        }
-        try {
-            if(redisService.tryLock(key,key,2,5)) {
-                MatchSettleScore matchSettleScore =null;
-                matchSettleScore=matchSettleScoreRepository.getById(matchSettleScoreDto.getMatchScoreId());
-                if (((matchSettleScore.getT1() == null || matchSettleScore.getT2() == null) && matchSettleScore.getExtryInfo() == null) && !"kick_off".equals(matchSettleScore.getEventCode())) {
-                    return Response.failed("该阶段比分为null，请重新编辑比分");
-                }
-                if(matchSettleScore==null){
-                    return Response.failed("1031931");
-                }
-                if(matchSettleScore.getStatus()>=CONFIRM){
-                    return Response.failed("1031934");
-                }
-                matchSettleScore.setStatus(CONFIRM);
-                matchSettleScore.setModifyTime(System.currentTimeMillis());
-                matchSettleScoreRepository.updateById(matchSettleScore);
-                //2.记录日志
-                //走水 将编码设置为8
-                if (matchSettleScore.getGoWaterStatus()!=null&&matchSettleScore.getGoWaterStatus().equals(1))  matchSettleScore.setExtryInfo("8");
-                matchSettleOperateLogService.matchSettleScoreAddLog(matchSettleScore,matchSettleScoreDto.getOperatorName(),
-                        OperateLogTypeEnum.CONFIRM_SCORE,"",matchSettleScoreDto.getIpAddress());
-                //推送比分WS
-                wsPushService.pushStandardSettleScores(matchSettleScoreDto.getStandardMatchId(),
-                        matchSettleScoreDto.getEventCode());
-                log.info("[IFootballMatchScoresSettleApiImpl] confirmMatchSettleScore with linkId:{} end!",matchSettleScoreDto.getLinkedId());
-                return Response.success();
-            }else {
-                return Response.failed("1031933");
-            }
-        }catch (Exception e){
-            log.error("[IFootballMatchScoresSettleApiImpl] confirmMatchSettleScore with linkId:{} error:",matchSettleScoreDto.getLinkedId(), e);
-            return Response.failed();
-        }finally {
-            redisService.unLock(key,key);
-        }
-    }
-
-    @Override
-    public Response settleMatchScoreV3(SettleMatchScoreDto matchSettleScoreDto) {
-        log.info("[IFootballMatchScoresSettleApiImpl] settleMatchScore with linkId:{} and param:{} start!",matchSettleScoreDto.getLinkedId(), matchSettleScoreDto);
-        String key =CommonConstant.MATCH_PHASE_SCORE_SETTLE+ matchSettleScoreDto.getStandardMatchId();
-        if(matchServiceHelper.checkIfOverSettleTime(matchSettleScoreDto.getStandardMatchId())){
-            return Response.failed("1031930");
-        }
-        log.info("读取SETTLE_ROLLBACK_MATCH_ID_"+matchSettleScoreDto.getMatchScoreId()+redisService.get("SETTLE_ROLLBACK_MATCH_ID_"+matchSettleScoreDto.getMatchScoreId()));
-        if(redisService.hasKey("SETTLE_ROLLBACK_MATCH_ID_"+matchSettleScoreDto.getMatchScoreId())){
-            return Response.failed("1031960");
-        }
-        try {
-            if(redisService.tryLock(key,key,2,5)) {
-                MatchSettleScore matchSettleScore =null;
-                matchSettleScore=matchSettleScoreRepository.getById(matchSettleScoreDto.getMatchScoreId());
-                if(matchSettleScore==null){
-                    return Response.failed("1031931");
-                }
-                if(matchSettleScore.getStatus()!=CONFIRM){
-                    return Response.failed("1031932");
-                }
-                Integer settleTimes =matchSettleScore.getSettleTimes();
-                if(settleTimes==null){
-                    settleTimes=0;
-                }
-                if (matchSettleScore.getSettleCount()== null ) {
-                    matchSettleScore.setSettleCount(0);
-                }
-                settleTimes++;
-
-                //二次结算,必须给出结算原因
-                if (matchSettleScore.getSettleCount() >  0 &&
-                        (matchSettleScoreDto.getSettleReason()==null  ||
-                                matchSettleScoreDto.getSettleReason()== 0) ) {
-                    return Response.failed("1031953");
-                }
-
-                String  before= "-";
-                Integer settleReason = matchSettleScore.getSettleReason();
-                if (settleReason != null &&  settleReason != 0 ) {
-                    before = settleReason.toString();
-                    if (settleReason == 118) {
-                        before += ": "+matchSettleScore.getSettleReasonDetail();
-                    }
-                }
-                //这是理论时间不对 应该先查数据商，如果没数据商再赋值当前
-                if(matchSettleScore.getEventTime()==null||matchSettleScore.getEventTime().equals(0l)){
-                    Long eventTime =matchSettleCheckInfoHelper.searchEventTimeByScores(matchSettleScore);
-                    if(eventTime==0l){
-                        eventTime=matchSettleScore.getModifyTime();
-                    }
-                    matchSettleScore.setEventTime(eventTime);
-                }
-                matchSettleScore.setStatus(SETTLED);
-                matchSettleScore.setOperater(matchSettleScoreDto.getOperatorName());
-                matchSettleScore.setSettleTimes(settleTimes);
-                matchSettleScore.setSettleCount(matchSettleScore.getSettleCount()+1);
-                matchSettleScore.setOperateType(MatchSettleScoreConstant.MatchSettleOperateType.SETTLE);
-                matchSettleScore.setUserid(matchSettleScoreDto.getOperatorId());
-                matchSettleScore.setModifyTime(System.currentTimeMillis());
-                matchSettleScore.setSettleReason(matchSettleScoreDto.getSettleReason());
-                matchSettleScore.setSettleReasonDetail(matchSettleScoreDto.getSettleReasonDetail());
-
-                matchSettleScore.setIsGrey(0);
-                matchSettleScore.setHasDeleteEvent(0);
-                matchSettleScore.setCurrentEventStatus(0);
-                matchSettleCheckInfoHelper.endEventSettleByScore(matchSettleScore);
-                matchSettleScoreRepository.updateById(matchSettleScore);
-                matchSettleInfoHelper.updateMatchGrayStatus(matchSettleScore.getStandardMatchId());
-                matchSettleInfoHelper.updateMatchCurrentEventStatus(matchSettleScore.getStandardMatchId());
-                matchSettleCheckInfoHelper.updateMatchFifteenMinGraySettleFactor(matchSettleScore.getStandardMatchId(),matchSettleScore.getSettleNum());
-                //结算时把回滚订单数清零
-                matchServiceHelper.settleRollBackSetNullOrderCount(matchSettleScore.getId());
-                //2.MQ下发
-
-                if (matchSettleScore.getPeriodId()==100 && (matchSettleScore.getSettleNum().equals(MatchPeriodEnum.GOAL_10.getCode().toString()) ||
-                        matchSettleScore.getSettleNum().equals(MatchPeriodEnum.Corner_3.getCode().toString()) ||
-                        matchSettleScore.getSettleNum().equals(MatchPeriodEnum.BOOKINGS_9.getCode().toString()))) {
-                    matchSettleScoresProducer.sendMatchSettleScores(matchSettleScore, 2);
-                } else {
-                    matchSettleScoresProducer.sendMatchSettleScores(matchSettleScore);
-                }
-
-                wsPushService.pushStandardSettleScores(matchSettleScoreDto.getStandardMatchId(),
-                        matchSettleScoreDto.getEventCode());
-                if (matchSettleScoreDto.getSettleReason() != null) {
-                    matchSettleEventService.secondSettleWarnMango(matchSettleScoreDto, 1);
-                }
-                //1.比分结算增加操作日志
-                if (matchSettleScore.getGoWaterStatus()!=null&&matchSettleScore.getGoWaterStatus().equals(1))  matchSettleScore.setExtryInfo("8");
-                matchSettleOperateLogService.matchSettleScoreAddLog(matchSettleScore,matchSettleScoreDto.getOperatorName(),OperateLogTypeEnum.SCORE_SETTLE,before,matchSettleScoreDto.getIpAddress());
-                syncScoreFactory.getProcessor(SettleSyncEnum.FOOTBALL_SYNC_SCORE).syncScore(matchSettleScoreDto);
-                log.info("[IFootballMatchScoresSettleApiImpl] settleMatchScore with linkId:{} end!",matchSettleScoreDto.getLinkedId());
-                return Response.success();
-            }else {
-                log.info("[IFootballMatchScoresSettleApiImpl] settleMatchScore with linkId:{} obtain redis fail!",matchSettleScoreDto.getLinkedId());
-                return Response.failed("1031933");
-            }
-        }catch (Exception e){
-            log.error("[IFootballMatchScoresSettleApiImpl] settleMatchScore with linkId:{} error:",matchSettleScoreDto.getLinkedId(), e);
-            return Response.failed();
-        }finally {
-            redisService.unLock(key,key);
-        }
-    }
-
-    @Override
-    public Response addMatchSettleEventV3(AddMatchSettleEventDto addMatchSettleEventDto) {
-        log.info("addMatchSettleEvent param,addMatchSettleEventDto: {}",addMatchSettleEventDto);
-        if(matchServiceHelper.checkIfOverSettleTime(addMatchSettleEventDto.getStandardMatchId())){
-            return Response.failed("1031930");
-        }
-        String key ="MATCH_SETTLE_INFO:"+ addMatchSettleEventDto.getStandardMatchId();
-        try {
-            if(redisService.tryLock(key,key,2,5)) {
-                StandardMatchInfo standardMatchInfo = standardMatchInfoService.getItem(addMatchSettleEventDto.getStandardMatchId());
-                //1.校验
-                if (standardMatchInfo == null) {
-                    return Response.failed("1031931");
-                }
-                List<String> settleNumbers = new ArrayList<>();
-                settleNumbers.add(addMatchSettleEventDto.getSettleNum());
-                List<MatchSettleEvent> list = matchSettleEventRepository.getModelByStandardMatchIdAndSettleNums(addMatchSettleEventDto.getStandardMatchId(),settleNumbers);
-                //2.判断事件序号
-                Integer eventOrder = checkEventOrder(list);
-                if (eventOrder == 0) {
-                    return Response.failed("1031931");
-                }
-                eventOrder++;
-                //3.新增
-                MatchSettleEvent matchSettleEvent = new MatchSettleEvent();
-                //0：未编码（初始化对应事件编码的数据）
-                matchSettleEvent.setStatus(0);
-                matchSettleEvent.setStandardMatchId(addMatchSettleEventDto.getStandardMatchId());
-                matchSettleEvent.setEventCode(addMatchSettleEventDto.getEventCode());
-//        matchSettleEvent.setSettleNum(eventOrder.toString());
-                matchSettleEvent.setSettleNum(SettleNumUtils.getEventSettleNum(addMatchSettleEventDto.getEventCode(), addMatchSettleEventDto.getPeriodId()));
-                matchSettleEvent.setModifyTime(System.currentTimeMillis());
-                matchSettleEvent.setCreateTime(System.currentTimeMillis());
-                matchSettleEvent.setEventOrder(eventOrder);
-                matchSettleEvent.setSportId(1l);
-                matchSettleEvent.setId(IdGenerator.nextId());
-                matchSettleEvent.setThirdEventSourceId(matchSettleEvent.getId());
-                matchSettleEvent.setDataSourceCode("PA");
-                matchSettleEvent.setPeriodId(addMatchSettleEventDto.getPeriodId());
-                matchSettleEvent.setCheckNumber(1);
-                matchSettleEvent.setEventType(1);
-                matchSettleEvent.setSettleCount(0);
-                matchSettleEvent.setSettleTimes(0);
-                // eventType=1不应该设置时段信息，时段信息应该设置在对应的eventType=3事件中
-                matchSettleEvent.setFiveMinSection(null);
-                //2.2 获得上个事件比分 自动计算比分
-                List<MatchSettleEvent> matchSettleEventList = new ArrayList<>();
-                matchSettleEventList.add(matchSettleEvent);
-                if (!(matchSettleEvent.getEventCode().equals("corner") || matchSettleEvent.getPeriodId().equals(50l))) {
-                    MatchSettleEvent matchSettleEvent2 = new MatchSettleEvent();
-                    BeanUtils.copyProperties(matchSettleEvent, matchSettleEvent2);
-                    matchSettleEvent2.setEventType(2);
-                    matchSettleEvent2.setId(IdGenerator.nextId());
-                    matchSettleEvent2.setSportId(1l);
-                    matchSettleEvent2.setDataSourceCode("PA");
-                    matchSettleEvent2.setCheckNumber(1);
-                    matchSettleEvent2.setSettleNum(SettleNumUtils.getTypeEventSettleNum(matchSettleEvent2.getEventCode(), matchSettleEvent2.getPeriodId(), 2));
-                    matchSettleEventList.add(matchSettleEvent2);
-                }
-                // 创建eventType=3（时段事件）- 只在periodId=6L或7L时创建（加时赛41L, 42L没有eventType=3）
-                Long periodId = matchSettleEvent.getPeriodId();
-                if (periodId != null && (periodId.equals(6L) || periodId.equals(7L))) {
-                    MatchSettleEvent timePhaseEvent = new MatchSettleEvent();
-                    BeanUtils.copyProperties(matchSettleEvent, timePhaseEvent);
-                    timePhaseEvent.setId(IdGenerator.nextId());
-                    timePhaseEvent.setEventType(3);
-                    timePhaseEvent.setSettleNum(SettleNumUtils.getTypeEventSettleNum(timePhaseEvent.getEventCode(), timePhaseEvent.getPeriodId(), 3));
-                    // eventType=3才设置时段信息
-                    timePhaseEvent.setFiveMinSection(addMatchSettleEventDto.getFiveMinSection());
-                    matchSettleEventList.add(timePhaseEvent);
-                }
-                matchSettleEventRepository.saveOrUpdateBatch(matchSettleEventList);
-                //4.查询事件列表返回
-                if("goal".equals(addMatchSettleEventDto.getEventCode()) && StringUtils.isNotBlank(addMatchSettleEventDto.getOperatorName())){
-                    wsPushService.pushSettleMatchList(new MatchListSettleDto(addMatchSettleEventDto.getStandardMatchId(),
-                            addMatchSettleEventDto.getEventCode(),null,null,5));
-                }else {
-                    wsPushService.pushStandardSettleEvent(addMatchSettleEventDto.getStandardMatchId(),
-                            addMatchSettleEventDto.getEventCode());
-                }
-                redisService.unLock(key,key);
-                return Response.success();
-            }else {
-                return Response.failed();
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-            return Response.failed();
-        }
-    }
-
-
-    @Override
-    public Response editMatchSettleEventV3(EditMatchSettleEventDto editMatchSettleEventDto) {
-        log.info("editMatchSettleEvent param,editMatchSettleEvent-v2: {}",editMatchSettleEventDto);
-        String key =CommonConstant.MATCH_SEQUENCE_SCORE_SETTLE + editMatchSettleEventDto.getStandardMatchId();
-        MatchSettleEvent extryevent = null ;
-        MatchSettleEvent matchSettleEvent = null;
-        MatchSettleEvent matchSettleEventBefore = new MatchSettleEvent();
-        try {
-            if(redisService.tryLock(key,key,2,5)) {
-                // 先获取事件，检查eventType（注意：corner事件可能不存在matchSettleEvent，而是MatchSettleScore）
-                matchSettleEvent = matchSettleEventRepository.getById(editMatchSettleEventDto.getEventId());
-                if(matchSettleEvent==null){
-                    return Response.failed("1031935");
-                }
-                BeanUtils.copyProperties(matchSettleEvent,matchSettleEventBefore);
-                // 如果编辑的是eventType=3（时段事件），必须先确保对应的eventType=1（比分事件）已结算（status=3）
-                if (matchSettleEvent != null && matchSettleEvent.getEventType() != null && matchSettleEvent.getEventType() == 3) {
-                    // 查找对应的eventType=1事件
-                    String scoreSettleNum = SettleNumUtils.getTypeEventSettleNum(
-                            matchSettleEvent.getEventCode(),
-                            matchSettleEvent.getPeriodId(),
-                            1);
-                    List<MatchSettleEvent> scoreEvents = matchSettleEventRepository.getByMatchIdAndSettleNumAndEventOrderAndPeriodId(
-                            matchSettleEvent.getStandardMatchId(),
-                            scoreSettleNum,
-                            matchSettleEvent.getEventOrder(),
-                            matchSettleEvent.getPeriodId());
-                    MatchSettleEvent scoreEvent = scoreEvents.stream()
-                            .filter(e -> e.getEventType() != null && e.getEventType() == 1)
-                            .findFirst()
-                            .orElse(null);
-
-                    // 检查eventType=1事件是否存在
-                    if (scoreEvent == null) {
-                        log.warn("editMatchSettleEvent::尝试编辑时段事件，但对应的比分事件不存在, eventId:{}, eventCode:{}",
-                                matchSettleEvent.getId(), matchSettleEvent.getEventCode());
-                        return Response.failed("1031941"); // 返回错误码：必须先编辑比分
-                    }
-
-                    // 检查eventType=1事件是否已结算（status=3）
-                    if (scoreEvent.getStatus() == null || scoreEvent.getStatus() != 3) {
-                        log.warn("editMatchSettleEvent::尝试编辑时段事件，但对应的比分事件未结算, eventId:{}, scoreEventId:{}, scoreEventStatus:{}, eventCode:{}",
-                                matchSettleEvent.getId(), scoreEvent.getId(), scoreEvent.getStatus(), matchSettleEvent.getEventCode());
-                        return Response.failed("1031941"); // 返回错误码：必须先结算比分事件
-                    }
-                    editMatchSettleEventDto.setT1(scoreEvent.getT1());
-                    editMatchSettleEventDto.setT2(scoreEvent.getT2());
-                    matchSettleEvent.setT1(scoreEvent.getT1());
-                    matchSettleEvent.setT2(scoreEvent.getT2());
-                    matchSettleEvent.setExtryInfo(scoreEvent.getExtryInfo());
-                    matchSettleEvent.setGoWaterStatus(scoreEvent.getGoWaterStatus());
-                    editMatchSettleEventDto.setHomeAway(scoreEvent.getHomeAway());
-                    matchSettleEvent.setHomeAway(scoreEvent.getHomeAway());
-                    if(editMatchSettleEventDto.getEventCode().equals("fa_card")) {
-                        matchSettleEvent.setEventCode(scoreEvent.getEventCode());
-                    }
-                }
-                if(StringUtils.isEmpty(editMatchSettleEventDto.getHomeAway())){
-                    return Response.failed("1031939");
-                }
-                if(matchSettleEvent.getEventType() == 3 && StringUtils.isEmpty(editMatchSettleEventDto.getFiveMinSection())){
-                    return Response.failed("1031939");
-                }
-                if(editMatchSettleEventDto.getEventCode().equals("goal")){
-                    // matchSettleEvent已经在上面获取了，如果为null则重新获取
-
-                    if(!matchSettleCheckInfoHelper.isPeriodScoresBeforeSettledByEvent(matchSettleEvent)){
-                        return Response.failed("10138");
-                    }
-
-                    //1.自动计算进球比分
-                    updateGoalAndCornerEventByInfo(matchSettleEvent,editMatchSettleEventDto.getHomeAway(),"goal");
-                    //比分校验是否相同
-                    if(editMatchSettleEventDto.getGoWaterStatus()!=null&&editMatchSettleEventDto.getGoWaterStatus()==1){
-                        matchSettleEvent.setGoWaterStatus(1);
-                    }else {
-                        matchSettleEvent.setGoWaterStatus(0);
-                    }
-                    matchSettleEvent.setExtryInfo(editMatchSettleEventDto.getExtryInfo());
-                    matchSettleEvent.setModifyTime(System.currentTimeMillis());
-                    matchSettleEvent.setHomeAway(editMatchSettleEventDto.getHomeAway());
-                    matchSettleEvent.setStatus(1);
-                    matchSettleEvent.setOperater(editMatchSettleEventDto.getOperatorName());
-                    // eventType=1不应该设置时段信息，时段信息应该设置在对应的eventType=3事件中
-                    if (matchSettleEvent.getEventType() != null && matchSettleEvent.getEventType() == 3) {
-                        matchSettleEvent.setFiveMinSection(editMatchSettleEventDto.getFiveMinSection());
-                    }
-//                    if(MatchEventInfoSettleUtils.equileMatchSettleEvent(matchSettleEventBefore,matchSettleEvent)){
-//                        return Response.failed("1031940");
-//                    }
-//                    if(matchSettleEvent.getSettleCount() == 1 && matchSettleEvent.getT1().equals(matchSettleEventBefore.getT1()) && matchSettleEvent.getT2().equals(matchSettleEventBefore.getT2())
-//                            && matchSettleEventBefore.getFiveMinSection() == null && matchSettleEvent.getFiveMinSection() != null) {
-//                        redisService.set(CommonConstant.FIVE_MIN_SETTLE_TIMES+matchSettleEvent.getId(), 1, RedisConfig.REDIS_WEEK_TIME);
-//                    }
-
-                    matchSettleEventRepository.updateById(matchSettleEvent);
-                    //编辑影子事件比分和homeAway
-                    extryevent =matchServiceHelper.getExtryEvent(matchSettleEvent);
-                    if(extryevent!=null){
-                        MatchSettleEventDto matchSettleEventDto =new MatchSettleEventDto();
-                        BeanUtils.copyProperties(matchSettleEvent,matchSettleEventDto);
-                        extryevent.setExtryInfo(editMatchSettleEventDto.getExtryInfo());
-                        extryevent.setT1(matchSettleEvent.getT1());
-                        extryevent.setT2(matchSettleEvent.getT2());
-                        extryevent.setModifyTime(System.currentTimeMillis());
-                        extryevent.setHomeAway(editMatchSettleEventDto.getHomeAway());
-//                        extryevent.setStatus(1);
-                        extryevent.setOperater(editMatchSettleEventDto.getOperatorName());
-                        matchSettleEventRepository.updateById(extryevent);
-                    }
-
-                }else if(editMatchSettleEventDto.getEventCode().equals("corner")){
-                    //1.事件只编辑比分
-                    // matchSettleEvent已经在上面获取了，如果为null则重新获取
-                    if(matchSettleEvent!=null){
-                        //自动计算角球比分
-                        updateGoalAndCornerEventByInfo(matchSettleEvent,editMatchSettleEventDto.getHomeAway(),"corner");
-                        matchSettleEvent.setExtryInfo(editMatchSettleEventDto.getExtryInfo());
-                        matchSettleEvent.setModifyTime(System.currentTimeMillis());
-                        matchSettleEvent.setHomeAway(editMatchSettleEventDto.getHomeAway());
-                        matchSettleEvent.setStatus(1);
-                        matchSettleEvent.setOperater(editMatchSettleEventDto.getOperatorName());
-                        // eventType=1不应该设置时段信息，时段信息应该设置在对应的eventType=3事件中
-                        if (matchSettleEvent.getEventType() != null && matchSettleEvent.getEventType() == 3) {
-                            matchSettleEvent.setFiveMinSection(editMatchSettleEventDto.getFiveMinSection());
-                        }
-                        if(editMatchSettleEventDto.getGoWaterStatus()!=null&&editMatchSettleEventDto.getGoWaterStatus()==1){
-                            matchSettleEvent.setGoWaterStatus(1);
-                        }else {
-                            matchSettleEvent.setGoWaterStatus(0);
-                        }
-//                        if(MatchEventInfoSettleUtils.equileMatchSettleEvent(matchSettleEventBefore,matchSettleEvent)){
-//                            return Response.failed("1031940");
-//                        }
-                        matchSettleEvent.setModifyTime(System.currentTimeMillis());
-//                        if(matchSettleEvent.getSettleCount() == 1 && matchSettleEvent.getT1().equals(matchSettleEventBefore.getT1()) && matchSettleEvent.getT2().equals(matchSettleEventBefore.getT2())
-//                                && matchSettleEventBefore.getFiveMinSection() == null && matchSettleEvent.getFiveMinSection() != null) {
-//                            redisService.set(CommonConstant.FIVE_MIN_SETTLE_TIMES+matchSettleEvent.getId(), 1, RedisConfig.REDIS_WEEK_TIME);
-//                        }
-                        matchSettleEventRepository.updateById(matchSettleEvent);
-                    }else {
-                        MatchSettleScore matchSettleScore =matchSettleScoreRepository.getById(editMatchSettleEventDto.getEventId());
-                        if(matchSettleScore!=null) {
-                            //角球阶段比分由人工录入
-                            //比分判断是否相同
-//                            if(MatchEventInfoSettleUtils.equileMatchSettleEvent(matchSettleEventBefore,matchSettleEvent)){
-//                                return Response.failed("1031940");
-//                            }
-                            if(editMatchSettleEventDto.getGoWaterStatus()!=null&&editMatchSettleEventDto.getGoWaterStatus()==1){
-                                matchSettleEvent.setGoWaterStatus(1);
-                            }else {
-                                matchSettleEvent.setGoWaterStatus(0);
-                            }
-                            matchSettleScore.setExtryInfo(editMatchSettleEventDto.getExtryInfo());
-                            matchSettleScore.setT1(editMatchSettleEventDto.getT1());
-                            matchSettleScore.setT2(editMatchSettleEventDto.getT2());
-                            matchSettleScore.setModifyTime(System.currentTimeMillis());
-                            matchSettleEvent.setOperater(editMatchSettleEventDto.getOperatorName());
-                            matchSettleScore.setStatus(1);
-                            matchSettleScoreRepository.updateById(matchSettleScore);
-                        }
-                    }
-                    //2.阶段比分
-                }else if(editMatchSettleEventDto.getEventCode().equals("fa_card")){
-                    //1.根据facard条件设置 主客队和 罚牌类型
-//                    if(StringUtils.isEmpty(editMatchSettleEventDto.getHomeAway())){
-//                        return Response.failed("1031939");
-//                    }
-//
-//                    if(matchSettleEvent.getEventType() == 3 && StringUtils.isEmpty(editMatchSettleEventDto.getFiveMinSection())){
-//                        return Response.failed("1031939");
-//                    }
-
-                    //2.自动计算罚牌比分
-                    if (matchSettleEvent.getEventType() == 1) {
-                        updateFaCardEventByInfo(matchSettleEvent,editMatchSettleEventDto.getHomeAway());
-                    }
-                    matchSettleEvent.setModifyTime(System.currentTimeMillis());
-                    matchSettleEvent.setStatus(1);
-                    if(editMatchSettleEventDto.getGoWaterStatus()!=null&&editMatchSettleEventDto.getGoWaterStatus()==1){
-                        matchSettleEvent.setGoWaterStatus(1);
-                    }else {
-                        matchSettleEvent.setGoWaterStatus(0);
-                    }
-                    matchSettleEvent.setOperater(editMatchSettleEventDto.getOperatorName());
-                    // eventType=1不应该设置时段信息，时段信息应该设置在对应的eventType=3事件中
-                    if (matchSettleEvent.getEventType() != null && matchSettleEvent.getEventType() == 3) {
-                        matchSettleEvent.setFiveMinSection(editMatchSettleEventDto.getFiveMinSection());
-                    }
-//                    if(MatchEventInfoSettleUtils.equileMatchSettleEvent(matchSettleEventBefore,matchSettleEvent)){
-//                        return Response.failed("1031940");
-//                    }
-//                    if(matchSettleEvent.getSettleCount() == 1 && matchSettleEvent.getT1().equals(matchSettleEventBefore.getT1()) && matchSettleEvent.getT2().equals(matchSettleEventBefore.getT2())
-//                            && matchSettleEventBefore.getFiveMinSection() == null && matchSettleEvent.getFiveMinSection() != null) {
-//                        redisService.set(CommonConstant.FIVE_MIN_SETTLE_TIMES+matchSettleEvent.getId(), 1, RedisConfig.REDIS_WEEK_TIME);
-//                    }
-                    matchSettleEventRepository.updateById(matchSettleEvent);
-                    //3.设置到影子事件中比分 以及主客队 罚牌类型等
-                    if (matchSettleEvent.getEventType()==1){
-                        extryevent =matchServiceHelper.getExtryEvent(matchSettleEvent);
-                        if(extryevent!=null){
-                            extryevent.setHomeAway(matchSettleEvent.getHomeAway());
-                            extryevent.setT1(matchSettleEvent.getT1());
-                            extryevent.setT2(matchSettleEvent.getT2());
-                            extryevent.setFirstT1(matchSettleEvent.getFirstT1());
-                            extryevent.setFirstT2(matchSettleEvent.getFirstT2());
-                            extryevent.setSecondT1(matchSettleEvent.getSecondT1());
-                            extryevent.setSecondT2(matchSettleEvent.getSecondT2());
-                            extryevent.setModifyTime(System.currentTimeMillis());
-                            extryevent.setEventCode(matchSettleEvent.getEventCode());
-//                        extryevent.setStatus(1);
-                            extryevent.setOperater(editMatchSettleEventDto.getOperatorName());
-                            matchSettleEventRepository.updateById(extryevent);
-                        }
-                    }
-                }
-                //2.事件编辑记录日志
-                // 注意：corner事件中，如果matchSettleEvent为null（是MatchSettleScore的情况），则跳过后续的日志和eventType处理
-                if (matchSettleEvent != null) {
-                    log.info("{}--保存15分钟日志:event {}",editMatchSettleEventDto.getEventCode(),matchSettleEvent);
-                    // 根据eventType决定处理逻辑
-                    if (matchSettleEvent.getEventType() != null && matchSettleEvent.getEventType() == 1) {
-                        // 编辑eventType=1（次序比分）时：
-                        // 1. 确保存在时段事件（eventType=3）并同步比分信息
-                        ensurePeriodEventExists(matchSettleEvent, editMatchSettleEventDto);
-                    }
-                    if (!(matchSettleEvent.getEventType()==3 && "fa_card".equals(editMatchSettleEventDto.getEventCode()))) {
-                        matchSettleEvent.setEventCode(editMatchSettleEventDto.getEventCode());
-                        matchSettleEvent.setHomeAway(editMatchSettleEventDto.getHomeAway());
-                    }
-
-                    String homeAway = matchSettleEventBefore.getHomeAway();
-                    String homeAwayNew = matchSettleEvent.getHomeAway();
-                    if ("goal".equals(editMatchSettleEventDto.getEventCode())) {
-                        homeAway = goalProcessRest( matchSettleEventBefore.getHomeAway(),matchSettleEventBefore.getStatus());
-                        homeAwayNew = goalProcessRest( matchSettleEvent.getHomeAway(),matchSettleEvent.getStatus());
-
-                    };
-                    if ("fa_card".equals(editMatchSettleEventDto.getEventCode())){
-                        homeAway = faCardProcessRest(matchSettleEventBefore.getEventCode(), matchSettleEventBefore.getHomeAway(),matchSettleEventBefore.getStatus());
-                        if (matchSettleEvent.getEventType() == 3) {
-                            homeAwayNew = faCardProcessRest(matchSettleEvent.getEventCode(), matchSettleEvent.getHomeAway(),matchSettleEvent.getStatus());
-                        }
-                    }
-                    matchSettleEventBefore.setHomeAway(homeAway);
-                    matchSettleEvent.setHomeAway(homeAwayNew);
-                    //事件编辑增加日志
-                    // eventType=1不应该设置时段信息，只记录日志
-                    // eventType=3的时段信息已经在上面更新了
-                    if (matchSettleEvent.getEventType() != null && matchSettleEvent.getEventType() == 3 && (!matchSettleEvent.getEventCode().equals("goal"))) {
-                        matchSettleEvent.setFifteenMinSection(editMatchSettleEventDto.getFiveMinSection());
-                    }
-                    log.info("{}--保存15分钟日志:修改前 {}---{}",editMatchSettleEventDto.getEventCode()
-                            ,matchSettleEventBefore.getFiveMinSection(),
-                            matchSettleEventBefore.getFifteenMinSection());
-                    log.info("{}--保存15分钟日志:修改后 {}---{}",editMatchSettleEventDto.getEventCode()
-                            ,matchSettleEvent.getFiveMinSection(),
-                            matchSettleEvent.getFifteenMinSection());
-                    matchSettleOperateLogService.matchSettleEventAddLog(matchSettleEventBefore,matchSettleEvent,editMatchSettleEventDto.getOperatorName(),
-                            OperateLogTypeEnum.EDIT,editMatchSettleEventDto.getIpAddress());
-                }
-
-                //3.返回查询事件列表
-                wsPushService.pushStandardSettleEvent(editMatchSettleEventDto.getStandardMatchId(),
-                        editMatchSettleEventDto.getEventCode());
-                return Response.success();
-            }else {
-                return Response.failed("1031933");
-            }
-        }catch (Exception e){
-            log.error("IFootballMatchScoresSettleApiImpl-editMatchSettleEvent:",e);
-            return Response.failed();
-        }finally {
-            redisService.unLock(key,key);
-        }
-    }
-
-    @Override
-    public Response editMatchSettleEventMethodAndPlayerV3(EditMatchSettleEventDto editMatchSettleEventDto) {
-        log.info("editMatchSettleEventMethodAndPlayer param,editMatchSettleEventDto: {}",editMatchSettleEventDto);
-        String key ="MATCH_SETTLE_INFO:"+ editMatchSettleEventDto.getEventId();
-        if(matchServiceHelper.checkIfOverSettleTime(editMatchSettleEventDto.getStandardMatchId())){
-            return Response.failed("1031930");
-        }
-        try {
-            if(redisService.tryLock(key,key,2,5)) {
-                MatchSettleEvent matchSettleEvent =matchSettleEventRepository.getById(editMatchSettleEventDto.getEventId());
-                if(matchSettleEvent==null){
-                    return Response.failed("1031935");
-                }
-                MatchSettleEvent matchSettleEventBefore =new MatchSettleEvent();
-                BeanUtils.copyProperties(matchSettleEvent,matchSettleEventBefore);
-                if(editMatchSettleEventDto.getGoWaterStatus()!=null&&editMatchSettleEventDto.getGoWaterStatus()==1){
-                    matchSettleEvent.setGoWaterStatus(1);
-                }
-                matchSettleEvent.setExtryInfo(editMatchSettleEventDto.getExtryInfo());
-                matchSettleEvent.setPlayerNameCode(editMatchSettleEventDto.getMatchPlayerNameCode());
-                matchSettleEvent.setStatus(1);
-                matchSettleEvent.setModifyTime(System.currentTimeMillis());
-                matchSettleEvent.setOperater(editMatchSettleEventDto.getOperatorName());
-                matchSettleEventRepository.updateById(matchSettleEvent);
-
-                //进球方式和球员_操作日志
-                matchSettleOperateLogService.matchSettleEventAddLog(matchSettleEventBefore,matchSettleEvent,editMatchSettleEventDto.getOperatorName(),
-                        OperateLogTypeEnum.PLAYER_AND_GOAL_TYPE,editMatchSettleEventDto.getIpAddress());
-                if("goal".equals(editMatchSettleEventDto.getEventCode()) && StringUtils.isNotBlank(editMatchSettleEventDto.getOperatorName())){
-                    wsPushService.pushSettleMatchList(new MatchListSettleDto(editMatchSettleEventDto.getStandardMatchId(),
-                            editMatchSettleEventDto.getEventCode(),null,null,6));
-                }else {
-                    wsPushService.pushStandardSettleEvent(editMatchSettleEventDto.getStandardMatchId(),
-                            editMatchSettleEventDto.getEventCode());
-                }
-                return Response.success();
-            }else {
-                return Response.failed("1031933");
-            }
-        }catch (Exception e){
-            log.error("IFootballMatchScoresSettleApiImpl-editMatchSettleEventMethodAndPlayer:",e);
-            return Response.failed();
-        }finally {
-            redisService.unLock(key,key);
-        }
-    }
-
-    @Override
-    public Response confirmMatchSettleEventV3(EditMatchSettleEventDto matchSettleEventDto) {
-        log.info("confirmMatchSettleEvent param,matchSettleEventDto: {}",matchSettleEventDto);
-        String key = CommonConstant.MATCH_SEQUENCE_SCORE_SETTLE + matchSettleEventDto.getStandardMatchId();
-        if(matchServiceHelper.checkIfOverSettleTime(matchSettleEventDto.getStandardMatchId())){
-            return Response.failed("1031930");
-        }
-        log.info("事件Id::{}:: 当前事件被确认参数:{} ",matchSettleEventDto.getEventId(),matchSettleEventDto);
-        try {
-            if(redisService.tryLock(key,key,2,5)) {
-                MatchSettleEvent matchSettleEvent =matchSettleEventRepository.getById(matchSettleEventDto.getEventId());
-                if(matchSettleEvent==null){
-                    return Response.failed("1031935");
-                }
-                if(matchSettleEvent.getStatus()!=NOT_CONFIRM){
-                    return Response.failed("1031934");
-                }
-                matchSettleEvent.setModifyTime(System.currentTimeMillis());
-                matchSettleEvent.setStatus(CONFIRM);
-                matchSettleEventRepository.updateById(matchSettleEvent);
-                //2.确认记录日志
-                matchSettleEvent.setFifteenMinSection(matchSettleEvent.getFiveMinSection());
-                matchSettleOperateLogService.matchSettleEventAddLog(matchSettleEvent,matchSettleEventDto.getOperatorName(),
-                        OperateLogTypeEnum.CONFIRM_SCORE.getCode().toString(),"",matchSettleEventDto.getIpAddress());
-                //3.返回查询事件列表
-                wsPushService.pushStandardSettleEvent(matchSettleEventDto.getStandardMatchId(),
-                        matchSettleEventDto.getEventCode());
-                return Response.success();
-            }else {
-                return Response.failed("1031933");
-            }
-        }catch (Exception e){
-            log.error("IFootballMatchScoresSettleApiImpl-confirmMatchSettleEvent:",e);
-            return Response.failed();
-        }finally {
-            redisService.unLock(key,key);
-        }
-    }
-
-    @Override
-    public Response settleMatchSettleEventV3(EditMatchSettleEventDto matchSettleScoreDto) {
-        log.info("settleMatchSettleEvent param,matchSettleScoreDto: {}",matchSettleScoreDto);
-        String key = CommonConstant.MATCH_SEQUENCE_SCORE_SETTLE + matchSettleScoreDto.getStandardMatchId();
-        if(matchServiceHelper.checkIfOverSettleTime(matchSettleScoreDto.getStandardMatchId())){
-            return Response.failed("1031930");
-        }
-        if(redisService.hasKey("SETTLE_ROLLBACK_MATCH_ID_"+matchSettleScoreDto.getEventId())){
-            return Response.failed("1031960");
-        }
-        try {
-            if(redisService.tryLock(key,key,2,5)) {
-                MatchSettleEvent matchSettleEvent =matchSettleEventRepository.getById(matchSettleScoreDto.getEventId());
-                if(matchSettleEvent==null){
-                    return Response.failed("1031935");
-                }
-                if(matchSettleEvent.getStatus()!=CONFIRM){
-                    return Response.failed("1031936");
-                }
-                Integer settleTimes =matchSettleEvent.getSettleTimes();
-                if(settleTimes==null){
-                    settleTimes=0;
-                }
-                if (matchSettleEvent.getSettleCount()== null ) {
-                    matchSettleEvent.setSettleCount(0);
-                }
-
-                settleTimes++;
-
-
-//                if(matchSettleEvent.getSettleCount() == 1) {
-//                    Object object = redisService.get(CommonConstant.FIVE_MIN_SETTLE_TIMES+matchSettleEvent.getId());
-//                    if(object != null) {
-//                        settleTimes--;
-//                        matchSettleEvent.setSettleCount(0);
-//                        redisService.del(CommonConstant.FIVE_MIN_SETTLE_TIMES+matchSettleEvent.getId());
-//                    }
-//                }
-
-                //二次结算,必须给出结算原因
-                if (matchSettleEvent.getSettleCount() >  0 &&
-                        (matchSettleScoreDto.getSettleReason()==null  ||
-                                matchSettleScoreDto.getSettleReason()== 0) ) {
-                    return Response.failed("1031953");
-                }
-
-                String  before= "-";
-                Integer settleReason = matchSettleEvent.getSettleReason();
-                if (settleReason != null &&  settleReason != 0 ) {
-                    before = settleReason.toString();
-                    if (settleReason == 118) {
-                        before += ": "+matchSettleEvent.getSettleReasonDetail();
-                    }
-                }
-                if(!matchSettleEvent.getSettleNum().equals("1028")){
-                    if(matchSettleEvent.getEventTime()==null||matchSettleEvent.getEventTime().equals(0l)){
-                        Long eventTime =matchSettleCheckInfoHelper.searchEventTimeByEvent(matchSettleEvent);
-                        if(eventTime==0l){
-                            eventTime=matchSettleEvent.getModifyTime();
-                        }
-                        matchSettleEvent.setEventTime(eventTime);
-                    }
-                }
-                matchSettleEvent.setStatus(SETTLED);
-                matchSettleEvent.setSettleCount(matchSettleEvent.getSettleCount()+1);
-                matchSettleEvent.setModifyTime(System.currentTimeMillis());
-                matchSettleEvent.setSettleTimes(settleTimes);
-                matchSettleEvent.setOperater(matchSettleScoreDto.getOperatorName());
-                matchSettleEvent.setOperateType(MatchSettleScoreConstant.MatchSettleOperateType.SETTLE);
-                matchSettleEvent.setUserid(matchSettleScoreDto.getOperatorId());
-                matchSettleEvent.setSettleReason(matchSettleScoreDto.getSettleReason());
-                matchSettleEvent.setSettleReasonDetail(matchSettleScoreDto.getSettleReasonDetail());
-                matchSettleEvent.setIsGrey(0);
-                matchSettleEvent.setHasDeleteEvent(0);
-                matchSettleEvent.setCurrentEventStatus(0);
-                matchSettleCheckInfoHelper.endEventSettleByEvent(matchSettleEvent);
-                matchSettleEventRepository.updateById(matchSettleEvent);
-                matchSettleInfoHelper.updateMatchGrayStatus(matchSettleEvent.getStandardMatchId());
-                matchSettleInfoHelper.updateMatchCurrentEventStatus(matchSettleEvent.getStandardMatchId());
-                log.info("比分Id::{}:: 当前事件被结算参数:{} ",matchSettleScoreDto.getEventId(),matchSettleEvent);
-                if (matchSettleScoreDto.getSettleReason() != null) {
-                    SettleMatchScoreDto warnPara = new SettleMatchScoreDto();
-                    warnPara.setStandardMatchId(matchSettleScoreDto.getStandardMatchId());
-                    warnPara.setSettleReason(matchSettleScoreDto.getSettleReason());
-                    warnPara.setSettleNum(Integer.valueOf(matchSettleScoreDto.getSettleNum()));
-                    matchSettleEventService.secondSettleWarnMango(warnPara, 1);
-                }
-                //1.日志
-                matchSettleEvent.setOperateType(MatchSettleScoreConstant.MatchSettleOperateType.SETTLE);
-                matchSettleEvent.setFifteenMinSection(matchSettleScoreDto.getFifteenMinSection());
-                matchSettleOperateLogService.matchSettleEventAddLog(matchSettleEvent,
-                        matchSettleScoreDto.getOperatorName(),OperateLogTypeEnum.SCORE_SETTLE.getCode().toString()
-                        ,before,matchSettleScoreDto.getIpAddress());
-
-                //2.MQ下发
-                matchSettleScoresProducer.sendMatchSettleEvent(matchSettleEvent);
-                wsPushService.pushStandardSettleEvent(matchSettleScoreDto.getStandardMatchId(),
-                        matchSettleScoreDto.getEventCode());
-                return Response.success();
-            }else {
-                return Response.failed("1031933");
-            }
-        }catch (Exception e){
-            log.error("IFootballMatchScoresSettleApiImpl-settleMatchSettleEvent:",e);
-            return Response.failed();
-        }finally {
-            redisService.unLock(key,key);
         }
     }
 }

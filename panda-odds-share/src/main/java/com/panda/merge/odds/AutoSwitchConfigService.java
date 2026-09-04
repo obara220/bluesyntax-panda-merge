@@ -76,44 +76,14 @@ public class AutoSwitchConfigService implements CacheService, BeanNameAware {
     }
 
     public void update(DataSourceAutoSwitchConfig config, String linkId) {
-        StandardMatchInfo standardMatchInfo = standardMatchInfoService.getItem(config.getMatchId());
-        if (config.getMarketType() == MarketTypeEnum.PREMATCH.getCode()
-                && Objects.equals(standardMatchInfo.getSportId(), StandardSportTypeEnum.FootBall.code)){
-            //早盘只用风控的状态
-            if (config.getSource() == 0){
-  /*              DataSourceAutoSwitchConfig tempConfig = getConfig(config.getMatchId(), config.getMarketType());
-                if (tempConfig == null || tempConfig.getMatchId() == null){*/
-                    redisService.set(getRedisKey(config.getMatchId(), config.getMarketType()), config,
-                            getConfigExpireTime(config, linkId),
-                            TimeUnit.MILLISECONDS);
-/*                }else{
-                    tempConfig.setChangeStatus(config.getChangeStatus());
-                    redisService.set(getRedisKey(config.getMatchId(), config.getMarketType()), tempConfig,
-                            getConfigExpireTime(config, linkId),
-                            TimeUnit.MILLISECONDS);
-                }*/
-            }else if (config.getSource() == 1){
-                DataSourceAutoSwitchConfig tempConfig = getConfig(config.getMatchId(), config.getMarketType());
-                if (tempConfig == null || tempConfig.getMatchId() == null){
-                    config.setChangeStatus(1);
-                }else{
-                    config.setChangeStatus(tempConfig.getChangeStatus());
-                }
-                redisService.set(getRedisKey(config.getMatchId(), config.getMarketType()), config,
-                        getConfigExpireTime(config, linkId),
-                        TimeUnit.MILLISECONDS);
-            }
-        }else{
-            redisService.set(getRedisKey(config.getMatchId(), config.getMarketType()), config,
-                    getConfigExpireTime(config, linkId),
-                    TimeUnit.MILLISECONDS);
-        }
-
+        redisService.set(getRedisKey(config.getMatchId(), config.getMarketType()), config,
+                         getConfigExpireTime(config, linkId),
+                         TimeUnit.MILLISECONDS);
         LocalCacheRefreshMessage message = new LocalCacheRefreshMessage(linkId,beanName, getKey(config.getMatchId(),
                                                                                          config.getMarketType()),null);
-        localCacheRefreshProducer.send(message);
+        localCacheRefreshProducer.send(message,linkId);
         // 通知非实时服务 百家赔监听配置刷新
-        localCacheRefreshProducer.send(message,TOPIC_NONREALTIME_CACHE_UPDATE);
+        localCacheRefreshProducer.send(message,TOPIC_NONREALTIME_CACHE_UPDATE,linkId);
     }
 
     @Override
@@ -135,6 +105,7 @@ public class AutoSwitchConfigService implements CacheService, BeanNameAware {
         if (cache != null) {
             return (DataSourceAutoSwitchConfig) cache;
         }
+        //return new DataSourceAutoSwitchConfig(matchId,marketType);
         return DataSourceAutoSwitchConfig.EMPTY;
     }
 

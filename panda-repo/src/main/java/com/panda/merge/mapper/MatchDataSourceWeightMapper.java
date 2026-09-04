@@ -12,19 +12,19 @@ public interface MatchDataSourceWeightMapper {
 
     int deleteByPrimaryKey(Long id);
 
-    int insert(MatchDataSourceWeight row);
+    int insert(MatchDataSourceWeight record);
 
-    int insertSelective(MatchDataSourceWeight row);
+    int insertSelective(MatchDataSourceWeight record);
 
     List<MatchDataSourceWeight> selectByExample(MatchDataSourceWeightExample example);
 
     MatchDataSourceWeight selectByPrimaryKey(Long id);
 
-    int updateByExampleSelective(@Param("row") MatchDataSourceWeight row, @Param("example") MatchDataSourceWeightExample example);
+    int updateByExampleSelective(@Param("record") MatchDataSourceWeight record, @Param("example") MatchDataSourceWeightExample example);
 
-    int updateByExample(@Param("row") MatchDataSourceWeight row, @Param("example") MatchDataSourceWeightExample example);
+    int updateByExample(@Param("record") MatchDataSourceWeight record, @Param("example") MatchDataSourceWeightExample example);
 
-    int updateByPrimaryKeySelective(MatchDataSourceWeight row);
+    int updateByPrimaryKeySelective(MatchDataSourceWeight record);
 
-    int updateByPrimaryKey(MatchDataSourceWeight row);
+    int updateByPrimaryKey(MatchDataSourceWeight record);
 }

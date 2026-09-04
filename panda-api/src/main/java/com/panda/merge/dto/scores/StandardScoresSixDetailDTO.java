@@ -23,14 +23,4 @@ public class StandardScoresSixDetailDTO implements Serializable{
     private Integer q3Away;
     private Integer q4Away;
 
-    public StandardScoresSixDetailDTO(){
-        this.q1Home = null;
-        this.q2Home = null;
-        this.q3Home = null;
-        this.q4Home = null;
-        this.q1Away = null;
-        this.q2Away = null;
-        this.q3Away = null;
-        this.q4Away = null;
-    }
 }

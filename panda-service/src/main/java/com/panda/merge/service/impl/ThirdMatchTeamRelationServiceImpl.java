@@ -146,11 +146,4 @@ public class ThirdMatchTeamRelationServiceImpl extends BaseServiceImpl<ThirdMatc
         redisService.set(RedisConfig.REDIS_KEY_DATABASE + "::ThirdMatchTeamRelation:" + item.getMatchId()+'-'+ item.getTeamId(),item);
         return item;
     }
-
-    @Override
-    public List<ThirdMatchTeamRelation> listByTeamId(Long teamId){
-        ThirdMatchTeamRelationExample example = new ThirdMatchTeamRelationExample();
-        example.createCriteria().andTeamIdEqualTo(teamId);
-        return  thirdMatchTeamRelationMapper.selectByExample(example);
-    }
 }

@@ -1,8 +1,5 @@
 package com.panda.merge.dao;
 
-import com.panda.merge.bo.ThirdSportMarketCategoryBO;
-import com.panda.merge.dto.ThirdCategoryDTO;
-import com.panda.merge.dto.ThirdMarketCategoryDTO;
 import com.panda.merge.model.ThirdMarketCategory;
 import org.apache.ibatis.annotations.Param;
 
@@ -24,11 +21,4 @@ public interface ThirdMarketCategoryDao {
      * @param categoryList
      */
     void updateBatchById(@Param("categoryList") List<ThirdMarketCategory> categoryList);
-
-    /**
-     * 查询三方玩法列表
-     * @param dto
-     * @return
-     */
-    List<ThirdSportMarketCategoryBO> queryThirdMarketCategory(@Param("dto") ThirdCategoryDTO dto);
 }

@@ -104,15 +104,15 @@ public class MatchSettleCenterApiImpl implements ISettleCenterApi {
         return matchSettleCenterController.setFiveMinSwitch(dto);
     }
 
-    @Override
-    public Response setDataSourceGrayInterval(List<DataSourceGrayIntervalDto> grayIntervalDtoList) {
-        return matchSettleCenterController.setDataSourceGrayInterval(grayIntervalDtoList);
-    }
-
-    @Override
-    public Response getGrayIntervalByTournamentLevel(DataSourceGrayIntervalDto dto) {
-        return matchSettleCenterController.getGrayIntervalByTournamentLevel(dto);
-    }
+//    @Override
+//    public Response setDataSourceGrayInterval(List<DataSourceGrayIntervalDto> grayIntervalDtoList) {
+//        return matchSettleCenterController.setDataSourceGrayInterval(grayIntervalDtoList);
+//    }
+//
+//    @Override
+//    public Response getGrayIntervalByTournamentLevel(DataSourceGrayIntervalDto dto) {
+//        return matchSettleCenterController.getGrayIntervalByTournamentLevel(dto);
+//    }
 
     /**
      * 根据参数SportId,球种类型，获取对应的联赛等级数据源的开关列表

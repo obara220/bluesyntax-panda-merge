@@ -5,6 +5,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.panda.merge.common.enums.*;
 import com.panda.merge.common.utils.TimeUtils;
 import com.panda.merge.constant.MatchSettleCheckConstant;
@@ -13,6 +14,7 @@ import com.panda.merge.constant.SettleTemplateTypeEnum;
 import com.panda.merge.dto.*;
 import com.panda.merge.dto.advertise.*;
 import com.panda.merge.dto.settle.*;
+import com.panda.merge.mapper.StandardMatchInfoMapper;
 import com.panda.merge.mapper.StandardSportMarketSellLogMapper;
 import com.panda.merge.mapper.StandardSportTeamMapper;
 import com.panda.merge.model.*;
@@ -46,6 +48,9 @@ import static com.panda.merge.common.enums.FaCardEnum.Method_6;
 @Service
 @Slf4j
 public class MatchSettleLogServiceImpl implements IMatchSettleLogService {
+
+    @Autowired
+    StandardMatchInfoMapper standardMatchInfoMapper;
     @Autowired
     MatchSettleOperateLogV3Mapper matchSettleOperateLogMapper;
     @Autowired
@@ -2462,60 +2467,64 @@ public class MatchSettleLogServiceImpl implements IMatchSettleLogService {
         return result.toString();
     }
 
-    @Override
-    public void updateDataSourceGrayIntervalLog(DataSourceGrayIntervalDto grayIntervalDto, MatchGrayInterval oldDbGray, List<MatchSettleOperateLogEntity> operateLogEntityList) {
-
-        try {
-            MatchSettleOperateLogEntity matchSettleOperateLog = new MatchSettleOperateLogEntity();
-            matchSettleOperateLog.setOperateModule(OperateLogTypeEnum.type_9.getCode().toString() + "-" + StandardSportTypeEnum.FootBall.getCode());
-            matchSettleOperateLog.setOperateName(grayIntervalDto.getTournamentLevel().toString());
-            matchSettleOperateLog.setOperateMatchId("-");
-            matchSettleOperateLog.setOperateMatchName("-");
-            matchSettleOperateLog.setOperateType(OperateLogTypeEnum.SCORES_PD_100160.getCode().toString());
-            matchSettleOperateLog.setIpAddress(grayIntervalDto.getIpAddress());
-            matchSettleOperateLog.setOperateUserName(grayIntervalDto.getOperatorName());
-            matchSettleOperateLog.setModifyTime(TimeUtils.millsSecondsEast8ZoneGmt());
-            matchSettleOperateLog.setCreateTime(TimeUtils.millsSecondsEast8ZoneGmt());
-            matchSettleOperateLog.setOperateForwText(CategoryUtils.SPLIT_LINE);
-
-            if (grayIntervalDto.getMin5Goal() != null && grayIntervalDto.getMin5Goal() > MatchSettleCheckConstant.CheckType.PERIOD_SCORE) {
-                if (oldDbGray != null && oldDbGray.getMin5Goal() != null) {
-                    matchSettleOperateLog.setOperateForwText(oldDbGray.getMin5Goal().toString());
-                }
-                matchSettleOperateLog.setOperateRearText(grayIntervalDto.getMin5Goal().toString());
-                matchSettleOperateLog.setOperateParaName(DataSourceEncrypEnum.getDataSourceVal(grayIntervalDto.getDataSourceCode()) + CategoryUtils.SPLIT_LINE + CategoryUtils.min5Goal);
-                operateLogEntityList.add(matchSettleOperateLog);
-            }
-            if (grayIntervalDto.getMin15Goal() != null && grayIntervalDto.getMin15Goal() > MatchSettleCheckConstant.CheckType.PERIOD_SCORE) {
-                if (oldDbGray != null && oldDbGray.getMin15Goal() != null) {
-                    matchSettleOperateLog.setOperateForwText(oldDbGray.getMin15Goal().toString());
-                }
-                matchSettleOperateLog.setOperateRearText(grayIntervalDto.getMin15Goal().toString());
-                matchSettleOperateLog.setOperateParaName(DataSourceEncrypEnum.getDataSourceVal(grayIntervalDto.getDataSourceCode()) + CategoryUtils.SPLIT_LINE + CategoryUtils.min15Goal);
-                operateLogEntityList.add(matchSettleOperateLog);
-            }
-            if (grayIntervalDto.getMin15Corner() != null && grayIntervalDto.getMin15Corner() > MatchSettleCheckConstant.CheckType.PERIOD_SCORE) {
-                if (oldDbGray != null && oldDbGray.getMin15Corner() != null) {
-                    matchSettleOperateLog.setOperateForwText(oldDbGray.getMin15Corner().toString());
-                }
-                matchSettleOperateLog.setOperateRearText(grayIntervalDto.getMin15Corner().toString());
-                matchSettleOperateLog.setOperateParaName(DataSourceEncrypEnum.getDataSourceVal(grayIntervalDto.getDataSourceCode()) + CategoryUtils.SPLIT_LINE + CategoryUtils.min15Corner);
-                operateLogEntityList.add(matchSettleOperateLog);
-            }
-            if (grayIntervalDto.getMin15Bookings() != null && grayIntervalDto.getMin15Bookings() > MatchSettleCheckConstant.CheckType.PERIOD_SCORE) {
-                if (oldDbGray != null && oldDbGray.getMin15Bookings() != null) {
-                    matchSettleOperateLog.setOperateForwText(oldDbGray.getMin15Bookings().toString());
-                }
-                matchSettleOperateLog.setOperateRearText(grayIntervalDto.getMin15Bookings().toString());
-                matchSettleOperateLog.setOperateParaName(DataSourceEncrypEnum.getDataSourceVal(grayIntervalDto.getDataSourceCode()) + CategoryUtils.SPLIT_LINE + CategoryUtils.min15Bookings);
-                operateLogEntityList.add(matchSettleOperateLog);
-            }
-
-        } catch (Exception e) {
-            log.error("修改15分钟&5分钟灰色区间设置日志:" + JSONObject.toJSONString(grayIntervalDto) + ", error:", e);
-        }
-
-    }
+//    @Override
+//    public void updateDataSourceGrayIntervalLog(DataSourceGrayIntervalDto grayIntervalDto, MatchGrayInterval oldDbGray, List<MatchSettleOperateLogEntity> operateLogEntityList) {
+//
+//        try {
+//            MatchSettleOperateLogEntity matchSettleOperateLog = new MatchSettleOperateLogEntity();
+//            matchSettleOperateLog.setOperateModule(OperateLogTypeEnum.type_9.getCode().toString() + "-" + StandardSportTypeEnum.FootBall.getCode());
+//            matchSettleOperateLog.setOperateName(grayIntervalDto.getTournamentLevel().toString());
+//            matchSettleOperateLog.setOperateMatchId("-");
+//            matchSettleOperateLog.setOperateMatchName("-");
+//            matchSettleOperateLog.setOperateType(OperateLogTypeEnum.SCORES_PD_100160.getCode().toString());
+//            matchSettleOperateLog.setIpAddress(grayIntervalDto.getIpAddress());
+//            matchSettleOperateLog.setOperateUserName(grayIntervalDto.getOperatorName());
+//            matchSettleOperateLog.setModifyTime(TimeUtils.millsSecondsEast8ZoneGmt());
+//            matchSettleOperateLog.setCreateTime(TimeUtils.millsSecondsEast8ZoneGmt());
+//            matchSettleOperateLog.setOperateForwText(CategoryUtils.SPLIT_LINE);
+//
+//            if (grayIntervalDto.getMin5Goal() != null && grayIntervalDto.getMin5Goal() > MatchSettleCheckConstant.CheckType.PERIOD_SCORE) {
+//                if (oldDbGray != null && oldDbGray.getMin5Goal() != null) {
+//                    matchSettleOperateLog.setOperateForwText(oldDbGray.getMin5Goal().toString());
+//                }
+//                matchSettleOperateLog.setOperateRearText(grayIntervalDto.getMin5Goal().toString());
+//                matchSettleOperateLog.setOperateParaName(DataSourceEncrypEnum.getDataSourceVal(grayIntervalDto.getDataSourceCode()) + CategoryUtils.SPLIT_LINE + CategoryUtils.min5Goal);
+//                //matchSettleOperateLogRepository.save(matchSettleOperateLog);
+//                operateLogEntityList.add(matchSettleOperateLog);
+//            }
+//            if (grayIntervalDto.getMin15Goal() != null && grayIntervalDto.getMin15Goal() > MatchSettleCheckConstant.CheckType.PERIOD_SCORE) {
+//                if (oldDbGray != null && oldDbGray.getMin15Goal() != null) {
+//                    matchSettleOperateLog.setOperateForwText(oldDbGray.getMin15Goal().toString());
+//                }
+//                matchSettleOperateLog.setOperateRearText(grayIntervalDto.getMin15Goal().toString());
+//                matchSettleOperateLog.setOperateParaName(DataSourceEncrypEnum.getDataSourceVal(grayIntervalDto.getDataSourceCode()) + CategoryUtils.SPLIT_LINE + CategoryUtils.min15Goal);
+//                //matchSettleOperateLogRepository.save(matchSettleOperateLog);
+//                operateLogEntityList.add(matchSettleOperateLog);
+//            }
+//            if (grayIntervalDto.getMin15Corner() != null && grayIntervalDto.getMin15Corner() > MatchSettleCheckConstant.CheckType.PERIOD_SCORE) {
+//                if (oldDbGray != null && oldDbGray.getMin15Corner() != null) {
+//                    matchSettleOperateLog.setOperateForwText(oldDbGray.getMin15Corner().toString());
+//                }
+//                matchSettleOperateLog.setOperateRearText(grayIntervalDto.getMin15Corner().toString());
+//                matchSettleOperateLog.setOperateParaName(DataSourceEncrypEnum.getDataSourceVal(grayIntervalDto.getDataSourceCode()) + CategoryUtils.SPLIT_LINE + CategoryUtils.min15Corner);
+//                //matchSettleOperateLogRepository.save(matchSettleOperateLog);
+//                operateLogEntityList.add(matchSettleOperateLog);
+//            }
+//            if (grayIntervalDto.getMin15Bookings() != null && grayIntervalDto.getMin15Bookings() > MatchSettleCheckConstant.CheckType.PERIOD_SCORE) {
+//                if (oldDbGray != null && oldDbGray.getMin15Bookings() != null) {
+//                    matchSettleOperateLog.setOperateForwText(oldDbGray.getMin15Bookings().toString());
+//                }
+//                matchSettleOperateLog.setOperateRearText(grayIntervalDto.getMin15Bookings().toString());
+//                matchSettleOperateLog.setOperateParaName(DataSourceEncrypEnum.getDataSourceVal(grayIntervalDto.getDataSourceCode()) + CategoryUtils.SPLIT_LINE + CategoryUtils.min15Bookings);
+//                //matchSettleOperateLogRepository.save(matchSettleOperateLog);
+//                operateLogEntityList.add(matchSettleOperateLog);
+//            }
+//
+//        } catch (Exception e) {
+//            log.error("修改15分钟&5分钟灰色区间设置日志:" + JSONObject.toJSONString(grayIntervalDto) + ", error:", e);
+//        }
+//
+//    }
 
 
     @Override
@@ -2765,6 +2774,7 @@ public class MatchSettleLogServiceImpl implements IMatchSettleLogService {
                 matchSettleOperateLog.setOperateName(matchSettleTemplateOld.getTemplateName());
                 matchSettleOperateLog.setOperateForwText("-");
                 matchSettleOperateLog.setOperateRearText(matchSettleTemplateNew.getTemplateName());
+                matchSettleOperateLog.setId(null);
                 matchSettleOperateLogRepository.save(matchSettleOperateLog);
             }
             //模版类型:
@@ -2889,6 +2899,7 @@ public class MatchSettleLogServiceImpl implements IMatchSettleLogService {
                     if ((i > 0 && i % 10 == 0) || ((i + 1) == tournamentIdList.size())) {
                         matchSettleOperateLog.setOperateForwText(tournamentIdSb.toString());
                         matchSettleOperateLog.setOperateRearText(matchSettleTemplate.getTemplateName());
+                        matchSettleOperateLog.setId(null);
                         matchSettleOperateLogRepository.save(matchSettleOperateLog);
                         tournamentIdSb = new StringBuilder();
                     }
@@ -3359,31 +3370,6 @@ public class MatchSettleLogServiceImpl implements IMatchSettleLogService {
 
     }
 
-
-    @Override
-    public void editBasketBallRealTimeConfigLog(LimitSwitchDto oldConfig, LimitSwitchDto newConfig, SettleTimeLimitDto dto, List<MatchSettleOperateLogEntity> willSaveOperateLogList) {
-        try {
-            MatchSettleOperateLogEntity matchSettleOperateLog = new MatchSettleOperateLogEntity();
-            matchSettleOperateLog.setOperateModule(OperateLogTypeEnum.SCORES_SETTLE_100047.getCode().toString());
-            matchSettleOperateLog.setOperateId("-");
-            matchSettleOperateLog.setOperateName(CategoryUtils.BASKETBALL);
-            matchSettleOperateLog.setOperateType(OperateLogTypeEnum.SCORES_SETTLE_100049.getCode().toString());
-            matchSettleOperateLog.setIpAddress(dto.getIpAddress());
-            matchSettleOperateLog.setModifyTime(TimeUtils.millsSecondsEast8ZoneGmt());
-            matchSettleOperateLog.setCreateTime(TimeUtils.millsSecondsEast8ZoneGmt());
-            matchSettleOperateLog.setOperateUserName(dto.getOperatorName());
-            matchSettleOperateLog.setOperateMatchId("-");
-            matchSettleOperateLog.setOperateMatchName(CategoryUtils.BASKETBALL);
-
-            matchSettleOperateLog.setOperateParaName("Level - "+ oldConfig.getLevel());
-            matchSettleOperateLog.setOperateForwText(oldConfig.getRealTimeOnOff()?"On":"Off");
-            matchSettleOperateLog.setOperateRearText(newConfig.getRealTimeOnOff()?"On":"Off");
-            willSaveOperateLogList.add(matchSettleOperateLog);
-        } catch (Exception e) {
-            log.error("修改篮球结算倒计时限制:{}, error:{}", JSONObject.toJSONString(newConfig), e);
-        }
-    }
-
     @Override
     public void spOddsResultAddLog(EditMatchSettleSPOddsDto editMatchSettleSPOddsDto,
                                    MatchSettleSpOddsEntity oddsBefore,
@@ -3420,6 +3406,32 @@ public class MatchSettleLogServiceImpl implements IMatchSettleLogService {
             log.error("记录结算特殊玩法日志:" + JSONObject.toJSONString(editMatchSettleSPOddsDto) + ", error:", e);
         }
 
+    }
+
+    @Override
+    public void editBasketBallRealTimeConfigLog(LimitSwitchDto oldConfig, LimitSwitchDto newConfig, SettleTimeLimitDto dto, List<MatchSettleOperateLogEntity> willSaveOperateLogList) {
+        try {
+            MatchSettleOperateLogEntity matchSettleOperateLog = new MatchSettleOperateLogEntity();
+            matchSettleOperateLog.setOperateModule(OperateLogTypeEnum.SCORES_SETTLE_100047.getCode().toString());
+            matchSettleOperateLog.setOperateId("-");
+            matchSettleOperateLog.setOperateName(CategoryUtils.BASKETBALL);
+            matchSettleOperateLog.setOperateType(OperateLogTypeEnum.SCORES_SETTLE_100049.getCode().toString());
+            matchSettleOperateLog.setIpAddress(dto.getIpAddress());
+            matchSettleOperateLog.setModifyTime(TimeUtils.millsSecondsEast8ZoneGmt());
+            matchSettleOperateLog.setCreateTime(TimeUtils.millsSecondsEast8ZoneGmt());
+            matchSettleOperateLog.setOperateUserName(dto.getOperatorName());
+            matchSettleOperateLog.setOperateMatchId("-");
+            matchSettleOperateLog.setOperateMatchName(CategoryUtils.BASKETBALL);
+
+            matchSettleOperateLog.setOperateParaName("Level - "+ oldConfig.getLevel());
+            matchSettleOperateLog.setOperateForwText(oldConfig.getRealTimeOnOff()?"On":"Off");
+            matchSettleOperateLog.setOperateRearText(newConfig.getRealTimeOnOff()?"On":"Off");
+
+            willSaveOperateLogList.add(matchSettleOperateLog);
+
+        } catch (Exception e) {
+            log.error("修改篮球结算倒计时限制:{}, error:{}", JSONObject.toJSONString(newConfig), e);
+        }
     }
 
     @Override

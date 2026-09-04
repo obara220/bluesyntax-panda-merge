@@ -248,6 +248,13 @@ public class ChangeSoldMessageProcessor extends BaseProcessor {
                 log.info("::{}::putTradeMarketConfigChangeSold,数据源数据TargetID对应的标准赛事未开售，标准赛事id:{}",request.getLinkId(),thirdMatchInfo.getReferenceId());
                 return Response.failed("数据源数据TargetID对应的标准赛事未开售");
             }
+
+            //以下和三方盘口接口有并发问题，这里需要以赛事维度加redis锁
+            String lockValue = UUIdUtils.getId()+"_"+request.getLinkId();
+            String redisLocKey = Constant.REDIS_KEY.RONGHE_LOCK + standardMatchInfo.getId();
+            log.info("::{}::putTradeMarketConfigChangeSold,redisLocKey:{},准备获取分布式锁,lockValue:{}", request.getLinkId(),redisLocKey, lockValue);
+            redisService.tryLock(redisLocKey, lockValue, 10, 8);
+            log.info("::{}::putTradeMarketConfigChangeSold,redisLocKey:{},获取到分布式锁,lockValue:{}", request.getLinkId(),redisLocKey, lockValue);
             try{
                 Map<String, StandardMarketDataMessage> stringStandardMarketDataMessageMap = iTradeMarketConfigApi.getStringStandardMarketDataMessageMap(new HashSet<>(), request.getLinkId(), standardMatchInfo, standardSportMarketSell);
                 String categoryRedisKey = Constant.REDIS_KEY.RONGHE_MARKET_CATEGORY_SELL + standardMatchInfo.getId() + "_" + tradeMarketConfigDTO.getMatchType();
@@ -295,6 +302,8 @@ public class ChangeSoldMessageProcessor extends BaseProcessor {
             }catch (Exception e) {
                 throw e;
             }finally {
+                redisService.unLock(redisLocKey,lockValue);
+                log.info("::{}::putTradeMarketConfigChangeSold,redisLocKey:{},释放分布式锁,lockValue:{}", request.getLinkId(),redisLocKey, lockValue);
             }
             return Response.success();
         }

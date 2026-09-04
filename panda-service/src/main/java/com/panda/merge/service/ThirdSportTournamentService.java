@@ -2,7 +2,6 @@ package com.panda.merge.service;
 
 import com.github.pagehelper.Page;
 import com.panda.merge.dto.PageModel;
-import com.panda.merge.dto.StandardTournamentRuleDTO;
 import com.panda.merge.dto.nonrealttime.query.QueryThirdRankingInfoDTO;
 import com.panda.merge.model.ThirdSportTournament;
 
@@ -54,6 +53,4 @@ public interface ThirdSportTournamentService {
     ThirdSportTournament saveOrupdate(ThirdSportTournament item);
 
     ThirdSportTournament getThirdSportTournament(Long id);
-
-    Page<ThirdSportTournament> getTournamentRulePage(PageModel<StandardTournamentRuleDTO> page);
 }

@@ -7,7 +7,6 @@ import com.panda.merge.dto.ThirdMatchResultDTO;
 import com.panda.merge.dto.ThirdMatchTeamRelationDetail;
 import com.panda.merge.rocketmq.processor.ThirdMarketResultProcessor;
 import com.panda.merge.service.ThirdMatchTeamRelationService;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 
 @SpringBootTest
-@Slf4j
 class ThirdResultTests {
 
 
@@ -73,25 +71,5 @@ class ThirdResultTests {
         System.out.println("==========="+redisKey);
     }
 
-    @Test
-    void testHSetAllBasedBucket() {
-        int totalQuantity = 100;
-        int bucketQuantity = 10;
-        String redisKey = "testHSetAllBasedBucket";
-        Map<String, String> map = new HashMap<>();
-        for (int i = 0; i < totalQuantity; i++) {
-            map.put("test_" + String.valueOf(i),String.valueOf(i));
-        }
 
-        //获取所有fields
-        redisService.hSetAllBasedBucket(redisKey,bucketQuantity, map, 3600);
-        Map<String, String> val = redisService.hGetAllBasedBucket(redisKey, bucketQuantity);
-        log.info("map is {}", val);
-
-        // 单独获取field
-        String fieldKey = "test_1";
-        String updatedKey = redisService.genNewHashKey(redisKey, fieldKey, bucketQuantity);
-        Object singleObject = redisService.hGet(updatedKey, fieldKey);
-        log.info("singleObject is ", singleObject);
-    }
 }

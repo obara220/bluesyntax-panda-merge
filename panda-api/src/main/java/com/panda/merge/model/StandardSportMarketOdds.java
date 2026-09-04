@@ -3,15 +3,9 @@ package com.panda.merge.model;
 import com.panda.merge.dto.I18nItemDTO;
 import com.panda.merge.dto.odds.StandardMarketOddsModification;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.io.Serializable;
 import java.util.List;
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
+
 public class StandardSportMarketOdds implements Serializable, StandardMarketOddsModification {
     @ApiModelProperty(value = "表ID,自增")
     private Long id;
@@ -113,11 +107,320 @@ public class StandardSportMarketOdds implements Serializable, StandardMarketOdds
      */
     private List<I18nItemDTO> i18nNames;
 
-    /**
-     * 批量修改的 表后缀
-     */
-    private Long tableShardingValue;
-
     private static final long serialVersionUID = 1L;
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getRelationMarketOddsId() {
+        return relationMarketOddsId;
+    }
+
+    public void setRelationMarketOddsId(Long relationMarketOddsId) {
+        this.relationMarketOddsId = relationMarketOddsId;
+    }
+
+    public Long getMarketId() {
+        return marketId;
+    }
+
+    public void setMarketId(Long marketId) {
+        this.marketId = marketId;
+    }
+
+    public Long getRelationMarketId() {
+        return relationMarketId;
+    }
+
+    public void setRelationMarketId(Long relationMarketId) {
+        this.relationMarketId = relationMarketId;
+    }
+
+    public Long getOddsFieldsTemplateId() {
+        return oddsFieldsTemplateId;
+    }
+
+    public void setOddsFieldsTemplateId(Long oddsFieldsTemplateId) {
+        this.oddsFieldsTemplateId = oddsFieldsTemplateId;
+    }
+
+    public String getThirdTemplateSourceId() {
+        return thirdTemplateSourceId;
+    }
+
+    public void setThirdTemplateSourceId(String thirdTemplateSourceId) {
+        this.thirdTemplateSourceId = thirdTemplateSourceId;
+    }
+
+    public Integer getActive() {
+        return active;
+    }
+
+    public void setActive(Integer active) {
+        this.active = active;
+    }
+
+    public String getSettlementResultText() {
+        return settlementResultText;
+    }
+
+    public void setSettlementResultText(String settlementResultText) {
+        this.settlementResultText = settlementResultText;
+    }
+
+    public String getSettlementResult() {
+        return settlementResult;
+    }
+
+    public void setSettlementResult(String settlementResult) {
+        this.settlementResult = settlementResult;
+    }
+
+    public String getBetSettlementCertainty() {
+        return betSettlementCertainty;
+    }
+
+    public void setBetSettlementCertainty(String betSettlementCertainty) {
+        this.betSettlementCertainty = betSettlementCertainty;
+    }
+
+    public String getOddsType() {
+        return oddsType;
+    }
+
+    public void setOddsType(String oddsType) {
+        this.oddsType = oddsType;
+    }
+
+    public String getAddition1() {
+        return addition1;
+    }
+
+    public void setAddition1(String addition1) {
+        this.addition1 = addition1;
+    }
+
+    public String getAddition2() {
+        return addition2;
+    }
+
+    public void setAddition2(String addition2) {
+        this.addition2 = addition2;
+    }
+
+    public String getAddition3() {
+        return addition3;
+    }
+
+    public void setAddition3(String addition3) {
+        this.addition3 = addition3;
+    }
+
+    public String getAddition4() {
+        return addition4;
+    }
+
+    public void setAddition4(String addition4) {
+        this.addition4 = addition4;
+    }
+
+    public String getAddition5() {
+        return addition5;
+    }
+
+    public void setAddition5(String addition5) {
+        this.addition5 = addition5;
+    }
+
+    public Long getNameCode() {
+        return nameCode;
+    }
+
+    public void setNameCode(Long nameCode) {
+        this.nameCode = nameCode;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getNameExpressionValue() {
+        return nameExpressionValue;
+    }
+
+    public void setNameExpressionValue(String nameExpressionValue) {
+        this.nameExpressionValue = nameExpressionValue;
+    }
+
+    public Double getMalayOddsValue() {
+        return malayOddsValue;
+    }
+
+    public void setMalayOddsValue(Double malayOddsValue) {
+        this.malayOddsValue = malayOddsValue;
+    }
+
+    public Integer getOddsValue() {
+        return oddsValue;
+    }
+
+    public void setOddsValue(Integer oddsValue) {
+        this.oddsValue = oddsValue;
+    }
+
+    public Integer getPaOddsValue() {
+        return paOddsValue;
+    }
+
+    public void setPaOddsValue(Integer paOddsValue) {
+        this.paOddsValue = paOddsValue;
+    }
+
+    public Integer getOriginalOddsValue() {
+        return originalOddsValue;
+    }
+
+    public void setOriginalOddsValue(Integer originalOddsValue) {
+        this.originalOddsValue = originalOddsValue;
+    }
+
+    public String getTargetSide() {
+        return targetSide;
+    }
+
+    public void setTargetSide(String targetSide) {
+        this.targetSide = targetSide;
+    }
+
+    public Integer getOrderOdds() {
+        return orderOdds;
+    }
+
+    public void setOrderOdds(Integer orderOdds) {
+        this.orderOdds = orderOdds;
+    }
+
+    public String getDataSourceCode() {
+        return dataSourceCode;
+    }
+
+    public void setDataSourceCode(String dataSourceCode) {
+        this.dataSourceCode = dataSourceCode;
+    }
+
+    public String getThirdOddsFieldSourceId() {
+        return thirdOddsFieldSourceId;
+    }
+
+    public void setThirdOddsFieldSourceId(String thirdOddsFieldSourceId) {
+        this.thirdOddsFieldSourceId = thirdOddsFieldSourceId;
+    }
+
+    public String getExtraInfo() {
+        return extraInfo;
+    }
+
+    public void setExtraInfo(String extraInfo) {
+        this.extraInfo = extraInfo;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
+    }
+
+    public Long getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Long createTime) {
+        this.createTime = createTime;
+    }
+
+    public Long getModifyTime() {
+        return modifyTime;
+    }
+
+    public void setModifyTime(Long modifyTime) {
+        this.modifyTime = modifyTime;
+    }
+
+    public Long getStandardMatchId() {
+        return standardMatchId;
+    }
+
+    public void setStandardMatchId(Long standardMatchId) {
+        this.standardMatchId = standardMatchId;
+    }
+
+    public Double getMarketDiffValue() {
+        return marketDiffValue;
+    }
+
+    public void setMarketDiffValue(Double marketDiffValue) {
+        this.marketDiffValue = marketDiffValue;
+    }
+
+    public List<I18nItemDTO> getI18nNames() {
+        return i18nNames;
+    }
+
+    public void setI18nNames(List<I18nItemDTO> i18nNames) {
+        this.i18nNames = i18nNames;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getClass().getSimpleName());
+        sb.append(" [");
+        sb.append("Hash = ").append(hashCode());
+        sb.append(", id=").append(id);
+        sb.append(", relationMarketOddsId=").append(relationMarketOddsId);
+        sb.append(", marketId=").append(marketId);
+        sb.append(", relationMarketId=").append(relationMarketId);
+        sb.append(", oddsFieldsTemplateId=").append(oddsFieldsTemplateId);
+        sb.append(", thirdTemplateSourceId=").append(thirdTemplateSourceId);
+        sb.append(", active=").append(active);
+        sb.append(", settlementResultText=").append(settlementResultText);
+        sb.append(", settlementResult=").append(settlementResult);
+        sb.append(", betSettlementCertainty=").append(betSettlementCertainty);
+        sb.append(", oddsType=").append(oddsType);
+        sb.append(", addition1=").append(addition1);
+        sb.append(", addition2=").append(addition2);
+        sb.append(", addition3=").append(addition3);
+        sb.append(", addition4=").append(addition4);
+        sb.append(", addition5=").append(addition5);
+        sb.append(", nameCode=").append(nameCode);
+        sb.append(", name=").append(name);
+        sb.append(", nameExpressionValue=").append(nameExpressionValue);
+        sb.append(", malayOddsValue=").append(malayOddsValue);
+        sb.append(", oddsValue=").append(oddsValue);
+        sb.append(", paOddsValue=").append(paOddsValue);
+        sb.append(", originalOddsValue=").append(originalOddsValue);
+        sb.append(", targetSide=").append(targetSide);
+        sb.append(", orderOdds=").append(orderOdds);
+        sb.append(", dataSourceCode=").append(dataSourceCode);
+        sb.append(", thirdOddsFieldSourceId=").append(thirdOddsFieldSourceId);
+        sb.append(", extraInfo=").append(extraInfo);
+        sb.append(", remark=").append(remark);
+        sb.append(", createTime=").append(createTime);
+        sb.append(", modifyTime=").append(modifyTime);
+        sb.append(", standardMatchId=").append(standardMatchId);
+        sb.append(", serialVersionUID=").append(serialVersionUID);
+        sb.append("]");
+        return sb.toString();
+    }
 }

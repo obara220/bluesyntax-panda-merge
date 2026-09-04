@@ -6,7 +6,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.nacos.api.config.annotation.NacosValue;
-import com.panda.merge.annotation.ConsumerSwitch;
 import com.panda.merge.common.enums.DataSourceCodeEnum;
 import com.panda.merge.dto.ThirdMatchLineupSimpleDTO;
 import com.panda.merge.dto.ThirdMatchPhraseDetail;
@@ -76,11 +75,11 @@ public class ThirdMatchJoinStandardMatchConsumer implements RocketMQListener<Mes
     @Override
     public void onMessage(MessageExt ext) {
         if (!realtimeSwitch && !realtimeEventSwitch) {
-            if (dataCenterProducer.checkForward(ext,MATCH_OPERATE_MSG)) {
+//            if (dataCenterProducer.checkForward(ext,MATCH_OPERATE_MSG)) {
                 //ThirdMatchRefreshCacheConsumer来进行转发
 //                dataCenterProducer.send(ext,MATCH_OPERATE_MSG);
                 return;
-            }
+//            }
         }
         String linkId = null;
         try {

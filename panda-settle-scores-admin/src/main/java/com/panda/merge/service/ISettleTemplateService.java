@@ -20,8 +20,6 @@ public interface ISettleTemplateService {
      * 灰色区间权重判断和更新
      * */
     Boolean judgeGrayStatus(MatchEventInfo matchEventInfo, MatchSettleTemplate template, String dataSourceCode, String grayType, Integer min, Long sportId);
-
-    Long getGrayId(Long standardMatchId,String dataSourceCode, String grayType, Integer min);
     /**
      * 结算权重判断
      * */

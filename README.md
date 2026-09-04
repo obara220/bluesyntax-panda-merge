@@ -26,6 +26,3 @@ panda-merge
         生产环境服务器：
             非实时服务：数据支撑组-服务器  ==》 pro-k8s-panda-ds-new-09,pro-k8s-panda-ds-new-10
             实时服务：数据支撑组-服务器  ==》 pro-k8s-panda-ds-new-11,pro-k8s-panda-ds-new-12
-
-    panda-settle-scores-admin服务开发需要遵守以下文档：
-    http://lan-confluence.dbsports.online/pages/viewpage.action?pageId=136105385

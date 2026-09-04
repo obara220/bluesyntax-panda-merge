@@ -24,7 +24,9 @@ import com.panda.merge.common.enums.PDOperateLogEnum;
 import com.panda.merge.common.enums.TeamTypeEnum;
 import com.panda.merge.common.utils.TimeUtils;
 import com.panda.merge.config.RedisService;
-import com.panda.merge.constant.*;
+import com.panda.merge.constant.CommonConstant;
+import com.panda.merge.constant.PDEventCodeEnum;
+import com.panda.merge.constant.SportTypeEnum;
 import com.panda.merge.dto.BasketballScores;
 import com.panda.merge.dto.BasketballScoresPDDto;
 import com.panda.merge.dto.CommonItem;
@@ -56,7 +58,6 @@ import com.panda.merge.model.ThirdMatchInfo;
 import com.panda.merge.model.ThirdMatchInfoExample;
 import com.panda.merge.service.IMatchScorePdLogService;
 import com.panda.merge.service.IScoresService;
-import com.panda.merge.snooker.dto.MatchCommonLogDto;
 import com.panda.merge.util.CategoryUtils;
 import com.panda.merge.utils.JsonMapUtils;
 import com.panda.merge.utils.ScoreUtils;
@@ -796,31 +797,19 @@ public class MatchScorePdLogServiceImpl implements IMatchScorePdLogService {
                 case 4:
                     matchScoresPdLog.setOperateModule(OperateLogTypeEnum.SCORES_PD_100102.getCode().toString());
                     break;
-                case 7:
-                    matchScoresPdLog.setOperateModule(OperateLogTypeEnum.SCORES_PD_100105.getCode().toString());
-                    break;
-                case 9:
-                    matchScoresPdLog.setOperateModule(OperateLogTypeEnum.SCORES_PD_100129.getCode().toString());
-                    break;
-                default:
-                    log.warn("changeMatchStartTimeLog unsupported sportId:{} thirdMatchId:{}", standardMatchInfo.getSportId(), changeMatchStartTimeDto.getThirdMatchId());
-                    break;
             }
             matchScoresPdLog.setOperateId(standardMatchInfo.getMatchManageId());
             matchScoresPdLog.setOperateName(getMatchSportTeamNameCode(standardMatchInfo.getId()));
             matchScoresPdLog.setOperateMatchId(CategoryUtils.SPLIT_LINE);
             matchScoresPdLog.setOperateMatchName(CategoryUtils.SPLIT_LINE);
-            Long startTime = changeMatchStartTimeDto.getStartTime();
-            long oldTs = oldBeginTime != null ? oldBeginTime : (startTime != null ? startTime : 0L);
-            long newTs = startTime != null ? startTime : oldTs;
-            if (DateUtils.isSameDay(new Date(newTs), new Date(oldTs))) {
+            if (DateUtils.isSameDay(new Date(changeMatchStartTimeDto.getStartTime()), new Date(oldBeginTime))) {
                 matchScoresPdLog.setOperateType(OperateLogTypeEnum.SCORES_PD_100103.getCode().toString());
-                matchScoresPdLog.setOperateForwText(DateFormatUtils.format(oldTs, "HH:mm"));
-                matchScoresPdLog.setOperateRearText(DateFormatUtils.format(newTs, "HH:mm"));
+                matchScoresPdLog.setOperateForwText(DateFormatUtils.format(oldBeginTime, "HH:mm"));
+                matchScoresPdLog.setOperateRearText(DateFormatUtils.format(changeMatchStartTimeDto.getStartTime(), "HH:mm"));
             } else {
                 matchScoresPdLog.setOperateType(OperateLogTypeEnum.SCORES_PD_100104.getCode().toString());
-                matchScoresPdLog.setOperateForwText(DateFormatUtils.format(oldTs, "yyyy-MM-dd"));
-                matchScoresPdLog.setOperateRearText(DateFormatUtils.format(newTs, "yyyy-MM-dd"));
+                matchScoresPdLog.setOperateForwText(DateFormatUtils.format(oldBeginTime, "yyyy-MM-dd"));
+                matchScoresPdLog.setOperateRearText(DateFormatUtils.format(changeMatchStartTimeDto.getStartTime(), "yyyy-MM-dd"));
             }
             matchScoresPdLog.setOperateParaName(CategoryUtils.SPLIT_LINE);
             matchScoresPdLog.setMatchManageId(standardMatchInfo.getMatchManageId());
@@ -1100,12 +1089,6 @@ public class MatchScorePdLogServiceImpl implements IMatchScorePdLogService {
                 case 4:
                     matchScoresPdLog.setOperateModule(OperateLogTypeEnum.SCORES_PD_100102.getCode().toString());
                     break;
-                case 7:
-                    matchScoresPdLog.setOperateModule(OperateLogTypeEnum.SCORES_PD_100105.getCode().toString());
-                    break;
-                case 9:
-                    matchScoresPdLog.setOperateModule(OperateLogTypeEnum.SCORES_PD_100129.getCode().toString());
-                    break;
             }
             matchScoresPdLog.setMatchManageId(standardMatchInfo.getMatchManageId());
             matchScoresPdLog.setOperateId(standardMatchInfo.getMatchManageId());
@@ -1127,274 +1110,11 @@ public class MatchScorePdLogServiceImpl implements IMatchScorePdLogService {
             matchScoresPdLog.setModifyTime(time);
             matchScoresPdLogMapper.insert(matchScoresPdLog);
         } catch (Exception e) {
+
             log.error("setMatchEndLog,标准赛事ID:{} , error:{}", matchScoreAndTimeVo.getStandardMatchInfo().getId(), e);
         }
+
     }
-
-    public void setMatchCommonLog(MatchScoreAndTimeVo matchScoreAndTimeVo, MatchCommonLogDto matchCommonLogDto) {
-        log.info("[setMatchCommonLog] start matchScoreAndTimeVo:{} matchCommonLogDto:{}", matchScoreAndTimeVo, matchCommonLogDto);
-        Long thirdMatchId = matchScoreAndTimeVo.getThirdMatchInfo() != null ? matchScoreAndTimeVo.getThirdMatchInfo().getId() : null;
-        try {
-            log.info("[setMatchCommonLog] start thirdMatchId:{} eventCode:{} dtoSportId:{} periodId:{}",
-                    thirdMatchId, matchCommonLogDto.getEventCode(), matchCommonLogDto.getSportId(), matchCommonLogDto.getPeriodId());
-            MatchScoresPdLog matchScoresPdLog = new MatchScoresPdLog();
-            // sportId：dto → standardMatchInfo → thirdMatchInfo（changeScore 等场景 dto 常无 sportId）
-            Long sportId = matchCommonLogDto.getSportId();
-            String sportIdSource = "dto";
-            if (sportId == null && matchScoreAndTimeVo.getStandardMatchInfo() != null) {
-                sportId = matchScoreAndTimeVo.getStandardMatchInfo().getSportId();
-                sportIdSource = "standardMatchInfo";
-            }
-            if (sportId == null && matchScoreAndTimeVo.getThirdMatchInfo() != null) {
-                sportId = matchScoreAndTimeVo.getThirdMatchInfo().getSportId();
-                sportIdSource = "thirdMatchInfo";
-            }
-            log.info("[setMatchCommonLog] sportId resolved thirdMatchId:{} sportId:{} source:{}",
-                    thirdMatchId, sportId, sportIdSource);
-            MatchInfoConvertEnum matchInfoConvertEnum = sportId != null ? MatchInfoConvertEnum.getBySport(sportId) : null;
-            if (matchInfoConvertEnum == null) {
-                log.warn("[setMatchCommonLog] skip sportId not supported or null thirdMatchId:{} sportId:{}",
-                        thirdMatchId, sportId);
-                return;
-            }
-            StandardMatchInfo standardMatchInfo = matchScoreAndTimeVo.getStandardMatchInfo();
-            if (standardMatchInfo == null) {
-                log.warn("[setMatchCommonLog] skip standardMatchInfo is null thirdMatchId:{}", thirdMatchId);
-                return;
-            }
-            matchScoresPdLog.setOperateModule(matchInfoConvertEnum.getOriCode() + "");
-            matchScoresPdLog.setMatchManageId(standardMatchInfo.getMatchManageId());
-            matchScoresPdLog.setOperateId(standardMatchInfo.getMatchManageId());
-            // 处理操作类型，如开关封锁，点击，变更比分
-            String operateType = CategoryUtils.SPLIT_LINE;
-            Long periodId = matchCommonLogDto.getPeriodId();
-            String operateName = (periodId != null && SnookerConstant.SNOOKER_SET_BEGIN.containsKey(periodId))
-                    ? "SET" + SnookerConstant.SNOOKER_SET_BEGIN.get(periodId) : (periodId != null && SnookerConstant.SNOOKER_SET_END.containsKey(periodId)
-                    ? "SET" + periodId : "PD-Snooker");
-            String operateMatchId = standardMatchInfo.getMatchManageId();
-            String operateMatchName = getMatchSportTeamNameCode(standardMatchInfo.getId());
-            String operateParaName = CategoryUtils.SPLIT_LINE;
-
-
-            if(matchCommonLogDto.getControlType() != null) {
-                MatchInfoConvertEnum controlType = MatchInfoConvertEnum.getByCurCode(matchCommonLogDto.getControlType());
-                operateType = controlType.getOriCode()+"";
-                operateName = operateMatchName;
-                operateMatchId = CategoryUtils.SPLIT_LINE;
-                operateMatchName = CategoryUtils.SPLIT_LINE;
-                OperateLogTypeEnum operateLogTypeEnum = OperateLogTypeEnum.getEnum(controlType.getOriCode()+"");
-                String langComb = CategoryUtils.SPLIT_LINE + operateLogTypeEnum.getName()+ CategoryUtils.SPLIT_AND+ operateLogTypeEnum.getValue();
-                operateParaName = snookerHowAwayToDisplay(matchCommonLogDto.getHowAway()) + langComb;
-                matchCommonLogDto.setAfterVal(langComb);
-
-                MatchInfoConvertEnum beforeOperate = null;
-                if (controlType == MatchInfoConvertEnum.MATCH_INTERRUPTED) {
-                    beforeOperate = MatchInfoConvertEnum.MATCH_RESTART;
-                } else if (controlType == MatchInfoConvertEnum.MATCH_RESTART) {
-                    beforeOperate = MatchInfoConvertEnum.MATCH_INTERRUPTED;
-                } else if (controlType == MatchInfoConvertEnum.MATCH_EVENT_INTERRUPTED) {
-                    beforeOperate = MatchInfoConvertEnum.MATCH_EVENT_RESTART;
-                } else if (controlType == MatchInfoConvertEnum.MATCH_EVENT_RESTART) {
-                    beforeOperate = MatchInfoConvertEnum.MATCH_EVENT_INTERRUPTED;
-                }
-                if (beforeOperate != null) {
-                    OperateLogTypeEnum beforeOperateLogTypeEnum = OperateLogTypeEnum.getEnum(beforeOperate.getOriCode()+"");
-                    String beforeLangComb = CategoryUtils.SPLIT_LINE + beforeOperateLogTypeEnum.getName()+ CategoryUtils.SPLIT_AND+ beforeOperateLogTypeEnum.getValue();
-                    matchCommonLogDto.setBeforeVal(beforeLangComb);
-                }
-            } else if (MatchInfoConvertEnum.SNOOKER.equals(matchInfoConvertEnum)) {
-                // 斯诺克日志与篮球一致：操作对象=SETn/主队vs客队，操作类型=点击/变更比分/赛事阶段，参数名称=H-红球赢分等
-                operateName = buildSnookerOperateName(periodId, operateMatchName);
-                if ("changeMatchLength".equals(matchCommonLogDto.getEventCode())) {
-                    operateType = OperateLogTypeEnum.SCORES_PD_10057.getCode() + "";
-                } else if ("deleteEvent".equals(matchCommonLogDto.getEventCode())) {
-                    // 删除事件：paramName 固定为“删除”
-                    operateType = OperateLogTypeEnum.SCORE_CHANGE.getCode() + "";
-                    operateParaName = "删除";
-                } else if ("batch_edit_set_scores".equals(matchCommonLogDto.getEventCode())) {
-                    operateType = OperateLogTypeEnum.SCORE_CHANGE.getCode() + "";
-                    operateParaName = "批量编辑局分";
-                    operateName = operateMatchName != null ? operateMatchName : "PD-Snooker";
-                } else if (isSnookerPeriodChangeLog(matchCommonLogDto)) {
-                    operateType = OperateLogTypeEnum.SCORES_PD_10097.getCode() + "";
-                    operateParaName = buildSnookerPeriodParaName(periodId);
-                } else {
-                    String eventCode = matchCommonLogDto.getEventCode();
-                    operateType = isSnookerScoreChangeEvent(eventCode)
-                            ? OperateLogTypeEnum.SCORE_CHANGE.getCode() + ""
-                            : OperateLogTypeEnum.SCORES_PD_10065.getCode() + "";
-                    SnookerEventTypeEnum snookerEventTypeEnum = SnookerEventTypeEnum.getByCode(eventCode);
-                    if (snookerEventTypeEnum != null) {
-                        String eng = snookerEventTypeEnum.getEngName();
-                        operateParaName = snookerHowAwayToDisplay(matchCommonLogDto.getHowAway()) + snookerEventTypeEnum.getName()
-                                + (eng != null && !eng.isEmpty() ? CategoryUtils.SPLIT_AND + eng : "");
-                    }
-                }
-            } else if (MatchInfoConvertEnum.VOLLEYBALL.equals(matchInfoConvertEnum)) {
-                // 排球与斯诺克同套语义：operateName=SETn/小局休息 或 主客队；operateType 通过 VolleyballEventTypeEnum.score 判断
-                operateName = buildVolleyballOperateName(periodId, operateMatchName);
-                if ("changeMatchLength".equals(matchCommonLogDto.getEventCode())) {
-                    operateType = OperateLogTypeEnum.SCORES_PD_10057.getCode() + "";
-                } else if ("deleteEvent".equals(matchCommonLogDto.getEventCode())) {
-                    operateType = OperateLogTypeEnum.SCORE_CHANGE.getCode() + "";
-                    operateParaName = "删除";
-                } else if ("batch_edit_set_scores".equals(matchCommonLogDto.getEventCode())) {
-                    operateType = OperateLogTypeEnum.SCORE_CHANGE.getCode() + "";
-                    operateParaName = "批量编辑局分";
-                    operateName = operateMatchName != null ? operateMatchName : "PD-Volleyball";
-                } else if (isVolleyballPeriodChangeLog(matchCommonLogDto)) {
-                    operateType = OperateLogTypeEnum.SCORES_PD_10097.getCode() + "";
-                    operateParaName = buildVolleyballPeriodParaName(periodId);
-                } else {
-                    String eventCode = matchCommonLogDto.getEventCode();
-                    VolleyballEventTypeEnum volleyballEventTypeEnum = VolleyballEventTypeEnum.getByCode(eventCode);
-                    // score=1 (ace/serve_error/out/penalty/volleyball_score_change) → 变更比分
-                    // score=null (kill/block/expulsion/disqualification/error + 状态事件) → 点击
-                    operateType = (volleyballEventTypeEnum != null && volleyballEventTypeEnum.getScore() != null)
-                            ? OperateLogTypeEnum.SCORE_CHANGE.getCode() + ""
-                            : OperateLogTypeEnum.SCORES_PD_10065.getCode() + "";
-                    if (volleyballEventTypeEnum != null) {
-                        String eng = volleyballEventTypeEnum.getEngName();
-                        operateParaName = volleyballHowAwayToDisplay(matchCommonLogDto.getHowAway()) + CategoryUtils.SPLIT_LINE +
-                                volleyballEventTypeEnum.getName() + (eng != null && !eng.isEmpty() ? CategoryUtils.SPLIT_AND + eng : "");
-                    }
-                }
-            } else if (SnookerConstant.SNOOKER_SET_END.containsKey(matchCommonLogDto.getPeriodId())) {
-                operateType = OperateLogTypeEnum.SCORE_CHANGE.getCode()+"";
-            } else if(SnookerConstant.SNOOKER_SET_BEGIN.containsKey(matchCommonLogDto.getPeriodId())){
-                operateType = OperateLogTypeEnum.SCORES_PD_10065.getCode()+"";
-            }
-            if ("changeMatchLength".equals(matchCommonLogDto.getEventCode())) {
-                operateType = OperateLogTypeEnum.SCORES_PD_10057.getCode()+"";
-            }
-
-            if (CategoryUtils.SPLIT_LINE.equals(operateParaName)) {
-                SnookerEventTypeEnum snookerEventTypeEnum = SnookerEventTypeEnum.getByCode(matchCommonLogDto.getEventCode());
-                if(snookerEventTypeEnum != null) {
-                    operateParaName = snookerHowAwayToDisplay(matchCommonLogDto.getHowAway()) + CategoryUtils.SPLIT_LINE +
-                            snookerEventTypeEnum.getName() + CategoryUtils.SPLIT_AND + snookerEventTypeEnum.getEngName();
-                }
-            }
-            matchScoresPdLog.setOperateName(operateName);  //阶段或者主客队名称
-            matchScoresPdLog.setOperateType(operateType);
-            matchScoresPdLog.setOperateMatchId(operateMatchId);
-            matchScoresPdLog.setOperateMatchName(operateMatchName);
-            matchScoresPdLog.setOperateParaName(operateParaName);
-
-            matchScoresPdLog.setOperateForwText(matchCommonLogDto.getBeforeVal());
-            matchScoresPdLog.setOperateRearText(matchCommonLogDto.getAfterVal());
-
-            if (matchScoreAndTimeVo.getThirdMatchInfo().getDataSourceCode().equals(DataSourceCodeEnum.PD.getCode()) || matchScoreAndTimeVo.getThirdMatchInfo().getDataSourceCode().equals(DataSourceCodeEnum.PD2.getCode())){
-                matchScoresPdLog.setOperateUserName(matchCommonLogDto.getOperatorName() + " (" + matchScoreAndTimeVo.getThirdMatchInfo().getDataSourceCode() + ")");
-            } else {
-                matchScoresPdLog.setOperateUserName(matchCommonLogDto.getOperatorName());
-            }
-            matchScoresPdLog.setIpAddress(matchCommonLogDto.getIpAddress());
-            long time = System.currentTimeMillis();
-            matchScoresPdLog.setCreateTime(time);
-            matchScoresPdLog.setModifyTime(time);
-            log.info("[setMatchCommonLog] insert thirdMatchId:{} operateModule:{} operateType:{} matchManageId:{}",
-                    thirdMatchId, matchScoresPdLog.getOperateModule(), matchScoresPdLog.getOperateType(), matchScoresPdLog.getMatchManageId());
-            matchScoresPdLogMapper.insert(matchScoresPdLog);
-            log.info("[setMatchCommonLog] insert success thirdMatchId:{} operateModule:{} id:{}",
-                    thirdMatchId, matchScoresPdLog.getOperateModule(), matchScoresPdLog.getId());
-        } catch (Exception e) {
-            Long standardId = matchScoreAndTimeVo.getStandardMatchInfo() != null ? matchScoreAndTimeVo.getStandardMatchInfo().getId() : null;
-            log.error("[setMatchCommonLog] error thirdMatchId:{} standardMatchId:{} ex:{}", thirdMatchId, standardId, e.getMessage(), e);
-        }
-        log.info("[setMatchCommonLog] end matchScoreAndTimeVo:{} matchCommonLogDto:{}", matchScoreAndTimeVo, matchCommonLogDto);
-    }
-
-    /** 斯诺克操作日志：主客队展示为 H-/A-（与需求表一致） */
-    private static String snookerHowAwayToDisplay(String howAway) {
-        if (howAway == null) return "";
-        if ("home".equalsIgnoreCase(howAway)) return "H-";
-        if ("away".equalsIgnoreCase(howAway)) return "A-";
-        return howAway;
-    }
-
-    /** 斯诺克操作对象名称：SET1/SET2/小局休息 或 主队vs客队 */
-    private static String buildSnookerOperateName(Long periodId, String operateMatchName) {
-        if (periodId == null) return operateMatchName != null ? operateMatchName : "PD-Snooker";
-        if (SnookerConstant.SNOOKER_SET_BEGIN.containsKey(periodId)) {
-            return "SET" + SnookerConstant.SNOOKER_SET_BEGIN.get(periodId);
-        }
-        if (SnookerConstant.SNOOKER_SET_END.containsKey(periodId)) {
-            return "SET" + SnookerConstant.SNOOKER_SET_END.get(periodId);
-        }
-        if (Long.valueOf(445L).equals(periodId)) return "小局休息";
-        return "SET" + periodId;
-    }
-
-    /** 是否为斯诺克阶段变更日志（changeMatchPeriod：SET开始/结束/小局休息，无 eventCode 或 仅 beforeVal/afterVal 为阶段描述） */
-    private static boolean isSnookerPeriodChangeLog(MatchCommonLogDto dto) {
-        String ec = dto.getEventCode();
-        if (ec != null && !ec.isEmpty() && !"changeMatchLength".equals(ec)) return false;
-        Long periodId = dto.getPeriodId();
-        return periodId != null && (SnookerConstant.SNOOKER_SET_BEGIN.containsKey(periodId)
-                || SnookerConstant.SNOOKER_SET_END.containsKey(periodId) || Long.valueOf(445L).equals(periodId));
-    }
-
-    /** 斯诺克阶段变更时的参数名称：SETn开始；小节休息（局结束阶段或 445）固定为「小局休息」，与修改后「SETn结束」文案区分 */
-    private static String buildSnookerPeriodParaName(Long periodId) {
-        if (periodId == null) return CategoryUtils.SPLIT_LINE;
-        if (Long.valueOf(445L).equals(periodId)) return "小局休息";
-        if (SnookerConstant.SNOOKER_SET_BEGIN.containsKey(periodId)) {
-            return "SET" + SnookerConstant.SNOOKER_SET_BEGIN.get(periodId) + "开始";
-        }
-        if (SnookerConstant.SNOOKER_SET_END.containsKey(periodId)) {
-            return "小局休息";
-        }
-        return "SET" + periodId;
-    }
-
-    /** 是否为斯诺克比分变更类事件（走“变更比分”操作类型） */
-    private static boolean isSnookerScoreChangeEvent(String eventCode) {
-        if (eventCode == null || eventCode.isEmpty()) return false;
-        return eventCode.startsWith("snooker_score_") || eventCode.startsWith("snooker_foul_") || "free_ball_pot".equals(eventCode);
-    }
-
-    /** 排球操作日志：主客队展示为 H-/A-（独立函数以便后续与斯诺克展示分化） */
-    private static String volleyballHowAwayToDisplay(String howAway) {
-        if (howAway == null) return "";
-        if ("home".equalsIgnoreCase(howAway)) return "H-";
-        if ("away".equalsIgnoreCase(howAway)) return "A-";
-        return howAway;
-    }
-
-    /** 排球操作对象名称：SETn / 主队vs客队 */
-    private static String buildVolleyballOperateName(Long periodId, String operateMatchName) {
-        if (periodId == null) return operateMatchName != null ? operateMatchName : "PD-Volleyball";
-        if (VolleyballConstant.VOLLEYBALL_SET_BEGIN.containsKey(periodId)) {
-            return "SET" + VolleyballConstant.VOLLEYBALL_SET_BEGIN.get(periodId);
-        }
-        if (VolleyballConstant.VOLLEYBALL_SET_END.containsKey(periodId)) {
-            return "SET" + VolleyballConstant.VOLLEYBALL_SET_END.get(periodId);
-        }
-        return operateMatchName != null ? operateMatchName : ("SET" + periodId);
-    }
-
-    /** 是否为排球阶段变更日志（changeMatchPeriod：SET开始/结束） */
-    private static boolean isVolleyballPeriodChangeLog(MatchCommonLogDto dto) {
-        String ec = dto.getEventCode();
-        if (ec != null && !ec.isEmpty() && !"changeMatchLength".equals(ec)) return false;
-        Long periodId = dto.getPeriodId();
-        return periodId != null && (VolleyballConstant.VOLLEYBALL_SET_BEGIN.containsKey(periodId)
-                || VolleyballConstant.VOLLEYBALL_SET_END.containsKey(periodId));
-    }
-
-    /** 排球阶段变更时的参数名称：SETn开始；局结束阶段固定为「小局休息」 */
-    private static String buildVolleyballPeriodParaName(Long periodId) {
-        if (periodId == null) return CategoryUtils.SPLIT_LINE;
-        if (VolleyballConstant.VOLLEYBALL_SET_BEGIN.containsKey(periodId)) {
-            return "SET" + VolleyballConstant.VOLLEYBALL_SET_BEGIN.get(periodId) + "开始";
-        }
-        if (VolleyballConstant.VOLLEYBALL_SET_END.containsKey(periodId)) {
-            return "小局休息";
-        }
-        return "SET" + periodId;
-    }
-
     /**
      * 记录删除赛事事件，区分事件类型：进球、黄牌、角球等
      * @param matchScoreAndTimeVo

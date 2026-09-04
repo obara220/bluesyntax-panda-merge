@@ -1,9 +1,7 @@
 package com.panda.merge.calculation.impl;
 
 
-import cn.hutool.json.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.panda.merge.constant.SportPeriodConstant;
 import com.panda.merge.dto.MatchStatisticsInfoDTO;
 import com.panda.merge.dto.MatchStatisticsInfoDetailDTO;
 import com.panda.merge.dto.SnookerScores;
@@ -66,16 +64,13 @@ public class SnookerCalculationServiceImpl extends AbstractCalculationServiceImp
         }catch (Exception e){
             return;
         }
-        //获取盘阶段
-        Long scorePeriodId = SportPeriodConstant.SnookerPeriod.getSnookerScorePeriod(data.getMatchPeriodId());
-
         JSONObject periodFootballScores = JSONObject.parseObject(matchScoresInfo.getScoresJson());
         Map<Long, SnookerScores> allPeriodScores= JsonMapUtils.parseSnookerMap(periodFootballScores);
         SnookerScores wholeSores= allPeriodScores.get(WHOLE_MATCH);
-        SnookerScores periodScores= allPeriodScores.get(scorePeriodId);
+        SnookerScores periodScores= allPeriodScores.get(data.getFirstNum()+0l);
         if(periodScores==null){
             periodScores =new SnookerScores();
-            allPeriodScores.put(scorePeriodId,periodScores);
+            allPeriodScores.put(data.getFirstNum()+0l,periodScores);
         }
         wholeSores.updateHighestSingleShot(high,data.getHomeAway());
         periodScores.updateHighestSingleShot(high,data.getHomeAway());
@@ -90,30 +85,30 @@ public class SnookerCalculationServiceImpl extends AbstractCalculationServiceImp
      * @param data
      */
     private void updateScores(MatchScoresInfo matchScoresInfo, MatchEventInfo data) {
-        log.info("::{}::斯诺克事件比分计算开始",data.getLinkId());
+        if(!isEffectEvent(data)){
+            return;
+        }
         JSONObject periodFootballScores = JSONObject.parseObject(matchScoresInfo.getScoresJson());
         Map<Long, SnookerScores> allPeriodScores= JsonMapUtils.parseSnookerMap(periodFootballScores);
         SnookerScores wholeSores= allPeriodScores.get(WHOLE_MATCH);
         if(wholeSores==null|| data.getFirstNum()==null){
-            log.info("斯诺克事件比分计算数据为空 updateScores wholeSores==null|| data.getFirstNum()==null ThirdMatchSourceId:"+data.getThirdMatchSourceId()+"matchid:"+matchScoresInfo.getThirdMatchId());
+            log.error("updateScores wholeSores==null|| data.getFirstNum()==null ThirdMatchSourceId:"+data.getThirdMatchSourceId()+"matchid:"+matchScoresInfo.getThirdMatchId());
             return;
         }
-        //获取盘阶段
-        Long scorePeriodId = SportPeriodConstant.SnookerPeriod.getSnookerScorePeriod(data.getMatchPeriodId());
-        SnookerScores periodScores= allPeriodScores.get(scorePeriodId);
+        SnookerScores periodScores= allPeriodScores.get(data.getFirstNum()+0l);
         if(periodScores==null){
             periodScores =new SnookerScores();
-            allPeriodScores.put(scorePeriodId,periodScores);
+            allPeriodScores.put(data.getFirstNum()+0l,periodScores);
         }
         periodScores.doCalculation(data,wholeSores);
-        periodScores.setFieldByEventCode(data,allPeriodScores);
-        log.info("::{}::斯诺克事件比分计算：阶段：{}-->{}，比分：{},全局比分：{}",data.getLinkId(),data.getMatchPeriodId(),scorePeriodId,periodScores,wholeSores);
-        matchScoresInfo.setT1(data.getT1());
-        matchScoresInfo.setT2(data.getT2());
+//        wholeSores.doCalculation(data);
+        matchScoresInfo.setT1(wholeSores.getMatchScore().getHome());
+        matchScoresInfo.setT2(wholeSores.getMatchScore().getAway());
         matchScoresInfo.setPeriodT1(periodScores.getSetScore().getHome());
         matchScoresInfo.setPeriodT2(periodScores.getSetScore().getAway());
         matchScoresInfo.setScoresJson(JSONObject.toJSONString(allPeriodScores));
         matchScoresInfo.setModifyTime(System.currentTimeMillis());
+//        matchScoreInfoRepository.updateScoresInfo(matchScoresInfo);
     }
 
     /**
@@ -134,6 +129,20 @@ public class SnookerCalculationServiceImpl extends AbstractCalculationServiceImp
 //        matchScoreInfoRepository.updateScoresInfo(matchScoresInfo);
     }
 
+    /**
+     * 校验事件编码
+     * @param data
+     * @return
+     */
+    private boolean isEffectEvent(MatchEventInfo data){
+//        if(data.getEventCode().equals("snooker_score_change")||data.getEventCode().equals("ball_possession")){
+//            return true;
+//        }
+//        if(data.getEventCode().equals("snooker_foul")){
+//            return true;
+//        }
+        return true;
+    }
 
     /**
      * 初始化比分
@@ -243,22 +252,4 @@ public class SnookerCalculationServiceImpl extends AbstractCalculationServiceImp
 
     }
 
-    public String buildStandardMatchScoreByMap(String scoresJson,String linkId) {
-        JSONObject periodSnookerScores = JSONObject.parseObject(scoresJson);
-        Map<Long, SnookerScores> allPeriodScores= JsonMapUtils.parseSnookerMap(periodSnookerScores);
-        Map<Long, SnookerScores> newAllPeriodScores= new HashMap<>();
-        allPeriodScores.forEach((key,value)->{
-            if(SportPeriodConstant.SnookerPeriod.SnookerPeriodScores.periodMaps.get(key)!=null){
-                newAllPeriodScores.put(SportPeriodConstant.SnookerPeriod.SnookerPeriodScores.periodMaps.get(key),value);
-            }else{
-                newAllPeriodScores.put(key,value);
-            }
-        });
-        log.info("::{}::斯诺克比分编码转换：{}",linkId,newAllPeriodScores);
-        return JSONObject.toJSONString(newAllPeriodScores);
-    }
-
-    public static void main(String[] args) {
-        System.out.println(1);
-    }
 }

@@ -8,7 +8,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.panda.merge.constant.SportPeriodConstant;
 import com.panda.merge.constant.SportTypeEnum;
-import com.panda.merge.constant.VolleyballConstant;
 import com.panda.merge.dto.*;
 import com.panda.merge.dto.scores.StandardMatchSwitchDTO;
 import com.panda.merge.dto.scores.StandardScoreCenter;
@@ -56,40 +55,6 @@ public class VolleyballCalculationServiceImpl extends AbstractCalculationService
             createScores(matchScoresInfo,data);
         }else {
             updateScores(matchScoresInfo,data);
-        }
-    }
-
-    /**
-     * 把排球 scoresJson 的局编号从 8/9/10/11/12/441/442 转换成简单序号 1-7 后返回，
-     * 与斯诺克 buildStandardMatchScoreByMap 对齐，供 standard MQ 下游使用：
-     * - 仅替换 key（periodId → 局序号），inner JSON 原样保留
-     * - 不在 VOLLEYBALL_SET_BEGIN 中的 key（如 -1 全场桶、80 中断、999 结束）保持原样
-     * - 解析失败时回退到原 JSON，避免影响主链路
-     */
-    public String buildStandardMatchScoreByMap(String scoresJson, String linkId) {
-        if (StringUtils.isEmpty(scoresJson)) {
-            return scoresJson;
-        }
-        try {
-            JSONObject src = JSONObject.parseObject(scoresJson);
-            JSONObject dst = new JSONObject();
-            for (String key : src.keySet()) {
-                String newKey = key;
-                try {
-                    Integer mapped = VolleyballConstant.VOLLEYBALL_SET_BEGIN.get(Long.valueOf(key));
-                    if (mapped != null) {
-                        newKey = mapped.toString();
-                    }
-                } catch (NumberFormatException nfe) {
-                    // 非数字 key 直接原样保留
-                }
-                dst.put(newKey, src.get(key));
-            }
-            log.info("::{}::排球比分编码转换：{}", linkId, dst);
-            return dst.toJSONString();
-        } catch (Exception e) {
-            log.error("::{}::排球 buildStandardMatchScoreByMap 异常，回退原 JSON", linkId, e);
-            return scoresJson;
         }
     }
 
@@ -296,7 +261,7 @@ public class VolleyballCalculationServiceImpl extends AbstractCalculationService
             if(match!=null && match.getRoundType() != null){
                 rountType = match.getRoundType();
             }
-            calcWholeScores(standardScores,rountType,data.getLinkId(), data.getMatchPeriodId(),thirdWholeSores);
+            calcWholeScores(standardScores,rountType,data.getLinkId(), data.getMatchPeriodId());
         }catch (Exception e){
             log.error("计算标准比分错误:{}",data.getLinkId(),e);
         }
@@ -309,75 +274,27 @@ public class VolleyballCalculationServiceImpl extends AbstractCalculationService
         Long periodId  = data.getMatchPeriodId();
         VolleyballScores soresSource= allPeriodScores.get(periodId);
         if(soresSource==null) {
-            log.info("复制排球阶段比分,三方阶段比分为空 {},linkId:{}",periodId,data.getLinkId());
+            log.info("复制排球阶段比分,三方阶段比分为空 {}",periodId);
             return;
         }
         if(standardScores.get(periodId)==null){
             standardScores.put(periodId,new VolleyballScores());
         }
-        log.info("::{}::排球同步标准比分，联动开关：{}",data.getLinkId(),tennisSwitch);
-        log.info("::{}::排球同步标准比分,{},阶段比分同步前：{}",data.getLinkId(),periodId,standardScores);
         for(Map.Entry<Long, VolleyballScores> entry : allPeriodScores.entrySet()){
-            Long scoresPeriod=changePeriodByExtryPeriodEvent(entry.getKey());
-            VolleyballScores standScores= standardScores.get(scoresPeriod);
-            if(standScores==null){
-                standScores = new VolleyballScores();
-            }
-            //获取三方比分当前阶段的比分
-            VolleyballScores thirdScores = entry.getValue();
-            if(thirdScores==null){
-                thirdScores = new VolleyballScores();
-            }
-            if(scoresPeriod==8L && tennisSwitch.getFirstSwitch()==1){
-                standScores.setSetScore(thirdScores.getSetScore());
-                setOther(standScores,thirdScores);
-                standardScores.put(8L,standScores);
-            }else if(scoresPeriod==9L && tennisSwitch.getSecondSwitch()==1){
-                standScores.setSetScore(thirdScores.getSetScore());
-                setOther(standScores,thirdScores);
-                standardScores.put(9L,standScores);
-            }else if(scoresPeriod==10L && tennisSwitch.getThirdSwitch()==1){
-                standScores.setSetScore(thirdScores.getSetScore());
-                setOther(standScores,thirdScores);
-                standardScores.put(10L,standScores);
-            }else if(scoresPeriod==11L && tennisSwitch.getFourSwitch()==1){
-                standScores.setSetScore(thirdScores.getSetScore());
-                setOther(standScores,thirdScores);
-                standardScores.put(11L,standScores);
-            }else if(scoresPeriod==12L && tennisSwitch.getFifSwitch()==1){
-                standScores.setSetScore(thirdScores.getSetScore());
-                setOther(standScores,thirdScores);
-                standardScores.put(12L,standScores);
-            }else if(scoresPeriod==441L && tennisSwitch.getSixSwitch()==1){
-                standScores.setSetScore(thirdScores.getSetScore());
-                setOther(standScores,thirdScores);
-                standardScores.put(441L,standScores);
-            }else if(scoresPeriod==442L && tennisSwitch.getSevenSwitch()==1){
-                standScores.setSetScore(thirdScores.getSetScore());
-                setOther(standScores,thirdScores);
-                standardScores.put(442L,standScores);
+            log.info("::{}::排球同步标准比分：{}，{}",data.getLinkId(),entry.getKey(),entry.getValue());
+            Long scoresPperiod=changePeriodByExtryPeriodEvent(entry.getKey());
+            if(scoresPperiod==8L && tennisSwitch.getFirstSwitch()==1){
+                standardScores.put(8L,allPeriodScores.get(scoresPperiod));
+            }else if(scoresPperiod==9L && tennisSwitch.getSecondSwitch()==1){
+                standardScores.put(9L,allPeriodScores.get(scoresPperiod));
+            }else if(scoresPperiod==10L && tennisSwitch.getThirdSwitch()==1){
+                standardScores.put(10L,allPeriodScores.get(scoresPperiod));
+            }else if(scoresPperiod==11L && tennisSwitch.getFourSwitch()==1){
+                standardScores.put(11L,allPeriodScores.get(scoresPperiod));
+            }else if(scoresPperiod==12L && tennisSwitch.getFifSwitch()==1){
+                standardScores.put(12L,allPeriodScores.get(scoresPperiod));
             }
         }
-        log.info("::{}::排球同步标准比分,{},阶段比分同步后：{}",data.getLinkId(),periodId,standardScores);
-
-    }
-
-    private void setOther(VolleyballScores standScores, VolleyballScores soresSource) {
-        standScores.setServeScoresCount(soresSource.getServeScoresCount());
-        standScores.setServeErrorCount(soresSource.getServeErrorCount());
-        standScores.setServe(soresSource.getServe());
-        standScores.setServiceError(soresSource.getServiceError());
-        standScores.setOut(soresSource.getOut());
-        standScores.setAce(soresSource.getAce());
-        standScores.setKill(soresSource.getKill());
-        standScores.setBlock(soresSource.getBlock());
-        standScores.setExpulsion(soresSource.getExpulsion());
-        standScores.setDisqualification(soresSource.getDisqualification());
-        standScores.setPenalty(soresSource.getPenalty());
-        standScores.setError(soresSource.getError());
-        standScores.setKickoff(soresSource.getKickoff());
-
-
     }
 
     private Long changePeriodByExtryPeriodEvent(Long periodId) {
@@ -610,7 +527,6 @@ public class VolleyballCalculationServiceImpl extends AbstractCalculationService
             JSONObject periodtableballScores = JSONObject.parseObject(matchScoresInfo.getScoresJson());
             thirdMatchScores= JsonMapUtils.parseVolleyballMap(periodtableballScores);
         }
-        VolleyballScores thirdWholeSores= thirdMatchScores.get(WHOLE_MATCH);
         //足球外的其他球种 index字段传阶段值
         int index = matchSwitchDTO.getIndex();
         log.info("修改开关联动同步比分:index:{}",index);
@@ -627,18 +543,17 @@ public class VolleyballCalculationServiceImpl extends AbstractCalculationService
             standScores.setSetScore(thirdScores.getSetScore());
             newStandardScores.put(period,standScores);
         }
-        calcWholeScores(newStandardScores,roundType,standardMatchScores.getMatchId()+"",matchPeriodId,thirdWholeSores);
+        calcWholeScores(newStandardScores,roundType,standardMatchScores.getMatchId()+"",matchPeriodId);
     log.info("修改开关联动同步比分 newStandardScores:{}",newStandardScores);
     return JSON.toJSONString(newStandardScores);
 }
 
-    public void calcWholeScores(Map<Long, VolleyballScores> newStandardScores,Integer roundType,String linkId,Long matchPeriodId,VolleyballScores thirdWholeSores){
+    public void calcWholeScores(Map<Long, VolleyballScores> newStandardScores,Integer roundType,String linkId,Long matchPeriodId){
         Integer tgHome = 0;
         Integer tgAway = 0;
         Integer setHome = 0;
         Integer setAway = 0;
-        log.info("::{}::排球同步标准比分,roundType={},同步前比分：{}",linkId,roundType,newStandardScores.get(WHOLE_MATCH));
-        log.info("::{}::排球同步标准比分,roundType={}",linkId,roundType);
+        log.info("::{}::排球标准比分同步,roundType={},同步前比分：{}",linkId,roundType,newStandardScores.get(WHOLE_MATCH));
         for (Long periodId : newStandardScores.keySet()) {
             //查询比分时过滤阶段0 -- 脏数据
             if (!scoreCenterPeriod.contains(periodId)) {
@@ -647,6 +562,7 @@ public class VolleyballCalculationServiceImpl extends AbstractCalculationService
             VolleyballScores cc = newStandardScores.get(periodId);
             tgHome += cc.getSetScore().getHome();
             tgAway += cc.getSetScore().getAway();
+            log.info("::{}::排球标准比分同步,roundType={}",linkId,roundType);
             if(setEndPeriod.contains(matchPeriodId)){
                 if (cc.getSetScore().getHome() > cc.getSetScore().getAway()) {
                     setHome = setHome + 1;
@@ -667,7 +583,7 @@ public class VolleyballCalculationServiceImpl extends AbstractCalculationService
                 }
             } else {
                 if (roundType >= 5 && periodId >= 12L) {
-                    log.info("::{}::排球同步标准比分1,roundType={},periodId={}，{}:{}",linkId,roundType,periodId,cc.getSetScore().getHome(),cc.getSetScore().getAway());
+                    log.info("::{}::排球标准比分同步1,roundType={},periodId={}，{}:{}",linkId,roundType,periodId,cc.getSetScore().getHome(),cc.getSetScore().getAway());
                     //针对排球 排球赛制五局三胜，打到第五局的时候，比分 15分且胜2局，不需要达到25分，盘比分计算逻辑还是有点问题呢
                     if (cc.getSetScore().getHome() > cc.getSetScore().getAway() && cc.getSetScore().getHome() >= 15) {
                         if (cc.getSetScore().getHome() - cc.getSetScore().getAway() >= 2) {
@@ -679,7 +595,7 @@ public class VolleyballCalculationServiceImpl extends AbstractCalculationService
                         }
                     }
                 } else {
-                    log.info("::{}::排球同步标准比分2,roundType={},periodId={}，{}:{}",linkId,roundType,periodId,cc.getSetScore().getHome(),cc.getSetScore().getAway());
+                    log.info("::{}::排球标准比分同步2,roundType={},periodId={}，{}:{}",linkId,roundType,periodId,cc.getSetScore().getHome(),cc.getSetScore().getAway());
                     if (cc.getSetScore().getHome() > cc.getSetScore().getAway()) {
                         if (cc.getSetScore().getHome() >= 25 && cc.getSetScore().getHome() - cc.getSetScore().getAway() >= 2) {
                             setHome = setHome + 1;
@@ -692,16 +608,13 @@ public class VolleyballCalculationServiceImpl extends AbstractCalculationService
                 }
             }
         }
-        log.info("::{}::排球同步标准比分,roundType={},setHome={},setAway={},tgHome={},setAway={}",linkId,roundType,setHome,setAway,tgHome,setAway);
-        VolleyballScores wholeScores = newStandardScores.get(WHOLE_MATCH);
-        if(wholeScores==null){
-            wholeScores = new VolleyballScores();
+        if(newStandardScores.get(WHOLE_MATCH)==null){
+            newStandardScores.put(WHOLE_MATCH,new VolleyballScores());
         }
-        wholeScores.setMatchScore(new CommonItem(setHome, setAway));
-        wholeScores.setSetScore(new CommonItem(tgHome, tgAway));
-        setOther(wholeScores,thirdWholeSores);
-        newStandardScores.put(WHOLE_MATCH,wholeScores);
-        log.info("::{}::排球同步标准比分,roundType={},同步后比分：{}",linkId,roundType,newStandardScores.get(WHOLE_MATCH));
+        log.info("::{}::排球标准比分同步,roundType={},setHome={},setAway={},tgHome={},setAway={}",linkId,roundType,setHome,setAway,tgHome,setAway);
+        newStandardScores.get(WHOLE_MATCH).setMatchScore(new CommonItem(setHome, setAway));
+        newStandardScores.get(WHOLE_MATCH).setSetScore(new CommonItem(tgHome, tgAway));
+        log.info("::{}::排球标准比分同步,roundType={},同步后比分：{}",linkId,roundType,newStandardScores.get(WHOLE_MATCH));
 
     }
 }

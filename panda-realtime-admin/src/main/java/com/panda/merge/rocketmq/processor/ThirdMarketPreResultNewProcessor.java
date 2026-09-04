@@ -86,6 +86,27 @@ public class ThirdMarketPreResultNewProcessor extends BaseProcessor {
             sw.stop();
             return;
         }
+        int marketType = isOddsLive(standardMatchInfo.getId());
+        //查找开售信息
+        StandardSportMarketSell standardSportMarketSell = standardSportMarketSellService.getItem(standardMatchId);
+        if (null == standardSportMarketSell) {
+            log.info("::{}::新提前结算,未找到预开售信息,标准赛事id={}", linkId, standardMatchId);
+            sw.stop();
+            return;
+        }
+        if (marketType == 0) {
+            if (!StringUtils.equals(standardSportMarketSell.getLiveMatchSellStatus(), SaleMatchSellStausEnum.Sold.name())) {
+                log.info("::{}::新提前结算,滚球未开售,标准赛事id={}", linkId, standardMatchId);
+                sw.stop();
+                return;
+            }
+        } else {
+            if (!StringUtils.equals(standardSportMarketSell.getPreMatchSellStatus(), SaleMatchSellStausEnum.Sold.name())) {
+                log.info("::{}::新提前结算,赛前未开售,标准赛事id={}", linkId, standardMatchId);
+                sw.stop();
+                return;
+            }
+        }
         Map<String, List<ThirdMarketPreResultDTO>> thirdMarketPreResultMap = marketResultList.stream().collect(Collectors.groupingBy(ThirdMarketPreResultDTO::getThirdMarketCategorySourceId));
         //处理三方盘口新提前结算信息
         thirdConvertStandardMarketNew(linkId, standardMatchInfo, thirdMarketPreResultMap, dataSourceTime, dataSourceCode, thirdMatchId,requestType);
@@ -184,6 +205,11 @@ public class ThirdMarketPreResultNewProcessor extends BaseProcessor {
             log.info("::{}::新提前结算,三方玩法未绑定标准玩法,三方玩法id:{}", linkId, thirdCategorySourceId);
             return null;
         }
+//        //提前计算支持玩法
+//        if (!MarginCategoryConfig.PRE_STANDARD_CATEGORY.contains(marketCategoryId)) {
+//            log.info("::{}::新提前结算,不在本期玩法集合内，不处理,三方玩法id:{},标准玩法id：{}", linkId, thirdCategorySourceId, marketCategoryId);
+//            return null;
+//        }
         return marketCategoryId;
     }
 

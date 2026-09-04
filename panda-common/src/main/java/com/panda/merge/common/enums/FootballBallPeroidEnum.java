@@ -67,8 +67,6 @@ public enum FootballBallPeroidEnum {
     MIN_75_90_CORNER(42, "75~89:59 分钟角球", "75~89:59 CORNER"),
     MIN_75_90_RED_CARD(43, "75~89:59 分钟红牌", "75~89:59 RED_CARD"),
     MIN_75_90_YELLOW_CARD(44, "75~89:59 分钟黄牌", "75~89:59 YELLOW_CARD"),
-    MINUTES_SCORES_CHECK_SWITCH(100203,"区间比分校验开关","Minutes scores check switch"),
-
 
     ;
 

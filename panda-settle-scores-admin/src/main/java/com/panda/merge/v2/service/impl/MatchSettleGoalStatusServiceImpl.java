@@ -89,12 +89,7 @@ public class MatchSettleGoalStatusServiceImpl implements IMatchSettleGoalStatusS
                 log.info("linkId::{}::eventId:{} updateMatchSettleGoalStatus  进球确认更新状态:CONFIRM", matchEventInfo.getLinkId(), matchEventInfo.getThirdEventId());
                 return;
             }
-            // 排球（sportId=9）ct=5/6 走 timeout/timeout_over，语义等同于其它球种的 match_status，需一并触发结算。
-            boolean volleyballStatusEvent = Long.valueOf(9L).equals(matchEventInfo.getSportId())
-                    && ("timeout".equals(matchEventInfo.getEventCode()) || "timeout_over".equals(matchEventInfo.getEventCode()));
-            if (MatchSettleCheckConstant.GoalConfirmEventCode.RB.equals(matchEventInfo.getEventCode())
-                    || "match_status".equals(matchEventInfo.getEventCode())
-                    || volleyballStatusEvent) {
+            if (MatchSettleCheckConstant.GoalConfirmEventCode.RB.equals(matchEventInfo.getEventCode()) || "match_status".equals(matchEventInfo.getEventCode())) {
                 goalStatus.setGoalStatus(MatchSettleCheckConstant.GoalStatus.CONFIRM);
                 goalStatus.setModifyTime(System.currentTimeMillis());
                 matchSettleGoalStatusRepository.updateOrInsertMatchSettleGoalStatus(goalStatus,false);

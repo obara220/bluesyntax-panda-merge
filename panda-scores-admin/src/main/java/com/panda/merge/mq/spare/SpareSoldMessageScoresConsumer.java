@@ -35,7 +35,7 @@ import static com.panda.merge.constant.ConstantSystem.LIVE_BUSINESS_EVENT_UPDATE
 @Component
 public class SpareSoldMessageScoresConsumer {
     private static final String TOPIC = LIVE_BUSINESS_EVENT_UPDATE_MESSAGE;
-    private static final String CONSUMER_GROUP = "scores-group-" + LIVE_BUSINESS_EVENT_UPDATE_MESSAGE+"2";
+    private static final String CONSUMER_GROUP = "scores-group-" + LIVE_BUSINESS_EVENT_UPDATE_MESSAGE;
 
     @Value("${slaveNamesrvAddr}")
     private String nameServers;

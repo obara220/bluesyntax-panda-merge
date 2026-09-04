@@ -278,9 +278,8 @@ public class MatchBasketBallAdvertiseApiImpl implements IMatchBasketBallAdvertis
                 ThirdMatchInfo thirdMatchInfo = response.getData().getThirdMatchInfo();
                 Long oldBeginTime = thirdMatchInfo.getBeginTime();
                 MatchTimeInfo timeInfo = response.getData().getMatchTimeInfo();
-                //2.如果已经开赛则无法修改（period 可能为 null，需避免拆箱 NPE）
-                Long period = timeInfo != null ? timeInfo.getPeriod() : null;
-                if (period != null && period > 0) {
+                //2.如果已经开赛则无法修改
+                if (timeInfo.getPeriod() > 0) {
                     return Response.failed("PA赛事已经开赛无法修改开赛时间");
                 }
                 //3.修改开赛时间
@@ -503,10 +502,8 @@ public class MatchBasketBallAdvertiseApiImpl implements IMatchBasketBallAdvertis
                 }
                 //1.开始
                 if (MATCH_START.equals(changeMatchStatus.getControlType()) ) {
-                    log.info("::{}::changeMatchStatus开始::{}", linkId,matchTimeInfo.getPeriod());
                     if (BasketBallConstant.BASKETL_BALL_PERIODS.contains(matchTimeInfo.getPeriod())) {
-                        log.info("::{}::操作不符合定义,赛事阶段进行中::{},{}", linkId,matchTimeInfo.getThirdMatchId(),matchTimeInfo.getPeriod());
-//                        return Response.failed("操作不符合定义,赛事阶段进行中:"+matchTimeInfo.getPeriod());
+                        return Response.failed("操作不符合定义");
                     }
                     changeMatchStatus.setPeriodId(matchTimeInfo.getPeriod());
                     // 篮球3*3则所有下发阶段改为21
@@ -549,7 +546,7 @@ public class MatchBasketBallAdvertiseApiImpl implements IMatchBasketBallAdvertis
                         if (null == changeMatchStatus.getIsJump() || changeMatchStatus.getIsJump() != 1) {
                             matchScorePdLogService.changeMatchStatusLog(response.getData(), changeMatchStatus);
                         }
-//                        scoresProducer.sendToMQ(response.getData().getThirdMatchInfo(),response.getData().getMatchScoresInfo(),changeMatchStatus.getLinkedId());
+                        scoresProducer.sendToMQ(response.getData().getThirdMatchInfo(),response.getData().getMatchScoresInfo(),changeMatchStatus.getLinkedId());
                         MatchScoresInfo matchScoresInfo = scoresService.checkBasketPeriodAndSixScore(response.getData() ,response.getData().getMatchTimeInfo().getPeriod(),response.getData().getMatchTimeInfo().getSecondFromStart());
                         response.getData().setMatchScoresInfo(matchScoresInfo);
                         return commonAdvertiseService.changeMatchStartStatus(response.getData().getThirdMatchInfo(),linkId);
@@ -560,7 +557,7 @@ public class MatchBasketBallAdvertiseApiImpl implements IMatchBasketBallAdvertis
                 if (MATCH_PAUSE.equals(changeMatchStatus.getControlType())) {
                     Response matchPauseResponse = basketBallAdvertiseService.matchPause(response.getData(), changeMatchStatus.getLinkedId());
                     matchScorePdLogService.changeMatchStatusLog(response.getData(), changeMatchStatus);
-//                    scoresProducer.sendToMQ(response.getData().getThirdMatchInfo(),response.getData().getMatchScoresInfo(),changeMatchStatus.getLinkedId());
+                    scoresProducer.sendToMQ(response.getData().getThirdMatchInfo(),response.getData().getMatchScoresInfo(),changeMatchStatus.getLinkedId());
                     redisUtils.cacheRequestLinkId(changeMatchStatus.getLinkedId());
                     MatchScoresInfo matchScoresInfo = scoresService.checkBasketPeriodAndSixScore(response.getData() ,response.getData().getMatchTimeInfo().getPeriod(),response.getData().getMatchTimeInfo().getSecondFromStart());
                     return matchPauseResponse;
@@ -569,7 +566,7 @@ public class MatchBasketBallAdvertiseApiImpl implements IMatchBasketBallAdvertis
                 if (MATCH_CONTINUE.equals(changeMatchStatus.getControlType())) {
                     Response continueResponse = basketBallAdvertiseService.matchContinue(response.getData(), changeMatchStatus.getLinkedId());
                     matchScorePdLogService.changeMatchStatusLog(response.getData(), changeMatchStatus);
-//                    scoresProducer.sendToMQ(response.getData().getThirdMatchInfo(),response.getData().getMatchScoresInfo(),changeMatchStatus.getLinkedId());
+                    scoresProducer.sendToMQ(response.getData().getThirdMatchInfo(),response.getData().getMatchScoresInfo(),changeMatchStatus.getLinkedId());
                     redisUtils.cacheRequestLinkId(changeMatchStatus.getLinkedId());
                     return continueResponse;
                 }
@@ -577,7 +574,7 @@ public class MatchBasketBallAdvertiseApiImpl implements IMatchBasketBallAdvertis
                 if (MATCH_END.equals(changeMatchStatus.getControlType())) {
                     Response matchEndResponse = basketBallAdvertiseService.matchEnd(response.getData(), changeMatchStatus.getLinkedId());
                     matchScorePdLogService.changeMatchStatusLog(response.getData(), changeMatchStatus);
-//                    scoresProducer.sendToMQ(response.getData().getThirdMatchInfo(),response.getData().getMatchScoresInfo(),changeMatchStatus.getLinkedId());
+                    scoresProducer.sendToMQ(response.getData().getThirdMatchInfo(),response.getData().getMatchScoresInfo(),changeMatchStatus.getLinkedId());
                     redisUtils.cacheRequestLinkId(changeMatchStatus.getLinkedId());
                     return matchEndResponse;
                 }

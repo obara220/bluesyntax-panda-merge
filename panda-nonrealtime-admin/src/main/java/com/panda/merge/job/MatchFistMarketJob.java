@@ -52,7 +52,7 @@ public class MatchFistMarketJob extends IJobHandler {
         try {
             //赛事
             String thirdFistMatchKey = Constant.REDIS_KEY.THIRD_FIST_MATCH;
-            //log.info("定时任务开始处理初盘盘口,key:{}", thirdFistMatchKey);
+            log.info("定时任务开始处理初盘盘口,key:{}", thirdFistMatchKey);
             Map<String, Long> matchMap = redisService.hGetAll(thirdFistMatchKey);
             if (!MapUtils.isEmpty(matchMap)) {
                 for (Map.Entry<String, Long> entry : matchMap.entrySet()) {
@@ -79,26 +79,26 @@ public class MatchFistMarketJob extends IJobHandler {
                         //查询标准赛事
                         StandardMatchInfo standardMatchInfo = standardMatchInfoService.getItem(standardMatchId);
                         if (null == standardMatchInfo) {
-                            //log.info("::{}::定时任务开始处理初盘盘口,标准赛事不存在:{}", linkId, standardMatchId);
+                            log.info("::{}::定时任务开始处理初盘盘口,标准赛事不存在:{}", linkId, standardMatchId);
                             delKey(thirdFistMatchKey, entry, fistKey);
                             continue;
                         }
                         //不是完赛状态不处理
                         if (StringUtils.isEmpty(param) && !YesNoEnum.Y.value.equals(standardMatchInfo.getMatchOver())) {
-                            //log.info("::{}::定时任务开始处理初盘盘口,不是完赛状态不处理:{}", linkId, standardMatchId);
+                            log.info("::{}::定时任务开始处理初盘盘口,不是完赛状态不处理:{}", linkId, standardMatchId);
                             continue;
                         }
                         List<StandardMarketDataMessage> standardMarketDataMessageList = new ArrayList<StandardMarketDataMessage>(standardMarketMessageDataMap.values());
-                        //log.info("::{}::定时任务开始处理初盘盘口,赛事ID:{},比赛时间:{},加时间后:{},盘口数据:{}", linkId, standardMatchId, entry.getValue(), beginTime, JSONObject.toJSONString(standardMarketDataMessageList));
+                        log.info("::{}::定时任务开始处理初盘盘口,赛事ID:{},比赛时间:{},加时间后:{},盘口数据:{}", linkId, standardMatchId, entry.getValue(), beginTime, JSONObject.toJSONString(standardMarketDataMessageList));
                         standardMarketDataMessageProcessor(linkId, standardMatchId, standardMatchInfo.getSportId(), standardMarketDataMessageList);
                         //下发成功删除赛事，赔率
                         if (StringUtils.isEmpty(param)) {
                             delKey(thirdFistMatchKey, entry, fistKey);
-                            //log.info("::{}::定时任务开始处理初盘盘口删除缓存成功,赛事ID:{}", linkId, standardMatchId);
+                            log.info("::{}::定时任务开始处理初盘盘口删除缓存成功,赛事ID:{}", linkId, standardMatchId);
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
-                        //log.info("::{}::定时任务开始处理初盘盘口出现异常,赛事ID:{}", linkId, standardMatchId);
+                        log.info("::{}::定时任务开始处理初盘盘口出现异常,赛事ID:{}", linkId, standardMatchId);
                     }
                 }
             }
@@ -137,7 +137,7 @@ public class MatchFistMarketJob extends IJobHandler {
             if (CollectionUtils.isNotEmpty(oddsHistories)) {
                 //下发赛程足球赔率
                 matchFistMarketProducer.sendFistMarketFootBall(linkId, standardMatchId, sportId, oddsHistories);
-                //log.info("::{}::定时任务开始处理足球初盘盘口最后发送数据,赛事ID:{},数据:{}", linkId, standardMatchId, JSONObject.toJSONString(oddsHistories));
+                log.info("::{}::定时任务开始处理足球初盘盘口最后发送数据,赛事ID:{},数据:{}", linkId, standardMatchId, JSONObject.toJSONString(oddsHistories));
                 sendMatchStoppageTime(linkId, standardMatchId, oddsHistories);
             }
         } else {
@@ -145,7 +145,7 @@ public class MatchFistMarketJob extends IJobHandler {
             if (CollectionUtils.isNotEmpty(oddsHistories)) {
                 //下发赛程足球赔率
                 matchFistMarketProducer.sendFistMarketBasketball(linkId, standardMatchId, sportId, oddsHistories);
-                //log.info("::{}::定时任务开始处理篮球初盘盘口最后发送数据,赛事ID:{},数据:{}", linkId, standardMatchId, JSONObject.toJSONString(oddsHistories));
+                log.info("::{}::定时任务开始处理篮球初盘盘口最后发送数据,赛事ID:{},数据:{}", linkId, standardMatchId, JSONObject.toJSONString(oddsHistories));
             }
         }
     }
@@ -276,12 +276,12 @@ public class MatchFistMarketJob extends IJobHandler {
         });
         //让球 初盘，收盘不存在 不下发rev
         if (StringUtils.isEmpty(matchOddsHistory.getOddsR1()) && StringUtils.isEmpty(matchOddsHistory.getOddsR2())) {
-            //log.info("::{}::定时任务开始处理初盘盘口,大小初盘收盘不存在,赛事ID:{},盘口数据:{}", linkId, standardMatchId, JSONObject.toJSONString(matchOddsHistory));
+            log.info("::{}::定时任务开始处理初盘盘口,大小初盘收盘不存在,赛事ID:{},盘口数据:{}", linkId, standardMatchId, JSONObject.toJSONString(matchOddsHistory));
             return null;
         }
         //大小 初盘，收盘不存在 不下发rev
         if (StringUtils.isEmpty(matchOddsHistory.getOddsD1()) && StringUtils.isEmpty(matchOddsHistory.getOddsD2())) {
-            //log.info("::{}::定时任务开始处理初盘盘口,大小初盘收盘不存在,赛事ID:{},盘口数据:{}", linkId, standardMatchId, JSONObject.toJSONString(matchOddsHistory));
+            log.info("::{}::定时任务开始处理初盘盘口,大小初盘收盘不存在,赛事ID:{},盘口数据:{}", linkId, standardMatchId, JSONObject.toJSONString(matchOddsHistory));
             return null;
         }
         //让球初盘不存在，收盘存在 收盘=初盘
@@ -384,7 +384,7 @@ public class MatchFistMarketJob extends IJobHandler {
             try {
                 Response reverseParam = applyService.getReverseParam(linkId, oddsHistory);
                 log.error("::{}::aoRevFootBall,reverseParam：{}", linkId, JSONObject.toJSONString(reverseParam));
-                MatchOddsHistory matchOddsHistory = JSONObject.parseObject(JSONObject.toJSONString(reverseParam.getData()),MatchOddsHistory.class);
+                MatchOddsHistory matchOddsHistory = (MatchOddsHistory) reverseParam.getData();
                 if (null == matchOddsHistory) {
                     oddsHistories.add(oddsHistory);
                 } else {
@@ -409,7 +409,7 @@ public class MatchFistMarketJob extends IJobHandler {
         List<MatchOddsHistoryBasketball> oddsHistories = new ArrayList<>();
         for (MatchOddsHistoryBasketball oddsHistory : matchOddsHistories) {
             try {
-                //log.info("::{}::aoRevBasketball:{}", linkId, JSONObject.toJSONString(oddsHistory));
+                log.info("::{}::aoRevBasketball:{}", linkId, JSONObject.toJSONString(oddsHistory));
                 MatchOddsHistoryBasketball matchOddsHistoryBasketball = (MatchOddsHistoryBasketball) applyService.getBKReverseParam(linkId, oddsHistory).getData();
                 oddsHistories.add(matchOddsHistoryBasketball);
             } catch (Exception e) {

@@ -495,7 +495,7 @@ public class ConfigMatchStatusServiceImpl implements ConfigMatchStatusService {
 			if (Objects.isNull(scoreObj)) {
 				return false;
 			}
-	       	scores = JSONObject.parseObject(scoreObj.toString(), FootballCacheScores.class);
+	        scores = (FootballCacheScores) scoreObj;
 	        log.info("::{}::processConfigMatchStatus 比分兜底校验。比分信息:{},盘口信息:{}", linkId,scoreObj,market);
             //盘口值验证
             if (MarginCategoryConfig.SCORE_CHECK_GOAL.contains(categoryId)) {
@@ -724,7 +724,7 @@ public class ConfigMatchStatusServiceImpl implements ConfigMatchStatusService {
 			return Boolean.FALSE;
 		}
 		Long periodId = MarginCategoryConfig.NO_CLOS_CATEGORY_HT.contains(marketCategoryId) ? 6L : 7L;
-		Long time =periodId == 6L ? 44 * 60 * 1000L : 46 * 60 * 1000L;
+        Long time =periodId == 6L ? 44 * 60 * 1000L : 46 * 60 * 1000L;
 		//阶段开始时间
 		Long startTime = matchPeriodId2Time.get(periodId.toString());
 		if (null == startTime) {

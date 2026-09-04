@@ -38,24 +38,14 @@ public class RealtimeBaseProduecr<T> {
     private SpareBaseProducer spareBaseProducer;
 
     /**
-     * panda需要直接往备用投递的MQ： DATA_MATCHS_EVENT_INFO_DB
-     * */
-    @NacosValue(value = "${panda.spare.topic:12}", autoRefreshed = true)
-    private String pandaSpareTopic;
-
-    /**
      * 主MQ同步推送（一般使用同步推送）
      */
     public void send(T data,String linkId,String topic,String tag,String dataSourceCode) {
         log.info("linkId=【"+linkId+"】【"+topic+"】数据同步推送MQ开始,tag={}",tag);
         Request<T> request = new Request<>(data,linkId,topic,tag,dataSourceCode);
         try {
-            if(pandaSpareTopic.contains(topic)){
-                spareBaseProducer.syncSend(request);
-            }else{
-                MessageBuilder<Request<T>> builder = MessageBuilder.withPayload(request).setHeader(MessageConst.PROPERTY_KEYS, request.getLinkId());
-                rocketMqTemplate.send(request.getDataType() + ":" + request.getTag(), builder.build());
-            }
+            MessageBuilder<Request<T>> builder = MessageBuilder.withPayload(request).setHeader(MessageConst.PROPERTY_KEYS, request.getLinkId());
+            rocketMqTemplate.send(request.getDataType() + ":" + request.getTag(), builder.build());
         } catch (Exception e) {
             log.info("linkId=【"+linkId+"】【"+topic+"】数据同步推送MQ异常,Exception:", e);
         }

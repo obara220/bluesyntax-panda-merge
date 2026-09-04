@@ -1213,4 +1213,111 @@ private boolean validGoalSettle(MatchSettleScore matchSettleScore) {
             log.error("{标准赛事Id:"+standardMatchId+",修改灰色区间标识出错:",e);
         }
     }
+
+
+    public boolean checkBasketPeriodScoreOrderV3(MatchSettleScore matchSettleScore) {
+        log.info("checkBasketPeriodScoreOrder方法入参:{}",JSONUtil.toJsonStr(matchSettleScore));
+        Long standardMatchId = matchSettleScore.getStandardMatchId();
+        if (standardMatchId == null || standardMatchId == 0L) {
+            return true;
+        }
+        log.info("checkBasketPeriodScoreOrder查询结算信息请求参数:{}",standardMatchId);
+        MatchSettleInfoEntity matchSettleInfo = matchSettleInfoRepository.getMatchSettleInfo(standardMatchId);
+        log.info("checkBasketPeriodScoreOrder返回查询结算信息:{}", JSONUtil.toJsonStr(matchSettleInfo));
+        if (matchSettleInfo == null) {
+            return true;
+        }
+        log.info("checkBasketPeriodScoreOrder查询标准赛事参数:{}",standardMatchId);
+        StandardMatchInfo standardMatchInfo = standardMatchInfoService.getItem(standardMatchId);
+        log.info("checkBasketPeriodScoreOrder返回标准赛事信息:{}",JSONUtil.toJsonStr(standardMatchInfo));
+        if (matchSettleInfo.getSettleOrderClosed() != null &&
+                matchSettleInfo.getSettleOrderClosed() != 0) {
+            return true;
+        }
+        List<Integer> statusList = new ArrayList<>();
+        statusList.add(1);
+        statusList.add(0);
+        statusList.add(2);
+        statusList.add(4);
+        //1.根据当前结算编码得到他之前的结算编码
+        log.info("checkBasketPeriodScoreOrder查询之前的结算编码参数settleNum:{},matchLength:{}", matchSettleScore.getSettleNum(), standardMatchInfo.getMatchLength());
+        List<String> settleNumList = SettleNumUtils.countBasketballScoreSettleNumBefore(matchSettleScore.getSettleNum(), standardMatchInfo.getMatchLength());
+        log.info("checkBasketPeriodScoreOrder返回之前的结算编码:{}",JSONUtil.toJsonStr(settleNumList));
+        if (settleNumList.size() == 0) {
+            return true;
+        }
+        log.info("checkBasketPeriodScoreOrder结算查询比赛结算分数参数,settleNumList:{},standardMatchId:{},statusList:{}", JSONUtil.toJsonStr(settleNumList), JSONUtil.toJsonStr(standardMatchId), JSONUtil.toJsonStr(statusList));
+        List<MatchSettleScore> list = matchSettleScoreRepository.getModelBySettleNumAndMatchIdIdAndStatus(settleNumList, standardMatchId, statusList);
+        log.info("checkBasketPeriodScoreOrder结算返回比赛结算分数参数:{}",JSONUtil.toJsonStr(list));
+
+        //2.判断之前的结算编码是否已经结算，如果没有结算则不能结算返回false
+        if (list.size() != 0) {
+            return false;
+        }
+        return true;
+    }
+
+    public void endEventSettleByScoreV3(MatchSettleScore matchSettleScore) {
+        //0.事件编码分类
+        List<String> eventCodes = EndEventUtils.eventCodesFootballByEventCode(matchSettleScore.getEventCode());
+        if (eventCodes.size() == 0) {
+            return;
+        }
+        //1.阶段条件获取 上半场 或者全场
+        List<Long> periods = EndEventUtils.periodsFootballByScorePeriod(matchSettleScore.getPeriodId());
+        //不是31 也不是100 事件则直接返回
+        if (periods == null) {
+            return;
+        }
+        //2.查询对应事件编码和阶段编码已经结算的事件
+        //3.取比分最大的事件
+        List<MatchSettleEventEntity> eventList = matchSettleEventRepository.getByEventCodeAndPeriodIdAndStatusAndStandardMatchIdAndHomeAway(eventCodes, periods, SETTLED, matchSettleScore.getStandardMatchId(), EndEventUtils.HOME_AWAY);
+        if (eventList.size() == 0) {
+            return;
+        }
+        Integer t1 = 0;
+        Integer t2 = 0;
+        String homeAway = "none";
+        Long id = null;
+        for (MatchSettleEventEntity matchSettleEvent : eventList) {
+            if (matchSettleEvent.getT1() != null && matchSettleEvent.getT2() != null) {
+                Integer sum = matchSettleEvent.getT1() + matchSettleEvent.getT2();
+                if ((t1 + t2) <= sum) {
+                    //罚牌比分也是取 事件的 t1 t2
+                    t1 = matchSettleEvent.getT1();
+                    t2 = matchSettleEvent.getT2();
+                    homeAway = matchSettleEvent.getHomeAway();
+                    id = matchSettleEvent.getId();
+                }
+            }
+        }
+        //id= null 取不到对应事件过滤
+        if (id == null) {
+            return;
+        } else {
+            //还有可能 结算的事件比分是0 则无需编辑 或者编辑为none
+            if (!EndEventUtils.HOME_AWAY.contains(homeAway)) {
+                homeAway = "none";
+            }
+        }
+        //4.根据比分最大的事件和结算事件做比对
+        //4.1如果相等 则编辑addition1 或者 addition2 主客队
+        if (matchSettleScore.getT1() != null && matchSettleScore.getT2() != null) {
+            if (matchSettleScore.getT1().equals(t1) && matchSettleScore.getT2().equals(t2)) {
+                //如果是全场打完 则编辑 add2
+                if (matchSettleScore.getPeriodId().equals(100L)) {
+                    matchSettleScore.setAddition2(homeAway);
+                    //如果是上半场休息 则编辑add1
+                } else if (matchSettleScore.getPeriodId().equals(31L)) {
+                    matchSettleScore.setAddition1(homeAway);
+                }
+                log.info("结算比分编辑最终事件::赛事id：{}，选择事件id:{},事件阶段:{},事件类型:{} add1:{} add2:{}",
+                        matchSettleScore.getStandardMatchId(), id, matchSettleScore.getPeriodId(), matchSettleScore.getEventCode()
+                        , matchSettleScore.getAddition1(), matchSettleScore.getAddition2());
+            }
+        } else {
+            //4.2如果不相等 则直接返回
+            return;
+        }
+    }
 }

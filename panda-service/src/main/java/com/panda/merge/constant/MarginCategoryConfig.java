@@ -30,7 +30,7 @@ public class MarginCategoryConfig {
             1100471L, 1100472L, 1100473L, 1100474L, 1100475L, 1100476L, 1100477L, 1100480L,1100451L,1100456L,1100457L,1100458L,1100460L,1100461L);
 
     //篮球EU计算
-    public static List<Long> BASKETBALL_EU_CATEGORY = Arrays.asList(5L, 37L, 43L, 48L, 54L, 60L, 66L, 142L, 147L, 17L, 25L, 44L, 50L, 56L, 62L, 217L, 201L, 214L, 215L, 385L, 387L, 389L, 391L, 392L, 394L, 395L, 396L, 397L, 398L, 49L, 55L, 61L, 67L, 200L, 41L, 401L, 402L, 403L, 404L, 405L, 406L, 407L, 3100409L);
+    public static List<Long> BASKETBALL_EU_CATEGORY = Arrays.asList(3L,5L, 17L,25L,37L, 43L,44L, 48L,50L, 54L,56L, 60L, 62L,66L, 142L, 147L, 201L, 214L, 215L,217L,218L, 385L, 387L, 389L, 391L, 392L, 394L, 395L, 396L, 397L, 398L, 49L, 55L, 61L, 67L, 200L, 41L, 401L, 402L, 403L, 404L, 405L, 406L, 407L, 3100409L);
     //篮球spread计算
     public static List<Long> BASKETBALL_MY_CATEGORY = Arrays.asList(2L,4L,10L,11L, 15L, 18L, 19L, 26L, 38L, 39L, 40L, 42L, 45L, 46L, 47L, 51L, 52L, 53L, 57L, 58L, 59L, 63L, 64L, 65L, 75L, 87L, 88L, 97L, 98L, 143L, 145L, 146L, 198L, 199L, 220L, 221L, 271L, 272L, 393L,
             3100414L, 3100415L, 3100430L, 3100431L, 3100432L, 3100433L, 3100434L, 3100435L, 3100436L, 3100437L, 3100438L, 3100439L, 3100440L, 3100441L, 3100442L, 3100443L, 3100444L, 3100445L, 3100446L, 3100447L, 3100448L, 3100449L, 3100450L, 3100451L, 3100452L, 3100453L, 3100474L, 3100475L, 3100476L, 3100477L, 3100478L, 3100479L, 3100480L, 3100481L, 3100467L, 3100468L);
@@ -46,11 +46,9 @@ public class MarginCategoryConfig {
     public static List<Long> TENNIS_MY_CATEGORY = Arrays.asList(154L, 155L, 202L, 163L, 164L, 165L);
 
     //排球EU计算
-    public static List<Long> VOLLEYBALL_EU_CATEGORY = Arrays.asList(153L, 159L, 162L);//,4300263L,4300264L);
+    public static List<Long> VOLLEYBALL_EU_CATEGORY = Arrays.asList(153L, 159L, 162L);
     //排球MY计算
-    public static List<Long> VOLLEYBALL_MY_CATEGORY = Arrays.asList(172L, 173L, 253L, 254L, 255L, 256L
-    ,4300257L,4300258L,4300259L,4300260L,4300261L,4300262L,4300265L,4300266L,4300267L,4300268L,4300269L,
-            4300270L,4300271L,4300272L);
+    public static List<Long> VOLLEYBALL_MY_CATEGORY = Arrays.asList(172L, 173L, 253L, 254L, 255L, 256L);
 
     //斯诺克EU计算
     public static List<Long> SNOOKER_EU_CATEGORY = Arrays.asList(1L, 153L, 184L);
@@ -63,7 +61,7 @@ public class MarginCategoryConfig {
     public static List<Long> TABLETENNIS_AND_BADMINTON_MY_CATEGORY = Arrays.asList(172L, 173L, 176L, 177L, 178L, 179L, 203L);
 
     //美式足球EU计算
-    public static List<Long> AMERICAN_FOOTBALL_EU_CATEGORY = Arrays.asList(17L, 37L, 41L, 44L, 50L, 56L, 62L);
+    public static List<Long> AMERICAN_FOOTBALL_EU_CATEGORY = Arrays.asList(17L, 37L,41L, 44L, 50L, 56L, 62L);
     //美式足球MY计算
     public static List<Long> AMERICAN_FOOTBALL_MY_CATEGORY = Arrays.asList(18L, 19L, 38L, 39L, 40L, 42L, 45L, 46L, 51L, 52L, 57L, 58L, 63L, 64L, 87L, 97L, 198L, 199L, 305L);
     //美式足球多投注项
@@ -114,9 +112,12 @@ public class MarginCategoryConfig {
         //综合球种多项盘赔率校验
         addAll(Arrays.asList(190L, 197L, 204L));
         addAll(ICEBALL_EU_CATEGORY);
+        addAll(AMERICAN_FOOTBALL_EU_CATEGORY);
         addAll(ICEBALL_MORE_CATEGORY);
+        addAll(AMERICAN_FOOTBALL_MORE_CATEGORY);
         addAll(HANDBALL_EU_CATEGORY);
         addAll(BEACH_VOLLEYBALL_EU_CATEGORY);
+
         addAll(BOXING_EU_CATEGORY);
         addAll(BOXING_MORE_CATEGORY);
         addAll(UK_FOOTBALL_EU_CATEGORY);
@@ -156,11 +157,13 @@ public class MarginCategoryConfig {
         addAll(ICEBALL_MY_CATEGORY);
         addAll(HANDBALL_MY_CATEGORY);
         addAll(BEACH_VOLLEYBALL_MY_CATEGORY);
+
         addAll(BOXING_MY_CATEGORY);
         addAll(UK_FOOTBALL_MY_CATEGORY);
         addAll(HOCKEY_MY_CATEGORY);
         addAll(WATER_BALL_MY_CATEGORY);
         addAll(CRICKET_MY_CATEGORY);
+
     }};
     // ------------------- 综合球种 end ----------------------
 
@@ -216,8 +219,44 @@ public class MarginCategoryConfig {
             10006L, 10007L, 10008L, 10009L, 10010L, 10011L, 10012L, 10013L, 10014L, 10015L, 10016L, 10017L,10018L,
             10019L,10020L,10021L,10022L);
 
+    //需要特殊排序的玩法 玩法+addtion2
+    public static List<Long> SPEAICL_ORDER_CATEGORY_ADDTION2 = Arrays.asList(145L,146L,162L,163L,164L,165L,166L,170L,175L,176L,177L,178L,
+            184L,185L,186L,187L,189L,190L,191L,192L,193L,194L,196L,197L,253L,254L,262L,263L,264L,268L);
+    //需要特殊排序的玩法 玩法+addtion1
+    public static List<Long> SPEAICL_ORDER_CATEGORY_ADDTION1 = Arrays.asList(148L,201L,208L,214L,222L,224L,225L,230L,235L,237L,255L,261L,265L,266L,267L);
+    //需要按照两个附加字段同时分组排序的玩法
+    public static List<Long> SPEAICL_ORDER_CATEGORY_ADDTION12 = Arrays.asList(147L,167L,168L,179L,188L,195L,203L,215L,256L);
+
+    /**
+     * 新的排序规则：特殊玩法存在按照附加字段排序
+     * 1.按照附加字段2，附加字段1排序
+     * 2.按照附加字段1排序
+     * 3.按照附加字段2排序
+     * 4.按照附加字段1，附加字段2排序
+     */
+    public static List<Long> ORDER_BY_ADDTION1 = Arrays.asList(148L,201L,208L,214L,222L,224L,225L,230L,237L,255L,261L,265L,266L,267L);
+    public static List<Long> ORDER_BY_ADDTION2 = Arrays.asList(145L,146L,162L,165L,166L,170L,175L,178L,184L,187L,189L,190L,191L,192L,193L,194L,196L,197L);
+    public static List<Long> ORDER_BY_ADDTION12 = Arrays.asList(203L,215L,256L);
+    public static List<Long> ORDER_BY_ADDTION21 = Arrays.asList(147L,163L,164L,167L,168L,176L,177L,179L,185L,186L,188L,195L,253L,254L,262L,263L,264L,268L);
+
+    //全场大小，半场大小，全场让球，半场让球这四个玩法需要支持操盘手盘口级开启或弃用
+    public static List<Long> OPEN_CLOSE_CATEGORY = Arrays.asList(2L,4L,18L,19L);
+
     //没有附加盘，不考虑最大盘口数
-    public static List<Long> GREEN_MATEGORY = Arrays.asList(28L, 30L, 31L, 32L, 109L, 110L, 120L, 133L, 147L, 148L, 162L, 165L, 166L, 167L, 168L, 170L, 175L, 178L, 179L, 184L, 187L, 188L, 189L, 190L, 191L, 192L, 193L, 194L, 195L, 196L, 197L, 201L, 203L, 208L, 214L, 215L, 222L, 224L, 225L, 231L, 235L, 237L, 255L, 256L, 261L, 265L, 266L, 267L, 363L, 364L, 365L, 366L);
+    public static List<Long> GREEN_MATEGORY = Arrays.asList(28L,30L,31L,32L,109L,110L,120L,133L,147L,148L,162L,165L,166L,167L,168L,170L,175L,178L,179L,184L,
+            187L,188L,189L,190L,191L,192L,193L,194L,195L,196L,197L,201L,203L,208L,214L,215L,222L,224L,225L,231L,235L,237L,255L,256L,261L,265L,266L,267L);
+    //玩法名称里面带盘或者局占位符的玩法
+    public static List<Long> YELLOW_MATEGORY_ADDTION21 = Arrays.asList(145L,146L,163L,164L,176L,177L,185L,186L,253L,254L,262L,263L,264L,268L);
+
+    //需要传坑位的玩法
+    public static List<Long> NEED_PLACENUM_MATEGORY = Arrays.asList(2L,3L,4L,10L,11L,13L,18L,19L,26L,33L,34L,38L,39L,45L,46L,51L,52L,57L,58L,63L,
+            64L,69L,71L,87L,88L,97L,98L,109L,110L,113L,114L,115L,116L,121L,122L,123L,124L,127L,128L,130L,
+            134L,143L,145L,146L,154L,155L,156L,157L,163L,164L,169L,171L,172L,173L,176L,177L,181L,182L,
+            185L,186L,198L,199L,202L,216L,218L,232L,233L,243L,244L,245L,246L,249L,250L,251L,252L,253L,
+            254L,257L,258L,262L,263L,264L,268L,269L,270L);
+
+    public static List<Long> TX_NEED_HANDLER = Arrays.asList(4L,19L,128L,143L);
+
 
     /**
      * 篮球 全场让球玩法
@@ -236,7 +275,7 @@ public class MarginCategoryConfig {
     /**
      * 棒球 附加字段 5 赋值 附加字段1原始球头
      */
-    public static List<Long> BASEBALL_CATEGORY_ORIGINAL_BALL_HEAD = Arrays.asList(243L, 244L, 245L, 246L, 249L, 250L, 251L, 252L, 274L, 276L, 278L, 280L, 281L, 282L, 284L, 285L, 286L, 287L, 288L, 289L, 290L, 291L, 292L);
+    public static List<Long> BASEBALL_CATEGORY_ORIGINAL_BALL_HEAD = Arrays.asList(243L,244L,245L,246L,249L,250L,251L,252L,274L,276L,278L,280L,281L,282L,284L,285L,286L,287L,288L,289L,290L,291L,292L);
     /**
      * 网球 附加字段 5 赋值 附加字段1原始球头
      */
@@ -275,10 +314,6 @@ public class MarginCategoryConfig {
      * 平手盘
      */
     public static List<String> FLAT_HANDICAP_DISPOSE = Arrays.asList("0");
-    /**
-     * 球头特殊值(-0.5)处理
-     */
-    public static List<Long> HANDICAP_MARKET_DISPOSE_CATEGORY = Arrays.asList(26L, 45L, 51L, 57L, 63L, 88L, 98L, 145L, 146L, 198L, 202L, 156L, 157L, 164L, 169L, 2L, 262L, 263L, 264L, 10L, 11L, 42L, 40L, 127L);
     /**
      * Map<让球玩法盘口存在特殊值, 封盘玩法>
      */
@@ -333,44 +368,22 @@ public class MarginCategoryConfig {
     /**
      * 篮球球员玩法
      */
-    public static List<Long> BASKETBALL_PLAYER_CATEGORY = Arrays.asList(220L, 221L, 271L, 272L);
+    public static List<Long> BASKETBALL_PLAYER_CATEGORY = Arrays.asList(220L, 221L,271L,272L);
 
     /**
      * 球员玩法集合,球员id为投注项附件字段
      */
-    public static List<Long> PLAYER_CATEGORY_ODDS = Arrays.asList(35L,
-                                                                  36L,
-                                                                  148L,
-                                                                  150L,
-                                                                  151L,
-                                                                  152L,
-                                                                  363L,
-                                                                  364L,
-                                                                  365L,
-                                                                  366L,
-                                                                  3700019L,
-                                                                  3700020L,
-                                                                  3700021L,
-                                                                  3700022L,
-                                                                  3100482L,
-                                                                  3100483L,
-                                                                  3100484L,
-                                                                  3100485L,
-                                                                  3100486L,
-                                                                  3100487L,
-                                                                  3100488L,3700023L,3700024L,3700037L,3700038L,3700039L,3700040L,3700041L,3700042L,3700043L,3700044L
-            ,3700045L,3700046L,3700047L,3700048L,3700049L,3700050L,3700051L,3700052L,3700053L,3700054L
-            ,3700055L);
+    public static List<Long> PLAYER_CATEGORY_ODDS = Arrays.asList(35L, 36L, 148L, 150L, 151L, 152L, 363L, 364L, 365L, 366L,3700019L,3700020L,3700021L,3700022L);
 
     /**
      * 数据源变动挡板，篮球
      */
-    public static List<Long> CHANGE_FLAP = Arrays.asList(5L, 37L, 48L, 54L, 60L, 66L, 142L, 214L, 201L, 215L);
+    public static List<Long> CHANGE_FLAP = Arrays.asList(5L,37L,48L,54L,60L,66L,142L,214L,201L,215L);
 
     /**
      * 滚球拿掉数据商挡板限制
      */
-    public static List<Long> CHANGE_FLAP_BAK = Arrays.asList(215L, 214L, 201L);
+    public static List<Long> CHANGE_FLAP_BAK = Arrays.asList(215L,214L,201L);
 
     /**
      * AO需要排序的玩法
@@ -390,13 +403,13 @@ public class MarginCategoryConfig {
      */
     public static List<Long> CHANGE_FLAP3 = Arrays.asList(19L, 39L, 46L, 52L, 58L, 64L, 143L, 154L, 155L, 172L, 181L, 243L);
     /**
-     * 数据源变动挡板，篮球，球头变化值
+     *  数据源变动挡板，篮球，球头变化值
      */
     public static Double BASKETBALL_FLAP_ADDTION1_DOUBLE = 5.0D;
     /**
-     * 数据源变动挡板，篮球，单次赔率变化值
+     *  数据源变动挡板，篮球，单次赔率变化值
      */
-    public static Double BASKETBALL_FLAP_ODDSVALUE_DOUBLE = 0.3 * 100000;
+    public static Double BASKETBALL_FLAP_ODDSVALUE_DOUBLE = 0.3*100000;
 
     /**
      * TX足球 常规让球玩法
@@ -440,7 +453,7 @@ public class MarginCategoryConfig {
      */
     public static List<Long> MATCH_CATEGORY_ODDS_WARNING = Arrays.asList(1L, 4L, 2L, 17L, 19L, 18L, 111L, 113L, 114L, 119L, 121L, 122L, 126L, 128L, 127L, 129L, 130L, 132L, 134L, 133L, 240L, 10004L);
     /**
-     * 足球玩法报警 两分钟
+     * 足球玩法报警 2分钟
      * 【常规赛】【加时赛】【角球】 独赢玩法 、上半场独赢
      */
     public static List<Long> FIVE_MATCH_CATEGORY_ODDS_WARNING = Arrays.asList(1L, 17L, 126L, 129L, 119L, 111L);
@@ -452,21 +465,23 @@ public class MarginCategoryConfig {
     /**
      * 足球球员玩法集,投注项类型集合
      */
-    public static List<String> PLAYER_CATEGORY_ODDS_TYPE = Arrays.asList("None", "OwnGoal", "Other", "没有进球", "乌龙球", "其他", "no goal", "own goal", "other");
+    public static List<String> PLAYER_CATEGORY_ODDS_TYPE = Arrays.asList("None","OwnGoal","Other","没有进球","乌龙球","其他","no goal","own goal","other");
 
     /**
      * 852需求 大于三项（走的数据源抽水赔） 清除概率差
      */
-    public static List<Long> THREE_CATEGORY = Arrays.asList(7L, 8L, 9L, 13L, 14L, 20L, 21L, 22L, 23L, 31L, 35L, 36L, 68L, 73L, 74L, 101L, 102L, 103L, 104L, 105L, 106L, 107L, 108L, 117L, 137L, 141L, 148L, 150L, 151L, 152L, 159L, 161L, 166L, 170L, 171L, 174L, 190L, 197L, 204L, 209L, 210L, 211L, 212L, 213L, 216L, 218L, 219L, 220L, 221L, 222L, 223L, 226L, 227L, 236L, 238L, 239L, 241L, 260L, 265L, 267L, 271L, 272L, 296L, 297L, 298L, 318L, 319L, 320L, 321L, 322L, 323L, 337L, 339L, 361L, 362L, 363L, 364L, 365L, 366L, 367L, 368L, 369L, 379L, 380L, 209L, 210L, 211L, 212L, 216L, 219L, 213L, 384L, 386L, 400L, 3100408L, 1100452L, 1100453L);
+    public static List<Long> THREE_CATEGORY = Arrays.asList(7L, 8L, 9L, 13L, 14L, 20L, 21L, 22L, 23L, 31L, 35L, 36L, 68L, 73L, 74L, 101L, 102L, 103L, 104L, 105L, 106L, 107L, 108L, 117L, 137L, 141L, 148L, 150L, 151L, 152L, 159L, 161L, 166L, 170L, 171L, 174L, 190L, 197L, 204L,
+            209L, 210L, 211L, 212L, 213L, 216L, 218L, 219L, 220L, 221L, 222L, 223L, 226L, 227L, 236L, 238L, 239L, 241L, 260L, 265L, 267L, 271L, 272L, 296L, 297L, 298L, 318L, 319L, 320L, 321L, 322L, 323L, 337L, 339L, 361L, 362L, 363L, 364L, 365L, 366L, 367L, 368L, 369L, 379L, 380L, 209L, 210L, 211L, 212L, 216L, 219L, 213L, 384L, 386L, 400L, 3100408L, 1100452L, 1100453L);
+
+
     /**
      * margin优化 ：1,X,2 投注项玩法 ，X默认锚点，另外一个描点是1和2之间赔率较小者，如果1,2赔率相同，则是1
      */
     public static List<Long> PRESET_ODDS_TYPE_ANCHOR_CATEGORY = Arrays.asList(1L, 3L, 17L, 25L, 27L, 29L, 32L, 69L, 71L, 111L, 119L, 126L, 129L, 231L);
-
     /**
      * 投注项需要排序的玩法
      */
-    public static List<Long> ODDS_ORDER = Arrays.asList(318L, 319L, 320L, 321L, 322L, 323L, 70L, 72L, 76L, 337L);
+    public static List<Long> ODDS_ORDER = Arrays.asList(318L,319L,320L,321L,322L,323L,70L,72L,76L,337L);
     /**
      * 主客队获胜退款玩法计算获取上下盘处理
      */
@@ -479,16 +494,28 @@ public class MarginCategoryConfig {
     /**
      * 信用等级玩法分类
      */
-    public static List<Long> NORMAL_CATEGORY = Arrays.asList(2L, 4L, 10L, 11L, 12L, 18L, 19L, 24L, 26L, 33L, 34L, 38L, 39L, 41L, 45L, 46L, 51L, 52L, 57L, 58L, 63L, 64L, 76L, 77L, 79L, 80L, 81L, 82L, 83L, 84L, 86L, 87L, 88L, 89L, 90L, 91L, 93L, 94L, 96L, 97L, 98L, 99L, 100L, 109L, 110L, 113L, 114L, 115L, 116L, 121L, 122L, 123L, 124L, 127L, 128L, 130L, 131L, 132L, 135L, 136L, 143L, 144L, 145L, 146L, 154L, 155L, 156L, 157L, 158L, 163L, 164L, 169L, 172L, 173L, 176L, 177L, 180L, 181L, 182L, 185L, 186L, 192L, 193L, 194L, 198L, 199L, 202L, 208L, 215L, 220L, 221L, 232L, 233L, 243L, 244L, 245L, 246L, 249L, 250L, 251L, 252L, 253L, 254L, 257L, 258L, 262L, 263L, 264L, 266L, 268L, 271L, 272L, 274L, 276L, 278L, 280L, 281L, 282L, 284L, 285L, 286L, 287L, 288L, 289L, 290L, 291L, 292L, 294L, 295L, 305L, 306L, 307L, 308L, 309L, 314L, 315L, 316L, 317L, 324L, 325L, 327L, 328L, 331L, 332L, 335L, 336L);
-    public static List<Long> CATEGORY_50 = Arrays.asList(15L, 40L, 41L, 42L, 47L, 53L, 59L, 65L, 75L, 78L, 92L, 118L, 133L, 134L, 138L, 139L, 140L, 160L, 165L, 178L, 183L, 187L, 197L, 229L, 234L, 240L, 247L, 255L, 279L, 312L, 313L, 330L, 334L);
-    public static List<Long> THREE_ODDS_CATEGORY = Arrays.asList(1L, 3L, 5L, 6L, 7L, 8L, 9L, 13L, 14L, 16L, 17L, 20L, 21L, 22L, 23L, 25L, 27L, 28L, 29L, 30L, 31L, 32L, 35L, 36L, 37L, 43L, 44L, 48L, 49L, 50L, 54L, 55L, 56L, 60L, 61L, 62L, 66L, 67L, 68L, 69L, 70L, 71L, 72L, 73L, 74L, 85L, 95L, 101L, 102L, 103L, 104L, 105L, 106L, 107L, 108L, 111L, 112L, 117L, 119L, 120L, 125L, 126L, 129L, 137L, 141L, 142L, 147L, 148L, 149L, 150L, 151L, 152L, 153L, 159L, 161L, 162L, 166L, 167L, 168L, 170L, 171L, 174L, 175L, 179L, 184L, 188L, 189L, 190L, 191L, 195L, 196L, 200L, 201L, 203L, 204L, 205L, 206L, 207L, 209L, 210L, 211L, 212L, 213L, 214L, 216L, 217L, 218L, 219L, 222L, 223L, 224L, 225L, 226L, 227L, 228L, 230L, 231L, 235L, 236L, 237L, 238L, 239L, 241L, 242L, 248L, 256L, 259L, 260L, 261L, 265L, 267L, 269L, 270L, 273L, 275L, 277L, 283L, 296L, 297L, 298L, 310L, 311L, 318L, 319L, 320L, 321L, 322L, 323L, 326L, 329L, 333L, 10001L, 10002L, 10003L, 10004L, 10005L, 10006L, 10007L, 10008L, 10009L, 10010L, 10011L, 10012L, 10013L, 10014L, 363L, 364L, 365L, 366L);
+    public static List<Long> NORMAL_CATEGORY = Arrays.asList(2L,4L,10L,11L,12L,18L,19L,24L,26L,33L,34L,38L,39L,41L,45L,46L,51L,52L,57L,58L,63L,64L,
+            76L,77L,79L,80L,81L,82L,83L,84L,86L,87L,88L,89L,90L,91L,93L,94L,96L,97L,98L,99L,100L,109L,110L,113L,114L,115L,116L,121L,122L,123L,124L,
+            127L,128L,130L,131L,132L,135L,136L,143L,144L,145L,146L,154L,155L,156L,157L,158L,163L,164L,169L,172L,173L,176L,177L,180L,181L,182L,185L,
+            186L,192L,193L,194L,198L,199L,202L,208L,215L,220L,221L,232L,233L,243L,244L,245L,246L,249L,250L,251L,252L,253L,254L,257L,258L,262L,263L,
+            264L,266L,268L,271L,272L,274L,276L,278L,280L,281L,282L,284L,285L,286L,287L,288L,289L,290L,291L,292L,294L,295L,305L,306L,307L,308L,309L,
+            314L,315L,316L,317L,324L,325L,327L,328L,331L,332L,335L,336L);
+    public static List<Long> CATEGORY_50 = Arrays.asList(15L,40L,41L,42L,47L,53L,59L,65L,75L,78L,92L,118L,133L,134L,138L,139L,140L,
+            160L,165L,178L,183L,187L,197L,229L,234L,240L,247L,255L,279L,312L,313L,330L,334L);
+    public static List<Long> THREE_ODDS_CATEGORY = Arrays.asList(1L,3L,5L,6L,7L,8L,9L,13L,14L,16L,17L,20L,21L,22L,23L,25L,27L,28L,29L,30L,
+            31L,32L,35L,36L,37L,43L,44L,48L,49L,50L,54L,55L,56L,60L,61L,62L,66L,67L,68L,69L,70L,71L,72L,73L,74L,85L,95L,101L,
+            102L,103L,104L,105L,106L,107L,108L,111L,112L,117L,119L,120L,125L,126L,129L,137L,141L,142L,147L,148L,149L,150L,151L,152L,153L,
+            159L,161L,162L,166L,167L,168L,170L,171L,174L,175L,179L,184L,188L,189L,190L,191L,195L,196L,200L,201L,203L,204L,205L,206L,207L,209L,
+            210L,211L,212L,213L,214L,216L,217L,218L,219L,222L,223L,224L,225L,226L,227L,228L,230L,231L,235L,236L,237L,238L,239L,241L,242L,248L,
+            256L,259L,260L,261L,265L,267L,269L,270L,273L,275L,277L,283L,296L,297L,298L,310L,311L,318L,319L,320L,321L,322L,323L,326L,329L,333L,
+            10001L,10002L,10003L,10004L,10005L,10006L,10007L,10008L,10009L,10010L,10011L,10012L,10013L,10014L);
     /**
      * 球类
      */
     public static List<Long> SOPRT_TYPE = Arrays.asList(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L, 12L, 11L, 13L, 14L, 15L, 16L, 37L);
 
     /**
-     * 支持操盘球种：足球、篮球、棒球、网球、乒乓球、排球、斯诺克, 美式足球
+     * 支持操盘球种：足球、篮球、棒球、网球、乒乓球、排球、斯诺克
      * 1.MY计算，查询坑位水差跟玩法水差
      * 2.最大盘口数
      */
@@ -501,22 +528,23 @@ public class MarginCategoryConfig {
     public static List<Long> COMPLEX_SPORTIDS = Arrays.asList(11L, 12L, 13L, 14L, 15L, 16L);
     /**
      * 动态最大最小球头校验
-     * 斯诺克、乒乓球、排球,棒球，羽毛球，美式足球
+     * 斯诺克、乒乓球、排球,棒球
      */
     public static Map<Long, List<Long>> DYNAMIC_SPORT = new HashMap<Long, List<Long>>() {{
-        put(4L, Arrays.asList(3L, 257L, 258L, 294L, 4L, 2L, 295L, 262L, 263L, 264L, 268L));
+        put(4L, Arrays.asList(2L, 4L, 262L, 268L));
         put(5L, Arrays.asList(154L, 155L, 202L, 163L, 164L));
         put(6L, Arrays.asList(39L, 38L, 198L, 199L, 87L, 97L, 19L, 18L));
         put(7L, Arrays.asList(181L, 182L, 185L, 186L));
         put(8L, Arrays.asList(172L, 173L, 176L, 177L));
         put(9L, Arrays.asList(172L, 173L, 253L, 254L));
-        put(3L, Arrays.asList(243L, 244L, 245L, 246L, 249L, 250L, 251L, 252L, 274L, 276L, 278L, 280L, 281L, 282L, 284L, 285L, 286L, 287L, 288L, 289L, 290L, 291L, 292L));
+        put(3L,Arrays.asList(243L,244L,245L,246L,249L,250L,251L,252L,274L,276L,278L,280L,281L,282L,284L,285L,286L,287L,288L,289L,290L,291L,292L));
         put(10L, Arrays.asList(172L, 173L, 176L, 177L));
     }};
     /**
      * 球头校验不需要取绝对值的玩法,总分类
      */
-    public static List<Long> DYNAMIC_NO_ABS = Arrays.asList(2L, 18L, 38L, 87L, 97L, 182L, 186L, 173L, 177L, 199L, 254L, 244L, 245L, 246L, 250L, 251L, 252L, 274L, 276L, 281L, 282L, 284L, 285L, 286L, 287L, 288L, 289L, 290L, 291L, 292L);
+    public static List<Long> DYNAMIC_NO_ABS = Arrays.asList(2L,18L,38L,87L,97L,182L,186L,173L,177L,199L,254L,244L,245L,246L,250L,251L,252L,274L,276L,
+            281L,282L,284L,285L,286L,287L,288L,289L,290L,291L,292L);
     /**
      * 需要校验的赔率优化球种
      * 1.操盘球种和综合球种，中的MY计算玩法不走赔率优化计算
@@ -528,10 +556,10 @@ public class MarginCategoryConfig {
 
     /**
      * 支持操盘球种 +-盘口差
-     * 球种：篮球、棒球、网球、乒乓球、排球、斯诺克、美式足球
+     * 球种：篮球、棒球、网球、乒乓球、排球、斯诺克
      * 查询坑位水差、玩法水差
      */
-    public static List<Long> SPORT_HEAD = Arrays.asList(2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L, 37L);
+    public static List<Long> SPORT_HEAD = Arrays.asList(2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L, 6L, 37L);
     /**
      * +-盘口差 玩法
      * 支持操盘球种 盘口差玩法：篮球、棒球、网球、乒乓球、排球、斯诺克、美式足球
@@ -555,12 +583,12 @@ public class MarginCategoryConfig {
 
     /**
      * 赔率合法性校验 多项盘下发最大值赔率
-     * 篮球，棒球，网球，乒乓球，排球、斯诺克、美式足球
+     * 篮球，棒球，网球，乒乓球，排球、斯诺克
      */
-    public static List<Long> VERIFY_SPORT = Arrays.asList(2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L, 37L);
+    public static List<Long> VERIFY_SPORT = Arrays.asList(2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L, 6L, 37L);
 
     /**
-     * 篮球 、网球、乒乓球、排球、美式足球
+     * 篮球 、网球、乒乓球、排球
      * 坑位水差球种 ，TX坑位排序球种
      * TX 排序
      * 坑位水差设置在坑位：1
@@ -578,7 +606,9 @@ public class MarginCategoryConfig {
     /**
      * 700需求带{X}玩法，总分时margin修改子玩法margin
      */
-    public static List<Long> CATEGORY_700_UPDATE_MARGIN = Arrays.asList(145L, 146L, 147L, 201L, 214L, 215L, 336L, 28L, 30L, 109L, 110L, 34L, 32L, 33L, 31L, 222L, 148L, 233L, 225L, 120L, 125L, 230L, 231L, 232L, 224L, 235L, 133L, 237L, 363L, 364L, 365L, 366L, 1100478L, 1100482L);
+    public static List<Long> CATEGORY_700_UPDATE_MARGIN = Arrays.asList(145L, 146L, 147L, 201L, 214L, 215L,
+            336L, 28L, 30L, 109L, 110L, 34L, 32L, 33L, 31L, 222L, 148L, 233L, 225L, 120L, 125L, 230L, 231L, 232L, 224L, 235L, 133L, 237L, 363L, 364L, 365L, 366L, 1100478L, 1100482L);
+
 
     /**
      * 棒球带{x}玩法 ，总分时margin修改子玩法margin
@@ -636,7 +666,8 @@ public class MarginCategoryConfig {
      * 足球
      * 提前结算支持玩法
      */
-    public static List<Long> PRE_STANDARD_CATEGORY = Arrays.asList(1L, 2L, 4L, 17L, 18L, 19L, 6L, 7L, 10L, 11L, 12L, 14L, 15L, 341L, 34L, 68L, 32L, 33L, 3L, 5L, 16L, 43L, 104L, 340L, 77L, 91L, 344L, 8L, 9L, 24L, 23L, 87L, 97L, 70L, 102L, 101L, 13L);
+    public static List<Long> PRE_STANDARD_CATEGORY = Arrays.asList(1L, 2L, 4L, 17L, 18L, 19L, 6L, 7L, 10L, 11L, 12L, 14L, 15L, 341L, 34L, 68L,
+            32L,33L,3L,5L,16L,43L,104L,340L,77L,91L,344L,8L,9L,24L,23L,87L,97L,70L,102L,101L,13L);
     /**
      * 足球 主列表玩法
      */
@@ -660,13 +691,13 @@ public class MarginCategoryConfig {
      * 常规罚牌：大小/让球/上半场大小/上半场让球
      * 常规加时赛：大小/让球/上半场大小/上半场让球
      * 加时赛角球大小
-     * <p>
+     *
      * 篮球
      * 全场让分
      * 全场总分
      */
-    public static List<Long> BALL_HEAD_AO_CATEGORY = Arrays.asList(2L, 4L, 18L, 19L, 113L, 114L, 121L, 122L, 306L, 307L, 308L, 309L, 128L, 127L, 130L, 332L, 331L,
-            1100406L, 1100407L, 1100409L, 1100410L, 1100414L, 1100416L, 1100417L);
+    public static List<Long> BALL_HEAD_AO_CATEGORY = Arrays.asList(2L, 4L, 18L, 19L, 113L, 114L, 121L, 122L, 306L, 307L, 308L, 309L, 128L, 127L, 130L
+            , 332L, 331L, 1100406L, 1100407L, 1100409L, 1100410L, 1100414L, 1100416L, 1100417L);
     public static List<Long> BASKETBALL_HEAD_AO_CATEGORY = Arrays.asList(37L, 38L, 39L, 48L, 46L, 45L, 60L, 58L, 57L, 43L, 19L, 18L);
     public static List<Long> TABLE_TENNIS_HEAD_AO_CATEGORY = Arrays.asList(153L);
 
@@ -681,18 +712,14 @@ public class MarginCategoryConfig {
     public static List<Long> THIRD_FIRST_MARKET_BALL_HEAD_CATEGORY = Arrays.asList(2L, 4L, 127L, 128L, 37L, 38L, 39L);
 
     /**
-     * TX 逻辑球种
+     *  TX 逻辑球种
      */
-    public static List<String> SPORT_TX_LOGIC = Arrays.asList(DataSourceCodeEnum.TX.code, DataSourceCodeEnum.AO.code);
-    /**
-     * 支持百家赔数据源
-     */
-    public static List<String> THIRD_ALL_MARKET_DATA_SOURCE_CODE = Arrays.asList(DataSourceCodeEnum.TX.code, DataSourceCodeEnum.AO.code, DataSourceCodeEnum.LS.code, DataSourceCodeEnum.L02.code);
+    public static List<String> SPORT_TX_LOGIC = Arrays.asList(DataSourceCodeEnum.TX.code,DataSourceCodeEnum.AO.code);
 
     /**
      * 1852 足球增加开盘时间-封、关盘/接拒-2.0 支持的数据源
      */
-    public static List<String> NO_CLOS_DATA_SOURCE_CODE = Arrays.asList(DataSourceCodeEnum.TX.code, DataSourceCodeEnum.SR.code, DataSourceCodeEnum.BG.code);
+    public static List<String> NO_CLOS_DATA_SOURCE_CODE = Arrays.asList(DataSourceCodeEnum.TX.code,DataSourceCodeEnum.SR.code,DataSourceCodeEnum.BG.code);
     /**
      * 1852 足球增加开盘时间-封、关盘/接拒-2.0 支持的赛种
      */
@@ -701,11 +728,13 @@ public class MarginCategoryConfig {
     /**
      * 33011优化单
      */
-    public static List<String> ADD1_VERIFY = Arrays.asList(DataSourceCodeEnum.BC.code, DataSourceCodeEnum.SR.code, DataSourceCodeEnum.BG.code, DataSourceCodeEnum.TX.code, DataSourceCodeEnum.LS.code,DataSourceCodeEnum.L02.code);
+    public static List<String> ADD1_VERIFY = Arrays.asList(DataSourceCodeEnum.BC.code,DataSourceCodeEnum.SR.code,DataSourceCodeEnum.BG.code,DataSourceCodeEnum.TX.code,
+            DataSourceCodeEnum.LS.code);
     /**
      * 33011优化单
      */
-    public static List<Long> ADD1_CATEGORY = Arrays.asList(2L, 10L, 11L, 18L, 26L, 34L, 87L, 88L, 97L, 98L, 127L, 332L, 134L, 335L, 114L, 115L, 116L, 122L, 123L, 124L, 233L, 331L, 307L, 309L, 314L, 315L, 316L, 317L, 325L, 328L);
+    public static List<Long> ADD1_CATEGORY = Arrays.asList(2L,10L,11L,18L,26L,34L,87L,88L,97L,98L,127L,332L,134L,335L,114L,115L,116L,122L,123L,124L,233L,331L,
+            307L,309L,314L,315L,316L,317L,325L,328L);
     /**
      * 1852上半场玩法
      */
@@ -780,12 +809,7 @@ public class MarginCategoryConfig {
     /**
      * 需求 39924 ,需要校验的玩法
      */
-    public static List<Long> CHECK_MAIN_CATEGORY = Arrays.asList(2L, 4L, 18L, 19L);
-
-    /**
-     * AO{X}/15分钟 玩法兜底
-     */
-    public static List<Long> CLOSE_15MIN_X_CATEGORY = Arrays.asList(28L, 31L, 336L, 362L, 30L, 125L, 225L, 230L, 120L, 224L, 235L, 237L, 32L, 33L, 34L, 231L, 232L, 233L, 370L, 371L, 372L);
+    public  static List<Long> CHECK_MAIN_CATEGORY = Arrays.asList(2L, 4L, 18L, 19L);
 
     /**
      * 需求：2505 支持玩法
@@ -907,33 +931,12 @@ public class MarginCategoryConfig {
         put(3,new HashSet<Long>(){{addAll(Arrays.asList(111L,113L,114L,121L,122L,119L,1100414L,331L,1100413L,1100416L,1100417L,1100415L));}});
     }};
 
-    /**
-     * 98387
-     */
-    public static List<Long> HANDICAP_WINNER_FOOTBALL_WINNER_LIST =
-            Arrays.asList(4L, 19L,143L,1L, 17L,25L);
-    public static List<Long> HANDICAP_FOOTBALL_WINNER_LIST_BASKET =
-            Arrays.asList(4L, 19L,143L);
-    public static List<Long> WINNER_FOOTBALL_WINNER_LIST_BASKET =
-            Arrays.asList(1L, 17L,25L);
-
-    public static Map<Long, Long> FOOT_BALL_HANDICAP_WINNER_MAP = new HashMap() {{
-        put(4L, 1L);
-        put(19L, 17L);
-        put(143L, 25L);
-    }};
-    public static Map<Long, Long> FOOT_BALL_WINNER_HANDICAP_MAP = new HashMap() {{
-        put(1L,4L);
-        put(17L,19L);
-        put(25L,143L);
-    }};
-
 
     public static Map<String,List<Long>> A99_category = new HashMap(){{
         put("10001",Arrays.asList(4L,2L,19L,18L));
         put("10002",Arrays.asList(113L,114L,121L,122L));
-        put("10005",Arrays.asList(306L,307L,308L,309L));
-        put("10003",Arrays.asList(128L,127L,130L,332L));
+        put("10003",Arrays.asList(306L,307L,308L,309L));
+        put("10005",Arrays.asList(128L,127L,130L,332L));
         put("10006",Arrays.asList(1100414L,331L,1100416L,1100417L));
         put("10007",Arrays.asList(1100406L,1100407L,1100409L,1100410L));
     }};

@@ -843,7 +843,6 @@
       link_id = #{linkId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=BIGINT}
   </update>
-
   <update id="updateByPrimaryList">
     update
     match_scores_event_info
@@ -854,56 +853,4 @@
     </foreach>
     )
   </update>
-
-  <update id="updateByPrimaryKeys">
-    <foreach collection="records" item="item" separator=";">
-      update match_scores_event_info
-      set sport_id = #{item.sportId,jdbcType=BIGINT},
-      canceled = #{item.canceled,jdbcType=TINYINT},
-      data_source_code = #{item.dataSourceCode,jdbcType=VARCHAR},
-      event_code = #{item.eventCode,jdbcType=VARCHAR},
-      event_time = #{item.eventTime,jdbcType=BIGINT},
-      extra_info = #{item.extraInfo,jdbcType=VARCHAR},
-      addition1 = #{item.addition1,jdbcType=VARCHAR},
-      home_away = #{item.homeAway,jdbcType=VARCHAR},
-      second_num = #{item.secondNum,jdbcType=INTEGER},
-      first_t1 = #{item.firstT1,jdbcType=INTEGER},
-      first_t2 = #{item.firstT2,jdbcType=INTEGER},
-      second_t1 = #{item.secondT1,jdbcType=INTEGER},
-      second_t2 = #{item.secondT2,jdbcType=INTEGER},
-      first_num = #{item.firstNum,jdbcType=INTEGER},
-      match_period_id = #{item.matchPeriodId,jdbcType=BIGINT},
-      player1_id = #{item.player1Id,jdbcType=BIGINT},
-      player1_name = #{item.player1Name,jdbcType=VARCHAR},
-      player2_id = #{item.player2Id,jdbcType=BIGINT},
-      player2_name = #{item.player2Name,jdbcType=VARCHAR},
-      seconds_from_start = #{item.secondsFromStart,jdbcType=BIGINT},
-      period_remaining_seconds = #{item.periodRemainingSeconds,jdbcType=BIGINT},
-      standard_match_id = #{item.standardMatchId,jdbcType=BIGINT},
-      standard_team_id = #{item.standardTeamId,jdbcType=BIGINT},
-      t1 = #{item.t1,jdbcType=INTEGER},
-      t2 = #{item.t2,jdbcType=INTEGER},
-      third_event_id = #{item.thirdEventId,jdbcType=VARCHAR},
-      third_match_id = #{item.thirdMatchId,jdbcType=BIGINT},
-      third_match_source_id = #{item.thirdMatchSourceId,jdbcType=VARCHAR},
-      third_team_id = #{item.thirdTeamId,jdbcType=BIGINT},
-      source_type = #{item.sourceType,jdbcType=TINYINT},
-      remark = #{item.remark,jdbcType=VARCHAR},
-      create_time = #{item.createTime,jdbcType=BIGINT},
-      modify_time = #{item.modifyTime,jdbcType=BIGINT},
-      addition3 = #{item.addition3,jdbcType=VARCHAR},
-      addition4 = #{item.addition4,jdbcType=VARCHAR},
-      addition5 = #{item.addition5,jdbcType=VARCHAR},
-      addition6 = #{item.addition6,jdbcType=VARCHAR},
-      addition7 = #{item.addition7,jdbcType=VARCHAR},
-      addition8 = #{item.addition8,jdbcType=VARCHAR},
-      addition9 = #{item.addition9,jdbcType=VARCHAR},
-      addition10 = #{item.addition10,jdbcType=VARCHAR},
-      addition2 = #{item.addition2,jdbcType=VARCHAR},
-      send_data = #{item.sendData,jdbcType=CHAR},
-      link_id = #{item.linkId,jdbcType=VARCHAR}
-      where id = #{item.id,jdbcType=BIGINT}
-    </foreach>
-  </update>
-
 </mapper>

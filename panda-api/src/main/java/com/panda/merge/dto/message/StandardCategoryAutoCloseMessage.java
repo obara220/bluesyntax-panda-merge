@@ -3,7 +3,6 @@
  */
 package com.panda.merge.dto.message;
 
-import com.alibaba.fastjson.JSONObject;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -29,8 +28,4 @@ public class StandardCategoryAutoCloseMessage implements Serializable {
 	 * 玩法集合List
 	 */
 	private List<Long> standardCategoryList;
-	/**
-	 * 子玩法
-	 */
-	private List<JSONObject> standardCategoryJsonList;
 }

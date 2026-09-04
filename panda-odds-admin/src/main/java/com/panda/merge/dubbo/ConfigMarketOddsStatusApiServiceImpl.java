@@ -12,6 +12,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import com.panda.merge.api.ConfigMarketOddsStatusApi;
@@ -48,6 +49,7 @@ public class ConfigMarketOddsStatusApiServiceImpl extends BaseProcessor implemen
 	
 	@Autowired
     public ConfigMarketOddsStatusService configMarketOddsStatusService;
+    @Lazy
 	@Autowired
     private ThirdMatchMarketProcessor thirdMatchMarketProcessor;
 	@Autowired
@@ -172,14 +174,14 @@ public class ConfigMarketOddsStatusApiServiceImpl extends BaseProcessor implemen
 	 */
 	private void updateOdds(Request<ConfigMarketOddsStatusDTO> request, StandardMatchInfo standardMatchInfo, StandardSportMarketSell standardSportMarketSell) {
 		log.info("::{}::ConfigMarketOddsStatusApiServiceImpl.updateOdds,更新赔率：", request.getLinkId());
-        ConfigMarketOddsStatusDTO dto = request.getData();
-        Set<Long> marketCategoryIdSet = new HashSet<Long>();
+		ConfigMarketOddsStatusDTO dto = request.getData();
+		Set<Long> marketCategoryIdSet = new HashSet<Long>();
 		marketCategoryIdSet.add(dto.getStandardCategoryId());
 		//下发最新赔率
-		//获取缓存中的所有盘口（赛前数据商和滚球数据商）
-		Map<String, StandardMarketDataMessage> stringStandardMarketDataMessageMap =
-				thirdMatchMarketProcessor.getStringStandardMarketDataMessageMap(marketCategoryIdSet,request.getLinkId(), standardMatchInfo,
-						standardSportMarketSell);
+        //获取缓存中的所有盘口（赛前数据商和滚球数据商）
+        Map<String, StandardMarketDataMessage> stringStandardMarketDataMessageMap =
+        		thirdMatchMarketProcessor.getStringStandardMarketDataMessageMap(marketCategoryIdSet,request.getLinkId(), standardMatchInfo,
+                        standardSportMarketSell);
 		Iterator<String> keys = stringStandardMarketDataMessageMap.keySet().iterator();
 		StandardMarketDataMessage s = null;
 		while(keys.hasNext()) {
@@ -188,13 +190,13 @@ public class ConfigMarketOddsStatusApiServiceImpl extends BaseProcessor implemen
 			if(!CollectionUtils.isEmpty(marketOddsList)) {
 				List<StandardMarketOddsDataMessage> oddsList = marketOddsList.stream().filter(w -> w.getRelationMarketOddsId().equals(dto.getId())).collect(Collectors.toList());
 				if(!CollectionUtils.isEmpty(oddsList)) {
-					log.info("::{}::ConfigMarketOddsStatusApiServiceImpl.updateOdds,更新投注项状态用于下发：需要调整状态的投注项", request.getLinkId());
+					log.info("::{}::ConfigMarketOddsStatusApiServiceImpl.updateOdds,更新投注项状态用于下发：需要调整状态的投注项{}", request.getLinkId(),oddsList);
 					oddsList.get(0).setStatus(dto.getStatus());
 					break;
 				}
 			}
 		}
-		log.info("::{}::ConfigMarketOddsStatusApiServiceImpl.updateOdds,更新赔率：玩法集合{},盘口集合", request.getLinkId(),marketCategoryIdSet);
+		log.info("::{}::ConfigMarketOddsStatusApiServiceImpl.updateOdds,更新赔率：玩法集合{},盘口集合{}", request.getLinkId(),marketCategoryIdSet,stringStandardMarketDataMessageMap);
 		thirdMatchMarketProcessor.processOddsByAll(request.getLinkId(),request.getOddsSource(),request.getOperaterId(), standardMatchInfo, marketCategoryIdSet, stringStandardMarketDataMessageMap,
 				TimeUtils.millsSecondsEast8ZoneGmt(),standardSportMarketSell, new HashMap<>());
 	}

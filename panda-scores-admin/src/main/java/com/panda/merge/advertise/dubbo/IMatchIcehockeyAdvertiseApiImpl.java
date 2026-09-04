@@ -38,9 +38,7 @@ import static com.panda.merge.advertise.common.Constant.MATCH_END;
 import static com.panda.merge.advertise.common.Constant.MATCH_PAUSE;
 import static com.panda.merge.advertise.common.Constant.MATCH_START;
 
-/**
- * 冰球（暂时没用）
- * */
+
 @Service
 @Slf4j
 @DubboService
@@ -123,7 +121,7 @@ public class IMatchIcehockeyAdvertiseApiImpl implements IMatchIcehockeyAdvertise
 //                throw new RuntimeException("redis锁失败:");
 //            }
 //        } catch (Exception e){
-//            log.error(":处理数据发生异常,error：", e);
+//            log.error("::{}::", e);
 //            return Response.failed(e.getMessage());
 //        } finally {
 //            redisService.unLock(key,key);

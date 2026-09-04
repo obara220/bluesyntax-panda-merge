@@ -36,11 +36,3 @@ LICENSE
 mvnw
 mvnw.cmd
 /*.log
-/.codegraph/
-/.claude/
-*.json
-*.js
-*.ps1
-/node_modules/
-/cookies.txt
-/CLAUDE.md

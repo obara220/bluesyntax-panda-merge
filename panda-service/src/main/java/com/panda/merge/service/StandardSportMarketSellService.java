@@ -26,6 +26,10 @@ public interface StandardSportMarketSellService {
 
     StandardSportMarketSell refreshCache(StandardSportMarketSell item);
 
+    List<StandardSportMarketSell> selectByStandardMatchIds(List<Long> standardMatchIds);
+
+    List<StandardSportMarketSell> selectByStandardMatchIdsAndRefreshCache(List<Long> ids);
+
     /** 清除特定赛事缓存 **/
     void evictCache(Long standardMatchId);
 

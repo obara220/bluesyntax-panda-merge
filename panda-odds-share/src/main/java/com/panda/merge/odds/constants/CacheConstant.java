@@ -25,6 +25,4 @@ public class CacheConstant {
 
     public static final int EXPIRE_THREE_DAY = 60 * 60 * 24 * 3;
 
-    public static final int EXPIRE_ONE_MONTH = 60 * 60 * 24 * 30;
-
 }

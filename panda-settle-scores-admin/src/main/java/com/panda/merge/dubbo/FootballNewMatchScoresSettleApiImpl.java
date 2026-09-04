@@ -21,7 +21,6 @@
 //import com.panda.merge.mapper.MatchSettleScoreMapper;
 //import com.panda.merge.model.*;
 //import com.panda.merge.mq.producer.MatchSettleScoresProducer;
-//import com.panda.merge.respository.MatchSettleInfoRepository;
 //import com.panda.merge.service.IMatchSettleLogService;
 //import com.panda.merge.service.IMatchSettleService;
 //import com.panda.merge.service.IWsPushService;
@@ -87,8 +86,7 @@
 //    SettleMentionConverter settleMentionConverter;
 //    @Autowired
 //    SyncScoreFactory syncScoreFactory;
-//    @Autowired
-//    MatchSettleInfoRepository matchSettleInfoRepository;
+//
 //    @Override
 //    public Response editMatchSettleScore(UpdateMatchSettleScoreDto matchSettleScoreDto) {
 //        log.info("[FootballNewMatchScoresSettleApiImpl] editMatchSettleScore with linkId:{} and param:{} start!",matchSettleScoreDto.getLinkedId(), matchSettleScoreDto);
@@ -807,9 +805,12 @@
 //
 //    @Override
 //    public boolean isLockedByMatchSettle(Long standardMatchId,String userName) {
-//        MatchSettleInfo matchSettleInfo =matchSettleInfoRepository.getMatchSettleInfo(standardMatchId);
-//        if (matchSettleInfo != null) {
-//
+//        MatchSettleInfoExample matchSettleInfoExample = new MatchSettleInfoExample();
+//        MatchSettleInfoExample.Criteria criteria = matchSettleInfoExample.createCriteria();
+//        criteria.andStandardMatchIdEqualTo(standardMatchId);
+//        List<MatchSettleInfo> matchSettleInfos = matchSettleInfoMapper.selectByExample(matchSettleInfoExample);
+//        if (matchSettleInfos.size() != 0) {
+//            MatchSettleInfo matchSettleInfo =matchSettleInfos.get(0);
 //            String arrayStr =matchSettleInfo.getLimitUserArray();
 //            if(StringUtils.isEmpty(arrayStr)){
 //                return false;

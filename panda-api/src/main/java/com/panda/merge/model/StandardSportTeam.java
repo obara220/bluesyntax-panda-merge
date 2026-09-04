@@ -75,16 +75,6 @@ public class StandardSportTeam implements Serializable {
 
     @ApiModelProperty(value = "数据来源编码.取值:SRBC分别代表:SportRadar、FeedConstruc.详情见data_source")
     private String dataSourceCode;
-    /**
-     * 赛事类别 1:联赛 2:杯赛 3: 其他
-     */
-    @ApiModelProperty(value = "赛事类型  1:联赛 2:杯赛 3: 其他")
-    private Integer matchCategory;
-    /**
-     * 赛事类型（默认1）1：普通赛事、2：电竞赛事
-     */
-    @ApiModelProperty(value = "赛事类型（默认1）1：普通赛事、2：电竞赛事")
-    private Integer matchType;
 
     private static final long serialVersionUID = 1L;
 
@@ -313,21 +303,5 @@ public class StandardSportTeam implements Serializable {
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();
-    }
-
-    public Integer getMatchCategory() {
-        return matchCategory;
-    }
-
-    public void setMatchCategory(Integer matchCategory) {
-        this.matchCategory = matchCategory;
-    }
-
-    public Integer getMatchType() {
-        return matchType;
-    }
-
-    public void setMatchType(Integer matchType) {
-        this.matchType = matchType;
     }
 }

@@ -71,9 +71,7 @@ public class SpareDBTableConsumer {
     };
 
     public ConsumeOrderlyStatus processMessages(List<MessageExt> msgs, ConsumeOrderlyContext context) {
-        log.info("SpareDBTableConsumer start ...");
         if(datacenterSettleSwitch){
-            log.info("SpareDBTableConsumer datacenterSettleSwitch turn on ...");
             return ConsumeOrderlyStatus.SUCCESS;
         }
         String linkIdTotal = msgs.get(0).getProperties().get("KEYS");

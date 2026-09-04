@@ -46,10 +46,8 @@ public class SoldMessageToEventConsumer implements RocketMQListener<Request<Sold
     @Override
     public void onMessage(Request<SoldMessage> request) {
         if (!realtimeSwitch && !realtimeEventSwitch) {
-            if (dataCenterProducer.checkForward(request.getData().getMatchId(),request.getLinkId())) {
-                dataCenterProducer.send(request,SOLD_MESSAGE);
-                return;
-            }
+            dataCenterProducer.send(request,SOLD_MESSAGE);
+            return;
         }
         log.info("【"+ PROJECT_ID_REALTIME+" ："+ SOLD_MESSAGE+"】【::"+request.getLinkId()+"::】开售处理后补发事件开始");
         soldMessageToEventProcessor.soldMessageToEvent(request);

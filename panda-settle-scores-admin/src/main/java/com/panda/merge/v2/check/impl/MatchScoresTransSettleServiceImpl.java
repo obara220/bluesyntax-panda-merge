@@ -6,7 +6,6 @@ import com.panda.merge.common.enums.Constant;
 import com.panda.merge.common.enums.DataSourceCodeEnum;
 import com.panda.merge.common.utils.CommUtils;
 import com.panda.merge.component.UUIdUtils;
-import com.panda.merge.config.RedisConfig;
 import com.panda.merge.config.RedisService;
 import com.panda.merge.constant.CommonConstant;
 import com.panda.merge.constant.SettleMentionEnum;
@@ -17,7 +16,6 @@ import com.panda.merge.filter.football.impl.MatchPenaltyEventSettleInitFilter;
 import com.panda.merge.filter.football.impl.MatchScoresSettleInitChainFilter;
 import com.panda.merge.model.*;
 import com.panda.merge.respository.MatchEventInfoRepository;
-import com.panda.merge.v2.controllerv2.MatchSettleCenterController;
 import com.panda.merge.v2.repository.MatchSettleInfoRepository;
 import com.panda.merge.service.*;
 import com.panda.merge.service.impl.GrayIntervalService;
@@ -104,14 +102,9 @@ public class MatchScoresTransSettleServiceImpl implements IMatchScoresTransSettl
     private MatchSettleThirdEventRepository matchSettleThirdEventRepository;
     @Autowired
     private MatchSettleScoreV2Repository matchSettleScoreV2Repository;
-    @Autowired
-    private GrayPhaseEventHelper grayPhaseEventHelper;
     
     @Autowired
     private com.panda.merge.service.IDataSourceHeartbeatService dataSourceHeartbeatService;
-
-    @Autowired
-    private MatchSettleCenterController matchSettleCenterController;
 
     private static final String SCORE_EVENT="SCORE_EVENT:";
     
@@ -120,11 +113,6 @@ public class MatchScoresTransSettleServiceImpl implements IMatchScoresTransSettl
                                                                         "7050", "7055", "7060", "7065", "7070", "7075", "7080", "7085", "7090");
     // 15分钟阶段的settleNum范围
     private static final List<String> FIFTEEN_MIN_PERIODS = Arrays.asList("60899", "61799", "62699", "73599", "74499", "75399");
-
-    List<String> goalFiveFifSettleNum = Arrays.asList("102","1034","1035","1036","103","1037","1038","1039","104","1040","1041","1042","106","1044","1045","1046","107","1047","1048","1049","108","1050","1051","1052");
-    List<String> cornerFifSettleNum = Arrays.asList("2011","2012","2013","2014","2015","2016");
-    List<String> facardFifSettleNum = Arrays.asList("301","302","303","305","306","307");
-
 
     @Override
     public void tansforScoreSettle(CommonThirdScoresDto data, boolean isStandard) {
@@ -188,6 +176,7 @@ public class MatchScoresTransSettleServiceImpl implements IMatchScoresTransSettl
      * */
     public CheckIsGreyDto checkIsGreyEvent(MatchEventInfo matchEventInfo) {
         CheckIsGreyDto checkIsGreyDto = new CheckIsGreyDto();
+        log.info("Template checkIsGreyEvent before ");
         //查询当前数据商灰色区间总开关开启状态,假如关闭则直接返回
         List<MatchSettleDataSourceSwitch> switches = matchSettleDataSourceSwitchRepository.getModelBySportIdAndDataSource(matchEventInfo.getSportId(),matchEventInfo.getDataSourceCode(),"1");
         if(switches.isEmpty()){
@@ -195,6 +184,7 @@ public class MatchScoresTransSettleServiceImpl implements IMatchScoresTransSettl
             checkIsGreyDto.setMatchEventInfo(matchEventInfo);
             return checkIsGreyDto;
         }
+        log.info("Template checkIsGreyEvent after ");
         //模版查询
         MatchSettleTemplate grayTemplate = settleTemplateService.getTemplateByStandardMatchId(matchEventInfo.getStandardMatchId(), SettleTemplateTypeEnum.GRAY_AREA.code);
         log.info("Template:matchId:{},grayTemplate:{}",matchEventInfo.getStandardMatchId(), grayTemplate);
@@ -271,17 +261,6 @@ public class MatchScoresTransSettleServiceImpl implements IMatchScoresTransSettl
                 //3.1 更新临近2个为灰色区间
                 checkIsGreyDto.setScoresGrey(1);
                 this.updateGrayMatchSettleScore(checkIsGreyDto,data.getMatchEventInfo().getHomeAway());
-                for (String sm: checkIsGreyDto.getSettleNum()){
-                    if (goalFiveFifSettleNum.contains(sm) || cornerFifSettleNum.contains(sm) || facardFifSettleNum.contains(sm)) {
-                        String tempEventCode = data.getMatchEventInfo().getEventCode();
-                        if (data.getMatchEventInfo().getEventCode().equals("yellow_card")||data.getMatchEventInfo().getEventCode().equals("red_card")||data.getMatchEventInfo().getEventCode().equals("fa_card")){
-                            tempEventCode = "facard";
-                        }
-                        matchSettleCenterController.changeEventTypeAutoSettleStatus(tempEventCode, data.getMatchEventInfo().getStandardMatchId(), Boolean.FALSE, "system-gray section-" + tempEventCode, "");
-                        redisService.set(CommonConstant.SETTLE_DATASOURCE_LOST_CONNECTION+data.getMatchEventInfo().getStandardMatchId(), 1, RedisConfig.REDIS_DEFAULT_TIME);
-                        break;
-                    }
-                }
             }
         }
         if(checkIsGreyDto!=null){
@@ -451,9 +430,7 @@ public class MatchScoresTransSettleServiceImpl implements IMatchScoresTransSettl
             //删除事件过滤
             List<MatchEventInfo> list = doOldDelEvent(eventInfos);
 //            主客队互换逻辑
-//            log.info("linkId::{}::eventId:{} before list:{} ",data.getLinkId(), data.getThirdEventId(),list);
-//            matchSettleBatchCheckService.changeHomeAway(list);
-//            log.info("linkId::{}::eventId:{} after list:{} ",data.getLinkId(), data.getThirdEventId(),list);
+            matchSettleBatchCheckService.changeHomeAway(eventInfos);
             //计算当前的事件次序
             Integer order = countEventOrder(list,data);
             log.info("linkId::{}::eventId:{} 当前计算事件次序为:{} ",data.getLinkId(), data.getThirdEventId(),order);
@@ -539,7 +516,6 @@ public class MatchScoresTransSettleServiceImpl implements IMatchScoresTransSettl
         log.info("linkId::{}::eventId:{} saveMatchEvent start",data.getLinkId(), data.getThirdEventId());
         MatchSettleEvent timeEvent = FootBallMatchSettleScoreUtils.initMatchSettleEvent(data.getStandardMatchId());
         //计算和设置比分  编码 次序修正 去重
-        log.info("linkId::{}::eventId:{} show all data MatchEventInfo:{} eventInfos:{}",data.getLinkId(), data.getThirdEventId(), data, eventInfos);
         order=  MatchEventInfoSettleUtils.doCountEventScore(order,timeEvent,data,eventInfos);
 //        order++;
         timeEvent.setEventOrder(order);
@@ -626,7 +602,7 @@ public class MatchScoresTransSettleServiceImpl implements IMatchScoresTransSettl
 //                thirdEvent.setIsGrey(0);
 //            }
             if (Integer.valueOf(3).equals(matchSettleEvent.getEventType())) {
-                CheckIsGreyDto phaseGreyDto = grayPhaseEventHelper.checkIsGreyPhaseEvent(data, data.getLinkId());
+                CheckIsGreyDto phaseGreyDto = this.checkIsGreyEvent(data);
                 phaseGreyDto.setStandardMatchId(data.getStandardMatchId());
                 if (phaseGreyDto.getIsGrey() != null && phaseGreyDto.getIsGrey() != 0) {
                     this.updateGrayMatchSettleScore(phaseGreyDto,data.getHomeAway());
@@ -694,11 +670,9 @@ public class MatchScoresTransSettleServiceImpl implements IMatchScoresTransSettl
 
             // 上半场 order= 1  此时 删 第一个错误   // 如果是下半场
             MatchEventInfo oldEvent = matchSettleBatchCheckService.getOldMatchInfoByCancel(data);
-            log.info("linkId::{}::eventId:{} oldEvent:{} doDelMatchEvent start",data.getLinkId(), data.getThirdEventId(), oldEvent);
             MatchSettleThirdEventExample matchSettleEventExample = new MatchSettleThirdEventExample();
             matchSettleEventExample.createCriteria().andEventCodeIn(eventCodes).andPeriodIdIn(periods).andStandardMatchIdEqualTo(data.getStandardMatchId()).andThirdEventSourceIdEqualTo(oldEvent.getId());
             List<MatchSettleThirdEvent> list = matchSettleThirdEventRepository.getModelByItemsOrderBySettleNum(data.getStandardMatchId(),eventCodes,periods, null,oldEvent.getId());
-            log.info("linkId::{}::eventId:{} size:{} doDelMatchEvent start",data.getLinkId(), data.getThirdEventId(), list.size());
             if (list.size() != 0) {
                 for (MatchSettleThirdEvent matchSettleEvent : list) {
                     if (matchSettleEvent.getStatus() <= 1) {

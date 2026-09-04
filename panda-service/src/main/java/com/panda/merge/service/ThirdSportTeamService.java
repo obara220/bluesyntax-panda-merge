@@ -78,6 +78,4 @@ public interface ThirdSportTeamService {
      * */
     ThirdSportTeam getItemByExampleNoSportId(String dataSourceCode,String thirdTeamSourceId);
 
-    ThirdSportTeam getItemsByReferenceId(String dataSourceCode,Long referenceId);
-
 }

@@ -61,9 +61,9 @@ public class ThirdMatchEventTest {
         request.setData(list);
         long beginTime = System.currentTimeMillis();
 //        matchEventInfoProcessor.putMatchEventListInfo(request);
-        TaskExecutor taskExecutor = threadPoolConfig.getMatchThreadPool();
+        TaskExecutor eventInfoThreadPool = threadPoolConfig.getEventInfoThreadPool();
         for (int i=0;i<5;i++) {
-            taskExecutor.execute(new Runnable() {
+            eventInfoThreadPool.execute(new Runnable() {
                 @Override
                 public void run() {
                     try {

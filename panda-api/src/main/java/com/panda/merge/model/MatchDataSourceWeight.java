@@ -55,9 +55,6 @@ public class MatchDataSourceWeight implements Serializable {
     @ApiModelProperty(value = "BT数据源权重")
     private Integer btWeight;
 
-    @ApiModelProperty(value = "1X数据源权重")
-    private Integer onexWeight;
-
     @ApiModelProperty(value = "be权重")
     private Integer beWeight;
 
@@ -220,13 +217,6 @@ public class MatchDataSourceWeight implements Serializable {
         this.btWeight = btWeight;
     }
 
-    public Integer getOnexWeight() {
-        return onexWeight;
-    }
-
-    public void setOnexWeight(Integer onexWeight) {
-        this.onexWeight = onexWeight;
-    }
 
     public Integer getBeWeight() {
         return beWeight;
@@ -315,7 +305,6 @@ public class MatchDataSourceWeight implements Serializable {
         sb.append(", piWeight=").append(piWeight);
         sb.append(", lsWeight=").append(lsWeight);
         sb.append(", btWeight=").append(btWeight);
-        sb.append(", onexWeight=").append(onexWeight);
         sb.append(", beWeight=").append(beWeight);
         sb.append(", koWeight=").append(koWeight);
         sb.append(", odWeight=").append(odWeight);

@@ -166,21 +166,5 @@ public class JsonMapUtils {
         }
         return map3;
     }
-    public static Map<Long, CricketBallScores> parseCricketMap(JSONObject jsonObject) {
-        Map map = JSONObject.parseObject(jsonObject.toJSONString(), Map.class);
-        Map<Long, CricketBallScores> map3 = new HashMap<>();
-        for (Object o : map.keySet()) {
-            if (o instanceof String) {
-                map3.put(Long.parseLong(o.toString()), JSONObject.toJavaObject((JSONObject) map.get(o), CricketBallScores.class));
-            } else if (o instanceof Integer) {
-                map3.put((Integer) o + 0l, JSONObject.toJavaObject((JSONObject) map.get(o), CricketBallScores.class));
-            } else if (o instanceof Long) {
-                map3.put((Long) o, JSONObject.toJavaObject((JSONObject) map.get(o), CricketBallScores.class));
-            } else {
-                map3.put((Long) o, JSONObject.toJavaObject((JSONObject) map.get(o), CricketBallScores.class));
-            }
-        }
-        return map3;
-    }
 }
 

@@ -10,7 +10,6 @@ import com.panda.merge.dto.TradePlaceNumAutoDiffConfigItemDTO;
 import com.panda.merge.mapper.ConfigPlacenumAutoDiffTradeMapper;
 import com.panda.merge.model.ConfigCategoryAutoDiffTrade;
 import com.panda.merge.model.ConfigPlacenumAutoDiffTrade;
-import com.panda.merge.model.ConfigPlacenumAutoDiffTradeExample;
 import com.panda.merge.model.StandardMatchInfo;
 import com.panda.merge.service.ConfigPlaceNumAutoDiffTradeService;
 import com.panda.merge.service.StandardMatchInfoService;
@@ -49,6 +48,7 @@ public class ConfigPlaceNumAutoDiffTradeServiceImpl implements ConfigPlaceNumAut
 
     @Override
     public ConfigPlacenumAutoDiffTrade getItem(String linkId,Long matchId,Long categoryId, Long childCategoryId, Integer placeNum) {
+        //存在部分独赢玩法跳过了排序查询位置水差的场景，所以这里对这些玩法默认placeNum等于1
         if (ObjectUtil.isEmpty(placeNum))
         {
             placeNum = 1;
@@ -57,41 +57,11 @@ public class ConfigPlaceNumAutoDiffTradeServiceImpl implements ConfigPlaceNumAut
         swCalculate.start("数据库查询坑位水差耗时");
         Map<String, ConfigPlacenumAutoDiffTrade> configDiffTradeMap =(Map<String, ConfigPlacenumAutoDiffTrade>) redisService.hGet(REDIS_KEY_PLACENUM + matchId, categoryId +"");
         if(CollectionUtils.isEmpty(configDiffTradeMap)){
-            ConfigPlacenumAutoDiffTradeExample example = new ConfigPlacenumAutoDiffTradeExample();
-            example.createCriteria()
-                .andStandardMatchIdEqualTo(matchId)
-                .andStandardCategoryIdEqualTo(categoryId)
-                .andChildStandardCategoryIdEqualTo(childCategoryId)
-                .andPlaceNumEqualTo(placeNum);
-            List<ConfigPlacenumAutoDiffTrade> list = configPlacenumAutoDiffTradeMapper.selectByExample(example);
-            if(CollectionUtils.isEmpty(list)){
-                return null;
-            }
-            ConfigPlacenumAutoDiffTrade placeNumAutoDiffTrade = list.get(0);
-            Map<String, ConfigPlacenumAutoDiffTrade> newConfigDiffMap = new HashMap<>();
-            newConfigDiffMap.put(childCategoryId + STR_JOIN + placeNum, placeNumAutoDiffTrade);
-            redisService.hSet(REDIS_KEY_PLACENUM + matchId, categoryId + "", newConfigDiffMap, RedisConfig.REDIS_MY_TIME);
-            swCalculate.stop();
-            log.info("::{}::Redis缓存为空，从DB查询坑位水差耗时{}ms,标准玩法id={},子玩法id={},placeNum={},diffValue={}" , linkId, swCalculate.getTotalTimeMillis(), categoryId, childCategoryId, placeNum, placeNumAutoDiffTrade.getDiffValue());
-            return placeNumAutoDiffTrade;
+            return null;
         }
         ConfigPlacenumAutoDiffTrade marketAutoDiffTrade = configDiffTradeMap.get(childCategoryId + STR_JOIN + placeNum);
-        if(marketAutoDiffTrade == null){
-            ConfigPlacenumAutoDiffTradeExample example = new ConfigPlacenumAutoDiffTradeExample();
-            example.createCriteria()
-                .andStandardMatchIdEqualTo(matchId)
-                .andStandardCategoryIdEqualTo(categoryId)
-                .andChildStandardCategoryIdEqualTo(childCategoryId)
-                .andPlaceNumEqualTo(placeNum);
-            List<ConfigPlacenumAutoDiffTrade> list = configPlacenumAutoDiffTradeMapper.selectByExample(example);
-            if(!CollectionUtils.isEmpty(list)){
-                marketAutoDiffTrade = list.get(0);
-                configDiffTradeMap.put(childCategoryId + STR_JOIN + placeNum, marketAutoDiffTrade);
-                redisService.hSet(REDIS_KEY_PLACENUM + matchId, categoryId + "", configDiffTradeMap, RedisConfig.REDIS_MY_TIME);
-            }
-        }
         swCalculate.stop();
-        log.info("::{}::数据库查询坑位水差耗时{}ms,标准玩法id={},子玩法id={},placeNum={},diffValue={}", linkId, swCalculate.getTotalTimeMillis(), categoryId, childCategoryId, placeNum, marketAutoDiffTrade != null ? marketAutoDiffTrade.getDiffValue() : "null");
+        log.info("::{}::数据库查询坑位水差耗时{}ms,标准玩法id={},子玩法id：{}", linkId, swCalculate.getTotalTimeMillis(), categoryId, childCategoryId);
         return marketAutoDiffTrade;
     }
 
@@ -123,20 +93,13 @@ public class ConfigPlaceNumAutoDiffTradeServiceImpl implements ConfigPlaceNumAut
 
     @Override
     public ConfigPlacenumAutoDiffTrade updata(ConfigPlacenumAutoDiffTrade placeNumConfig) {
-        configPlacenumAutoDiffTradeMapper.updateByPrimaryKey(placeNumConfig);
         Map<String, ConfigPlacenumAutoDiffTrade> configDiffMap = new HashMap<>();
-        Object cached = redisService.hGet(REDIS_KEY_PLACENUM + placeNumConfig.getStandardMatchId(), placeNumConfig.getStandardCategoryId() +"");
-        if(cached != null){
-            configDiffMap = (Map<String, ConfigPlacenumAutoDiffTrade>) cached;
-        }
+        configDiffMap =(Map<String, ConfigPlacenumAutoDiffTrade>) redisService.hGet(REDIS_KEY_PLACENUM + placeNumConfig.getStandardMatchId(), placeNumConfig.getStandardCategoryId() +"");
         configDiffMap.put(placeNumConfig.getChildStandardCategoryId()+STR_JOIN+placeNumConfig.getPlaceNum(),placeNumConfig);
         StandardMatchInfo standMatchInfo = standardMatchInfoService.getItem(placeNumConfig.getStandardMatchId());
         Long expireTime = baseProcessor.marketCacheTime(standMatchInfo.getBeginTime());
         redisService.hSet(REDIS_KEY_PLACENUM + placeNumConfig.getStandardMatchId(), placeNumConfig.getStandardCategoryId() +"",
                 configDiffMap,expireTime);
-        log.info("更新坑位水差配置成功,matchId={},categoryId={},childCategoryId={},placeNum={},diffValue={}", 
-            placeNumConfig.getStandardMatchId(), placeNumConfig.getStandardCategoryId(), 
-            placeNumConfig.getChildStandardCategoryId(), placeNumConfig.getPlaceNum(), placeNumConfig.getDiffValue());
         return placeNumConfig;
     }
 

@@ -47,12 +47,12 @@ public class MatchDelaySettle extends IJobHandler {
         try {
             if (redisService.tryLockOnce(keyAll, keyAll, 30)) {
                 Long beginTime = System.currentTimeMillis();
-                //log.info("延迟结算开始");
+                log.info("延迟结算开始");
                 MatchDelaySettleInfoExample example = new MatchDelaySettleInfoExample();
                 example.createCriteria().andSettleStatusEqualTo(0).andDelayTimeLessThan(System.currentTimeMillis());
                 List<MatchDelaySettleInfo> delaySettleInfoList = matchDelaySettleInfoMapper.selectByExample(example);
                 if (CollectionUtils.isEmpty(delaySettleInfoList)){
-                    //log.info("延迟结算MatchDelaySettleInfo数据为空");
+                    log.info("延迟结算MatchDelaySettleInfo数据为空");
                     return ReturnT.SUCCESS;
                 }
                 List<Long> eventIds = new ArrayList<>();
@@ -83,10 +83,10 @@ public class MatchDelaySettle extends IJobHandler {
                 checkInfoExample.createCriteria().andIdIn(checkIds);
                 List<MatchSettleCheckInfo> checkInfos =matchSettleCheckInfoMapper.selectByExample(checkInfoExample);
                 if (CollectionUtils.isEmpty(checkInfos)){
-                    //log.info("延迟结算MatchSettleCheckInfo数据为空");
+                    log.info("延迟结算MatchSettleCheckInfo数据为空");
                     return ReturnT.SUCCESS;
                 }
-                //log.info("延迟结算查询总耗时:{}, event size:{}, score size: {}, checkInfo size:{}",(System.currentTimeMillis()-beginTime), eventIds.size(), scoreIds.size(), checkIds.size());
+                log.info("延迟结算查询总耗时:{}, event size:{}, score size: {}, checkInfo size:{}",(System.currentTimeMillis()-beginTime), eventIds.size(), scoreIds.size(), checkIds.size());
                 Map<Long,MatchSettleEvent> eventMap = new HashMap<>();
                 if(!CollectionUtils.isEmpty(events)){
                     eventMap = events.stream().collect(Collectors.toMap(t->t.getId(), Function.identity()));
@@ -98,7 +98,7 @@ public class MatchDelaySettle extends IJobHandler {
                 Map<Long,MatchSettleCheckInfo> checkInfoMap = checkInfos.stream().collect(Collectors.toMap(t->t.getId(),Function.identity()));
 
                 // 开始处理业务逻辑
-                //log.info("延迟结算开始处理业务逻辑");
+                log.info("延迟结算开始处理业务逻辑");
                 int delayInfoSize = delaySettleInfoList.size();
                 List<Long> ids = new ArrayList<>();
                 List<Future<List<Long>>> futures = new ArrayList<>();
@@ -134,11 +134,11 @@ public class MatchDelaySettle extends IJobHandler {
                     matchDelaySettleInfoMapper.updateMatchDelaySettleInfoList(ids, 2);
                 }
                 int processSize = ids.size();
-                //log.info("延迟结算执行用时毫秒:{} origin size:{} process size:{} delay remain size:{}",
-//                        (System.currentTimeMillis()-beginTime), delayInfoSize, processSize, delayInfoSize-processSize);
+                log.info("延迟结算执行用时毫秒:{} origin size:{} process size:{} delay remain size:{}",
+                        (System.currentTimeMillis()-beginTime), delayInfoSize, processSize, delayInfoSize-processSize);
                 return ReturnT.SUCCESS;
             }else {
-                //log.info("延迟结算: 没有获取到redis总锁!");
+                log.info("延迟结算: 没有获取到redis总锁!");
             }
         }catch (Exception e){
             log.error("延迟结算异常: {}", e.getMessage());
@@ -160,18 +160,18 @@ public class MatchDelaySettle extends IJobHandler {
                         if (delaySettle.getDelayType() == 2) {
                             //假如原始数据被删除或者没找到,标记延迟数据,避免多次执行
                             if (null == eventMap.get(delaySettle.getScoreId()) || null == checkInfoMap.get(delaySettle.getCheckInfoId())) {
-                                //log.info("延迟结算更新事件:{} scoreEventId:{} checkInfo:{} ",delaySettle.getId(), delaySettle.getScoreId(), delaySettle.getCheckInfoId());
+                                log.info("延迟结算更新事件:{} scoreEventId:{} checkInfo:{} ",delaySettle.getId(), delaySettle.getScoreId(), delaySettle.getCheckInfoId());
                             } else {
-                                //log.info("延迟结算开始结算事件:{} scoreEventId:{} checkInfo:{} ",delaySettle.getId(), delaySettle.getScoreId(), delaySettle.getCheckInfoId());
+                                log.info("延迟结算开始结算事件:{} scoreEventId:{} checkInfo:{} ",delaySettle.getId(), delaySettle.getScoreId(), delaySettle.getCheckInfoId());
                                 footballMatchScoresSettleApi.delayCheckCommonMatchSettleScoreEvent(eventMap.get(delaySettle.getScoreId()), checkInfoMap.get(delaySettle.getCheckInfoId()), true);
                             }
                         }
                         if (delaySettle.getDelayType() == 1) {
                             //假如原始数据被删除或者没找到,标记延迟数据,避免多次执行
                             if (null == scoreMap.get(delaySettle.getScoreId()) || null == checkInfoMap.get(delaySettle.getCheckInfoId())) {
-                                //log.info("延迟结算更新比分:{} scoreEventId:{} checkInfo:{} ",delaySettle.getId(), delaySettle.getScoreId(), delaySettle.getCheckInfoId());
+                                log.info("延迟结算更新比分:{} scoreEventId:{} checkInfo:{} ",delaySettle.getId(), delaySettle.getScoreId(), delaySettle.getCheckInfoId());
                             } else {
-                                //log.info("延迟结算开始结算阶段:{} scoreEventId:{} checkInfo:{} ",delaySettle.getId(), delaySettle.getScoreId(), delaySettle.getCheckInfoId());
+                                log.info("延迟结算开始结算阶段:{} scoreEventId:{} checkInfo:{} ",delaySettle.getId(), delaySettle.getScoreId(), delaySettle.getCheckInfoId());
                                 footballMatchScoresSettleApi.delayCheckCommonMatchSettleScoreEvent(scoreMap.get(delaySettle.getScoreId()), checkInfoMap.get(delaySettle.getCheckInfoId()), true);
                             }
                         }

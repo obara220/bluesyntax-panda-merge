@@ -156,8 +156,7 @@ public class TimeUtils {
     public static void main(String[] args) {
         try{
             System.out.println(parseUTCText("2023-04-17T09:41:43.9346138Z").getTime());
-            System.out.println(parseUTCText(" 2019-01-03T08:26:15Z").getTime());
-            System.out.println(convertSecondsToMMSS(1212L));
+            System.out.println(parseUTCText(" 2019-01-03T08:26:15Z").getTime());;
         }catch (Exception e){
             e.printStackTrace();
         }

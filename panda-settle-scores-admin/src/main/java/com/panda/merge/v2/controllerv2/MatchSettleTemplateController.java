@@ -440,13 +440,13 @@ public class MatchSettleTemplateController {
         Map<String, DataSourceSettleWeightDto> lOldMap = lOld.stream().collect(Collectors.toMap(t->t.getDataSourceCode(), Function.identity(),(v1, v2)->v1));
         List<DataSourceSettleWeightDto> l = SettleTemplateJsonUtils.tansferDataSourceSettleWeightDtoList(settleTemplateUpdateDto.getWeightJson());
 
-//        for (DataSourceSettleWeightDto dataSourceSettleWeightDto : l) {
-//            DataSourceSettleWeightDto lOldSingle = lOldMap.get(dataSourceSettleWeightDto.getDataSourceCode());
-//            if (lOldMap != null) {
-//                dataSourceSettleWeightDto.setHeartbeatSecond(lOldSingle.getHeartbeatSecond());
-//                dataSourceSettleWeightDto.setSingleDatasourceSettleSwitch(lOldSingle.getSingleDatasourceSettleSwitch());
-//            }
-//        }
+        for (DataSourceSettleWeightDto dataSourceSettleWeightDto : l) {
+            DataSourceSettleWeightDto lOldSingle = lOldMap.get(dataSourceSettleWeightDto.getDataSourceCode());
+            if (lOldMap != null) {
+                dataSourceSettleWeightDto.setHeartbeatSecond(lOldSingle.getHeartbeatSecond());
+                dataSourceSettleWeightDto.setSingleDatasourceSettleSwitch(lOldSingle.getSingleDatasourceSettleSwitch());
+            }
+        }
         String newTemplateJson = JSONObject.toJSONString(l);
         matchSettleTemplate.setModifyTime(System.currentTimeMillis());
         matchSettleTemplate.setTemplateJson(newTemplateJson);
@@ -1101,16 +1101,12 @@ public class MatchSettleTemplateController {
                 grayTemplates.add(e);
             }
         });
-        log.info("add_DataSource3:");
         //更新权重模板
         updateSettleTemlates(matchSettleDataSourceWeightAndSwitchDto, settleTemplates);
-        log.info("add_DataSource4:");
         //更新灰色区间模板
         updateGrayTemplates(matchSettleDataSourceWeightAndSwitchDto, grayTemplates);
-        log.info("add_DataSource5:");
         //新增数据源日志
         matchSettleLogService.addOrDelDataSourceLog(matchSettleDataSourceWeightAndSwitchDto, 0);
-        log.info("add_DataSource6:");
         return Response.success();
     }
 

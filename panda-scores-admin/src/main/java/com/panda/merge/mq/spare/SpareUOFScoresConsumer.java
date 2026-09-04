@@ -37,7 +37,7 @@ import static com.panda.merge.constant.ConstantSystem.MATCH_STATISTICS_INFO_API_
 public class SpareUOFScoresConsumer {
     private static final String TOPIC = "MATCH_STATISTICS_INFO_API";
 
-    private static final String CONSUMER_GROUP = "scores-group-" + MATCH_STATISTICS_INFO_API_SCORES+"2";
+    private static final String CONSUMER_GROUP = "scores-group-" + MATCH_STATISTICS_INFO_API_SCORES;
 
     @Value("${slaveNamesrvAddr}")
     private String nameServers;

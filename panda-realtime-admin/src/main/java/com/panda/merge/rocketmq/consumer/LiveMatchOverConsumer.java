@@ -45,10 +45,8 @@ public class LiveMatchOverConsumer implements RocketMQListener<Request<MatchOver
     @Override
     public void onMessage(Request<MatchOverMessage> request) {
         if (!realtimeSwitch && !realtimeEventSwitch) {
-            if (dataCenterProducer.checkForward(request.getData().getMatchId(),request.getLinkId())) {
-                dataCenterProducer.send(request,FROM_RCS_MATCH_IS_END);
-                return;
-            }
+            dataCenterProducer.send(request,FROM_RCS_MATCH_IS_END);
+            return;
         }
         processor.liveMatchOverProcessor(request);
     }

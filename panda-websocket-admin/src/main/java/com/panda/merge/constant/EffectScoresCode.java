@@ -15,7 +15,7 @@ public class EffectScoresCode {
             "6: 'coverage_status,match_status,delete_event,touchdown,extra_point,point2_conversion,field_goal,safety,play_start,rush,challenge,penalty,turn_over,af_kick_off' ," +
             "7: 'coverage_status,match_status,snooker_score_change,ball_pot,snooker_foul,match_status,free_ball' ," +
             "8: 'coverage_status,match_status,red_card,yellow_card,match_status,which_team_serves_first,delete_event,re_serve,table_tennis_score_change,table_tennis_violation,yellowred_card_same_hand,game_winner,match_over,game_start' ," +
-            "9: 'coverage_status,match_status,volleyball_score_change,current_serve_volleyball,which_team_serves_first,ace,kill,block,service_error,out,penalty,error,expulsion,disqualification,suspension,suspension_over,timeout,timeout_over,delete_event' ," +
+            "9: 'coverage_status,match_status,volleyball_score_change,current_serve_volleyball' ," +
             "10: 'coverage_status,match_status,yellow_card,red_card,match_status,delete_event,badminton_score_change,black_card,match_stop_suspension,match_stop_suspension_over' ," +
             "11: 'goal,match_status,delete_event' ,12: '' ,13: 'score_change,match_status,delete_event', " +
             "14: 'delete_event,yellow_card,red_card,coverage_status,match_status,try,penalty_try,conversion,penalty_points,drop_goal,penalty_comp_goal'," +

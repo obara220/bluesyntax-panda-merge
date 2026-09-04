@@ -4,10 +4,6 @@ import com.panda.merge.dto.I18nItemDTO;
 import com.panda.merge.dto.odds.StandardMarketOddsModification;
 import com.panda.merge.dto.odds.StandardMarketScoreModification;
 import com.panda.merge.util.CalculateOdds;
-import com.alibaba.fastjson.annotation.JSONField;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.panda.merge.util.serializer.MalayOddsJacksonSerializer;
-import com.panda.merge.util.serializer.MalayOddsSerializer;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -147,9 +143,8 @@ public class StandardMarketOddsMessage implements Serializable, StandardMarketOd
     private Integer paOddsValue;
 
     /**
-     * 马来赔（库中为2位小数，内存 Double 仅作运算载体，JSON 由 getter 序列化器输出）
+     * 马来赔
      */
-    @JSONField(serialize = false, deserialize = false)
     private Double malayOddsValue;
 
     /**
@@ -249,16 +244,6 @@ public class StandardMarketOddsMessage implements Serializable, StandardMarketOd
     @Override
     public void setRelationMarketId(Long relationMarketId) {
         marketId = relationMarketId;
-    }
-
-    public void setMalayOddsValue(Double malayOddsValue) {
-        this.malayOddsValue = malayOddsValue;
-    }
-
-    @JSONField(serializeUsing = MalayOddsSerializer.class)
-    @JsonSerialize(using = MalayOddsJacksonSerializer.class)
-    public Double getMalayOddsValue() {
-        return malayOddsValue;
     }
 
 }

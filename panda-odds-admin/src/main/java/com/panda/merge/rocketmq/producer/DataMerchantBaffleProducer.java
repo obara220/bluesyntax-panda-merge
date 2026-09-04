@@ -4,6 +4,8 @@ import cn.hutool.core.util.ObjectUtil;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.panda.merge.common.BaseProcessor;
+import com.google.common.collect.Lists;
+import com.panda.merge.common.BaseProcessor;
 import com.panda.merge.common.OddsWrapper;
 import com.panda.merge.common.enums.Constant;
 import com.panda.merge.common.enums.DataSourceCodeEnum;
@@ -11,12 +13,14 @@ import com.panda.merge.common.enums.StandardSportTypeEnum;
 import com.panda.merge.constant.MarginCategoryConfig;
 import com.panda.merge.constant.RiskManagerCodeEnums;
 import com.panda.merge.constant.ConstantSystem;
+import com.panda.merge.constant.RiskManagerCodeEnums;
 import com.panda.merge.dto.Request;
 import com.panda.merge.dto.StandardMatchInfoDetail;
 import com.panda.merge.dto.ThirdMarketDTO;
 import com.panda.merge.dto.message.DataMerchantMessage;
 import com.panda.merge.model.ConfigMarketCategoryPlace;
 import com.panda.merge.model.StandardMatchInfo;
+import com.panda.merge.model.StandardSportMarketSell;
 import com.panda.merge.model.StandardSportMarketSell;
 import com.panda.merge.model.ThirdMatchInfo;
 import com.panda.merge.odds.service.PlayRiskManagerService;
@@ -25,6 +29,10 @@ import com.panda.merge.service.StandardMatchInfoService;
 import com.panda.merge.service.StandardSportMarketSellService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.rocketmq.client.producer.SendCallback;
+import org.apache.rocketmq.client.producer.SendResult;
 import org.apache.rocketmq.common.message.MessageConst;
 import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -289,6 +297,46 @@ public class DataMerchantBaffleProducer extends BaseProcessor {
                 sendRcsPlayStatus(linkId, matchId, sportId, linkedType, entry.getValue(), Constant.SPORT_MARKET.STATUS.SUSPENDED);
             }
         }
+    }
+
+    public Map<String, Boolean> batchGetMatchTradeType(Map<String, Long> linkStandardSourceIdMap, Map<Long, StandardMatchInfoDetail> standardMatchInfoMap,
+                                                     Map<Long, StandardSportMarketSell> standardSportMarketSellMap) {
+        Map<String, Boolean> result = new HashMap<>();
+        for (Map.Entry<String, Long> entry : linkStandardSourceIdMap.entrySet()) {
+            String linkId = entry.getKey();
+            Long matchId = entry.getValue();
+            StandardMatchInfo standardMatchInfo = standardMatchInfoMap.get(matchId);
+            StandardSportMarketSell standardSportMarketSell = standardSportMarketSellMap.get(matchId);
+            int marketType = isOddsLive(matchId);
+            String pre = standardSportMarketSell.getPreRiskManagerCode();
+            String live = standardSportMarketSell.getLiveRiskManagerCode();
+            if (MATCH_LENGTH.contains(standardMatchInfo.getMatchLength()) && marketType == 1 && StringUtils.equals(pre, RiskManagerCodeEnums.OTS.name())) {
+                result.put(linkId, true);
+                continue;
+            }
+            if (MATCH_LENGTH.contains(standardMatchInfo.getMatchLength()) && marketType == 1 && StringUtils.equals(pre, RiskManagerCodeEnums.BTS.name())) {
+                result.put(linkId, true);
+                continue;
+            }
+            if (MATCH_LENGTH.contains(standardMatchInfo.getMatchLength()) && marketType == 1 && StringUtils.equals(pre, RiskManagerCodeEnums.F2TS.name())) {
+                result.put(linkId, true);
+                continue;
+            }
+            if (MATCH_LENGTH.contains(standardMatchInfo.getMatchLength()) && marketType == 0 && StringUtils.equals(live, RiskManagerCodeEnums.OTS.name())) {
+                result.put(linkId, true);
+                continue;
+            }
+            if (MATCH_LENGTH.contains(standardMatchInfo.getMatchLength()) && marketType == 0 && StringUtils.equals(live, RiskManagerCodeEnums.BTS.name())) {
+                result.put(linkId, true);
+                continue;
+            }
+            if (MATCH_LENGTH.contains(standardMatchInfo.getMatchLength()) && marketType == 0 && StringUtils.equals(live, RiskManagerCodeEnums.F2TS.name())) {
+                result.put(linkId, true);
+                continue;
+            }
+            result.put(linkId, false);
+        }
+        return result;
     }
 
     private List<ConfigMarketCategoryPlace> getItemListCache(Map<String,ConfigMarketCategoryPlace> marketCategoryPlaceMap, Long standardMatchInfoId, Long standardCategoryId){

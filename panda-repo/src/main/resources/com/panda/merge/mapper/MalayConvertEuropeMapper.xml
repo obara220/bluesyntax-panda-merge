@@ -68,7 +68,11 @@
     id, malay_value, europe_value
   </sql>
   <select id="selectByExample" parameterType="com.panda.merge.model.MalayConvertEuropeExample" resultMap="BaseResultMap">
-    select  id, ROUND(malay_value,2) as malay_value, ROUND(europe_value,2) as europe_value
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
     from malay_convert_europe
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />

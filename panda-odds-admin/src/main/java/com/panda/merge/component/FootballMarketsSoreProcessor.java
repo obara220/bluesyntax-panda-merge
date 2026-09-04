@@ -31,6 +31,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.panda.merge.odds.constants.CategoryConstant.*;
@@ -47,6 +48,12 @@ public class FootballMarketsSoreProcessor extends BaseProcessor {
 
     @Autowired
     private FootballScoreCacheService footballScoreCacheService;
+
+    @Autowired
+    private StandardSportMarketNewService standardSportMarketNewService;
+
+    @Autowired
+    private StandardSportMarketOddsService standardSportMarketOddsService;
 
     public <T extends StandardMarketScoreModification> void check(String linkId,
                                                                   StandardMatchInfo standardMatchInfo,
@@ -72,7 +79,6 @@ public class FootballMarketsSoreProcessor extends BaseProcessor {
         checkScore(linkId, standardMatchInfo, footballCacheScores, standardMarketMessages);
     }
 
-
     private <T extends StandardMarketScoreModification> void checkScore(String linkId,
                                                                         StandardMatchInfo standardMatchInfo,
                                                                         FootballCacheScores footballCacheScores,
@@ -86,14 +92,14 @@ public class FootballMarketsSoreProcessor extends BaseProcessor {
 
             String marketScore = standardMarketMessage.score();
             if (StringUtils.isEmpty(marketScore)) {
-                marketScore = "0_0";
+                continue;
             }
 
             String cacheScore = getCacheScore(footballCacheScores, marketCategoryId);
             if (StringUtils.isEmpty(cacheScore)) {
-                cacheScore = "0_0";
+                continue;
             }
-            //比分校验and比分盘口值验证 未通过 关盘
+
             if (!StringUtils.equals(marketScore, cacheScore)) {
                 standardMarketMessage.scoreClose(cacheScore);
                 log.error("::{}::赛事ID:{},比分校验不通过，玩法id:{},缓存比分:{}，数据商关盘：{}",
@@ -103,69 +109,7 @@ public class FootballMarketsSoreProcessor extends BaseProcessor {
                           cacheScore,
                           standardMarketMessage.getId());
             }
-            if(valueFilter(linkId,marketCategoryId,standardMarketMessage)){
-                standardMarketMessage.scoreClose(cacheScore);
-                log.error("::{}::赛事ID:{},比分盘口值校验不通过，玩法id:{},缓存比分:{}，盘口值:{},数据商关盘：{}",
-                        linkId,
-                        standardMatchInfo.getId(),
-                        marketCategoryId,
-                        cacheScore+"_"+standardMarketMessage.getAddition1(), //记录缓存比分_盘口值
-                        standardMarketMessage.getAddition1(),
-                        standardMarketMessage.getId());
-            }
         }
-    }
-
-    /**
-     * 主客进球大小玩法 最小盘口值过滤
-     * @param linkId
-     * @param marketCategoryId
-     * @param t
-     * @return
-     * @param <T>
-     */
-    private <T extends StandardMarketScoreModification> Boolean valueFilter(String linkId, Long marketCategoryId, T t) {
-        // 常量定义
-        log.info("::{}::赛事ID:{},比分盘口值校验开始，玩法id:{}",linkId,t.getId(),marketCategoryId);
-        BigDecimal ZERO = BigDecimal.ZERO;
-        // 条件1：不是进球大小 → 返回false
-        if (!HOME_GOALSIZE_SET.contains(marketCategoryId)&&!AWAY_GOALSIZE_SET.contains(marketCategoryId)) {
-            return false;
-        }
-        // 条件2：主/客比分为空 → 設置為0
-        String homeScore = t.homeScore();
-        String awayScore = t.awayScore();
-        if (StringUtils.isEmpty(homeScore)) {
-            homeScore="0";
-        }
-        if (StringUtils.isEmpty(awayScore)) {
-            awayScore="0";
-        }
-        //主隊比分+0.5
-        BigDecimal HONE_POINT_FIVE = new BigDecimal(homeScore).add(new BigDecimal("0.5"));
-        //客隊比分+0.5
-        BigDecimal AWAY_POINT_FIVE = new BigDecimal(awayScore).add(new BigDecimal("0.5"));
-        // 获取盘口值
-        BigDecimal values = StringUtils.isEmpty(t.getAddition1()) ? ZERO : new BigDecimal(t.getAddition1());
-        //主隊進球大小盤口值盤對 是否大於 比分+0.5
-        if(HOME_GOALSIZE_SET.contains(marketCategoryId)){
-            log.error("::{}::赛事ID:{},主队比分盘口值校验不通过，玩法id:{},，盘口值:{}",
-                    linkId,
-                    t.getId(),
-                    marketCategoryId,
-                    t.getAddition1());
-            return values.compareTo(HONE_POINT_FIVE)<0;
-        }
-        //客隊隊進球大小盤口值盤對 是否大於 比分+0.5
-        if(AWAY_GOALSIZE_SET.contains(marketCategoryId)){
-            log.error("::{}::赛事ID:{},客队比分盘口值校验不通过，玩法id:{},，盘口值:{}",
-                    linkId,
-                    t.getId(),
-                    marketCategoryId,
-                    t.getAddition1());
-            return values.compareTo(AWAY_POINT_FIVE)<0;
-        }
-        return false;
     }
 
     private <T extends StandardMarketScoreModification> List<T> filter(String linkId,
@@ -192,6 +136,7 @@ public class FootballMarketsSoreProcessor extends BaseProcessor {
         List<T> standardMarketMessages = standardMarketMessageList
                 .stream()
                 .filter(s -> checkMarketsSoreCodes.contains(s.getDataSourceCode()) &&
+                        !s.getDataSourceCode().equalsIgnoreCase(DataSourceCodeEnum.OD.getCode()) &&
                         isTargetCategory(s.getMarketCategoryId())  &&
                         s.getThirdMarketSourceStatus() < Constant.SPORT_MARKET.STATUS.DEACTIVATED)
                 .collect(Collectors.toList());

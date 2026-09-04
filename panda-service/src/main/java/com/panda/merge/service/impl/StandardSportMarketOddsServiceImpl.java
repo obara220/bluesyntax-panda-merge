@@ -22,13 +22,13 @@ import com.panda.merge.service.SportMarketRelationService;
 import com.panda.merge.service.StandardSportMarketOddsService;
 import com.panda.merge.service.ThirdSportTeamService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.shardingsphere.api.hint.HintManager;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -72,22 +72,15 @@ public class StandardSportMarketOddsServiceImpl implements StandardSportMarketOd
     @Override
     @Cacheable(key = "'StandardSportMarketOdds:' + #standardMarketId + '-' + #thirdOddsFieldSourceId",unless = "#result == null ")
     public StandardSportMarketOdds getItem(String dataSourceCode, String thirdOddsFieldSourceId, Long standardMarketId) {
-        HintManager instance = HintManager.getInstance();
-        try {
-            instance.addDatabaseShardingValue("standard_sport_market_odds", "ds1");
-            instance.addTableShardingValue("standard_sport_market_odds", standardMarketId % 10);
-            StandardSportMarketOddsExample standardSportMarketOddsExample = new StandardSportMarketOddsExample();
-            standardSportMarketOddsExample.createCriteria().andDataSourceCodeEqualTo(dataSourceCode)
-                    .andThirdOddsFieldSourceIdEqualTo(thirdOddsFieldSourceId)
-                    .andMarketIdEqualTo(standardMarketId);
-            List<StandardSportMarketOdds> standardSportMarketOdds = standardSportMarketOddsMapper.selectByExample(standardSportMarketOddsExample);
-            if (CollectionUtils.isEmpty(standardSportMarketOdds)) {
-                return null;
-            }
-            return standardSportMarketOdds.get(0);
-        } finally {
-            instance.close();
+        StandardSportMarketOddsExample standardSportMarketOddsExample = new StandardSportMarketOddsExample();
+        standardSportMarketOddsExample.createCriteria().andDataSourceCodeEqualTo(dataSourceCode)
+                .andThirdOddsFieldSourceIdEqualTo(thirdOddsFieldSourceId)
+                .andMarketIdEqualTo(standardMarketId);
+        List<StandardSportMarketOdds> standardSportMarketOdds = standardSportMarketOddsMapper.selectByExample(standardSportMarketOddsExample);
+        if (CollectionUtils.isEmpty(standardSportMarketOdds)){
+            return null;
         }
+        return standardSportMarketOdds.get(0);
     }
 
     /**
@@ -116,8 +109,6 @@ public class StandardSportMarketOddsServiceImpl implements StandardSportMarketOd
         convertStandardTeam(linkId, standardSportMarketOdds, standardSportMarket);
         try{
             standardSportMarketOddsMapper.insertSelective(standardSportMarketOdds);
-            //发送MQ
-            //marketDbProducer.sendStandardMarketOddsInsertInfo(linkId, Arrays.asList(standardSportMarketOdds));
             log.info("::{}::insert标准盘口投注项成功,盘口ID:{},标准盘口ID:{},标准投注项ID:{}",
                     linkId, standardSportMarketOdds.getMarketId(), standardSportMarketOdds.getRelationMarketId(), standardSportMarketOdds.getRelationMarketOddsId());
             //冠军投注项国际化入库
@@ -151,9 +142,6 @@ public class StandardSportMarketOddsServiceImpl implements StandardSportMarketOd
     public void convertStandardTeam(String linkId, StandardSportMarketOdds standardSportMarketOdds, StandardSportMarket standardSportMarket) {
         Long marketCategoryId = standardSportMarket.getMarketCategoryId();
         try {
-            if(DataSourceCodeEnum.AO.code.equals(standardSportMarket.getDataSourceCode())){
-                return;
-            }
             if (Arrays.asList(Constant.CATEGORY_ADDITION1).contains(marketCategoryId)) {
                 ThirdSportTeam thirdSportTeam = thirdSportTeamService.getItemByExampleNoSportId(standardSportMarket.getDataSourceCode(),standardSportMarketOdds.getAddition1());
                 standardSportMarketOdds.setAddition1(null == thirdSportTeam ? "0" : String.valueOf(thirdSportTeam.getReferenceId()));
@@ -189,8 +177,6 @@ public class StandardSportMarketOddsServiceImpl implements StandardSportMarketOd
     @Override
     public StandardSportMarketOdds create(String linkId, StandardSportMarketOdds standardSportMarketOdds) {
         try{
-            //发送mq
-            //marketDbProducer.sendStandardMarketOddsUpdateInfo(Arrays.asList(standardSportMarketOdds));
             standardSportMarketOddsMapper.insertSelective(standardSportMarketOdds);
         } catch (DuplicateKeyException e) {
             //此处只打印异常，即使入库失败该盘口投注项依然需要投递给下游
@@ -201,13 +187,11 @@ public class StandardSportMarketOddsServiceImpl implements StandardSportMarketOd
 
     @Override
     @CachePut(key = "'StandardSportMarketOdds:' + #standardSportMarketOdds.marketId + '-' + #standardSportMarketOdds.thirdOddsFieldSourceId")
-    //@Async("StandardSportMarketThreadPool")
+    @Async("StandardSportMarketThreadPool")
     public StandardSportMarketOdds updateByPrimaryKeySelective(StandardSportMarketOdds standardSportMarketOdds) {
         StandardSportMarketOddsExample standardSportMarketOddsExample = new StandardSportMarketOddsExample();
         standardSportMarketOddsExample.createCriteria().andIdEqualTo(standardSportMarketOdds.getId()).andMarketIdEqualTo(standardSportMarketOdds.getMarketId());
         standardSportMarketOddsMapper.updateByExampleSelective(standardSportMarketOdds, standardSportMarketOddsExample);
-        //发送mq
-        //marketDbProducer.sendStandardMarketOddsUpdateInfo(Arrays.asList(standardSportMarketOdds));
         return standardSportMarketOdds;
     }
 
@@ -227,7 +211,7 @@ public class StandardSportMarketOddsServiceImpl implements StandardSportMarketOd
         if (obj == null || StringUtils.isEmpty(obj.toString())) {
             relationMarketOddsId = MD5Utils.getLongByMD5(redisKey);//UUIdUtils.getId();
         } else {
-            relationMarketOddsId = Long.valueOf(redisService.get(redisKey).toString());
+            relationMarketOddsId = Long.valueOf(obj.toString());
         }
         redisService.set(redisKey, relationMarketOddsId, RedisConfig.REDIS_MONTH_TIME);
         return relationMarketOddsId;
@@ -258,7 +242,7 @@ public class StandardSportMarketOddsServiceImpl implements StandardSportMarketOd
             if (obj == null || StringUtils.isEmpty(obj.toString())) {
                 relationMarketOddsIdStr = MD5Utils.getLongByMD5(redisKey);//UUIdUtils.getId();;
             } else {
-                relationMarketOddsIdStr = Long.valueOf(redisService.get(redisKey).toString());
+                relationMarketOddsIdStr = Long.valueOf(obj.toString());
             }
             redisService.set(redisKey, relationMarketOddsIdStr.toString(), RedisConfig.REDIS_MONTH_TIME);
             //TX投注项特殊处理
@@ -312,19 +296,19 @@ public class StandardSportMarketOddsServiceImpl implements StandardSportMarketOd
     }
 
     /**
-     * TX根据三方盘口ID去除后缀位置生成 统一盘口ID 调盘
+     * TX根据三方盘口ID去除后缀位置生成 统一盘口ID
      *
      * @param
      * @return
      */
-    public String adjustmentTxCreateRelationMarketOddsId(StandardSportMarketOdds standardSportMarketOdds, StandardMarketDataMessage standardSportMarket) {
+    public String txCreateRelationMarketOddsId(StandardSportMarketOdds standardSportMarketOdds, StandardSportMarket standardSportMarket) {
         String redisKey = RelationKeyFactory.getMarketOddsRelationKey(Long.valueOf(standardSportMarket.getSendData()), standardSportMarketOdds, standardSportMarket.getMarketCategoryId());
         Long relationMarketOddsIdStr;
         Object obj = redisService.get(redisKey);
         if (obj == null || StringUtils.isEmpty(obj.toString())) {
             relationMarketOddsIdStr = MD5Utils.getLongByMD5(redisKey);//UUIdUtils.getId();;
         } else {
-            relationMarketOddsIdStr = Long.valueOf(redisService.get(redisKey).toString());
+            relationMarketOddsIdStr = Long.valueOf(obj.toString());
         }
         redisService.set(redisKey, relationMarketOddsIdStr.toString(), RedisConfig.REDIS_MONTH_TIME);
         return relationMarketOddsIdStr.toString();
@@ -348,19 +332,19 @@ public class StandardSportMarketOddsServiceImpl implements StandardSportMarketOd
     }
 
     /**
-     * TX根据三方盘口ID去除后缀位置生成 统一盘口ID
+     * TX根据三方盘口ID去除后缀位置生成 统一盘口ID 调盘
      *
      * @param
      * @return
      */
-    public String txCreateRelationMarketOddsId(StandardSportMarketOdds standardSportMarketOdds, StandardSportMarket standardSportMarket) {
+    public String adjustmentTxCreateRelationMarketOddsId(StandardSportMarketOdds standardSportMarketOdds, StandardMarketDataMessage standardSportMarket) {
         String redisKey = RelationKeyFactory.getMarketOddsRelationKey(Long.valueOf(standardSportMarket.getSendData()), standardSportMarketOdds, standardSportMarket.getMarketCategoryId());
         Long relationMarketOddsIdStr;
         Object obj = redisService.get(redisKey);
         if (obj == null || StringUtils.isEmpty(obj.toString())) {
             relationMarketOddsIdStr = MD5Utils.getLongByMD5(redisKey);//UUIdUtils.getId();;
         } else {
-            relationMarketOddsIdStr = Long.valueOf(redisService.get(redisKey).toString());
+            relationMarketOddsIdStr = Long.valueOf(obj.toString());
         }
         redisService.set(redisKey, relationMarketOddsIdStr.toString(), RedisConfig.REDIS_MONTH_TIME);
         return relationMarketOddsIdStr.toString();
@@ -368,14 +352,9 @@ public class StandardSportMarketOddsServiceImpl implements StandardSportMarketOd
 
     @Override
     public List<StandardSportMarketOdds> getItemList(Long marketId) {
-        HintManager instance = HintManager.getInstance();
-        instance.addDatabaseShardingValue("standard_sport_market_odds","ds1");
-        instance.addTableShardingValue("standard_sport_market_odds", marketId % 10);
         StandardSportMarketOddsExample standardSportMarketOddsExample = new StandardSportMarketOddsExample();
         standardSportMarketOddsExample.createCriteria().andMarketIdEqualTo(marketId);
-        List<StandardSportMarketOdds> standardSportMarketOdds = standardSportMarketOddsMapper.selectByExample(standardSportMarketOddsExample);
-        instance.close();
-        return standardSportMarketOdds;
+        return standardSportMarketOddsMapper.selectByExample(standardSportMarketOddsExample);
     }
 
     /**
@@ -399,13 +378,5 @@ public class StandardSportMarketOddsServiceImpl implements StandardSportMarketOd
     @Override
     public List<StandardSportMarketOdds> getMarketOddsByMatchIdList(List<Long> standardSportMarketIdList) {
         return standardSportMarketOddsDao.getMarketOddsByMatchIdList(standardSportMarketIdList);
-    }
-
-    @Override
-    public void upStandardOddsList(String linkId, Long standardMatchId, List<StandardSportMarketOdds> upOddsList) {
-        for (StandardSportMarketOdds sportMarketOdds : upOddsList) {
-            String key = RedisConfig.REDIS_KEY_DATABASE + "::StandardSportMarketOdds:" + sportMarketOdds.getId() + '-' + sportMarketOdds.getThirdOddsFieldSourceId();
-            redisService.set(key, sportMarketOdds);
-        }
     }
 }

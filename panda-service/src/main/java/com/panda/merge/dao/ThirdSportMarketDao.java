@@ -4,7 +4,6 @@ package com.panda.merge.dao;
 import com.github.pagehelper.Page;
 import com.panda.merge.dto.ThirdSportMarketDTO;
 import com.panda.merge.model.ThirdSportMarket;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -27,17 +26,6 @@ public interface ThirdSportMarketDao {
 
     List<ThirdSportMarket> selectThirdSportMarketList(Map<String, Long> map);
 
-    /**
-     * 批量创建
-     */
-    int insertList(@Param("list") List<ThirdSportMarket> thirdSportMarkets);
-
-    /**
-     * 批量修改
-     * @param thirdSportMarkets
-     * @return
-     */
-    int upDataList(@Param("list") List<ThirdSportMarket> thirdSportMarkets);
 
 
 }

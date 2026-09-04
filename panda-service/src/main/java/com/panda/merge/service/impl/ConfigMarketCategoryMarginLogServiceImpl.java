@@ -28,7 +28,7 @@ public class ConfigMarketCategoryMarginLogServiceImpl implements ConfigMarketCat
     @Override
     public ConfigMarketCategoryMarginLog create(String linkId, Long standardMatchInfoId, Long standardCategoryId, Long childStandardCategoryId,Integer marketType, Integer placeNum, MarketMarginDtlDTO marketMarginDtlDTO, Long operaterId) {
         ConfigMarketCategoryMarginLog marketCategoryMarginLog = new ConfigMarketCategoryMarginLog();
-        /*marketCategoryMarginLog.setId(UUIdUtils.getId());
+        marketCategoryMarginLog.setId(UUIdUtils.getId());
         marketCategoryMarginLog.setStandardMatchInfoId(standardMatchInfoId);
         marketCategoryMarginLog.setStandardCategoryId(standardCategoryId);
         marketCategoryMarginLog.setChildStandardCategoryId(childStandardCategoryId);
@@ -41,7 +41,7 @@ public class ConfigMarketCategoryMarginLogServiceImpl implements ConfigMarketCat
         marketCategoryMarginLog.setOperaterId(operaterId);
         marketCategoryMarginLog.setCreateTime(System.currentTimeMillis());
         marketCategoryMarginLog.setModifyTime(System.currentTimeMillis());
-        marketCategoryMarginLogMapper.insertSelective(marketCategoryMarginLog);*/
+//        marketCategoryMarginLogMapper.insertSelective(marketCategoryMarginLog);
         return marketCategoryMarginLog;
     }
 }

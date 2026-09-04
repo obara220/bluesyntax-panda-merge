@@ -182,11 +182,11 @@ public class MatchSettleTemplateHelper {
                 matchSettleGrayWeight.setGrayCode(String.valueOf(entry.getValue().get(CommonConstant.GRAY_TYPE)));
                 matchSettleGrayWeight.setGrayStatus(0);
                 batchGrayWeights.add(matchSettleGrayWeight);
-            }
-            MatchSettleScore matchSettleScore = (MatchSettleScore) entry.getValue().get(CommonConstant.GRAY_Score);
-            //灰色区间恢复，消耗性能如果不是灰色区间，则不重复进入
-            if(matchSettleScore.getIsGrey()!=null&&matchSettleScore.getIsGrey()!=0){
+                MatchSettleScore matchSettleScore = (MatchSettleScore) entry.getValue().get(CommonConstant.GRAY_Score);
+                //灰色区间恢复，消耗性能如果不是灰色区间，则不重复进入
+                if(matchSettleScore.getIsGrey()!=null&&matchSettleScore.getIsGrey()!=0){
                     newGrayIds.put(entry.getKey(), entry.getValue());
+                }
             }
         }
         matchSettleGrayWeightRepository.saveOrUpdateBatch(batchGrayWeights);
@@ -214,22 +214,16 @@ public class MatchSettleTemplateHelper {
                 List<MatchSettleGrayWeight> withgrayStatus = entry.getValue().get(1);
                 List<MatchSettleGrayWeight> withoutgrayStatus = entry.getValue().get(0);
                 Integer weight = 0;
-                if (withgrayStatus != null) {
-                    for (MatchSettleGrayWeight settleGrayWeight : withgrayStatus) {
-                        Integer w= map.get(settleGrayWeight.getDataSourceCode());
-                        weight+=w;
-                    }
+                for (MatchSettleGrayWeight settleGrayWeight : withgrayStatus) {
+                    Integer w= map.get(settleGrayWeight.getDataSourceCode());
+                    weight+=w;
                 }
-
                 //非灰色区间权重计算
                 Integer weight2 = 0;
-                if (withoutgrayStatus != null) {
-                    for (MatchSettleGrayWeight settleGrayWeight : withoutgrayStatus) {
-                        Integer w= map.get(settleGrayWeight.getDataSourceCode());
-                        weight2+=w;
-                    }
+                for (MatchSettleGrayWeight settleGrayWeight : withoutgrayStatus) {
+                    Integer w= map.get(settleGrayWeight.getDataSourceCode());
+                    weight2+=w;
                 }
-
                 if(weight2>weight){
                     //恢复当前区域为非灰色区间
                     MatchSettleScore matchSettleScore = (MatchSettleScore) convertNewGrayIds.get(entry.getKey());

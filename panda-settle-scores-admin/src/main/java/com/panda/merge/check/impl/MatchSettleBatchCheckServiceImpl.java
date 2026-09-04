@@ -866,7 +866,7 @@
 //            checkMessages = checkMessages.stream().filter(t->{
 //                boolean isFiveMinSettleNums = fiveMinSettleNums.contains(finalScoreEventIdSettleNumMap.get(t.getRight().getSettleScoreEventId()));
 //                if(isFiveMinSettleNums) {
-//                    fiveMinSettleIds.add(t.getRight().getSettleScoreEventId());
+//                    fiveMinSettleIds.add(t.getRight().getId());
 //                    return false;
 //                }
 //                return true;
@@ -879,12 +879,12 @@
 //        checkMessages = checkMessages.stream().filter(t -> {
 //            Integer levelDataSourceStatus = switchStatus.getOrDefault(t.getRight().getEventCode(), null);
 //            if (levelDataSourceStatus==null || levelDataSourceStatus.equals(Constant.OUTRIGHT_ZERO)){
-//                fiveMinSettleIds.add(t.getRight().getSettleScoreEventId());
+//                fiveMinSettleIds.add(t.getRight().getId());
 //                return false;
 //            }
 //            return true;
 //        }).collect(Collectors.toList());
-//        matchDelaySettleInfoService.updateStatusByScoreIds(fiveMinSettleIds, 2);
+//        matchDelaySettleInfoService.updateStatusByCheckInfoIds(fiveMinSettleIds, 2);
 //        log.info("linkedId::{} size::{} batchCheckCommonMatchSettleScoreEvent 完成对开关状态过滤", linkedId, checkMessages.size());
 //        if(CollectionUtils.isEmpty(checkMessages)) {
 //            log.info("linkedId::{} batchCheckCommonMatchSettleScoreEvent 所有事件都为5分钟区间", linkedId);

@@ -47,7 +47,7 @@
       m.period_t1,
       m.period_t2,
       m.data_source_type,
-      th.match_period period,
+      m.period period,
       ti.time_go is_time_go,
       ti.second_from_start,
       m.match_length,
@@ -91,7 +91,7 @@
     m.period_t1,
     m.period_t2,
     m.data_source_type,
-    th.match_period period,
+    m.period period,
     ti.time_go is_time_go,
     ti.second_from_start,
     m.match_length,
@@ -135,7 +135,7 @@
     m.period_t1,
     m.period_t2,
     m.data_source_type,
-    th.match_period period,
+    m.period period,
     ti.time_go is_time_go,
     ti.second_from_start,
     m.match_length,
@@ -176,7 +176,7 @@
     m.period_t1,
     m.period_t2,
     m.data_source_type,
-    th.match_period period,
+    m.period period,
     ti.time_go is_time_go,
     ti.second_from_start,
     m.match_length,
@@ -221,7 +221,7 @@
       m.period_t1,
       m.period_t2,
       m.data_source_type,
-      th.match_period period,
+      m.period period,
       ti.time_go is_time_go,
       ti.second_from_start,
       m.match_length,
@@ -297,7 +297,7 @@
 
   <select id="searchScoresByThirdId" resultMap="BaseResultMap" >
     SELECT m.third_match_id match_id,m.sport_id,m.data_source_code,m.scores_json,m.scores_json_extra,m.t1,m.t2,m.period_t1,m.period_t2,m.data_source_type,
-    th.match_period  period,ti.time_go is_time_go,ti.second_from_start,m.match_length,ti.event_time,m.third_match_id,ti.remaining_time,th.match_status
+    m.period  period,ti.time_go is_time_go,ti.second_from_start,m.match_length,ti.event_time,m.third_match_id,ti.remaining_time,th.match_status
     from match_scores_info m LEFT JOIN match_time_info ti on m.third_match_id = ti.third_match_id and m.data_source_type=ti.data_source_type LEFT JOIN third_match_info th on th.id =m.third_match_id
     inner JOIN match_scores_source_type ma on ma.id=m.third_match_id and ma.source_type=m.data_source_type
     where m.third_match_id in
@@ -308,7 +308,7 @@
 
   <select id="searchThirdScoresByStandardId" resultMap="BaseResultMap" >
     SELECT st.id match_id,th.home_away_opposite,m.sport_id,m.data_source_code,m.scores_json,m.scores_json_extra,m.t1,m.t2,m.period_t1,m.period_t2,ti.data_source_type,
-    st.match_period_id period,ti.time_go is_time_go,ti.second_from_start,m.match_length,ti.event_time,ti.remaining_time,st.match_status
+    m.period period,ti.time_go is_time_go,ti.second_from_start,m.match_length,ti.event_time,ti.remaining_time,st.match_status
     from match_scores_info m LEFT JOIN    match_time_info ti on m.third_match_id = ti.third_match_id and m.data_source_type=ti.data_source_type LEFT JOIN third_match_info th on th.id =m.third_match_id LEFT  JOIN standard_match_info st on st.third_match_id =m.third_match_id inner JOIN match_scores_source_type ma on ma.id=m.third_match_id and ma.source_type=m.data_source_type
     where st.id in
     <foreach collection="standardIds" index="index" item="item" open="(" separator="," close=")">

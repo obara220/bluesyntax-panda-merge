@@ -1,16 +1,16 @@
 package com.panda.merge;
 
 import com.alibaba.fastjson.JSON;
-import com.google.common.collect.Lists;
-import com.panda.merge.dto.I18nItemDTO;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.panda.merge.dto.Request;
-import com.panda.merge.dto.ThirdMatchTeamDTO;
-import com.panda.merge.dto.ThirdMatchTeamRelationDTO;
 import com.panda.merge.dto.nonrealttime.put.ThirdMatchInfoDTO;
+import com.panda.merge.model.ThirdMatchInfo;
 import com.panda.merge.rocketmq.processor.ThirdMatchInfoProcessor;
 import com.panda.merge.service.ThirdMatchInfoService;
 import com.panda.merge.service.VirtualBatchService;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -30,107 +30,52 @@ class ThirdMatchInfoConsumerTest {
 
     @Test
     void testThirdGlobalStatusss() {
+        String requestData ="{\"linkId\":\"GR_21bf83d5820201107141419411424\",\"data\":[{\"thirdMatchSourceId\":\"11101_22146\",\"sourceTournamentId\":\"gr:tournament:11101\",\"sportId\":1001,\"dataSourceCode\":\"GR\",\"thirdRegionId\":\"0\",\"beginTime\":1604745900000,\"matchLength\":0,\"matchStatus\":\"0\",\"matchPeriod\":\"0\",\"matchTeamList\":[{\"thirdTeamId\":\"783\",\"name\":\"georgia\",\"type\":1,\"teamNameList\":[{\"languageType\":\"en\",\"text\":\"georgia\"},{\"languageType\":\"zs\",\"text\":\"georgia\"}],\"matchTeamRelation\":{\"matchPosition\":\"home\",\"teamNameRecord\":\"georgia\"}},{\"thirdTeamId\":\"9\",\"name\":\"croatia\",\"type\":1,\"teamNameList\":[{\"languageType\":\"en\",\"text\":\"croatia\"},{\"languageType\":\"zs\",\"text\":\"croatia\"}],\"matchTeamRelation\":{\"matchPosition\":\"away\",\"teamNameRecord\":\"croatia\"}}],\"homeAwayInfo\":\"georgia VS croatia \",\"neutralGround\":0,\"liveOddSupport\":0,\"active\":1,\"booked\":1,\"createTime\":1604729659411}],\"dataSourceTime\":1604729659411}";
+        String data="[{\"thirdMatchSourceId\":\"11101_22146\",\"sourceTournamentId\":\"gr:tournament:11101\",\"sportId\":1001,\"dataSourceCode\":\"GR\",\"thirdRegionId\":\"0\",\"beginTime\":1604745900000,\"matchLength\":0,\"matchStatus\":\"0\",\"matchPeriod\":\"0\",\"matchTeamList\":[{\"thirdTeamId\":\"783\",\"name\":\"georgia\",\"type\":1,\"teamNameList\":[{\"languageType\":\"en\",\"text\":\"georgia\"},{\"languageType\":\"zs\",\"text\":\"georgia\"}],\"matchTeamRelation\":{\"matchPosition\":\"home\",\"teamNameRecord\":\"georgia\"}},{\"thirdTeamId\":\"9\",\"name\":\"croatia\",\"type\":1,\"teamNameList\":[{\"languageType\":\"en\",\"text\":\"croatia\"},{\"languageType\":\"zs\",\"text\":\"croatia\"}],\"matchTeamRelation\":{\"matchPosition\":\"away\",\"teamNameRecord\":\"croatia\"}}],\"homeAwayInfo\":\"georgia VS croatia \",\"neutralGround\":0,\"liveOddSupport\":0,\"active\":1,\"booked\":1,\"createTime\":1604729659411}]";
         Request<List<ThirdMatchInfoDTO>> request = new Request<>();
-        request.setLinkId("RB_ac12b2f420230215051805232378535029c6_2");
-        /**
-         * 赛事资料
-         * {"linkId":"RB_ac12b2f420230215051805232378535029c6_3","data":
-         * [{"thirdMatchSourceId":"1779076","sourceTournamentId":"158","sportId":1,"dataSourceCode":"RB","thirdRegionId":"20","beginTime":1676459100000,"matchLength":0,
-         * "matchStatus":"0","homeAwayInfo":"ACS Flacara Horezu VS ACS Viitorul Pandurii Targu Jiu",
-         * "neutralGround":0,"liveOddSupport":1,"active":1,"booked":1,"createTime":1676452860000}],
-         * "dataSourceTime":1676452860000}
-         * */
-        ThirdMatchInfoDTO item = new ThirdMatchInfoDTO();
-        item.setThirdMatchSourceId("1779076");
-        item.setSourceTournamentId("158");
-        item.setSportId(1L);
-        item.setDataSourceCode("RB");
-        item.setThirdRegionId("20");
-        item.setBeginTime(1676462400000L);
-        item.setMatchLength(0);
-        item.setMatchStatus("0");
-        item.setHomeAwayInfo("ACS Flacara Horezu VS ACS Viitorul Pandurii Targu Jiu");
-        item.setNeutralGround(0);
-        item.setLiveOddSupport(1);
-        item.setActive(1);
-        item.setBooked(1);
-        item.setCreateTime(System.currentTimeMillis());
-        /**
-         * 球队资料
-         * "matchTeamList":[
-         *
-         * {"thirdTeamId":"47948","name":"ACS Flacara Horezu","type":7,"coach":"","statium":"home",
-         * "teamNameList":[
-         * {"languageType":"en","text":"ACS Flacara Horezu"},
-         * {"languageType":"zs","text":"ACS Flacara Horezu"}
-         * ],
-         * "matchTeamRelation":
-         * {"matchPosition":"home","teamNameRecord":"ACS Flacara Horezu","remark":""}
-         * ,"countryId":"49","countryName":"Romania","logoUrl":"","remark":""},
-         *
-         *
-         * {"thirdTeamId":"41270","name":"ACS Viitorul Pandurii Targu Jiu","type":7,"coach":"","statium":"away",
-         * "teamNameList":[
-         * {"languageType":"en","text":"ACS Viitorul Pandurii Targu Jiu"},
-         * {"languageType":"zs","text":"ACS Viitorul Pandurii Targu Jiu"}
-         * ],
-         * "matchTeamRelation":{"matchPosition":"away","teamNameRecord":"ACS Viitorul Pandurii Targu Jiu","remark":""},
-         * "countryId":"49","countryName":"Romania","logoUrl":"","remark":""}
-         * ]
+        request = JSON.parseObject(requestData, request.getClass());
 
-         * */
-        ThirdMatchTeamDTO homeTeam = new ThirdMatchTeamDTO();
-        homeTeam.setThirdTeamId("47948");
-        homeTeam.setName("ACS Flacara Horezu");
-        homeTeam.setType(7);
-        homeTeam.setStatium("away");
-        homeTeam.setCountryId("49");
-        homeTeam.setCountryName("49");
-
-        I18nItemDTO i18n1 = new I18nItemDTO();
-        i18n1.setLanguageType("en");
-        i18n1.setText("ACS Flacara Horezu");
-        I18nItemDTO i18n2 = new I18nItemDTO();
-        i18n2.setLanguageType("zs");
-        i18n2.setText("ACS Flacara Horezu");
-        homeTeam.setTeamNameList(Lists.newArrayList(i18n1,i18n2));
-
-        ThirdMatchTeamRelationDTO relation = new ThirdMatchTeamRelationDTO();
-        relation.setMatchPosition("away");
-        relation.setTeamNameRecord("ACS Flacara Horezu");
-        homeTeam.setMatchTeamRelation(relation);
-
-        ThirdMatchTeamDTO awayTeam = new ThirdMatchTeamDTO();
-        awayTeam.setThirdTeamId("41270");
-        awayTeam.setName("ACS Viitorul Pandurii Targu Jiu");
-        awayTeam.setType(7);
-        awayTeam.setStatium("home");
-        awayTeam.setCountryId("49");
-        awayTeam.setCountryName("49");
-
-        I18nItemDTO i18n3 = new I18nItemDTO();
-        i18n3.setLanguageType("en");
-        i18n3.setText("ACS Viitorul Pandurii Targu Jiu");
-        I18nItemDTO i18n4 = new I18nItemDTO();
-        i18n4.setLanguageType("zs");
-        i18n4.setText("ACS Viitorul Pandurii Targu Jiu");
-        awayTeam.setTeamNameList(Lists.newArrayList(i18n3,i18n4));
-
-        ThirdMatchTeamRelationDTO relation2 = new ThirdMatchTeamRelationDTO();
-        relation2.setMatchPosition("home");
-        relation2.setTeamNameRecord("ACS Viitorul Pandurii Targu Jiu");
-        awayTeam.setMatchTeamRelation(relation2);
-
-        item.setMatchTeamList(Lists.newArrayList(homeTeam,awayTeam));
-
-        List<ThirdMatchInfoDTO>  list = new ArrayList<>();
-        list.add(item);
+        JSONArray dto = JSONArray.parseArray(data);
+        List<ThirdMatchInfoDTO>   list= new ArrayList<>();
+        for (Object o : dto.toArray()) {
+            ThirdMatchInfoDTO dto1= JSON.parseObject(o.toString(),ThirdMatchInfoDTO.class);
+            list.add(dto1);
+        }
         request.setData(list);
         thirdMatchInfoProcessor.processMatchData(request);
     }
+//
+//    @Test
+//    void xx(){
+//        Long thirdId=  1325033579925819395l;
+//        String batchNo="51246";
+//        ThirdMatchInfoDTO thirdMatchInfoDTO=new ThirdMatchInfoDTO();
+//        ThirdMatchInfo thirdMatchInfo= thirdMatchInfoService.getItem(thirdId);
+//        BeanUtils.copyProperties(thirdMatchInfo,thirdMatchInfoDTO);
+//        thirdMatchInfoDTO.setBatchNo(batchNo);
+//        virtualBatchService.setBatchNo(thirdMatchInfoDTO,thirdMatchInfo.getTournamentId());
+//    }
+    @Test
+    void xx(){
 
-    public static void main(String[] args) {
+    String data="{\"linkId\":\"GR_ac5ede95020201110200244547248scC1\",\"data\":[{\"thirdMatchSourceId\":\"11101_23014\",\"sourceTournamentId\":\"gr:tournament:11101\",\"sportId\":1001,\"dataSourceCode\":\"GR\",\"thirdRegionId\":\"0\",\"beginTime\":1605006300000,\"matchLength\":0,\"matchStatus\":\"0\",\"matchPeriod\":\"0\",\"matchTeamList\":[{\"thirdTeamId\":\"12\",\"name\":\"russia\",\"type\":1,\"teamNameList\":[{\"languageType\":\"en\",\"text\":\"russia\"},{\"languageType\":\"zs\",\"text\":\"russia\"}],\"matchTeamRelation\":{\"matchPosition\":\"home\",\"teamNameRecord\":\"russia\"}},{\"thirdTeamId\":\"113\",\"name\":\"belgium\",\"type\":1,\"teamNameList\":[{\"languageType\":\"en\",\"text\":\"belgium\"},{\"languageType\":\"zs\",\"text\":\"belgium\"}],\"matchTeamRelation\":{\"matchPosition\":\"away\",\"teamNameRecord\":\"belgium\"}}],\"homeAwayInfo\":\"russia VS belgium \",\"neutralGround\":0,\"liveOddSupport\":0,\"active\":1,\"booked\":1,\"createTime\":1605009764546,\"batchNo\":\"23014\"}],\"dataSourceTime\":1605009764546}";
+    Request<JSONArray> request = new Request<>();
+
+
+        request= JSON.parseObject(data, request.getClass());
+        if (request.getData() == null) {
+            return;
+        }
+       List<ThirdMatchInfoDTO> list = JSONArray.parseArray(request.getData().toString(), ThirdMatchInfoDTO.class);
+        Request< List<ThirdMatchInfoDTO> > request2 = new Request<>();
+        request2.setData(list);
+        request2.setDataSourceTime(request.getDataSourceTime());
+        request2.setLinkId(request.getLinkId());
+        request2.setDataSourceCode(request.getDataSourceCode());
+        thirdMatchInfoProcessor.processMatchData(request2);
 
     }
 
+//    @Autowired
+//    ThirdMatchInfoProcessor thirdMatchInfoProcessor;
 }

@@ -95,11 +95,5 @@ public interface IStandardDataQueryApi {
      */
     Response<StandardMatchEventResultMessage> queryStandardMatchResult(Request<StandardMatchResultDTO> smrDto);
 
-    /**
-     * 查询联赛规则
-     * @param request
-     * @return
-     */
-    Response<PageModel<List<StandardTournamentRuleBO>>> queryTournamentRulePage(Request<PageModel<StandardTournamentRuleDTO>> request);
 }
 

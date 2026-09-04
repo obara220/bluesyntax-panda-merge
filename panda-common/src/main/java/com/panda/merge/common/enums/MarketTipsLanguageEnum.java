@@ -12,7 +12,7 @@ public enum MarketTipsLanguageEnum {
     COMPREHENSIVE_BALL_SPECIES_UNKNOWN("COMPREHENSIVE_BALL_SPECIES_UNKNOWN", "综合球种未配置最大最小赔率，直接封盘", "Other sports market paused, due to no configured max min odds"),
     ODDS_CANNOT_BE_NEGATIVE("ODDS_CANNOT_BE_NEGATIVE", "赔率值不能都为负数", "Odds cannot be negative for all"),
     MULTIPLE_DISCS_DO_NOT_MEET_THE_RULES("MULTIPLE_DISCS_DO_NOT_MEET_THE_RULES", "多项盘 1/(1/o1 + 1/o2 + ... + 1/on) 大于0.99，盘口封盘", "Multi-ways 1/(1/o1 + 1/o2 + … + 1/on) higher than 0.99, market paused"),
-    HANDICAP_LOWER("HANDICAP_LOWER", "球头小于[X]，大于[Y]，盘口封盘", "Exceed min number of market 0.5，max number of market 21.5 , Market Suspend"),
+    HANDICAP_LOWER("HANDICAP_LOWER", "球头小于[X]，大于[Y]，盘口封盘", "Handicap lower than [X], higher than [Y], market paused"),
     HANDICAP_MAX("HANDICAP_MAX", "超过最大球头数额[X]，盘口关盘", "Exceed max number of market [X], Market Suspend"),
     HANDICAP_MIN("HANDICAP_MIN", "超过最小球头数额[X]，盘口关盘", "Exceed min number of market [X], Market Suspend"),
     BALL_HEAD_DOES_NOT_MEET_THE_RULES("BALL_HEAD_DOES_NOT_MEET_THE_RULES", "此类玩法球头不满足要求,Odd2.5(1.75) 规则，盘口封盘", "Market paused, due to handicap not fullfilled requirement, Odd2.5 (1.75) rule"),

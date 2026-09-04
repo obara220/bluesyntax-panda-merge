@@ -23,7 +23,6 @@ import com.panda.merge.component.UUIdUtils;
 import com.panda.merge.config.RedisService;
 import com.panda.merge.constant.PDEventCodeEnum;
 import com.panda.merge.constant.ScoreEventCodeSourceEnum;
-import com.panda.merge.constant.SportPeriodConstant;
 import com.panda.merge.constant.SportTypeEnum;
 import com.panda.merge.dto.CommonItem;
 import com.panda.merge.dto.MangoRequest;
@@ -139,21 +138,6 @@ public class EventProducer {
             PDEventCodeEnum.VAR_RED_CARD, PDEventCodeEnum.VAR_YELLOW_CARD, PDEventCodeEnum.CANCELED_VAR_RED_CARD, PDEventCodeEnum.VAR_GOAL,
             PDEventCodeEnum.CANCELED_VAR_GOAL, PDEventCodeEnum.PENALTY_GOAL);
 
-    public void sendMatchCommonEventInfo(MatchEventInfoDTO eventInfoDTO){
-        Request<MatchEventInfoDTO> reqMessage = new Request<>();
-        reqMessage.setLinkId(eventInfoDTO.getCopyLinkId());
-        reqMessage.setData(eventInfoDTO);
-        MessageBuilder<Request<MatchEventInfoDTO>> builder = MessageBuilder.withPayload(reqMessage)
-                .setHeader(MessageConst.PROPERTY_KEYS, eventInfoDTO.getCopyLinkId());
-        boolean spareMqFlag = getSpareMqFlag(eventInfoDTO.getThirdMatchSourceId());
-        if (pandaDataMqGatewayevent == 2 && spareMqFlag) {
-            Request<MatchEventInfoDTO> request = new Request<>(eventInfoDTO, reqMessage.getLinkId(), THIRD_MATCH_EVENT_INFO_API, reqMessage.getLinkId(), eventInfoDTO.getDataSourceCode());
-            spareBaseProducer.send(request);
-        } else {
-            rocketMqTemplate.send(THIRD_MATCH_EVENT_INFO_API +":" + eventInfoDTO.getCopyLinkId(), builder.build());
-        }
-    }
-
     public void sendPDEventInfo(MatchEventInfoDTO eventInfoDTO)
     {
         // 存放事件时间，用于报球板事件监控
@@ -164,14 +148,6 @@ public class EventProducer {
         }
         MatchScoresEventInfo matchScoresEventInfo = new MatchScoresEventInfo();
         BeanUtils.copyProperties( eventInfoDTO, matchScoresEventInfo);
-        if (matchScoresEventInfo.getThirdMatchId() == null
-                && StringUtils.isNotBlank(eventInfoDTO.getThirdMatchSourceId())
-                && StringUtils.isNotBlank(eventInfoDTO.getDataSourceCode())) {
-            ThirdMatchInfo thirdMatchInfo = thirdMatchInfoService.getItem(eventInfoDTO.getDataSourceCode(), eventInfoDTO.getThirdMatchSourceId());
-            if (thirdMatchInfo != null) {
-                matchScoresEventInfo.setThirdMatchId(thirdMatchInfo.getId());
-            }
-        }
         matchScoresEventInfo.setCreateTime(System.currentTimeMillis());
         matchScoresEventInfo.setLinkId(eventInfoDTO.getCopyLinkId());
         matchScoresEventInfo.setId(IdWorker.getId());
@@ -247,49 +223,6 @@ public class EventProducer {
             }
         }
         log.info("::{}::开始组装赛事比分事件并下发,topic:THIRD_MATCH_EVENT_INFO_API", eventInfoDTO.getCopyLinkId());
-    }
-
-    public void sendPDSnookerEventInfo(MatchEventInfoDTO eventInfoDTO) {
-        log.info("[EventProducer]sendPDSnookerEventInfo start linkId::{}:data:{}",eventInfoDTO.getCopyLinkId(),eventInfoDTO);
-        MatchScoresEventInfo matchScoresEventInfo = new MatchScoresEventInfo();
-        BeanUtils.copyProperties( eventInfoDTO, matchScoresEventInfo);
-        // MatchEventInfoDTO 不包含 thirdMatchId，入库前通过 sourceId + dataSourceCode 反查并补齐 third_match_id
-        if (matchScoresEventInfo.getThirdMatchId() == null
-                && StringUtils.isNotBlank(eventInfoDTO.getThirdMatchSourceId())
-                && StringUtils.isNotBlank(eventInfoDTO.getDataSourceCode())) {
-            ThirdMatchInfo thirdMatchInfo = thirdMatchInfoService.getItem(eventInfoDTO.getDataSourceCode(), eventInfoDTO.getThirdMatchSourceId());
-            if (thirdMatchInfo != null) {
-                matchScoresEventInfo.setThirdMatchId(thirdMatchInfo.getId());
-            }
-        }
-        Long firstNum = SportPeriodConstant.SnookerPeriod.SnookerPeriodScores.periodMaps.getOrDefault(eventInfoDTO.getMatchPeriodId(), null);
-        log.info("[EventProducer]sendPDSnookerEventInfo 设置firstNum:{} linkId::{}:data:{}",eventInfoDTO.getCopyLinkId(),firstNum,eventInfoDTO);
-        eventInfoDTO.setFirstNum(firstNum==null?null : Integer.valueOf(firstNum+""));
-        matchScoresEventInfo.setCreateTime(System.currentTimeMillis());
-        matchScoresEventInfo.setLinkId(eventInfoDTO.getCopyLinkId());
-        matchScoresEventInfo.setId(IdWorker.getId());
-        matchScoresEventInfo.setExtraInfo(eventInfoDTO.getExtrainfo());
-        // 设置 addition7（对应 extraInfo）
-        matchScoresEventInfo.setAddition7(eventInfoDTO.getExtraInfo());
-        // 保存到数据库
-        matchScoresEventInfoMapper.insert(matchScoresEventInfo);
-        // 设置事件ID，用于后续使用
-        eventInfoDTO.setPossibleEventId(matchScoresEventInfo.getId());
-        Request<MatchEventInfoDTO> reqMessage = new Request<>();
-        reqMessage.setLinkId(eventInfoDTO.getCopyLinkId());
-        reqMessage.setData(eventInfoDTO);
-        MessageBuilder<Request<MatchEventInfoDTO>> builder = MessageBuilder.withPayload(reqMessage)
-                .setHeader(MessageConst.PROPERTY_KEYS, eventInfoDTO.getCopyLinkId());
-        String dataSourceCode = eventInfoDTO.getDataSourceCode();
-        Request<MatchEventInfoDTO> request = new Request<>(eventInfoDTO, reqMessage.getLinkId(), THIRD_MATCH_EVENT_INFO_API, reqMessage.getLinkId(), dataSourceCode);
-        boolean spareMqFlag = getSpareMqFlag(eventInfoDTO.getThirdMatchSourceId());
-        log.info("[EventProducer]sendPDSnookerEventInfo linkId::{} pandaDataMqGatewayevent:{} spareMqFlag:{} ",eventInfoDTO.getCopyLinkId(), pandaDataMqGatewayevent, spareMqFlag);
-        if (pandaDataMqGatewayevent == 2 && spareMqFlag) {
-            spareBaseProducer.send(request);
-        } else {
-            rocketMqTemplate.send(THIRD_MATCH_EVENT_INFO_API +":" + eventInfoDTO.getCopyLinkId(), builder.build());
-        }
-        log.info("[EventProducer]sendPDSnookerEventInfo linkId::{} 开始组装赛事比分事件并下发,topic:THIRD_MATCH_EVENT_INFO_API end",eventInfoDTO.getCopyLinkId());
     }
 
     public void updateMatchScoresEventInfo(MatchEventInfoDTO eventInfoDTO) {
@@ -753,30 +686,6 @@ public class EventProducer {
 //        rocketMqTemplate.send("THIRD_MATCH_STATUS_API" +":" +linkedId, builder.build());
 //        log.info("::{}:{}:sendMatchStartStatus ,topic:THIRD_MATCH_STATUS_API,request={}",thirdMatchInfo.getThirdMatchSourceId(),linkedId, JSON.toJSONString(reqMessage));
     }
-    public void sendStandardMatchStatus(ThirdMatchInfo thirdMatchInfo, String linkedId, Integer matchStatus) {
-        StandardMatchInfo standardMatchInfo = pdMatchInfoRepository.getStandardMatchInfo(thirdMatchInfo.getReferenceId(), null);
-        if(standardMatchInfo==null){
-            return;
-        }
-        //设置为滚球下发
-        standardMatchInfo.setMatchStatus(matchStatus);
-        StandardMatchStatusMessage standardMatchStatusMessage = new StandardMatchStatusMessage();
-        BeanUtils.copyProperties(standardMatchInfo, standardMatchStatusMessage);
-        standardMatchStatusMessage.setStandardMatchId(standardMatchInfo.getId());
-        Request<StandardMatchStatusMessage> requestMsg = new Request<>();
-        requestMsg.setData(standardMatchStatusMessage);
-        requestMsg.setLinkId(linkedId);
-        requestMsg.setDataSourceTime(System.currentTimeMillis());
-        MessageBuilder<Request<StandardMatchStatusMessage>> requestMessageBuilder = MessageBuilder.withPayload(requestMsg).setHeader(MessageConst.PROPERTY_KEYS, linkedId);
-        if (DataSourceCodeEnum.PD.code.equals(thirdMatchInfo.getDataSourceCode()) || DataSourceCodeEnum.PD2.code.equals(thirdMatchInfo.getDataSourceCode())) {
-            sendMatchStatusTopic(linkedId,thirdMatchInfo,thirdMatchInfo.getMatchStatus());
-            log.info(" ::{}::标准赛事状态信息下发完成2,topic:STANDARD_MATCH_STATUS,标准赛事ID：{}", linkedId, standardMatchInfo.getId());
-
-        } else {
-            rocketMqTemplate.send("STANDARD_MATCH_STATUS:" + standardMatchInfo.getMatchStatus(), requestMessageBuilder.build());
-            log.info(" ::{}::标准赛事状态信息下发完成,topic:STANDARD_MATCH_STATUS,标准赛事ID：{}", linkedId, standardMatchInfo.getId());
-        }
-    }
 
     public void sendMatchStatus(ThirdMatchInfo thirdMatchInfo, String linkedId,Integer status) {
 //        StandardMatchInfo standardMatchInfo =standardMatchInfoMapper.selectByPrimaryKey(thirdMatchInfo.getReferenceId());
@@ -811,6 +720,7 @@ public class EventProducer {
         Request<ThirdMatchStatusDTO> reqMessage = new Request<>();
         ThirdMatchStatusDTO thirdMatchStatusDTO = new ThirdMatchStatusDTO();
         thirdMatchStatusDTO.setDataSourceCode(thirdMatchInfo.getDataSourceCode());
+        //thirdMatchStatusDTO.setMatchStatus(3);
         thirdMatchStatusDTO.setMatchStatus(matchStatus);
         thirdMatchStatusDTO.setModifyTime(System.currentTimeMillis());
         thirdMatchStatusDTO.setSportId(thirdMatchInfo.getSportId());

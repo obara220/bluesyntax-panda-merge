@@ -664,6 +664,66 @@ public class ThirdSportMarketExample {
             return (Criteria) this;
         }
 
+        public Criteria andThirdMarketSourceStatusIsNull() {
+            addCriterion("third_market_source_status is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andThirdMarketSourceStatusIsNotNull() {
+            addCriterion("third_market_source_status is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andThirdMarketSourceStatusEqualTo(Integer value) {
+            addCriterion("third_market_source_status =", value, "thirdMarketSourceStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andThirdMarketSourceStatusNotEqualTo(Integer value) {
+            addCriterion("third_market_source_status <>", value, "thirdMarketSourceStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andThirdMarketSourceStatusGreaterThan(Integer value) {
+            addCriterion("third_market_source_status >", value, "thirdMarketSourceStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andThirdMarketSourceStatusGreaterThanOrEqualTo(Integer value) {
+            addCriterion("third_market_source_status >=", value, "thirdMarketSourceStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andThirdMarketSourceStatusLessThan(Integer value) {
+            addCriterion("third_market_source_status <", value, "thirdMarketSourceStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andThirdMarketSourceStatusLessThanOrEqualTo(Integer value) {
+            addCriterion("third_market_source_status <=", value, "thirdMarketSourceStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andThirdMarketSourceStatusIn(List<Integer> values) {
+            addCriterion("third_market_source_status in", values, "thirdMarketSourceStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andThirdMarketSourceStatusNotIn(List<Integer> values) {
+            addCriterion("third_market_source_status not in", values, "thirdMarketSourceStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andThirdMarketSourceStatusBetween(Integer value1, Integer value2) {
+            addCriterion("third_market_source_status between", value1, value2, "thirdMarketSourceStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andThirdMarketSourceStatusNotBetween(Integer value1, Integer value2) {
+            addCriterion("third_market_source_status not between", value1, value2, "thirdMarketSourceStatus");
+            return (Criteria) this;
+        }
+
         public Criteria andScopeIdIsNull() {
             addCriterion("scope_id is null");
             return (Criteria) this;
@@ -1814,66 +1874,6 @@ public class ThirdSportMarketExample {
             return (Criteria) this;
         }
 
-        public Criteria andThirdMarketSourceStatusIsNull() {
-            addCriterion("third_market_source_status is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andThirdMarketSourceStatusIsNotNull() {
-            addCriterion("third_market_source_status is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andThirdMarketSourceStatusEqualTo(Integer value) {
-            addCriterion("third_market_source_status =", value, "thirdMarketSourceStatus");
-            return (Criteria) this;
-        }
-
-        public Criteria andThirdMarketSourceStatusNotEqualTo(Integer value) {
-            addCriterion("third_market_source_status <>", value, "thirdMarketSourceStatus");
-            return (Criteria) this;
-        }
-
-        public Criteria andThirdMarketSourceStatusGreaterThan(Integer value) {
-            addCriterion("third_market_source_status >", value, "thirdMarketSourceStatus");
-            return (Criteria) this;
-        }
-
-        public Criteria andThirdMarketSourceStatusGreaterThanOrEqualTo(Integer value) {
-            addCriterion("third_market_source_status >=", value, "thirdMarketSourceStatus");
-            return (Criteria) this;
-        }
-
-        public Criteria andThirdMarketSourceStatusLessThan(Integer value) {
-            addCriterion("third_market_source_status <", value, "thirdMarketSourceStatus");
-            return (Criteria) this;
-        }
-
-        public Criteria andThirdMarketSourceStatusLessThanOrEqualTo(Integer value) {
-            addCriterion("third_market_source_status <=", value, "thirdMarketSourceStatus");
-            return (Criteria) this;
-        }
-
-        public Criteria andThirdMarketSourceStatusIn(List<Integer> values) {
-            addCriterion("third_market_source_status in", values, "thirdMarketSourceStatus");
-            return (Criteria) this;
-        }
-
-        public Criteria andThirdMarketSourceStatusNotIn(List<Integer> values) {
-            addCriterion("third_market_source_status not in", values, "thirdMarketSourceStatus");
-            return (Criteria) this;
-        }
-
-        public Criteria andThirdMarketSourceStatusBetween(Integer value1, Integer value2) {
-            addCriterion("third_market_source_status between", value1, value2, "thirdMarketSourceStatus");
-            return (Criteria) this;
-        }
-
-        public Criteria andThirdMarketSourceStatusNotBetween(Integer value1, Integer value2) {
-            addCriterion("third_market_source_status not between", value1, value2, "thirdMarketSourceStatus");
-            return (Criteria) this;
-        }
-
         public Criteria andOfferLineIdIsNull() {
             addCriterion("offer_line_id is null");
             return (Criteria) this;
@@ -1993,7 +1993,6 @@ public class ThirdSportMarketExample {
             addCriterion("number_of_winners not between", value1, value2, "numberOfWinners");
             return (Criteria) this;
         }
-
         public Criteria andInternalDataSourceCodeIsNull() {
             addCriterion("internal_data_source_code is null");
             return (Criteria) this;
@@ -2056,71 +2055,6 @@ public class ThirdSportMarketExample {
 
         public Criteria andInternalDataSourceCodeBetween(String value1, String value2) {
             addCriterion("internal_data_source_code between", value1, value2, "internalDataSourceCode");
-            return (Criteria) this;
-        }
-
-        public Criteria andInternalDataSourceCodeNotBetween(String value1, String value2) {
-            addCriterion("internal_data_source_code not between", value1, value2, "internalDataSourceCode");
-            return (Criteria) this;
-        }
-
-        public Criteria andEventTypeIsNull() {
-            addCriterion("event_type is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andEventTypeIsNotNull() {
-            addCriterion("event_type is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andEventTypeEqualTo(Integer value) {
-            addCriterion("event_type =", value, "eventType");
-            return (Criteria) this;
-        }
-
-        public Criteria andEventTypeNotEqualTo(Integer value) {
-            addCriterion("event_type <>", value, "eventType");
-            return (Criteria) this;
-        }
-
-        public Criteria andEventTypeGreaterThan(Integer value) {
-            addCriterion("event_type >", value, "eventType");
-            return (Criteria) this;
-        }
-
-        public Criteria andEventTypeGreaterThanOrEqualTo(Integer value) {
-            addCriterion("event_type >=", value, "eventType");
-            return (Criteria) this;
-        }
-
-        public Criteria andEventTypeLessThan(Integer value) {
-            addCriterion("event_type <", value, "eventType");
-            return (Criteria) this;
-        }
-
-        public Criteria andEventTypeLessThanOrEqualTo(Integer value) {
-            addCriterion("event_type <=", value, "eventType");
-            return (Criteria) this;
-        }
-
-        public Criteria andEventTypeIn(List<Integer> values) {
-            addCriterion("event_type in", values, "eventType");
-            return (Criteria) this;
-        }
-
-        public Criteria andEventTypeNotIn(List<Integer> values) {
-            addCriterion("event_type not in", values, "eventType");
-            return (Criteria) this;
-        }
-
-        public Criteria andEventTypeBetween(Integer value1, Integer value2) {
-            addCriterion("event_type between", value1, value2, "eventType");
-            return (Criteria) this;
-        }
-
-        public Criteria andEventTypeNotBetween(Integer value1, Integer value2) {
-            addCriterion("event_type not between", value1, value2, "eventType");
             return (Criteria) this;
         }
     }

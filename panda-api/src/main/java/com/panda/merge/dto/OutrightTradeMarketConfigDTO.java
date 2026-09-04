@@ -38,11 +38,6 @@ public class OutrightTradeMarketConfigDTO implements Serializable {
 	private Long operaterId;
 
 	/**
-	 * 配置类型
-	 */
-	private Integer operateType;
-
-	/**
 	 * 配置修改时间
 	 */
 	private Long modifyTime;

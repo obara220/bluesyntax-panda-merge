@@ -4,7 +4,6 @@ package com.panda.merge.rocketmq.consumer;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.nacos.api.config.annotation.NacosValue;
 import com.panda.merge.annotation.ConsumerSwitch;
-import com.panda.merge.common.BaseProcessor;
 import com.panda.merge.common.enums.Constant;
 import com.panda.merge.config.RedisService;
 import com.panda.merge.constant.ConstantSystem;
@@ -52,9 +51,6 @@ public class StandardMatchRefreshCacheConsumer implements RocketMQListener<Reque
     @Resource
     private DataCenterProducer<Long> dataCenterProducer;
 
-    @Autowired
-    private BaseProcessor baseProcessor;
-
     @Override
     public void onMessage(Request<Long> request) {
         if (!realtimeSwitch) {
@@ -72,7 +68,7 @@ public class StandardMatchRefreshCacheConsumer implements RocketMQListener<Reque
                 //刷新开赛时间缓存
                 String matchBeginKey = Constant.REDIS_KEY.RONGHE_THIRD_PER_MARKET;
                 String updatedKey = redisService.genNewHashKey(matchBeginKey, standardMatchInfo.getId().toString(), ConstantSystem.BUCKET_QUANTITY_SIXTY_FOUR);
-                redisService.hSet(updatedKey, standardMatchInfo.getId().toString(), standardMatchInfo.getBeginTime(),baseProcessor.marketCacheTime(standardMatchInfo.getBeginTime()));
+                redisService.hSet(updatedKey, standardMatchInfo.getId().toString(), standardMatchInfo.getBeginTime(),Integer.MAX_VALUE);
             }
             log.info("::{}::"+STANDARD_MATCH_REFRESH+"根据标准赛事ID{}刷新赛事缓存结束",request.getLinkId(), request.getData());
         }

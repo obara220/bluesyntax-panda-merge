@@ -8,7 +8,6 @@ import com.panda.merge.config.RedisService;
 import com.panda.merge.dto.TradeMarketAutoDiffConfigItemDTO;
 import com.panda.merge.mapper.ConfigMarketAutoDiffTradeMapper;
 import com.panda.merge.model.ConfigMarketAutoDiffTrade;
-import com.panda.merge.model.ConfigMarketAutoDiffTradeExample;
 import com.panda.merge.model.StandardMatchInfo;
 import com.panda.merge.service.ConfigMarketAutoDiffTradeService;
 import com.panda.merge.service.StandardMatchInfoService;
@@ -59,43 +58,11 @@ public class ConfigMarketAutoDiffTradeServiceImpl implements ConfigMarketAutoDif
         swCalculate.start("数据库查询玩法自动水差耗时");
         Map<String,ConfigMarketAutoDiffTrade> configDiffTradeMap =(Map<String, ConfigMarketAutoDiffTrade>) redisService.hGet(REDIS_KEY_MARKET + matchId, relationMarketId +"");
         if(CollectionUtils.isEmpty(configDiffTradeMap)){
-            //Redis缓存为空，穿透到DB查询
-            ConfigMarketAutoDiffTradeExample example = new ConfigMarketAutoDiffTradeExample();
-            example.createCriteria()
-                .andStandardMatchIdEqualTo(matchId)
-                .andStandardMarketIdEqualTo(relationMarketId)
-                .andOddsTypeEqualTo(oddsType);
-            List<ConfigMarketAutoDiffTrade> list = configMarketAutoDiffTradeMapper.selectByExample(example);
-            if(CollectionUtils.isEmpty(list)){
-                return null;
-            }
-            //将DB数据写入Redis缓存
-            ConfigMarketAutoDiffTrade marketAutoDiffTrade = list.get(0);
-            Map<String,ConfigMarketAutoDiffTrade> newConfigDiffMap = new HashMap<>();
-            newConfigDiffMap.put(oddsType, marketAutoDiffTrade);
-            redisService.hSet(REDIS_KEY_MARKET + matchId, relationMarketId + "", newConfigDiffMap, RedisConfig.REDIS_MY_TIME);
-            swCalculate.stop();
-            log.info("::{}::Redis缓存为空，从DB查询水差耗时{}ms,统一盘口id={},diffValue={}" , linkId, swCalculate.getTotalTimeMillis(), relationMarketId, marketAutoDiffTrade.getDiffValue());
-            return marketAutoDiffTrade;
+            return null;
         }
         ConfigMarketAutoDiffTrade marketAutoDiffTrade = configDiffTradeMap.get(oddsType);
-        //如果Redis缓存中也不存在，尝试从DB查询
-        if(marketAutoDiffTrade == null){
-            ConfigMarketAutoDiffTradeExample example = new ConfigMarketAutoDiffTradeExample();
-            example.createCriteria()
-                .andStandardMatchIdEqualTo(matchId)
-                .andStandardMarketIdEqualTo(relationMarketId)
-                .andOddsTypeEqualTo(oddsType);
-            List<ConfigMarketAutoDiffTrade> list = configMarketAutoDiffTradeMapper.selectByExample(example);
-            if(!CollectionUtils.isEmpty(list)){
-                marketAutoDiffTrade = list.get(0);
-                //更新Redis缓存
-                configDiffTradeMap.put(oddsType, marketAutoDiffTrade);
-                redisService.hSet(REDIS_KEY_MARKET + matchId, relationMarketId + "", configDiffTradeMap, RedisConfig.REDIS_MY_TIME);
-            }
-        }
         swCalculate.stop();
-        log.info("::{}::数据库查询水差耗时{}ms,统一盘口id={},diffValue={}" , linkId, swCalculate.getTotalTimeMillis(), relationMarketId, marketAutoDiffTrade != null ? marketAutoDiffTrade.getDiffValue() : "null");
+        log.info("::{}::数据库查询水差耗时{}ms,统一盘口id={}" , linkId, swCalculate.getTotalTimeMillis(),relationMarketId);
         return marketAutoDiffTrade;
     }
 
@@ -128,22 +95,14 @@ public class ConfigMarketAutoDiffTradeServiceImpl implements ConfigMarketAutoDif
     @Override
     public ConfigMarketAutoDiffTrade updata(ConfigMarketAutoDiffTrade marketConfig) {
         marketConfig.setModifyTime(TimeUtils.millsSecondsEast8ZoneGmt());
-        //同步更新DB
-        configMarketAutoDiffTradeMapper.updateByPrimaryKey(marketConfig);
-        //更新Redis缓存
         Map<String,ConfigMarketAutoDiffTrade> configDiffMap = new HashMap<>();
-        Object cached = redisService.hGet(REDIS_KEY_MARKET + marketConfig.getStandardMatchId(), marketConfig.getStandardMarketId() +"");
-        if(cached != null){
-            configDiffMap = (Map<String, ConfigMarketAutoDiffTrade>) cached;
-        }
+        configDiffMap =(Map<String, ConfigMarketAutoDiffTrade>) redisService.hGet(REDIS_KEY_MARKET + marketConfig.getStandardMatchId(), marketConfig.getStandardMarketId() +"");
         configDiffMap.put(marketConfig.getOddsType(),marketConfig);
         StandardMatchInfo standMatchInfo = standardMatchInfoService.getItem(marketConfig.getStandardMatchId());
         Long expireTime = baseProcessor.marketCacheTime(standMatchInfo.getBeginTime());
         redisService.hSet(REDIS_KEY_MARKET + marketConfig.getStandardMatchId(), marketConfig.getStandardMarketId() +"",
                 configDiffMap,expireTime);
-        log.info("更新水差配置成功,matchId={},marketId={},oddsType={},diffValue={}", 
-            marketConfig.getStandardMatchId(), marketConfig.getStandardMarketId(), 
-            marketConfig.getOddsType(), marketConfig.getDiffValue());
+
         return marketConfig;
     }
 
@@ -167,7 +126,7 @@ public class ConfigMarketAutoDiffTradeServiceImpl implements ConfigMarketAutoDif
         for (Map.Entry<String, Map<String, ConfigMarketAutoDiffTrade>> entry : allMap.entrySet()) {
             entry.getValue().forEach((oddsType, marketConfig) -> {
                 if(categoryList.contains(marketConfig.getStandardCategoryId())){
-                    //log.info("::{}::标准赛事ID:{},清除玩法水差配置成功,KEY:{}", linkId, matchId, marketConfig);
+                    log.info("::{}::标准赛事ID:{},清除玩法水差配置成功,KEY:{}", linkId, matchId, marketConfig);
                     entry.getValue().put(oddsType,null);
                     refresh.set(true);
                 }

@@ -30,7 +30,7 @@ import com.panda.merge.dto.message.StandardMarketOddsDataMessage;
 import com.panda.merge.dto.message.ThirdSportMarketMessage;
 import com.panda.merge.exception.ExceptionHelper;
 import com.panda.merge.model.*;
-//import com.panda.merge.odds.ThirdMarketMonitor;
+import com.panda.merge.odds.ThirdMarketMonitor;
 import com.panda.merge.rocketmq.common.A99CalculationMarketProcessor;
 import com.panda.merge.rocketmq.producer.A99ThirdSportMarketMergeProducer;
 import com.panda.merge.service.*;
@@ -87,8 +87,8 @@ public class A99ThirdAllBatchMarketProcessor extends BaseProcessor {
 //    @Autowired
 //    private A99ThirdMarketBallHeadProcessor thirdMarketBallHeadProcessor;
 
-//    @Autowired
-//    private ThirdMarketMonitor thirdMarketMonitor;
+    @Autowired
+    private ThirdMarketMonitor thirdMarketMonitor;
     @Autowired
     private ThirdMarketCategoryFieldService thirdMarketCategoryFieldService;
 
@@ -98,7 +98,7 @@ public class A99ThirdAllBatchMarketProcessor extends BaseProcessor {
         long befTimeMain = System.currentTimeMillis();
         String linkIds = requests.stream().map(Request::getLinkId).collect(Collectors.joining("-"));
         Long uuid = UUIdUtils.getId();
-//        log.info("::{}:: 百家赔批量拉取开始: {} 请求size: {}", linkIds, uuid, requests.size());
+        log.info("::{}:: 百家赔批量拉取开始: {} 请求size: {}", linkIds, uuid, requests.size());
         String internalDataSourceCode = getInternalDataSourceCode(requests);
         //组装
         List<OddsWrapper<ThirdMatchMarketDTO>> oddsWrappers = requests.stream().map(t -> {
@@ -160,7 +160,7 @@ public class A99ThirdAllBatchMarketProcessor extends BaseProcessor {
         Map<String, ThirdMarketCategory> thirdMarketCategorysMap = thirdMarketCategories.stream().collect(Collectors.toMap(ThirdMarketCategory::getThirdSourceId, thi -> thi));
         //linkid分组后处理信息
         Map<String, OddsWrapper<ThirdMatchMarketDTO>> thirdMatchMarketMap = oddsWrappers.stream().collect(Collectors.toMap(t -> t.getLinkId(), thi -> thi));
-//        log.info("::{}:: 百家赔批量拉取开始, 查询完成开始处理数据: {}", uuid, thirdMatchMarketMap.size());
+        log.info("::{}:: 百家赔批量拉取开始, 查询完成开始处理数据: {}", uuid, thirdMatchMarketMap.size());
         Map<String, Long> autoOpenDataSourceCodeMatchMap = redisService.hGetAll(Constant.REDIS_KEY.AUTO_OPEN_DATA_SOURCE_CODE_MATCH);
 //        thirdMarketCategoryFieldService.queryThirdSportOddsFieldsLists()
         //处理数据
@@ -193,9 +193,9 @@ public class A99ThirdAllBatchMarketProcessor extends BaseProcessor {
                     continue;
                 }
 
-//                log.info("::{}::百家赔:接收数据源赔率开始,开始处理盘口数据:{}", linkId, thirdCategorySourceId);
+                log.info("::{}::百家赔:接收数据源赔率开始,开始处理盘口数据:{}", linkId, thirdCategorySourceId);
                 List<ThirdMarketDTO> value = entry.getValue();
-//                log.info("::{}::百家赔:接收数据源赔率开始,玩法id:{} ,异步处理数据开始", linkId, thirdCategorySourceId);
+                log.info("::{}::百家赔:接收数据源赔率开始,玩法id:{} ,异步处理数据开始", linkId, thirdCategorySourceId);
 
                 for (ThirdMarketDTO thirdMarketDTO : value) {
                     thirdMarketDTO.setMarketCategoryId(thirdMarketCategory.getReferenceId());
@@ -269,23 +269,21 @@ public class A99ThirdAllBatchMarketProcessor extends BaseProcessor {
                     if(e.getMarketType() == 0) {
                         if (e.getStatus() != 0) {
                             //删除缓存
-//                            log.info("{}::滚球玩法缓存删除成功,缓存key:{},item:{}",linkId, Constant.REDIS_KEY.RONGHE_A99_THIRD_MARKET_ODDS_LIVE + standardMatchInfo.getId() + ":" + e.getMarketCategoryId(), internalDataSourceCode + ":" + e.getRelationMarketId());
+                            log.info("{}::滚球玩法缓存删除成功,缓存key:{},item:{}",linkId, Constant.REDIS_KEY.RONGHE_A99_THIRD_MARKET_ODDS_LIVE + standardMatchInfo.getId() + ":" + e.getMarketCategoryId(), internalDataSourceCode + ":" + e.getRelationMarketId());
                             redisService.hDel(Constant.REDIS_KEY.RONGHE_A99_THIRD_MARKET_ODDS_LIVE + standardMatchInfo.getId() + ":" + e.getMarketCategoryId(), internalDataSourceCode + ":" + e.getRelationMarketId());
-                        } else {
-                            // 滚球玩法缓存1分钟，如果1分钟不更新全部失效
-                            redisService.hSet(Constant.REDIS_KEY.RONGHE_A99_THIRD_MARKET_ODDS_LIVE + standardMatchInfo.getId() + ":" + e.getMarketCategoryId(), internalDataSourceCode + ":" + e.getRelationMarketId(), e, 60*10);
-//                            log.info("{}::滚球玩法添加缓存成功,缓存key:{},item:{}", linkId, Constant.REDIS_KEY.RONGHE_A99_THIRD_MARKET_ODDS_LIVE + standardMatchInfo.getId() + ":" + e.getMarketCategoryId(), internalDataSourceCode + ":" + e.getRelationMarketId());
                         }
+                        // 滚球玩法缓存1分钟，如果1分钟不更新全部失效
+                        redisService.hSet(Constant.REDIS_KEY.RONGHE_A99_THIRD_MARKET_ODDS_LIVE + standardMatchInfo.getId() + ":" + e.getMarketCategoryId(), internalDataSourceCode + ":" + e.getRelationMarketId(), e, 60*10);
+                        log.info("{}::滚球玩法添加缓存成功,缓存key:{},item:{}", linkId, Constant.REDIS_KEY.RONGHE_A99_THIRD_MARKET_ODDS_LIVE + standardMatchInfo.getId() + ":" + e.getMarketCategoryId(), internalDataSourceCode + ":" + e.getRelationMarketId());
                     } else {
                         if (e.getStatus() != 0) {
                             //删除缓存
-//                            log.info("{}::早盘玩法缓存删除成功,缓存key:{},item:{}",linkId, Constant.REDIS_KEY.RONGHE_A99_THIRD_MARKET_ODDS_PRE + standardMatchInfo.getId() + ":" + e.getMarketCategoryId(), internalDataSourceCode + ":" + e.getRelationMarketId());
+                            log.info("{}::早盘玩法缓存删除成功,缓存key:{},item:{}",linkId, Constant.REDIS_KEY.RONGHE_A99_THIRD_MARKET_ODDS_PRE + standardMatchInfo.getId() + ":" + e.getMarketCategoryId(), internalDataSourceCode + ":" + e.getRelationMarketId());
                             redisService.hDel(Constant.REDIS_KEY.RONGHE_A99_THIRD_MARKET_ODDS_PRE + standardMatchInfo.getId() + ":" + e.getMarketCategoryId(), internalDataSourceCode + ":" + e.getRelationMarketId());
-                        } else {
-                            // 早盘玩法缓存10小时
-//                            redisService.hSet(Constant.REDIS_KEY.RONGHE_A99_THIRD_MARKET_ODDS_PRE + standardMatchInfo.getId() + ":" + e.getMarketCategoryId(), internalDataSourceCode + ":" + e.getRelationMarketId(), e, 3600*10);
-                            log.info("{}::早盘玩法添加缓存成功,缓存key:{},item:{}", linkId, Constant.REDIS_KEY.RONGHE_A99_THIRD_MARKET_ODDS_PRE + standardMatchInfo.getId() + ":" + e.getMarketCategoryId(), internalDataSourceCode + ":" + e.getRelationMarketId());
                         }
+                        // 早盘玩法缓存10小时
+                        redisService.hSet(Constant.REDIS_KEY.RONGHE_A99_THIRD_MARKET_ODDS_PRE + standardMatchInfo.getId() + ":" + e.getMarketCategoryId(), internalDataSourceCode + ":" + e.getRelationMarketId(), e, 3600*10);
+                        log.info("{}::早盘玩法添加缓存成功,缓存key:{},item:{}", linkId, Constant.REDIS_KEY.RONGHE_A99_THIRD_MARKET_ODDS_PRE + standardMatchInfo.getId() + ":" + e.getMarketCategoryId(), internalDataSourceCode + ":" + e.getRelationMarketId());
                     }
                 });
                 if (!thirdSportMarketMessages.isEmpty()) {
@@ -293,7 +291,7 @@ public class A99ThirdAllBatchMarketProcessor extends BaseProcessor {
                 }
 
             }
-//            log.info("::{}:: 百家赔批量拉取开始: {} 处理完成: {}", uuid, System.currentTimeMillis() - befTimeMain, requests.size());
+            log.info("::{}:: 百家赔批量拉取开始: {} 处理完成: {}", uuid, System.currentTimeMillis() - befTimeMain, requests.size());
             if (!thirdMatchInfos.isEmpty()) {
                 thirdMatchInfos.clear();
             }

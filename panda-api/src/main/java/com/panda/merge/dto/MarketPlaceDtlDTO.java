@@ -28,13 +28,13 @@ public class MarketPlaceDtlDTO implements Serializable {
     private String placeNumStatus ;
 
     /**
-     * 风控防封，累封 需求状态透传给风控
-     */
-    private Integer placeNumStatusDisplay = 1;
-
-    /**
      * 子玩法ID
      */
     private Long childStandardCategoryId;
+
+    /**
+     * 风控防封，累封 需求状态透传给风控
+     */
+    private Integer placeNumStatusDisplay = 1;
 
 }

@@ -58,7 +58,7 @@ public class TransMarketStatusJob extends IJobHandler {
     public ReturnT<String> execute(String param) {
         if (!waitCloseTimeSwitch) {
             XxlJobLogger.log("处理开关为关闭状态,不进行处理,TransMarketStatusJob处理结束");
-            //log.info("处理开关为关闭状态,不进行处理,TransMarketStatusJob处理结束");
+            log.info("处理开关为关闭状态,不进行处理,TransMarketStatusJob处理结束");
             // 开关关闭时， 删除这两个缓存
             Set<Object> matchIdRawList = redisService.sMembers(Constant.REDIS_KEY.STANDARD_CATEGORY_TIMING_MATCHIDS);
             Set<Long> matchIdList = matchIdRawList.stream().map(e -> (Long)e).collect(Collectors.toSet());
@@ -72,16 +72,16 @@ public class TransMarketStatusJob extends IJobHandler {
             return ReturnT.SUCCESS;
         }
         long waitCloseTimeMills = Long.parseLong(waitCloseTime) * 60 * 1000;
-        //log.info("TransMarketStatusJob处理开始");
+        log.info("TransMarketStatusJob处理开始");
         XxlJobLogger.log("TransMarketStatusJob处理开始");
         Set<Object> matchIdRawList = redisService.sMembers(Constant.REDIS_KEY.STANDARD_CATEGORY_TIMING_MATCHIDS);
         Set<Long> matchIdList = matchIdRawList.stream().map(e -> (Long)e).collect(Collectors.toSet());
         if (CollectionUtils.isEmpty(matchIdList)) {
-            //log.info("TransMarketStatusJob没有需要处理的赛事，任务处理结束");
+            log.info("TransMarketStatusJob没有需要处理的赛事，任务处理结束");
             XxlJobLogger.log("TransMarketStatusJob没有需要处理的赛事，任务处理结束");
             return ReturnT.SUCCESS;
         }
-        //log.info("TransMarketStatusJob缓存中的赛事id:{}", JSON.toJSONString(matchIdList));
+        log.info("TransMarketStatusJob缓存中的赛事id:{}", JSON.toJSONString(matchIdList));
         List<StandardMatchInfo> standardMatchInfos = standardMatchInfoService.getItems(new ArrayList<>(matchIdList));
 
         Map<Long, StandardMatchInfo> matchMapGroupById = standardMatchInfos.stream()
@@ -126,7 +126,7 @@ public class TransMarketStatusJob extends IJobHandler {
                 long currentWaitTimeMills = System.currentTimeMillis() - storeData.getTime();
                 if (currentWaitTimeMills > waitCloseTimeMills) {
                     if (storeData.isHaveAlreadySend()) {
-                        //log.info("赛事id:{}玩法id:{}已下发过，此次不处理", matchId, category);
+                        log.info("赛事id:{}玩法id:{}已下发过，此次不处理", matchId, category);
                         return;
                     }
                     // 需要下发关的玩法
@@ -135,7 +135,7 @@ public class TransMarketStatusJob extends IJobHandler {
                 }
             });
             if (!CollectionUtils.isEmpty(needCloseCategoryList)) {
-                //log.info("赛事id:{}需要下发关盘的玩法id:{}", matchId, JSON.toJSONString(needCloseCategoryList));
+                log.info("赛事id:{}需要下发关盘的玩法id:{}", matchId, JSON.toJSONString(needCloseCategoryList));
                 String linkId = IdWorker.getId() + "_Close_Category";
                 // 通过mq topic下发需要关盘的玩法到panda-odds-admin
                 matchBeginProducer.sendCloseCategory2OddsAdmin(linkId, matchId, needCloseCategoryList);
@@ -144,7 +144,7 @@ public class TransMarketStatusJob extends IJobHandler {
         }
         // 删除缓存
         if (!CollectionUtils.isEmpty(needRemoveMatchIdList)) {
-            //log.info("需要从缓存中移出的赛事id:{}", JSON.toJSONString(needRemoveMatchIdList));
+            log.info("需要从缓存中移出的赛事id:{}", JSON.toJSONString(needRemoveMatchIdList));
             redisService.sRemove(Constant.REDIS_KEY.STANDARD_CATEGORY_TIMING_MATCHIDS, needRemoveMatchIdList.toArray());
 
             List<String> needDelCategoryStatTimeKeyList = needRemoveMatchIdList.stream()
@@ -152,7 +152,7 @@ public class TransMarketStatusJob extends IJobHandler {
                     .collect(Collectors.toList());
             redisService.del(needDelCategoryStatTimeKeyList);
         }
-        //log.info("TransMarketStatusJob处理结束");
+        log.info("TransMarketStatusJob处理结束");
         XxlJobLogger.log("TransMarketStatusJob处理结束");
         return ReturnT.SUCCESS;
     }

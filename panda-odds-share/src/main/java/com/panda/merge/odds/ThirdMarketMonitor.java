@@ -144,6 +144,10 @@ public class ThirdMarketMonitor {
             log.error("linkId:{},categoryId:{}, auto Switch config dataSources is  empty", cds.linkId, cds.categoryId);
             return;
         }
+        /*if (CollectionUtils.isEmpty(activeCodes)) {
+            log.error("linkId:{},categoryId:{}, auto Switch config activeCodes is  empty", cds.linkId, cds.categoryId);
+            return;
+        }*/
         Integer validSecond = config.getValidSecond();
         if (validSecond == null || validSecond <= 0) {
             log.error("linkId:{},categoryId:{}, auto Switch config validSecond is null or <= 0",
@@ -248,6 +252,7 @@ public class ThirdMarketMonitor {
                     Long sportId = dataSourceMap
                             .values()
                             .stream()
+                            .filter(e->e.getStandardSourceId().equals(matchId))
                             .map(OddsWrapper::getSportId)
                             .filter(Objects::nonNull)
                             .findFirst()

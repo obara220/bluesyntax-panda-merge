@@ -1,31 +1,24 @@
 package com.panda.merge.rocketmq.processor;
 
 
-import cn.hutool.json.JSONUtil;
-import cn.hutool.core.map.MapUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.panda.merge.common.BaseProcessor;
-import com.panda.merge.common.enums.DataSourceCodeEnum;
 import com.panda.merge.common.enums.LanguageTypeEnum;
 import com.panda.merge.common.enums.StandardSportTypeEnum;
 import com.panda.merge.common.utils.EntityEqualsUtils;
 import com.panda.merge.common.utils.TimeUtils;
 import com.panda.merge.component.UUIdUtils;
-import com.panda.merge.config.RedisConfig;
-import com.panda.merge.constant.ConstantSystem;
-import com.panda.merge.constant.SaleMatchSellStausEnum;
 import com.panda.merge.dto.*;
-import com.panda.merge.dto.message.StandardMarketCategorySellMessage;
 import com.panda.merge.exception.ApiException;
 import com.panda.merge.exception.ExceptionHelper;
 import com.panda.merge.model.*;
 import com.panda.merge.rocketmq.common.TransactionalProcessor;
 import com.panda.merge.rocketmq.producer.PaDataServiceLogProducer;
 import com.panda.merge.rocketmq.producer.ThirdSportPlayerProducer;
-import com.panda.merge.service.*;
+import com.panda.merge.service.ThirdSportPlayerService;
+import com.panda.merge.service.ThirdSportTeamService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
@@ -61,12 +54,6 @@ public class ThirdSportTeampPayerProcessor extends BaseProcessor {
     private ThirdSportPlayerProducer thirdSportPlayerProducer;
     @Autowired
     private PaDataServiceLogProducer paDataServiceLogProducer;
-    @Autowired
-    private ThirdMatchTeamRelationService thirdMatchTeamRelationService;
-    @Autowired
-    private ThirdMatchInfoService thirdMatchInfoService;
-    @Autowired
-    private StandardSportMarketSellService standardSportMarketSellService;
 
     /**
      * 处理三方球队球员数据
@@ -79,7 +66,7 @@ public class ThirdSportTeampPayerProcessor extends BaseProcessor {
         stopWatch.start();
         Response response = Response.success();
         try{
-            log.info("【"+ PROJECT_ID_NOREALTIME +" ："+ PROJECT_ID_NOREALTIME+" ："+ THIRD_SPORT_TEAM_API+"】【::"+request.getLinkId()+"::】第三方球队球员数据接收开始...");
+            log.info("【"+ PROJECT_ID_NOREALTIME+" ："+ THIRD_SPORT_TEAM_API+"】【::"+request.getLinkId()+"::】第三方球队球员数据接收开始...");
             //简单校验,主要判断linkId和Data不能为空,条数上限为100
             simpleValidateParam(request,THIRD_SPORT_TEAM_API,HUNDRED);
             //球队列表（包含球员数据）
@@ -108,7 +95,7 @@ public class ThirdSportTeampPayerProcessor extends BaseProcessor {
                             stopWatch.getTotalTimeMillis(),Integer.parseInt(String.valueOf(response.getCode())),response.getMsg())
             );
         }
-        log.info("【"+ PROJECT_ID_NOREALTIME +" ："+ PROJECT_ID_NOREALTIME+" ："+ THIRD_SPORT_TEAM_API+"】【"+request.getDataSourceCode()+" ::"+request.getLinkId()+"::】第三方球队球员数据处理结束,返回结果 ：{}" ,JSON.toJSONString(response));
+        log.info("【"+ PROJECT_ID_NOREALTIME+" ："+ THIRD_SPORT_TEAM_API+"】【"+request.getDataSourceCode()+" ::"+request.getLinkId()+"::】第三方球队球员数据处理结束,返回结果 ：{}" ,JSON.toJSONString(response));
         return response;
     }
 
@@ -124,7 +111,6 @@ public class ThirdSportTeampPayerProcessor extends BaseProcessor {
         Map<String, ThirdSportRegion> upThirdRegionId2Obj = new LinkedHashMap<>();
         Map<String, ThirdSportPlayerDetail> upThirdSourcePlayerId2Player = new LinkedHashMap<>();
         Map<Long, List<LanguageInternation>> upNameCode2Language = new LinkedHashMap<>();
-        List<PlayerModifyDTO> playerModifyDTOS = new ArrayList<>();
         for (ThirdSportTeamDTO thirdSportTeamDTO : thirdSportTeamDTOList) {
             final Long sportId = thirdSportId2referenceId.get(String.valueOf(thirdSportTeamDTO.getSportId()));
             //获取库中球队信息是否存在
@@ -135,9 +121,6 @@ public class ThirdSportTeampPayerProcessor extends BaseProcessor {
             if (CollectionUtils.isEmpty(thirdSportPlayerDTOList)) {
                 continue;
             }
-            PlayerModifyDTO playerModifyDTO = new PlayerModifyDTO();
-            playerModifyDTO.setThirdPlayerSourceIds(new ArrayList<>());
-            boolean modifyFlag = false;
             //据三方库球队查询球队下球员数据
             Map<String, ThirdSportPlayerDetail> unique2Player = thirdSportPlayerService.getUnique2ItemByTeamId(oldThirdSportTeam);
             for (ThirdSportPlayerDTO thirdSportPlayerDTO : thirdSportPlayerDTOList) {
@@ -189,32 +172,11 @@ public class ThirdSportTeampPayerProcessor extends BaseProcessor {
                     ThirdTeamPlayerRelation thirdTeamPlayerRelation = getThirdTeamPlayerRelationData(oldThirdTeamPlayerRelation, thirdSportPlayerDTO, oldThirdSportTeam.getId(), thirdSportPlayer.getId());
                     thirdSportPlayer.setTeamPlayerRelation(thirdTeamPlayerRelation);
                 }
-                if (
-                        oldThirdSportPlayer == null
-                                || !Objects.equals(thirdSportPlayer.getName(),oldThirdSportPlayer.getName())
-                                || !Objects.equals(thirdSportPlayer.getNameSpell(),oldThirdSportPlayer.getNameSpell())
-                                || !Objects.equals(thirdSportPlayer.getSportId(),oldThirdSportPlayer.getSportId())
-                                || !Objects.equals(thirdSportPlayer.getGender(),oldThirdSportPlayer.getGender())
-                                || !Objects.equals(thirdSportPlayer.getRegionId(),oldThirdSportPlayer.getRegionId())
-                                || !Objects.equals(thirdSportPlayer.getCountryId(),oldThirdSportPlayer.getCountryId())
-                                || (thirdSportPlayer.getTeamPlayerRelation() != null
-                                && oldThirdSportPlayer.getTeamPlayerRelation() !=null
-                                && !Objects.equals(thirdSportPlayer.getTeamPlayerRelation().getJerseyNumber(), oldThirdSportPlayer.getTeamPlayerRelation().getJerseyNumber()))
-                ) {
-                    modifyFlag = true;
-                    playerModifyDTO.getThirdPlayerSourceIds().add(thirdSportPlayer.getThirdSourcePlayerId());
-                }
                 //============球队球员关系结束=======================
                 //需要修改的球员相关信息
                 upThirdSourcePlayerId2Player.put(playerLockKey,thirdSportPlayer);
                 //球员多语言信息
                 upNameCode2Language.put(thirdSportPlayer.getNameCode(),languageInternationList);
-            }
-            if (modifyFlag) {
-                playerModifyDTO.setTeamId(oldThirdSportTeam.getId());
-                playerModifyDTO.setThirdTeamSourceId(thirdSportTeamDTO.getThirdTeamSourceId());
-                playerModifyDTO.setDataSourceCode(thirdSportTeamDTO.getDataSourceCode());
-                playerModifyDTOS.add(playerModifyDTO);
             }
         }
         /** 区域信息入库*/
@@ -237,108 +199,6 @@ public class ThirdSportTeampPayerProcessor extends BaseProcessor {
             }catch (DuplicateKeyException e){
                 log.error("【"+ PROJECT_ID_NOREALTIME +" ："+ THIRD_SPORT_TEAM_API+"】【"+dataSource.getCode()+" : "+linkId+"】，唯一主键冲突，Exception:",e);
             }
-        }
-
-        //106940 【生产】【产品】S01,G01新增球员或更变球员信息时页面预警
-        try {
-            playerModifyAlert(linkId, dataSource, playerModifyDTOS);
-        } catch (Exception e) {
-            log.error("【"+ PROJECT_ID_NOREALTIME +" ："+ THIRD_SPORT_TEAM_API+"】【"+ dataSource.getCode()+" ::"+ linkId +"::】球员信息发生变动异常:", e);
-        }
-    }
-
-    private void playerModifyAlert(String linkId, DataSource dataSource, List<PlayerModifyDTO> playerModifyDTOS) {
-        if (!DataSourceCodeEnum.getPlayerModifyAlertCode().contains(dataSource.getCode())) {
-            return;
-        }
-        log.info("【"+ PROJECT_ID_NOREALTIME +" ："+ THIRD_SPORT_TEAM_API+"】【"+ dataSource.getCode()+" ::"+ linkId +"::】球员信息发生变动告警,过滤前 playerModifyDTOS={}", JSONUtil.toJsonStr(playerModifyDTOS));
-        for (PlayerModifyDTO playerModifyDTO : playerModifyDTOS) {
-            if (org.apache.commons.collections.CollectionUtils.isEmpty(playerModifyDTO.getThirdPlayerSourceIds())) {
-                log.info("【"+ PROJECT_ID_NOREALTIME +" ："+ THIRD_SPORT_TEAM_API+"】【"+dataSource.getCode()+" ::"+linkId+"::】球员信息发生变动告警,thirdPlayerSourceIds为空1 playerModifyDTO={}", JSONUtil.toJsonStr(playerModifyDTO));
-                continue;
-            }
-
-            List<ThirdMatchTeamRelation> thirdMatchTeamRelations = thirdMatchTeamRelationService.listByTeamId(playerModifyDTO.getTeamId());
-            if (org.apache.commons.collections.CollectionUtils.isEmpty(thirdMatchTeamRelations)) {
-                log.info("【"+ PROJECT_ID_NOREALTIME +" ："+ THIRD_SPORT_TEAM_API+"】【"+dataSource.getCode()+" ::"+linkId+"::】球员信息发生变动告警,未查询到ThirdMatchTeamRelation teamId={}", playerModifyDTO.getTeamId());
-                continue;
-            }
-
-            List<Long> thirdMatchIds = thirdMatchTeamRelations.stream()
-                    .map(ThirdMatchTeamRelation::getMatchId)
-                    .collect(Collectors.toList());
-            List<ThirdMatchInfo> thirdMatchInfos = thirdMatchInfoService.getItems(thirdMatchIds);
-            if (org.apache.commons.collections.CollectionUtils.isEmpty(thirdMatchInfos)) {
-                log.info("【"+ PROJECT_ID_NOREALTIME +" ："+ THIRD_SPORT_TEAM_API+"】【"+dataSource.getCode()+" ::"+linkId+"::】球员信息发生变动告警,未未查询到三方赛事 thirdMatchIds={}", JSONUtil.toJsonStr(thirdMatchIds));
-                continue;
-            }
-
-            long now = System.currentTimeMillis();
-            List<Long> standardMatchIds = thirdMatchInfos.stream()
-                    .filter(t -> t.getReferenceId() != null && t.getReferenceId() != 0)
-                    .sorted(Comparator.comparingLong(t -> Math.abs(t.getBeginTime() - now)))
-                    .map(ThirdMatchInfo::getReferenceId)
-                    .collect(Collectors.toList());
-            if (org.apache.commons.collections.CollectionUtils.isEmpty(standardMatchIds)) {
-                log.info("【"+ PROJECT_ID_NOREALTIME +" ："+ THIRD_SPORT_TEAM_API+"】【"+dataSource.getCode()+" ::"+linkId+"::】球员信息发生变动告警,三方赛事未关联标准赛事, thirdMatchIds={}", JSONUtil.toJsonStr(thirdMatchIds));
-                continue;
-            }
-            List<StandardSportMarketSell> standardSportMarketSells = standardSportMarketSellService.getItems(standardMatchIds);
-            if (org.apache.commons.collections.CollectionUtils.isEmpty(standardSportMarketSells)) {
-                log.info("【"+ PROJECT_ID_NOREALTIME +" ："+ THIRD_SPORT_TEAM_API+"】【"+dataSource.getCode()+" ::"+linkId+"::】球员信息发生变动告警,三方赛事未未查询到开售信息, standardMatchIds={}", JSONUtil.toJsonStr(standardMatchIds));
-                continue;
-            }
-
-            List<String> thirdPlayerSourceIds = playerModifyDTO.getThirdPlayerSourceIds().stream().filter(s -> {
-                if (redisService.tryLockOnce(
-                        String.format(getPlayerModifyAlertKey(), playerModifyDTO.getTeamId(), dataSource.getCode(), s),
-                        String.format(getPlayerModifyAlertKey(), playerModifyDTO.getTeamId(), dataSource.getCode(), s),
-                        5)) {
-                    return true;
-                } else {
-                    log.info("【"+ PROJECT_ID_NOREALTIME +" ："+ THIRD_SPORT_TEAM_API+"】【"+dataSource.getCode()+" ::"+linkId+"::】球员信息发生变动告警,已告警 thirdPlayerSourceId={}", s);
-                    return false;
-                }
-            }).collect(Collectors.toList());
-            playerModifyDTO.setThirdPlayerSourceIds(thirdPlayerSourceIds);
-            if (org.apache.commons.collections.CollectionUtils.isEmpty(playerModifyDTO.getThirdPlayerSourceIds())) {
-                log.info("【"+ PROJECT_ID_NOREALTIME +" ："+ THIRD_SPORT_TEAM_API+"】【"+dataSource.getCode()+" ::"+linkId+"::】球员信息发生变动告警,thirdPlayerSourceIds为空2 playerModifyDTO={}", JSONUtil.toJsonStr(playerModifyDTO));
-                continue;
-            }
-
-            Map<Long, StandardSportMarketSell> longStandardSportMarketSellByMatchInfoId = standardSportMarketSells.stream()
-                    .collect(Collectors.toMap(StandardSportMarketSell::getMatchInfoId, o -> o, (o, n) -> n));
-            for (Long standardMatchId : standardMatchIds) {
-                StandardSportMarketSell standardSportMarketSell = longStandardSportMarketSellByMatchInfoId.get(standardMatchId);
-                if (SaleMatchSellStausEnum.Sold.name().equals(standardSportMarketSell.getPreMatchSellStatus()) || SaleMatchSellStausEnum.Sold.name().equals(standardSportMarketSell.getLiveMatchSellStatus())) {
-                    playerModifyDTO.setStandardMatchId(standardSportMarketSell.getMatchInfoId());
-                    playerModifyDTO.setMatchManageId(standardSportMarketSell.getMatchManageId());
-                    break;
-                }
-            }
-        }
-        List<PlayerModifyDTO> filterPlayerModifyDTOs = playerModifyDTOS.stream().filter(playerModifyDTO -> playerModifyDTO.getStandardMatchId() != null).collect(Collectors.toList());
-        if (org.apache.commons.collections.CollectionUtils.isEmpty(filterPlayerModifyDTOs)) {
-            log.info("【"+ PROJECT_ID_NOREALTIME +" ："+ THIRD_SPORT_TEAM_API+"】【"+dataSource.getCode()+" ::"+linkId+"::】球员信息发生变动告警,没有开售满足条件的赛事:{}", JSONUtil.toJsonStr(filterPlayerModifyDTOs));
-            return;
-        }
-        Map<Long, List<PlayerModifyDTO>> PlayerModifyDTOByStandardMatchId = playerModifyDTOS.stream().collect(Collectors.groupingBy(PlayerModifyDTO::getStandardMatchId));
-        Iterator<Map.Entry<Long, List<PlayerModifyDTO>>> iterator = PlayerModifyDTOByStandardMatchId.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<Long, List<PlayerModifyDTO>> next = iterator.next();
-            PlayerModifyDTO value0 = next.getValue().get(0);
-            PlayerModifyDTO pushPlayerModifyDTO = new PlayerModifyDTO();
-            pushPlayerModifyDTO.setStandardMatchId(value0.getStandardMatchId());
-            pushPlayerModifyDTO.setMatchManageId(value0.getMatchManageId());
-            pushPlayerModifyDTO.setDataSourceCode(DataSourceCodeEnum.getDataSourceCodeEnumByCode(value0.getDataSourceCode()).getMaskedCode());
-            pushPlayerModifyDTO.setThirdPlayerSourceIds(new ArrayList<>());
-            pushPlayerModifyDTO.setMessage("该球员信息发生变动, 请注意多语言信息");
-            pushPlayerModifyDTO.setMessageEn("This player information has changed. Please note the multilingual information.");
-            for (PlayerModifyDTO playerModifyDTO : next.getValue()) {
-                pushPlayerModifyDTO.getThirdPlayerSourceIds().addAll(playerModifyDTO.getThirdPlayerSourceIds());
-            }
-            log.info("【"+ PROJECT_ID_NOREALTIME +" ："+ THIRD_SPORT_TEAM_API+"】【"+dataSource.getCode()+" ::"+linkId+"::】球员信息发生变动,推送消息体:{}", JSONUtil.toJsonStr(pushPlayerModifyDTO));
-            thirdSportPlayerProducer.pushPlayerModifyAlert(linkId, pushPlayerModifyDTO);
         }
     }
 

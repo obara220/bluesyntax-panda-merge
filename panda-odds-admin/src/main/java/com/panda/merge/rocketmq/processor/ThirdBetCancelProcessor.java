@@ -60,7 +60,7 @@ public class ThirdBetCancelProcessor extends BaseProcessor {
     public void thirdBetCancel(@Valid Request<ThirdBetCancelDTO> request) {
         String linkId = request.getLinkId();
         log.info("::{}::盘口取消对应上游bet-cancel事件={}", linkId, JSON.toJSONString(request));
-        validateLinkId(Constant.PUT_BET_CANCEL, request);
+        validateLinkId(Constant.PUT_BET_CANCEL,request);
         ThirdBetCancelDTO thirdBetCancelDTO = request.getData();
         String dataSourceCode = thirdBetCancelDTO.getDataSourceCode();
         String thirdSourceMatchId = thirdBetCancelDTO.getThirdSourceMatchId();
@@ -86,16 +86,19 @@ public class ThirdBetCancelProcessor extends BaseProcessor {
         //推送数据到下游
         standardBetCancelProducer.sendStandardBetCancel(linkId, referenceId, thirdMatchInfo.getSportId(), thirdBetCancelDTO, standardBetCancelItemMessages);
         StandardRelationNewStandard standardRelationNewStandard = standardRelationNewStandardService.getItem(referenceId);
-        if (null == standardRelationNewStandard) {
+        if (null == standardRelationNewStandard)
+        {
             return;
-        } else {
+        }
+        else
+        {
             List<StandardBetCancelItemMessage> standardBetCancelItemMessages1 = getStandardBetCancelItemMessages(linkId, standardRelationNewStandard.getNewStandardId(), thirdBetCancelDTO);
             if (standardBetCancelItemMessages1.size() == 0) {
-                log.info("::{}::thirdBetCancel - getStandardBetCancelItemMessages1 数据源盘口数据与标准数据匹配失败", linkId + "_new_match");
+                log.info("::{}::thirdBetCancel - getStandardBetCancelItemMessages1 数据源盘口数据与标准数据匹配失败", linkId+"_new_match");
                 return;
             }
             //推送数据到下游
-            standardBetCancelProducer.sendStandardBetCancel(linkId + "_new_match", standardRelationNewStandard.getNewStandardId(), thirdMatchInfo.getSportId(), thirdBetCancelDTO, standardBetCancelItemMessages1);
+            standardBetCancelProducer.sendStandardBetCancel(linkId+"_new_match", standardRelationNewStandard.getNewStandardId(), thirdMatchInfo.getSportId(), thirdBetCancelDTO, standardBetCancelItemMessages1);
         }
     }
 

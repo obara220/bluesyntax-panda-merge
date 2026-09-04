@@ -19,7 +19,7 @@
 
     <insert id="saveBatch">
         insert ignore into config_outright_trade_market (
-            id, standard_match_id, standard_market_id, market_status, link_id, create_time, modify_time, operater_id
+        id, standard_match_id, standard_market_id, market_status, link_id, create_time, modify_time, operater_id
         ) values
         <foreach collection="configOutrightTradeMarketList" item="item" index="index" separator=",">
             (

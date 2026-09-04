@@ -85,10 +85,6 @@ public class ThirdMarketPreResultDTO implements Serializable {
      * 附加字段5
      */
     private String addition5;
-    /**
-     * 标准玩法id，用于主客相反
-     */
-    private Long marketCategoryId;
 
     private Integer a01Verify;
 
@@ -101,6 +97,5 @@ public class ThirdMarketPreResultDTO implements Serializable {
     private BigDecimal htScoreProb;
 
     private BigDecimal ftScoreProb;
-
 
 }

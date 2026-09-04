@@ -9,7 +9,6 @@ import com.panda.merge.mapper.StandardSportMarketCategoryMapper;
 import com.panda.merge.model.StandardSportMarketCategory;
 import com.panda.merge.model.StandardSportMarketCategoryExample;
 import com.panda.merge.service.StandardSportMarketCategoryService;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;
@@ -28,7 +27,6 @@ import java.util.stream.Collectors;
  * @taskId: <br>
  * @createDate 2020/8/14 <br>
  */
-@Slf4j
 @Service
 @CacheConfig(cacheNames = RedisConfig.REDIS_KEY_DATABASE)
 public class StandardSportMarketCategoryServiceImpl implements StandardSportMarketCategoryService {
@@ -77,7 +75,6 @@ public class StandardSportMarketCategoryServiceImpl implements StandardSportMark
         if(CollectionUtils.isEmpty(requiredCallItems)){
             return result;
         }
-        log.info("2724,查询标准盘口玩法数据库：{}", requiredCallItems);
         StandardSportMarketCategoryExample example = new StandardSportMarketCategoryExample();
         for (Pair<Long, Long> item : requiredCallItems) {
             example.or().andMarketCategoryIdEqualTo(item.getLeft()).andSportIdEqualTo(Long.valueOf(item.getRight()));
@@ -95,8 +92,8 @@ public class StandardSportMarketCategoryServiceImpl implements StandardSportMark
         return result;
     }
 
-    @Override
     @Deprecated
+    @Override
     public List<StandardSportMarketCategory> getItemsByMarketCategoryIds(List<Long> marketCategoryIds){
         if(CollectionUtils.isEmpty(marketCategoryIds)){
             return Collections.EMPTY_LIST;
@@ -143,6 +140,7 @@ public class StandardSportMarketCategoryServiceImpl implements StandardSportMark
         return standardSportMarketCategoryDao.getItemsByMarketCategoryIds(marketCategoryIds);
     }
 
+    @Override
     public int delRedisByAll(){
         //查询全部数据，并清理redis中缓存
         List<StandardSportMarketCategory> resList = standardSportMarketCategoryMapper.selectByExample(new StandardSportMarketCategoryExample());

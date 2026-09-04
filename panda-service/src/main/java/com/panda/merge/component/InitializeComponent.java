@@ -6,7 +6,10 @@ import com.panda.merge.model.EuropeConvertMalay;
 import com.panda.merge.model.MalayConvertEurope;
 import com.panda.merge.model.MatchEventType;
 import com.panda.merge.model.SystemItemDict;
-import com.panda.merge.service.*;
+import com.panda.merge.service.EuropeConvertMalayService;
+import com.panda.merge.service.MalayConvertEuropeService;
+import com.panda.merge.service.MatchEventTypeService;
+import com.panda.merge.service.SystemItemDictService;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -31,10 +34,6 @@ import static com.panda.merge.component.AutoDiffCountMarketMalay.subDoubleTwo;
  */
 @Component
 public class InitializeComponent {
-
-
-    @Autowired
-    SystemTypeDictService systemTypeDictService;
 
     @Autowired
     SystemItemDictService systemItemDictService;
@@ -78,8 +77,6 @@ public class InitializeComponent {
     @PostConstruct
     private void init() {
         //------------初始化查询字段表------------
-        systemTypeDictService.getItemAll();
-
         List<SystemItemDict> systemItemDictAll = systemItemDictService.getItemAll();
         Map<Long,List<SystemItemDict>> systemItemDictMap = systemItemDictAll.stream().collect(Collectors.groupingBy(SystemItemDict::getParentTypeId));
         //初始化赛事阶段

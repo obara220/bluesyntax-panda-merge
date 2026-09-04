@@ -26,8 +26,8 @@ public enum PlayerPositionTypeEnum {
     NUM_11("Striker / Center Striker", "前锋/中锋", "{\"zs\":\"前锋/中锋\",\"zh\":\"前鋒/中鋒\",\"en\":\"Striker / Center Striker\",\"vi\":\"Tiền đạo / Tiền đạo cắm\",\"es\":\"Delantero / Delantero Centro\",\"pt\":\"Atacante / Atacante Central\",\"mya\":\"\",\"ru\":\"Нападающий / Центральный нападающий\"}"),
     NUM_12("Striker / Center Striker", "前锋-中锋", "{\"zs\":\"前锋/中锋\",\"zh\":\"前鋒/中鋒\",\"en\":\"Striker / Center Striker\",\"vi\":\"Tiền đạo / Tiền đạo cắm\",\"es\":\"Delantero / Delantero Centro\",\"pt\":\"Atacante / Atacante Central\",\"mya\":\"\",\"ru\":\"Нападающий / Центральный нападающий\"}"),
     NUM_13("Striker-Defender", "前锋-后卫", "{\"zs\":\"前锋-后卫\",\"zh\":\"前鋒-後衛\",\"en\":\"Striker-Defender\",\"vi\":\"Tiền đạo - hậu vệ\",\"es\":\"Delantero-Defensa\",\"pt\":\"Atacante-Defensor\",\"mya\":\"\",\"ru\":\"Нападающий-Защитник\"}"),
-    NUM_14("Mid Striker", "中锋", "{\"zs\":\"中锋\",\"zh\":\"中鋒\",\"en\":\"Mid Striker\",\"vi\":\"Tiền đạo trung tâm\",\"es\":\"\tDelantero Medio\",\"pt\":\"Médio Atacante\",\"mya\":\"\",\"ru\":\"Средний нападающий\"}"),
-    NUM_15("Ball-Handling Striker", "前锋", "{\"zs\":\"前锋\",\"zh\":\"前鋒\",\"en\":\"Ball-Handling Striker\",\"vi\":\"Tiền đạo cánh\",\"es\":\"Delantero con manejo de balón\",\"pt\":\"Ponta de Lança com Bola\",\"mya\":\"\",\"ru\":\"Нападающий, владеющий мячом\"}"),
+     NUM_14("Mid Striker", "中锋", "{\"zs\":\"中锋\",\"zh\":\"中鋒\",\"en\":\"Mid Striker\",\"vi\":\"Tiền đạo trung tâm\",\"es\":\"\tDelantero Medio\",\"pt\":\"Médio Atacante\",\"mya\":\"\",\"ru\":\"Средний нападающий\"}"),
+     NUM_15("Ball-Handling Striker", "前锋", "{\"zs\":\"前锋\",\"zh\":\"前鋒\",\"en\":\"Ball-Handling Striker\",\"vi\":\"Tiền đạo cánh\",\"es\":\"Delantero con manejo de balón\",\"pt\":\"Ponta de Lança com Bola\",\"mya\":\"\",\"ru\":\"Нападающий, владеющий мячом\"}"),
     NUM_16("Center Defender", "中卫", "{\"zs\":\"中卫\",\"zh\":\"中衛\",\"en\":\"Center Defender\",\"vi\":\"Trung vệ\",\"es\":\"Defensa Central\",\"pt\":\"Defesa Central\",\"mya\":\"\",\"ru\":\"Центральный защитник\"}"),
     NUM_17("Central Midfielder", "中前卫", "{\"zs\":\"中前卫\",\"zh\":\"中前衛\",\"en\":\"Central Midfielder\",\"vi\":\"Tiền vệ trung\",\"es\":\"Mediocampista Central\",\"pt\":\"Meio-campista central\",\"mya\":\"\",\"ru\":\"Центральный полузащитник\"}"),
     NUM_18("Substitute", "替补", "{\"zs\":\"替补\",\"zh\":\"替補\",\"en\":\"Substitute\",\"vi\":\"Cầu thủ dự bị\",\"es\":\"Suplente\",\"pt\":\"Suplente\",\"mya\":\"\",\"ru\":\"Замена\"}"),
@@ -60,7 +60,7 @@ public enum PlayerPositionTypeEnum {
      * 根据位置中文名称获取英文名称
      */
     public static String getPositionEnNameByMsg(String msg) {
-        msg = convertMsg(msg);
+         msg = convertMsg(msg);
         for (PlayerPositionTypeEnum item : PlayerPositionTypeEnum.values()) {
             if (item.getMsg().equalsIgnoreCase(msg)) {
                 return item.getCode();
@@ -71,7 +71,7 @@ public enum PlayerPositionTypeEnum {
 
 
     public static PlayerPositionTypeEnum getItemByMsg(String msg) {
-        msg = convertMsg(msg);
+         msg = convertMsg(msg);
         for (PlayerPositionTypeEnum item : PlayerPositionTypeEnum.values()) {
             if (item.getMsg().equalsIgnoreCase(msg)) {
                 return item;
@@ -80,18 +80,18 @@ public enum PlayerPositionTypeEnum {
         return null;
     }
 
-    /**
-     * 数据库历史数据转换为新数据
-     * @param msg
-     * @return
-     */
-    public static String convertMsg(String msg) {
-        if ("中前锋".equals(msg)) {
-            msg = "中锋";
-        } else if ("控球前锋".equals(msg)) {
-            msg = "前锋";
+        /**
+         * 数据库历史数据转换为新数据
+         * @param msg
+         * @return
+         */
+        public static String convertMsg(String msg) {
+            if ("中前锋".equals(msg)) {
+                msg = "中锋";
+            } else if ("控球前锋".equals(msg)) {
+                msg = "前锋";
+            }
+            return msg;
         }
-        return msg;
-    }
 
 }

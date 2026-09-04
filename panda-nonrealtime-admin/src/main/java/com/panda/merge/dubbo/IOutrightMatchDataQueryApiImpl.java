@@ -28,7 +28,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StopWatch;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -66,7 +65,7 @@ public class IOutrightMatchDataQueryApiImpl implements IOutrightMatchDataQueryAp
 
     @Override
     public Response<PageModel<List<OutrightMatchInfoBO>>> queryOutrihtMatch(Request<PageModel<OutrightMatchInfoDTO>> request) {
-        log.info("【queryOutrihtMatch】【::"+request.getLinkId()+"::】分页查询标准冠军赛事开始,入参：{}",JSON.toJSONString(request.getData()));
+        log.info("【"+ PROJECT_ID_NOREALTIME +" ：queryOutrihtMatch】【::"+request.getLinkId()+"::】分页查询标准冠军赛事开始,入参：{}",JSON.toJSONString(request.getData()));
         List<OutrightMatchInfoBO> outrightMatchInfoBOS = new ArrayList<>();
         PageModel<OutrightMatchInfoDTO> data = request.getData();
         PageHelper.startPage(data.getCurrent(), data.getSize());
@@ -83,8 +82,7 @@ public class IOutrightMatchDataQueryApiImpl implements IOutrightMatchDataQueryAp
         example.createCriteria().andTypeEqualTo(Constant.OUTRIGHT_TYPE.STANDARD_OUTRIGHT).andMatchCategoryFiledIn(list);
         List<I18nnamesOutrightMatchName> i18nnamesOutrightMatchNames = i18nnamesOutrightMatchNameMapper.selectByExample(example);
         Map<Long, Map<String, String>> map = i18nnamesOutrightMatchNames.stream()
-                .collect(Collectors.groupingBy(I18nnamesOutrightMatchName::getMatchCategoryFiled,
-                        Collectors.toMap(I18nnamesOutrightMatchName::getLanguageType, I18nnamesOutrightMatchName::getText, (e1, e2) -> e1)));
+                .collect(Collectors.groupingBy(I18nnamesOutrightMatchName::getMatchCategoryFiled, Collectors.toMap(I18nnamesOutrightMatchName::getLanguageType, I18nnamesOutrightMatchName::getText)));
         //查询联赛logo
         Set<Long> standardTouIdsSet = standardOutrightMatchInfos.stream().map(StandardOutrightMatchInfo::getStandardTournamentId).collect(Collectors.toSet());
         List<Long> standardTouIdsList = Stream.of(standardTouIdsSet.toArray(new Long[0])).collect(Collectors.toList());
@@ -100,7 +98,7 @@ public class IOutrightMatchDataQueryApiImpl implements IOutrightMatchDataQueryAp
             String logo = touLogo.get(matchInfo.getStandardTournamentId());
             outrightMatchInfoBO.setTouLogoUrl(StringUtils.isNoneBlank(logo) ? logo : "");
             outrightMatchInfoBOS.add(outrightMatchInfoBO);
-            log.info("【queryOutrihtMatch】【::"+request.getLinkId()+"::】分页查询标准冠军赛事信息 ：{}" ,outrightMatchInfoBO.getId());
+            log.info("【"+ PROJECT_ID_NOREALTIME +" ：queryOutrihtMatch】【::"+request.getLinkId()+"::】分页查询标准冠军赛事信息 ：{}" ,outrightMatchInfoBO.getId());
         }
         log.info("【" + PROJECT_ID_NOREALTIME + " ：queryOutrihtMatch】【::"+request.getLinkId()+"::】分页查询标准冠军赛事返回结果 ：{}", JSON.toJSONString(pageModel));
         pageModel.setData(outrightMatchInfoBOS);
@@ -109,7 +107,7 @@ public class IOutrightMatchDataQueryApiImpl implements IOutrightMatchDataQueryAp
 
     @Override
     public Response<List<OutrightMatchCateGoryInfoBO>> queryOutrihtMatchCategory(Request<PageModel<OutrightMatchInfoDTO>> request) {
-        log.info("【queryOutrihtMatchCategory】【::"+request.getLinkId()+"::】查询冠军赛事玩法开始,入参：{}",JSON.toJSONString(request.getData()));
+        log.info("【"+ PROJECT_ID_NOREALTIME +" ：queryOutrihtMatchCategory】【::"+request.getLinkId()+"::】查询冠军赛事玩法开始,入参：{}",JSON.toJSONString(request.getData()));
         List<OutrightMatchCateGoryInfoBO> outrightMatchInfoBOS = new ArrayList<>();
         Response<List<OutrightMatchCateGoryInfoBO>> listResponse = new Response<>();
         List<StandardOutrightMatchCategory> standardOutrightMatchCategories = iOutrightMatchCategoryDataQueryService.queryOutrihtMatchCategory(request.getData().getData());

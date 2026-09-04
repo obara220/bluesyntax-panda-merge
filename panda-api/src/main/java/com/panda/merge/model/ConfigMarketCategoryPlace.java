@@ -37,7 +37,6 @@ public class ConfigMarketCategoryPlace implements Serializable {
      * 风控防封，累封 需求状态透传给风控 ，不入库
      */
     private Integer placeNumStatusDisplay = 1;
-
     private static final long serialVersionUID = 1L;
 
     public Long getId() {

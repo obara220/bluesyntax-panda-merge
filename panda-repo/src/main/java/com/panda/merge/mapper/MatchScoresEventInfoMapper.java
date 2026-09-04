@@ -31,6 +31,4 @@ public interface MatchScoresEventInfoMapper {
     int updateByPrimaryKey(MatchScoresEventInfo record);
 
     int updateByPrimaryList(List<Long> list);
-
-    int updateByPrimaryKeys(@Param("records") List<MatchScoresEventInfo> records);
 }

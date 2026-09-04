@@ -403,10 +403,6 @@ public class FootBallScoreServiceImpl implements FootBallScoreService {
             Map<Long, FootballScores> allPeriodScores= JsonMapUtils.parseFootballMap(periodFootballScores);
             FootballScores wholeSores= allPeriodScores.get(WHOLE_MATCH);
             FootballScores periodSores= allPeriodScores.get(data.getMatchTimeInfo().getPeriod());
-            if (periodSores == null) {
-                periodSores = FootballScores.createMinFootballScores();
-                allPeriodScores.put(data.getMatchTimeInfo().getPeriod(), periodSores);
-            }
 
             Pair<Pair<Integer, Integer>, String> scoreNumResult = obtainScoreNum(matchEventInfoDTO, data.getThirdMatchInfo());
             Pair<Integer, Integer> matchScoresEventInfo = scoreNumResult.getLeft();
@@ -910,7 +906,7 @@ public class FootBallScoreServiceImpl implements FootBallScoreService {
 //            matchTimeInfoMapper.updateByPrimaryKey( data.getMatchTimeInfo());
             pdMatchInfoRepository.setRedisAndMatchTimeInfo(data.getMatchTimeInfo(), null);
             //推送比分
-//            scoresProducer.sendToMQ(data.getThirdMatchInfo(),data.getMatchScoresInfo(),confirmEventDto.getLinkedId());
+            scoresProducer.sendToMQ(data.getThirdMatchInfo(),data.getMatchScoresInfo(),confirmEventDto.getLinkedId());
             stopWatch.stop();
             log.info("FootBallScoreServiceImpl-changeScoresByEvent-耗时={}, thirdMatchId={}",stopWatch.getTotalTimeMillis(),confirmEventDto.getThirdMatchId());
             Map<String, String> norfinalEventCodeMap = new HashMap<>();
@@ -1329,40 +1325,37 @@ public class FootBallScoreServiceImpl implements FootBallScoreService {
          * */
         data.getMatchScoresInfo().setScoresJsonType(editEventDto.getOperatorName());
         //推送比分
-//        scoresProducer.sendToMQ(data.getThirdMatchInfo(),data.getMatchScoresInfo(),editEventDto.getLinkedId());
+        scoresProducer.sendToMQ(data.getThirdMatchInfo(),data.getMatchScoresInfo(),editEventDto.getLinkedId());
         return commonItem;
     }
 
     @Override
     public Response edit15MinGoal(MatchScoreAndTimeVo data, Goal15MinDto confirmEventDto) {
-        log.info("15分钟比分编辑2,edit15MinGoal confirmEventDto:{}",confirmEventDto);
         JSONObject periodFootballScores = JSONObject.parseObject(data.getMatchScoresInfo().getScoresJson());
         Map<Long, FootballScores> allPeriodScores= JsonMapUtils.parseFootballMap(periodFootballScores);
         Long period15 = get15MinPeriod(confirmEventDto.getPeriod(),confirmEventDto.getTimeFromStartSecond());//当前阶段id
         List<Goal15MinDataDto> dataList = confirmEventDto.getDataList();
         //List<MatchPdOperateLog> logList = new ArrayList<>();//日志数组
         // 15分钟编辑的时候 前端传递全量比分 则 这边会 录入全部
-        if(!dataList.isEmpty()){
-//            String before = "";
-//            String after = "";
+        if(dataList != null && dataList.size() >0){
+            String before = "";
+            String after = "";
             for(Goal15MinDataDto fiveData:dataList){
                 //获取比赛阶段
                 Long period15Min = fiveData.getPeriod15Min();//编辑的15分钟阶段id
-                if(period15 < period15Min){//当前阶段id小于编辑阶段id则不能编辑
+                if(period15.longValue() < period15Min.longValue()){//当前阶段id小于编辑阶段id则不能编辑
                     return Response.failed("不能编辑当前阶段之后的15分钟比分");
                 }
                 FootballScores periodSores15 = allPeriodScores.get(period15Min);
-                log.info("15分钟比分编辑,edit15MinGoal period15Min:{},periodSores15:{}",period15Min,periodSores15);
-
                 if(periodSores15 == null){
                     periodSores15 = FootballScores.createMinFootballScores();
                 }
-//                before = periodSores15.getGoal().getHome()+" - "+periodSores15.getGoal().getAway();
+                before = periodSores15.getGoal().getHome()+" - "+periodSores15.getGoal().getAway();
                 if("goal".equals(confirmEventDto.getConfirmEventCode())){
                     periodSores15.getGoal().setHome(fiveData.getHomeScore());
                     periodSores15.getGoal().setAway(fiveData.getAwayScore());
                 }
-//                after = periodSores15.getGoal().getHome()+" - "+periodSores15.getGoal().getAway();
+                after = periodSores15.getGoal().getHome()+" - "+periodSores15.getGoal().getAway();
                 allPeriodScores.put(period15Min,periodSores15);
                 //记录日志
                 //logList.add(getFifteenMinLogData(data.getThirdMatchInfo(),confirmEventDto,fiveData.getPeriod15Min(),before,after,"goal"));
@@ -1370,23 +1363,18 @@ public class FootBallScoreServiceImpl implements FootBallScoreService {
             FootballScores wholeSores= allPeriodScores.get(WHOLE_MATCH);
             Integer wholeScoresHome = wholeSores.getGoal().getHome();//全场比分
             Integer wholeScoresAway = wholeSores.getGoal().getAway();//全场比分
-            log.info("15分钟比分编辑,全场比分 wholeScoresHome:{},wholeScoresAway:{}",wholeScoresHome,wholeScoresAway);
             Integer fifteenScoresHome = 0;
             Integer fifteenScoresAway = 0;
             List<Long> period15List = get15MinPeriod(period15);
-            log.info("15分钟比分编辑, period15List:{}",period15List);
             for(int i=0;i<period15List.size();i++){//获取15分钟阶段比分之和
                 FootballScores periodSores15 = allPeriodScores.get(period15List.get(i));
                 if(periodSores15 == null){
                     periodSores15 = FootballScores.createMinFootballScores();
                 }
-                log.info("15分钟比分编辑, 区间比分,periodSores15:{}",periodSores15.getGoal().doCountScoreStr());
                 fifteenScoresHome += periodSores15.getGoal().getHome();
                 fifteenScoresAway += periodSores15.getGoal().getAway();
             }
-            log.info("15分钟比分编辑,编辑比分 wholeScoresHome:{},wholeScoresAway:{}",wholeScoresHome,wholeScoresAway);
-            log.info("15分钟比分编辑,编辑比分 :{},:{},:{}",!(wholeScoresHome == fifteenScoresHome && wholeScoresAway == fifteenScoresAway),wholeScoresHome == fifteenScoresHome,wholeScoresAway == fifteenScoresAway);
-            if(!(Objects.equals(wholeScoresHome, fifteenScoresHome) && Objects.equals(wholeScoresAway, fifteenScoresAway))){
+            if(!(wholeScoresHome == fifteenScoresHome && wholeScoresAway == fifteenScoresAway)){
                 return Response.failed("失败，15分钟进球比分与总比分不一致，请检查。");
             }
         } else {
@@ -2596,7 +2584,7 @@ public class FootBallScoreServiceImpl implements FootBallScoreService {
         return returnList;
     }
 
-    public MatchScoresEventInfo getItemByVarEventCode(Long matchPeriodId, ThirdMatchInfo thirdMatchInfo, String possibleEventCode){
+    private MatchScoresEventInfo getItemByVarEventCode(Long matchPeriodId, ThirdMatchInfo thirdMatchInfo, String possibleEventCode){
         List<String> eventCodes = VAR_CONFIRM_EVENT_CODES.stream().map(PDEventCodeEnum::getEventCode).collect(Collectors.toList());
         if (StringUtils.isNotBlank(possibleEventCode)){
             eventCodes.add(possibleEventCode);
@@ -2718,8 +2706,6 @@ public class FootBallScoreServiceImpl implements FootBallScoreService {
             String cacheKey = matchEventInfoDTO.getHomeAway() + possibleEventCode + thirdMatchInfo.getId();
             redisService.set(cacheKey, cacheKey);
         }
-
-
         result = Pair.of(resNum, matchScoresEventInfo.getThirdEventId());
         return result;
     }

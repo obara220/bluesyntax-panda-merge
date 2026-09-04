@@ -214,22 +214,11 @@ public class SoldMessageToEventProcessor{
             upStandardMatchInfo.setId(standardMatchInfo.getId());
             //linkId长度兜底，因为数据库最大长度是60
             String newLinkId;
-            if (isReissue) {
-                linkId = linkId + "_ces";
-                String suffix = "_ces";
-                if(linkId.length() > linIdMaxSize){
-                    newLinkId = linkId.substring(0, linIdMaxSize - suffix.length()) + suffix;
-                    log.info("linkId=【{}】reissueEventInfo 补发事件下发,linkId超长,截取后linkId：{}", linkId,newLinkId);
-                }else{
-                    newLinkId = linkId;
-                }
-            } else {
-                if(linkId.length() > linIdMaxSize){
-                    newLinkId = linkId.substring(0,linIdMaxSize);
-                    log.info("linkId=【{}】reissueEventInfo 补发事件下发,linkId超长,截取后linkId：{}", linkId,newLinkId);
-                }else{
-                    newLinkId = linkId;
-                }
+            if(linkId.length() > linIdMaxSize){
+                newLinkId = linkId.substring(0,linIdMaxSize);
+                log.info("linkId=【{}】reissueEventInfo 补发事件下发,linkId超长,截取后linkId：{}", linkId,newLinkId);
+            }else{
+                newLinkId = linkId;
             }
 
             //事件中断标识

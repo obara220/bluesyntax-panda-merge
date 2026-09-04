@@ -129,9 +129,11 @@ public class DataSourceSwitchService {
         switchList.forEach(x -> marketCategorySellService.removeCache(standardMatchInfo.getId(),
                                                                       marketType,
                                                                       x.getMarketCategoryId()));
-        // NOTE:
-        // 赔率源（数据源）切换场景下需要保留原有水差配置（盘口/玩法/坑位等），否则会导致切换后水差被清零，货量持续出涨。
-        // 因此这里不再调用清水差逻辑；如需清水差应由显式“清除水差/关盘清理”等业务指令触发。
+        //清水差
+        diffService.delDiffByMatchIdAndCategoryList(linkId,
+                                                    standardSportMarketSell.getMatchInfoId(),
+                                                    categoryList,
+                                                    standardSportMarketSell.getSportId().intValue());
         //清除投注项赔率配置
         configMarketOddsStatusService.updateStatusByMatchIdAndCategoryIds(linkId,
                                                                           standardSportMarketSell.getMatchInfoId(),
@@ -178,14 +180,6 @@ public class DataSourceSwitchService {
                  cds.linkId,
                  cds.standardMatchInfo.getId(),
                  cds.categoryId,cds.internalOds,cds.internalTds);
-        if (cds.marketCategorySell != null
-                && DataSourceUtils.isSameDataSourceCode(cds.marketCategorySell.getDataSourceCode(), cds.internalTds)) {
-            log.info("linkId:{},matchId:{},categoryId:{}, switchCategory skip, already on target ds:{}, current:{}",
-                     cds.linkId, cds.standardMatchInfo.getId(), cds.categoryId,
-                     cds.internalTds, cds.marketCategorySell.getDataSourceCode());
-            cds.status = 0;
-            return;
-        }
         String dataSourceCode = cds.tds;
         MarketCategorySell marketCategorySell = new MarketCategorySell();
         marketCategorySell.setSrWeight((DataSourceCodeEnum.SR.code.equals(dataSourceCode) ? 1 : 0));
@@ -205,7 +199,11 @@ public class DataSourceSwitchService {
         standardSportMarketSellLogService.log(cds);
         //清除玩法开售表缓存
         marketCategorySellService.removeCache(cds.standardMatchInfo.getId(), cds.marketType, cds.categoryId);
-        // NOTE: 同 switchDataSource：赔率源切换需保留水差配置，不在此处清理。
+        //清水差
+        diffService.delDiffByMatchIdAndCategoryList(cds.linkId,
+                                                    cds.standardSportMarketSell.getMatchInfoId(),
+                                                    Collections.singletonList(cds.categoryId),
+                                                    cds.standardSportMarketSell.getSportId().intValue());
         //清除投注项赔率配置
         configMarketOddsStatusService.updateStatusByMatchIdAndCategoryIds(cds.linkId,
                                                                           cds.standardSportMarketSell.getMatchInfoId(),

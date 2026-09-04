@@ -33,7 +33,7 @@ import java.util.List;
 @Component
 public class SpareMatchEndSettleScoresConsumer {
     private static final String TOPIC = "MATCH_SETTLE_SCORES";
-    private static final String CONSUMER_GROUP = "scores-group2-MATCH_SETTLE_SCORES-NEW2";
+    private static final String CONSUMER_GROUP = "scores-group2-MATCH_SETTLE_SCORES-NEW";
 
     @Value("${slaveNamesrvAddr}")
     private String nameServers;

@@ -56,7 +56,6 @@ public class TradeMarketOddsApiServiceImpl extends BaseProcessor implements ITra
     @Lazy
     @Autowired
     private ThirdMatchMarketProcessor thirdMatchMarketProcessor;
-
     @Lazy
     @Autowired
     private StandardMarketOddsProducer standardMarketOddsProducer;
@@ -75,7 +74,6 @@ public class TradeMarketOddsApiServiceImpl extends BaseProcessor implements ITra
 
     @Autowired
     private StandardSportMarketMService standardSportMarketMService;
-
     @Autowired
     private StandardSportMarketCategoryService standardSportMarketCategoryService;
 
@@ -84,6 +82,7 @@ public class TradeMarketOddsApiServiceImpl extends BaseProcessor implements ITra
 
     @Autowired
     private StandardMatchMarketOddsLinkageProcessor standardMatchMarketOddsLinkageProcessor;
+
 
     @Override
     public Response putTradeMarketOdds(Request<StandardMatchMarketDTO> request) {
@@ -115,7 +114,8 @@ public class TradeMarketOddsApiServiceImpl extends BaseProcessor implements ITra
                 StandardMatchMarketMessage standardMatchMarketMessage = standardMarketOddsProducer.standardMarketOddsAsyncSend(request.getLinkId(), standardMatchInfo, sendStandardMarketMessageList, request.getDataSourceTime(),false);
                 //刷新缓存
                 //if (DataSourceCodeEnum.PA.name().equals(standardMatchInfo.getDataSourceCode())) {}
-                //toUpdateCacheOfMarket(request.getLinkId(), sendStandardMarketMessageList, standardMatchInfo);
+                //toUpdateCacheOfMarket(request.getLinkId(), standardMatchMarketMessage, standardMatchInfo);
+
                 return Response.success(standardMatchMarketMessage);
             }else{
                 //修改缓存开赛时间
@@ -123,12 +123,11 @@ public class TradeMarketOddsApiServiceImpl extends BaseProcessor implements ITra
                 String updatedKey = redisService.genNewHashKey(matchBeginStr, standardMatchInfo.getId().toString(), ConstantSystem.BUCKET_QUANTITY_SIXTY_FOUR);
                 redisService.hSet(updatedKey, standardMatchInfo.getId().toString(), standardMatchInfo.getBeginTime(),Integer.MAX_VALUE);
             }
-             //查询开售数据源
+            //查询开售数据源
             Integer marketType = standardMarketDTOList.get(0).getMarketType();
             String categoryRedisKey = Constant.REDIS_KEY.RONGHE_MARKET_CATEGORY_SELL + standardMatchInfo.getId() + "_" + marketType;
             Map<String, String> oldStringHashMap = redisService.hGetAll(categoryRedisKey);
-
-           //子玩法支持切换的玩法
+            //子玩法支持切换的玩法
             List<Long> switchModeChildCategory = MarginCategoryConfig.SWITCH_MODE_CHILD_CATEGORY.get(standardMatchInfo.getSportId());
             List<Long> modeChildCategory = CollectionUtils.isEmpty(switchModeChildCategory)? new ArrayList<>():switchModeChildCategory;
             //对所有盘口按照玩法分类，风控M模式可能存在一批数据有多个玩法
@@ -137,7 +136,6 @@ public class TradeMarketOddsApiServiceImpl extends BaseProcessor implements ITra
             standardMarketOddsProcessor(request, standardMatchInfoId, validStandardMarketDTOList, marketCategoryIdSet, standardMarketMap);
             //支持切换子玩法的总玩法
             Map<Long, List<StandardMarketDTO>>  standardMarketChildCategoryMap = standardMarketDTOList.stream().filter(s->modeChildCategory.contains(s.getMarketCategoryId())).collect(Collectors.groupingBy(StandardMarketDTO::getChildStandardCategoryId));
-            log.info("::{}::standardMarketChildCategoryMap:{}",request.getLinkId(),JSONObject.toJSONString(standardMarketChildCategoryMap));
             standardMarketOddsProcessor(request, standardMatchInfoId, validStandardMarketDTOList, marketCategoryIdSet, standardMarketChildCategoryMap);
             if (CollectionUtils.isEmpty(validStandardMarketDTOList)) {
                 log.info("::{}::putTradeMarketOdds error:{}", request.getLinkId(), "没有需求下发的盘口列表");
@@ -174,7 +172,7 @@ public class TradeMarketOddsApiServiceImpl extends BaseProcessor implements ITra
                         standardSportMarketOddsList.add(standardSportMarketOdds);
                     }
                 }
-                log.info("::{}::盘口最大最小值配置:{},赔率：{}", request.getLinkId(), JSON.toJSONString(configMarketTradeItemMap),JSONObject.toJSONString(standardSportMarket));
+                log.info("::{}::盘口最大最小值配置:{}", request.getLinkId(), JSON.toJSONString(configMarketTradeItemMap));
                 //数据组装及转换(按relationMarketId、relationMarketOddsId下发盘口、赔率)
                 StandardMarketMessage standardMarketMessage = convertMarketDataToMessage(standardSportMarket, standardSportMarketOddsList,request.getDataSourceTime());
                 standardMarketMessage.setChildMarketCategoryId(CategoryUtils.getChildCategoryId(request.getLinkId(),standardMarketMessage.getMarketCategoryId(),
@@ -190,7 +188,6 @@ public class TradeMarketOddsApiServiceImpl extends BaseProcessor implements ITra
                     Object o = redisService.get(key);
                     standardMarketMessage.setInternalDataSourceCode(null == o ? null : o.toString());
                 }*/
-                log.info("::{}::转换后赔率：{}", request.getLinkId(),JSONObject.toJSONString(standardMarketMessage));
                 if (null != standardMarketMessage.getPlaceNum()) {
                     //设置盘口位置id
                     standardMarketMessage.setPlaceNumId(standardSportMarket.getStandardMatchInfoId() + "_" + standardSportMarket.getMarketCategoryId() + "_" + standardMarketMessage.getChildMarketCategoryId() + "_"  + standardSportMarket.getPlaceNum());
@@ -201,16 +198,16 @@ public class TradeMarketOddsApiServiceImpl extends BaseProcessor implements ITra
                 } else {
                     standardMarketMessage.setPlaceNumStatus(0);
                 }
-                
-              //单球种玩法关闭
+
+            //单球种玩法关闭
                 StandardSportMarketCategory standardSportMarketCategory = standardSportMarketCategoryMap.get(standardMarketMessage.getMarketCategoryId()+"-"+standardMatchInfo.getSportId());
-                log.info("::{}::判断玩法是否开启, sportId:{},categoryId:{},standardSportMarketCategory{}",
-                		request.getLinkId(), standardMatchInfo.getSportId(),standardMarketMessage.getMarketCategoryId(),standardSportMarketCategory);
-                if (standardSportMarketCategory == null || Constant.SPORT_MARKET_CATEGORY.STATUS.INVALID.equals(standardSportMarketCategory.getStatus()))
-                {
-                	log.info("::{}::putTradeMarketOdds 玩法状态为关闭，关闭赛事盘口，标准赛事id:{},赛种id:{},玩法id:{}", request.getLinkId(), standardMatchInfo.getId(), standardMatchInfo.getSportId(), standardMarketMessage.getMarketCategoryId());
-                    standardMarketMessage.setStatus(Constant.SPORT_MARKET.STATUS.DEACTIVATED);
-                }
+            log.info("::{}::判断玩法是否开启, sportId:{},categoryId:{},standardSportMarketCategory{}",
+                    request.getLinkId(), standardMatchInfo.getSportId(),standardMarketMessage.getMarketCategoryId(),standardSportMarketCategory);
+            if (standardSportMarketCategory == null || Constant.SPORT_MARKET_CATEGORY.STATUS.INVALID.equals(standardSportMarketCategory.getStatus()))
+            {
+                log.info("::{}::putTradeMarketOdds 玩法状态为关闭，关闭赛事盘口，标准赛事id:{},赛种id:{},玩法id:{}", request.getLinkId(), standardMatchInfo.getId(), standardMatchInfo.getSportId(), standardMarketMessage.getMarketCategoryId());
+                standardMarketMessage.setStatus(Constant.SPORT_MARKET.STATUS.DEACTIVATED);
+            }
                 standardMarketMessage.setEndEdStatus(0);
                 //获取操盘的表现状态
                 Integer status = standardMarketMessage.getStatus();
@@ -246,19 +243,14 @@ public class TradeMarketOddsApiServiceImpl extends BaseProcessor implements ITra
                     scoreSettleSpMarketList.add(standardMarketMessage);
                 }
             });
-            //更新最后下发赔率缓存，防止addStandardMarketA用旧缓存覆盖修改后的赔率
-        log.info("::{}::thirdMatchMarketProcessor.saveTheLastMarketOddsToReids()===开始执行=== 更新最后下发赔率缓存，防止addStandardMarketA用旧缓存覆盖修改后的赔率，标准赛事id:{},赛种id:{},玩法id:{}", request.getLinkId(), standardMatchInfo.getId(), standardMatchInfo.getSportId(), marketCategoryIdSet);
-        thirdMatchMarketProcessor.saveTheLastMarketOddsToReids(request.getLinkId(), standardMatchInfo, marketCategoryIdSet, sendStandardMarketMessageList, request.getDataSourceTime(), false);
-        log.info("::{}::thirdMatchMarketProcessor.saveTheLastMarketOddsToReids===执行结束=== 更新最后下发赔率缓存，防止addStandardMarketA用旧缓存覆盖修改后的赔率，标准赛事id:{},赛种id:{},玩法id:{}", request.getLinkId(), standardMatchInfo.getId(), standardMatchInfo.getSportId(), marketCategoryIdSet);
-
-        //融合A模式子玩法下发
+            //融合A模式子玩法下发
             addStandardMarketA(request.getLinkId(), standardMatchInfo, sendStandardMarketMessageList, modeChildCategory);
             //-------------赔率下发-----------------
             //下发赔率
            standardMarketOddsProducer.standardMarketOddsAsyncSendByRisk(request.getLinkId(), standardMatchInfo, sendStandardMarketMessageList, request.getDataSourceTime(),false);
            //下发特殊玩法给结算
-           standardMarketOddsProducer.scoreSettleSpMarketAsyncSend(request.getLinkId(), standardMatchInfo, scoreSettleSpMarketList, request.getDataSourceTime());
-           //standardMarketMessageMDB(request.getLinkId(), standardMatchInfo, sendStandardMarketMessageList);
+            standardMarketOddsProducer.scoreSettleSpMarketAsyncSend(request.getLinkId(), standardMatchInfo, scoreSettleSpMarketList, request.getDataSourceTime());
+            standardMarketMessageMDB(request.getLinkId(), standardMatchInfo, sendStandardMarketMessageList);
            return Response.success();
     }
 
@@ -334,7 +326,7 @@ public class TradeMarketOddsApiServiceImpl extends BaseProcessor implements ITra
                     BeanUtils.copyProperties(standardMarketOddsDTO, standardSportMarketOdds);
                     standardSportMarketOdds.setId(IdWorker.getId());
                     standardSportMarketOdds.setRelationMarketId(standardSportMarket.getRelationMarketId());
-                    standardSportMarketOdds.setPaOddsValue(processOddsValueDecimals( linkId, standardMarketOddsDTO.getOddsValue()));
+                    standardSportMarketOdds.setPaOddsValue(processOddsValueDecimals(request.getLinkId(), standardMarketOddsDTO.getOddsValue()));
                     standardSportMarketOdds.setRelationMarketOddsId(Long.valueOf(standardMarketOddsDTO.getId()));
                     standardSportMarketOddsList.add(standardSportMarketOdds);
                 }
@@ -354,7 +346,7 @@ public class TradeMarketOddsApiServiceImpl extends BaseProcessor implements ITra
                         message.setActive(Constant.SPORT_MARKET.ODDS_STATUS.SUSPENDED);
                         message.setPaActiveReason("投注项赔率不合法，赔率小于1，投注项封盘");
                         log.info("::{}::processOutrightTradeMarketOdds赔率合法性校验，标准赛事id:{},统一盘口id:{},三方盘口源id:{},pa赔率:{}",
-                                linkId, standardMatchInfo.getId(), standardMarketMessage.getId(), standardMarketMessage.getThirdMarketSourceId(), message.getPaOddsValue());
+                                request.getLinkId(), standardMatchInfo.getId(), standardMarketMessage.getId(), standardMarketMessage.getThirdMarketSourceId(), message.getPaOddsValue());
                     }
                     Integer activeStatus = message.getActive();
                     if ( Constant.SPORT_MARKET.ODDS_STATUS.ACTIVE.equals(activeStatus) ) {
@@ -368,24 +360,20 @@ public class TradeMarketOddsApiServiceImpl extends BaseProcessor implements ITra
                     log.info("::{}::无开售投注项，盘口封盘, 盘口id:{}", linkId, standardMarketMessage.getId() );
                 }
             }
-            thirdMatchMarketProcessor.processOddsValueDecimals( linkId, standardMarketMessage, standardMatchInfo);
-            if ( null == standardMarketMessage.getNumberOfWinners() || standardMarketMessage.getNumberOfWinners() < 1 ) {
-                standardMarketMessage.setNumberOfWinners(1);
-            }
+            thirdMatchMarketProcessor.processOddsValueDecimals(request.getLinkId(), standardMarketMessage, standardMatchInfo);
             sendStandardMarketMessageList.add(standardMarketMessage);
             log.info("::{}::processOutrightTradeMarketOdds组装参数:{}", linkId, JSON.toJSONString(sendStandardMarketMessageList));
         }
-        // 刷新赔率
-        toUpdateCacheOfMarket(linkId, sendStandardMarketMessageList, standardMatchInfo);
+        toUpdateCacheOfMarket(request.getLinkId(), sendStandardMarketMessageList, standardMatchInfo);
         standardMatchMarketOddsLinkageProcessor.championMarketOddsMainLinkage(linkId, standardMatchInfo, sendStandardMarketMessageList);
     }
 
     /**
      * 刷新盘口的缓存数据
      */
-    public void toUpdateCacheOfMarket(String linkId, List<StandardMarketMessage> sendStandardMarketMessageList, StandardMatchInfoDetail standardMatchInfo)
+    private void toUpdateCacheOfMarket(String linkId, List<StandardMarketMessage> sendStandardMarketMessageList, StandardMatchInfoDetail standardMatchInfo)
     {
-        for (StandardMarketMessage standardMarketMessage : sendStandardMarketMessageList) {
+        for ( StandardMarketMessage standardMarketMessage : sendStandardMarketMessageList ) {
             log.info("::{}:: putTradeMarketOdds toUpdateCacheOfMarket,StandardMarketMessage:{}", linkId, JSON.toJSONString(standardMarketMessage));
             StandardSportMarket standardSportMarket = new StandardSportMarket();
             BeanUtils.copyProperties(standardMarketMessage, standardSportMarket);
@@ -397,8 +385,8 @@ public class TradeMarketOddsApiServiceImpl extends BaseProcessor implements ITra
                 BeanUtils.copyProperties(standardMarketOddsMessage, standardSportMarketOdds);
                 standardSportMarketOddsList.add(standardSportMarketOdds);
             }
-            StandardMarketDataMessage standardMarketDataMessage = thirdMatchMarketProcessor.convertToStandardMarketDataMessage(
-                    standardSportMarketOddsList, standardSportMarket,TimeUtils.millsSecondsEast8ZoneGmt()-10*1000);
+            StandardMarketDataMessage standardMarketDataMessage = thirdMatchMarketProcessor.convertToStandardMarketDataMessage(standardSportMarketOddsList, standardSportMarket,TimeUtils.millsSecondsEast8ZoneGmt()-10*1000);
+
             standardMarketDataMessage.setRelationMarketId(standardMarketMessage.getId());
             standardMarketDataMessage.setStandardMatchInfoId(standardMatchInfo.getId());
             log.info("::{}:: putTradeMarketOdds toUpdateCacheOfMarket,standardMarketDataMessage:{}", linkId, JSON.toJSONString(standardMarketDataMessage) );
@@ -407,8 +395,6 @@ public class TradeMarketOddsApiServiceImpl extends BaseProcessor implements ITra
             redisService.hSet(marketKey, standardMarketDataMessage.getRelationMarketId().toString(), standardMarketDataMessage, RedisConfig.REDIS_YEAR_TIME);
         }
     }
-
-
 
     /**
      * 数据组装及转换(按relationMarketId、relationMarketOddsId下发盘口、赔率)
@@ -466,7 +452,7 @@ public class TradeMarketOddsApiServiceImpl extends BaseProcessor implements ITra
      */
     public void standardMarketMessageMDB(String linkId, StandardMatchInfo standardMatchInfo, List<StandardMarketMessage> standardMarketMessageList) {
         if (CollectionUtils.isEmpty(standardMarketMessageList) && !standardMatchInfo.getSportId().equals(StandardSportTypeEnum.FootBall.code) &&
-        		!standardMatchInfo.getSportId().equals(StandardSportTypeEnum.Badminton.code) && !standardMatchInfo.getSportId().equals(StandardSportTypeEnum.Soccer.code)) {
+        		!standardMatchInfo.getSportId().equals(StandardSportTypeEnum.Badminton.code)) {
             return;
         }
         List<StandardSportMarketM> insertList = new ArrayList<>();

@@ -57,10 +57,10 @@ public class ThirdRankingInfoQueryApiImpl extends BaseProcessor implements IThir
     public Response<PageModel<List<ThirdSportTeamRankingBO>>> queryThirdSportTeamRanking(Request<PageModel<QueryThirdRankingInfoDTO>> request){
         long beginTime = System.currentTimeMillis();
         Response response = Response.success();
-        log.info("【queryThirdSportTeamRanking】【::"+request.getLinkId()+"::】分页同步三方联赛球队榜单数据开始,入参：{}",JSON.toJSONString(request.getData()));
+        log.info("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdSportTeamRanking】【::"+request.getLinkId()+"::】分页同步三方联赛球队榜单数据开始,入参：{}",JSON.toJSONString(request.getData()));
         QueryThirdRankingInfoDTO data = request.getData().getData();
         if(null == data.getBeginTime() && StringUtils.isBlank(data.getSeasonId()) && StringUtils.isBlank(data.getThirdTournamentSourceId())){
-            log.info("【queryThirdSportTeamRanking】【::"+request.getLinkId()+"::】传入参数beginTime,seasonId,thirdTournamentSourceId不能同时为空！");
+            log.info("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdSportTeamRanking】【::"+request.getLinkId()+"::】传入参数beginTime,seasonId,thirdTournamentSourceId不能同时为空！");
             response.setCode(ResultCode.VALIDATE_FAILED.getCode());
             response.setMsg("传入参数beginTime,seasonId,thirdTournamentSourceId不能同时为空！");
             return response;
@@ -108,11 +108,11 @@ public class ThirdRankingInfoQueryApiImpl extends BaseProcessor implements IThir
                     //获取三方联赛信息
                     ThirdSportTournament thirdSportTournament = thirdTournamentSourceId2Tournament.get(oldRanking.getDataSourceCode() + FIX + oldRanking.getSportId() + FIX + oldRanking.getThirdTournamentSourceId());
 //                if(Objects.isNull(thirdSportTournament) || null == thirdSportTournament.getReferenceId() || Long.valueOf(ZERO).equals(thirdSportTournament.getReferenceId())){
-//                    log.info("【queryThirdSportTeamRanking】【::"+request.getLinkId()+"::】分页同步三方联赛球队榜单数据,当前三方联赛未关联标准联赛,{}",JSON.toJSONString(thirdSportTournament));
+//                    log.info("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdSportTeamRanking】【::"+request.getLinkId()+"::】分页同步三方联赛球队榜单数据,当前三方联赛未关联标准联赛,{}",JSON.toJSONString(thirdSportTournament));
 //                    continue;
 //                }
                     if(Objects.isNull(thirdSportTournament)){
-                        log.info("【queryThirdSportTeamRanking】【::"+request.getLinkId()+"::】分页同步三方联赛球队榜单数据,当前三方联赛数据为空,联赛源ID：{}",oldRanking.getThirdTournamentSourceId());
+                        log.info("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdSportTeamRanking】【::"+request.getLinkId()+"::】分页同步三方联赛球队榜单数据,当前三方联赛数据为空,联赛源ID：{}",oldRanking.getThirdTournamentSourceId());
                         continue;
                     }
                     boRanking.setStandardTournamentId(thirdSportTournament.getReferenceId());
@@ -150,7 +150,7 @@ public class ThirdRankingInfoQueryApiImpl extends BaseProcessor implements IThir
                         boRanking.setTeamNameIl8nList(getI18nItemBOList(i18nItemDTOList));
                     }
                     resList.add(boRanking);
-                    log.info("【queryThirdSportTeamRanking】【::"+request.getLinkId()+"::】分页同步三方联赛球队榜单数据={}" ,JSON.toJSONString(boRanking));
+                    log.info("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdSportTeamRanking】【::"+request.getLinkId()+"::】分页同步三方联赛球队榜单数据={}" ,JSON.toJSONString(boRanking));
 //                    log.info("【测试环境调试专用日志】【"+ PROJECT_ID_NOREALTIME +" ：queryThirdSportTeamRanking】【::"+request.getLinkId()+"::】同步三方联赛球队榜单数据={}" ,JSON.toJSONString(boRanking));
                 }catch (Exception e){
                     log.error("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdSportTeamRanking】【::"+request.getLinkId()+"::】分页同步三方联赛球队榜单数据异常,源联赛ID="+oldRanking.getThirdTournamentSourceId()+",Exception:",e);
@@ -158,7 +158,7 @@ public class ThirdRankingInfoQueryApiImpl extends BaseProcessor implements IThir
             }
             response.setData(pageModel);
             response.setDataSourceTime(System.currentTimeMillis() - beginTime);
-            log.info("【queryThirdSportTeamRanking】【::"+request.getLinkId()+"::】分页同步三方联赛球队榜单数据结束,返回结果 ：{},总条数 ：{}" ,JSON.toJSONString(response),resList.size());
+            log.info("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdSportTeamRanking】【::"+request.getLinkId()+"::】分页同步三方联赛球队榜单数据结束,返回结果 ：{},总条数 ：{}" ,JSON.toJSONString(response),resList.size());
             pageModel.setData(resList);
         }else{
             response.setCode(ResultCode.VALIDATE_FAILED.getCode());
@@ -175,10 +175,10 @@ public class ThirdRankingInfoQueryApiImpl extends BaseProcessor implements IThir
     public Response<PageModel<List<ThirdSportPlayerRankingBO>>> queryThirdSportPlayerRanking(Request<PageModel<QueryThirdRankingInfoDTO>> request){
         long beginTime = System.currentTimeMillis();
         Response response = Response.success();
-        log.info("【queryThirdSportPlayerRanking】【::"+request.getLinkId()+"::】分页同步三方联赛球员榜单数据开始,入参：{}",JSON.toJSONString(request.getData()));
+        log.info("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdSportPlayerRanking】【::"+request.getLinkId()+"::】分页同步三方联赛球员榜单数据开始,入参：{}",JSON.toJSONString(request.getData()));
         QueryThirdRankingInfoDTO data = request.getData().getData();
         if(null == data.getBeginTime() && StringUtils.isBlank(data.getSeasonId()) && StringUtils.isBlank(data.getThirdTournamentSourceId())){
-            log.info("【queryThirdSportPlayerRanking】【::"+request.getLinkId()+"::】传入参数beginTime,seasonId,thirdTournamentSourceId不能同时为空！");
+            log.info("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdSportPlayerRanking】【::"+request.getLinkId()+"::】传入参数beginTime,seasonId,thirdTournamentSourceId不能同时为空！");
             response.setCode(ResultCode.VALIDATE_FAILED.getCode());
             response.setMsg("传入参数beginTime,seasonId,thirdTournamentSourceId不能同时为空！");
             return response;
@@ -226,7 +226,7 @@ public class ThirdRankingInfoQueryApiImpl extends BaseProcessor implements IThir
                     //获取三方联赛信息
                     ThirdSportTournament thirdSportTournament = thirdTournamentSourceId2Tournament.get(dataSourceCode + FIX + oldRanking.getSportId() + FIX + oldRanking.getThirdTournamentSourceId());
                     if(Objects.isNull(thirdSportTournament)){
-                        log.info("【queryThirdSportPlayerRanking】【::"+request.getLinkId()+"::】分页同步三方联赛球员榜单数据,当前三方联赛数据为空,联赛源ID：{}",oldRanking.getThirdTournamentSourceId());
+                        log.info("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdSportPlayerRanking】【::"+request.getLinkId()+"::】分页同步三方联赛球员榜单数据,当前三方联赛数据为空,联赛源ID：{}",oldRanking.getThirdTournamentSourceId());
                         continue;
                     }
                     boRanking.setStandardTournamentId(thirdSportTournament.getReferenceId());
@@ -263,14 +263,14 @@ public class ThirdRankingInfoQueryApiImpl extends BaseProcessor implements IThir
                         boRanking.setTeamNameIl8nList(getI18nItemBOList(i18nItemDTOList));
                     }
                     resList.add(boRanking);
-                    log.info("【queryThirdSportPlayerRanking】【::"+request.getLinkId()+"::】分页同步三方联赛球员榜单数据 ：{},源联赛ID：{}" ,boRanking.getId() ,boRanking.getThirdTournamentSourceId());
+                    log.info("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdSportPlayerRanking】【::"+request.getLinkId()+"::】分页同步三方联赛球员榜单数据 ：{},源联赛ID：{}" ,boRanking.getId() ,boRanking.getThirdTournamentSourceId());
                 }catch (Exception e){
                     log.error("【"+ PROJECT_ID_NOREALTIME +" ：getThirdMatchHistoryStatisticsPage】【::"+request.getLinkId()+"::】分页同步三方联赛球员榜单数据异常,源联赛ID="+oldRanking.getThirdTournamentSourceId()+",Exception:",e);
                 }
             }
             response.setData(pageModel);
             response.setDataSourceTime(System.currentTimeMillis() - beginTime);
-            log.info("【queryThirdSportPlayerRanking】【::"+request.getLinkId()+"::】分页同步三方联赛球员榜单数据结束,返回结果 ：{},总条数 ：{}" ,JSON.toJSONString(response),resList.size());
+            log.info("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdSportPlayerRanking】【::"+request.getLinkId()+"::】分页同步三方联赛球员榜单数据结束,返回结果 ：{},总条数 ：{}" ,JSON.toJSONString(response),resList.size());
             pageModel.setData(resList);
         }else{
             response.setCode(ResultCode.VALIDATE_FAILED.getCode());
@@ -287,10 +287,10 @@ public class ThirdRankingInfoQueryApiImpl extends BaseProcessor implements IThir
     public Response<PageModel<List<ThirdMatchHistoryExpressionBO>>> queryThirdMatchHistoryExpression(Request<PageModel<QueryThirdRankingInfoDTO>> request){
         long beginTime = System.currentTimeMillis();
         Response response = Response.success();
-        log.info("【queryThirdMatchHistoryExpression】【::"+request.getLinkId()+"::】分页同步三方联赛球队历史表现数据开始,入参：{}",JSON.toJSONString(request.getData()));
+        log.info("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdMatchHistoryExpression】【::"+request.getLinkId()+"::】分页同步三方联赛球队历史表现数据开始,入参：{}",JSON.toJSONString(request.getData()));
         QueryThirdRankingInfoDTO data = request.getData().getData();
         if(null == data.getBeginTime() && StringUtils.isBlank(data.getSeasonId()) && StringUtils.isBlank(data.getThirdTournamentSourceId())){
-            log.info("【queryThirdMatchHistoryExpression】【::"+request.getLinkId()+"::】传入参数beginTime,seasonId,thirdTournamentSourceId不能同时为空！");
+            log.info("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdMatchHistoryExpression】【::"+request.getLinkId()+"::】传入参数beginTime,seasonId,thirdTournamentSourceId不能同时为空！");
             response.setCode(ResultCode.VALIDATE_FAILED.getCode());
             response.setMsg("传入参数beginTime,seasonId,thirdTournamentSourceId不能同时为空！");
             return response;
@@ -342,7 +342,7 @@ public class ThirdRankingInfoQueryApiImpl extends BaseProcessor implements IThir
                     //获取三方联赛信息
                     ThirdSportTournament thirdSportTournament = thirdTournamentSourceId2Tournament.get(oldItem.getDataSourceCode() + FIX + oldItem.getSportId() + FIX + oldItem.getThirdTournamentSourceId());
                     if(Objects.isNull(thirdSportTournament)){
-                        log.info("【queryThirdMatchHistoryExpression】【::"+request.getLinkId()+"::】分页同步三方联赛球队历史表现数据,,当前三方联赛数据为空,联赛源ID：{}",oldItem.getThirdTournamentSourceId());
+                        log.info("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdMatchHistoryExpression】【::"+request.getLinkId()+"::】分页同步三方联赛球队历史表现数据,,当前三方联赛数据为空,联赛源ID：{}",oldItem.getThirdTournamentSourceId());
                         continue;
                     }
                     newItem.setStandardTournamentId(thirdSportTournament.getReferenceId());
@@ -380,7 +380,7 @@ public class ThirdRankingInfoQueryApiImpl extends BaseProcessor implements IThir
                         newItem.setTeamNameIl8nList(getI18nItemBOList(i18nItemDTOList));
                     }
                     resList.add(newItem);
-                    log.info("【queryThirdMatchHistoryExpression】【::"+request.getLinkId()+"::】分页同步三方联赛球队历史表现数据 ：{},源联赛ID：{}" ,newItem.getId(),newItem.getThirdTournamentSourceId());
+                    log.info("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdMatchHistoryExpression】【::"+request.getLinkId()+"::】分页同步三方联赛球队历史表现数据 ：{},源联赛ID：{}" ,newItem.getId(),newItem.getThirdTournamentSourceId());
 //                    log.info("【测试环境调试专用日志】【"+ PROJECT_ID_NOREALTIME +" ：queryThirdMatchHistoryExpression】【::"+request.getLinkId()+"::】同步三方联赛球队历史表现数据={}" ,JSON.toJSONString(newItem));
                 }catch (Exception e){
                     log.error("【"+ PROJECT_ID_NOREALTIME +" ：getThirdMatchHistoryStatisticsPage】【::"+request.getLinkId()+"::】分页同步三方联赛球队历史表现数据异常,源联赛ID="+oldItem.getThirdTournamentSourceId()+",Exception:",e);
@@ -393,9 +393,9 @@ public class ThirdRankingInfoQueryApiImpl extends BaseProcessor implements IThir
                 response.setData(null);
             }
             if (removeIds.size()>0) {
-                log.info("【queryThirdMatchFrontStatisticsPage】【::"+request.getLinkId()+"::】分页同步三方联赛球队历史表现数据过滤移除数据,{}" ,JSON.toJSONString(removeIds));
+                log.info("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdMatchFrontStatisticsPage】【::"+request.getLinkId()+"::】分页同步三方联赛球队历史表现数据过滤移除数据,{}" ,JSON.toJSONString(removeIds));
             }
-            log.info("【queryThirdMatchHistoryExpression】【::"+request.getLinkId()+"::】分页同步三方联赛球队历史表现数据结束,返回结果 ：{},总条数 ：{}" ,JSON.toJSONString(response),resList.size());
+            log.info("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdMatchHistoryExpression】【::"+request.getLinkId()+"::】分页同步三方联赛球队历史表现数据结束,返回结果 ：{},总条数 ：{}" ,JSON.toJSONString(response),resList.size());
             pageModel.setData(resList);
         }else{
             response.setCode(ResultCode.VALIDATE_FAILED.getCode());
@@ -412,10 +412,10 @@ public class ThirdRankingInfoQueryApiImpl extends BaseProcessor implements IThir
     public Response<PageModel<List<ThirdMatchSeasonStatisticsBO>>> queryThirdMatchSeasonStatistics(Request<PageModel<QueryThirdRankingInfoDTO>> request){
         long beginTime = System.currentTimeMillis();
         Response response = Response.success();
-        log.info("【queryThirdMatchSeasonStatistics】【::"+request.getLinkId()+"::】分页同步三方联赛赛季统计数据开始,入参：{}",JSON.toJSONString(request.getData()));
+        log.info("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdMatchSeasonStatistics】【::"+request.getLinkId()+"::】分页同步三方联赛赛季统计数据开始,入参：{}",JSON.toJSONString(request.getData()));
         QueryThirdRankingInfoDTO data = request.getData().getData();
         if(null == data.getBeginTime() && StringUtils.isBlank(data.getSeasonId()) && StringUtils.isBlank(data.getThirdTournamentSourceId())){
-            log.info("【queryThirdMatchSeasonStatistics】【::"+request.getLinkId()+"::】传入参数beginTime,seasonId,thirdTournamentSourceId不能同时为空！");
+            log.info("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdMatchSeasonStatistics】【::"+request.getLinkId()+"::】传入参数beginTime,seasonId,thirdTournamentSourceId不能同时为空！");
             response.setCode(ResultCode.VALIDATE_FAILED.getCode());
             response.setMsg("传入参数beginTime,seasonId,thirdTournamentSourceId不能同时为空！");
             return response;
@@ -453,13 +453,13 @@ public class ThirdRankingInfoQueryApiImpl extends BaseProcessor implements IThir
                     //获取三方联赛信息
                     ThirdSportTournament thirdSportTournament = thirdTournamentSourceId2Tournament.get(oldItem.getDataSourceCode() + FIX + oldItem.getSportId() + FIX + oldItem.getThirdTournamentSourceId());
                     if(Objects.isNull(thirdSportTournament)){
-                        log.info("【queryThirdMatchSeasonStatistics】【::"+request.getLinkId()+"::】分页同步三方联赛赛季统计数据,联赛源ID：{}",oldItem.getThirdTournamentSourceId());
+                        log.info("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdMatchSeasonStatistics】【::"+request.getLinkId()+"::】分页同步三方联赛赛季统计数据,联赛源ID：{}",oldItem.getThirdTournamentSourceId());
                         continue;
                     }
                     newItem.setStandardTournamentId(thirdSportTournament.getReferenceId());
                     newItem.setStandardTournamentNameCode(standardTournamentId2NameCode.get(thirdSportTournament.getReferenceId()));
                     resList.add(newItem);
-                    log.info("【queryThirdMatchSeasonStatistics】【::"+request.getLinkId()+"::】分页同步三方联赛赛季统计数据 ：{},源联赛ID：{}" ,newItem.getId(),newItem.getThirdTournamentSourceId());
+                    log.info("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdMatchSeasonStatistics】【::"+request.getLinkId()+"::】分页同步三方联赛赛季统计数据 ：{},源联赛ID：{}" ,newItem.getId(),newItem.getThirdTournamentSourceId());
 //                    log.info("【测试环境调试专用日志】【"+ PROJECT_ID_NOREALTIME +" ：queryThirdMatchSeasonStatistics】【::"+request.getLinkId()+"::】同步三方联赛赛季统计数据={}" ,JSON.toJSONString(newItem));
                 }catch (Exception e){
                     log.error("【"+ PROJECT_ID_NOREALTIME +" ：getThirdMatchHistoryStatisticsPage】【::"+request.getLinkId()+"::】分页同步三方联赛赛季统计数据异常,源联赛ID="+oldItem.getThirdTournamentSourceId()+",Exception:",e);
@@ -472,9 +472,9 @@ public class ThirdRankingInfoQueryApiImpl extends BaseProcessor implements IThir
                 response.setData(null);
             }
             if (removeIds.size()>0) {
-                log.info("【queryThirdMatchFrontStatisticsPage】【::"+request.getLinkId()+"::】分页同步三方联赛赛季统计数据结束过滤移除数据,{}" ,JSON.toJSONString(removeIds));
+                log.info("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdMatchFrontStatisticsPage】【::"+request.getLinkId()+"::】分页同步三方联赛赛季统计数据结束过滤移除数据,{}" ,JSON.toJSONString(removeIds));
             }
-            log.info("【queryThirdMatchSeasonStatistics】【::"+request.getLinkId()+"::】分页同步三方联赛赛季统计数据结束,返回结果 ：{},总条数 ：{}" ,JSON.toJSONString(response),resList.size());
+            log.info("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdMatchSeasonStatistics】【::"+request.getLinkId()+"::】分页同步三方联赛赛季统计数据结束,返回结果 ：{},总条数 ：{}" ,JSON.toJSONString(response),resList.size());
             pageModel.setData(resList);
         }else{
             response.setCode(ResultCode.VALIDATE_FAILED.getCode());

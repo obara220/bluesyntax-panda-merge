@@ -2,6 +2,7 @@ package com.panda.merge.task;
 
 import cn.hutool.crypto.digest.DigestUtil;
 import com.alibaba.fastjson.JSONObject;
+import com.panda.merge.common.BaseProcessor;
 import com.panda.merge.common.enums.Constant;
 import com.panda.merge.component.UUIdUtils;
 import com.panda.merge.config.RedisConfig;
@@ -13,6 +14,7 @@ import com.panda.merge.rocketmq.processor.ThirdMatchMarketProcessor;
 import com.panda.merge.rocketmq.producer.StandardMarketOddsProducer;
 import com.panda.merge.service.ConfigMatchStatusService;
 import com.panda.merge.service.ThirdSportMarketOddsNewService;
+import com.panda.merge.service.ThirdSportMarketOddsService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -25,12 +27,13 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.PostConstruct;
 import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.util.*;
 
 
 @Slf4j
 @Component
-public class CloseConvertMarketTask extends BaseTask {
+public class CloseConvertMarketTask extends BaseProcessor {
     String HOST_ADDRESS_100 = "";
     @Autowired
     RedisService redisService;
@@ -48,10 +51,50 @@ public class CloseConvertMarketTask extends BaseTask {
     @PostConstruct
     public void initAddress() {
         if (StringUtils.isEmpty(HOST_ADDRESS_100)) {
-            InetAddress address = getLocalHostExactAddress();
+            InetAddress address = null;
+            try {
+                address = getLocalHostExactAddress();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             HOST_ADDRESS_100 = address.getHostAddress();
             redisService.set(Constant.REDIS_KEY.RONGHE_LOCK100, HOST_ADDRESS_100, RedisConfig.REDIS_YEAR_TIME);
         }
+    }
+
+    public static InetAddress getLocalHostExactAddress() {
+        try {
+            InetAddress candidateAddress = null;
+
+            Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
+            while (networkInterfaces.hasMoreElements()) {
+                NetworkInterface iface = networkInterfaces.nextElement();
+                // 该网卡接口下的ip会有多个，也需要一个个的遍历，找到自己所需要的
+                for (Enumeration<InetAddress> inetAddrs = iface.getInetAddresses(); inetAddrs.hasMoreElements(); ) {
+                    InetAddress inetAddr = inetAddrs.nextElement();
+                    // 排除loopback回环类型地址（不管是IPv4还是IPv6 只要是回环地址都会返回true）
+                    if (!inetAddr.isLoopbackAddress()) {
+                        if (inetAddr.isSiteLocalAddress()) {
+                            // 如果是site-local地址，就是它了 就是我们要找的
+                            // ~~~~~~~~~~~~~绝大部分情况下都会在此处返回你的ip地址值~~~~~~~~~~~~~
+                            return inetAddr;
+                        }
+
+                        // 若不是site-local地址 那就记录下该地址当作候选
+                        if (candidateAddress == null) {
+                            candidateAddress = inetAddr;
+                        }
+
+                    }
+                }
+            }
+
+            // 如果出去loopback回环地之外无其它地址了，那就回退到原始方案吧
+            return candidateAddress == null ? InetAddress.getLocalHost() : candidateAddress;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 
@@ -157,7 +200,7 @@ public class CloseConvertMarketTask extends BaseTask {
                         x.setThirdMarketSourceStatus(Constant.SPORT_MARKET.STATUS.DEACTIVATED);
                         x.setStatus(Constant.SPORT_MARKET.STATUS.DEACTIVATED);
                         //获取当前数据源缓存中所有的盘口
-                        String redisKey = DigestUtil.md5Hex(Constant.REDIS_KEY.RONGHE_STANDARD_CATEGORY_MARKET + matchId + "_" + x.getDataSourceCode() + "_" + x.getMarketCategoryId());
+                        String redisKey = DigestUtil.md5Hex(Constant.REDIS_KEY.RONGHE_STANDARD_CATEGORY_MARKET + matchId + "_" + x.getDataSourceCode()+"_" +x.getMarketCategoryId());
                         redisService.hSet(redisKey, x.getRelationMarketId().toString(), x, thirdMatchMarketProcessor.marketCacheTime(match.getBeginTime()));
                         clos.add(x);
                     }
@@ -165,7 +208,7 @@ public class CloseConvertMarketTask extends BaseTask {
                 Set<Long> marketCategoryIdSet = new HashSet<>();
                 //根据当前标准玩法对应数据源过滤除最终下发盘口
                 Map<String, StandardMarketDataMessage> stringStandardMarketDataMessageMap = new HashMap<>();
-                int oddsLive = thirdMatchMarketProcessor.isOddsLive(matchId);
+                int oddsLive = isOddsLive(matchId);
                 String categoryRedisKey = Constant.REDIS_KEY.RONGHE_MARKET_CATEGORY_SELL + matchId + "_" + oddsLive;
                 Map<String, String> stringHashMap = redisService.hGetAll(categoryRedisKey);
                 stringHashMap.values().stream().distinct().forEach(dataSourceCode -> {

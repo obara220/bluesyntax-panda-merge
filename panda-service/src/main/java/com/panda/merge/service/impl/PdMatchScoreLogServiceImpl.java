@@ -17,7 +17,6 @@ import com.panda.merge.util.CategoryUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -41,7 +40,6 @@ public class PdMatchScoreLogServiceImpl implements PdMatchScoreLogService {
 
 
     @Override
-    @Async("LogRecordExecutor")
     public void updateMarketStatusLog(TradeMarketConfigDTO tradeMarketConfigDTO) {
 
         if (tradeMarketConfigDTO.getMarketStatus() == null) {

@@ -16,10 +16,8 @@ import java.util.List;
 @Service
 @Slf4j
 public class MatchSettleWsProducer {
-
     @Autowired
     private RocketMQTemplate rocketMqTemplate;
-
     public void pushStandardSettleScores(List list,Long standardMatchId,String eventCode){
         StandardSettleScoresPushDto dto =new StandardSettleScoresPushDto();
         dto.setData(list);
@@ -33,7 +31,6 @@ public class MatchSettleWsProducer {
         rocketMqTemplate.send("MATCH_SETTLE_SCORES_PUSH:" +standardMatchId, builder.build());
         log.info("::{}::开始组装结算比分下发,topic:MATCH_SETTLE_SCORES_PUSH,request={}", standardMatchId, JSON.toJSONString(reqMessage));
     }
-
     public void pushStandardSettleEvent(List list,Long standardMatchId,String eventCode){
         StandardSettleScoresPushDto dto =new StandardSettleScoresPushDto();
         dto.setStandardMatchId(standardMatchId);
@@ -87,7 +84,6 @@ public class MatchSettleWsProducer {
         rocketMqTemplate.send("GLOBAL_AUTO_SETTLE_STATUS_PUSH:" +dto.getStandardMatchId(), builder.build());
         log.info("::{}::开始推送数据商自动结算开关状态,topic:GLOBAL_AUTO_SETTLE_STATUS_PUSH,request={}", dto.getStandardMatchId(), JSON.toJSONString(reqMessage));
     }
-
     /**
      * 特殊玩法的结算推送
      * */
@@ -110,5 +106,4 @@ public class MatchSettleWsProducer {
         rocketMqTemplate.send("MATCH_SETTLE_ROLL_BACK_STATUS_PUSH:" +dto.getStandardMatchId(), builder.build());
         log.info("::{}::开始推送赛事回滚状态,topic:MATCH_SETTLE_ROLL_BACK_STATUS_PUSH,request={}", dto.getStandardMatchId(), JSON.toJSONString(reqMessage));
     }
-
 }

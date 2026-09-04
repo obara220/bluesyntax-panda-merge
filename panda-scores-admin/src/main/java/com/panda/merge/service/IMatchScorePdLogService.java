@@ -13,7 +13,6 @@ import com.panda.merge.model.MatchScoresEventInfo;
 import com.panda.merge.model.MatchScoresInfo;
 import com.panda.merge.model.MatchTimeInfo;
 import com.panda.merge.model.StandardMatchInfo;
-import com.panda.merge.snooker.dto.MatchCommonLogDto;
 
 import java.util.Map;
 
@@ -160,8 +159,6 @@ public interface IMatchScorePdLogService {
      * @param changeMatchStatus
      */
     void setMatchEndLog(MatchScoreAndTimeVo matchScoreAndTimeVo, ChangeMatchStatusDto changeMatchStatus);
-
-    void setMatchCommonLog(MatchScoreAndTimeVo matchScoreAndTimeVo, MatchCommonLogDto matchCommonLogDto);
 
     /**
      * 记录删除赛事事件，区分事件类型：进球、黄牌、角球等

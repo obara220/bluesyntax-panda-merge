@@ -1,8 +1,10 @@
 package com.panda.merge.api;
 
 import com.panda.merge.dto.Response;
+import com.panda.merge.dto.SettleQueryDTO;
 import com.panda.merge.dto.advertise.MatchSettleSwitcherDto;
 import com.panda.merge.dto.settle.*;
+import com.panda.merge.model.MatchSettleEvent;
 import com.panda.merge.model.MatchSettleInfo;
 import com.panda.merge.model.MatchSettleScore;
 

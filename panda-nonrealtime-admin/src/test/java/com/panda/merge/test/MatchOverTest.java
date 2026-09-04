@@ -54,10 +54,4 @@ public class MatchOverTest {
         matchOverBaseMethod.standardMatchInfoListProcessOver(standardMatchInfoList.subList(0,10));
     }
 
-    @Test
-    public void testMatchOverByHourJob(){
-        String param = "{\"4\":\"1,2,5,8,11,12\",\"12\":\"10\",\"24\":\"4,6,9,13\",\"48\":\"3\",\"168\":\"7\"}";
-        matchOverByHourJob.execute(param);
-    }
-
 }

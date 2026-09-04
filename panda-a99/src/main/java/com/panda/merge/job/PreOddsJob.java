@@ -48,7 +48,7 @@ public class PreOddsJob extends IJobHandler {
     @Autowired
     private A99MarketOddsCommon marketOddsCommon;
 
-    private String cronExpression = "0/15 * * * * ?";
+    private String cronExpression = "0/30 * * * * ?";
 
     public void updateCronExpression(String newCron){
         this.cronExpression = newCron;

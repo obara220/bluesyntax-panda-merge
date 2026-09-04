@@ -86,32 +86,4 @@
             #{userId, jdbcType=VARCHAR}
         </foreach>
     </delete>
-
-    <select id="selectKeyboardByUserIdListAndSportId" resultType="com.panda.merge.model.UserKeyboardSet">
-        select
-            id,
-            sport_id as sportId,
-            user_id as userId,
-            user_name as userName,
-            keyboard_info as keyboardInfo,
-            create_time as createTime,
-            modify_time as modifyTime,
-            create_user as createUser,
-            modify_user as modifyUser
-        from football_keyboard_set
-        where sport_id = #{sportId, jdbcType=BIGINT}
-        and user_id in
-        <foreach collection="userIds" item="userId" open="(" close=")" separator=",">
-            #{userId, jdbcType=VARCHAR}
-        </foreach>
-    </select>
-
-    <delete id="deleteKeyboardByUserIdListAndSportId">
-        delete from football_keyboard_set
-        where sport_id = #{sportId, jdbcType=BIGINT}
-        and user_id in
-        <foreach collection="userIds" item="userId" open="(" close=")" separator=",">
-            #{userId, jdbcType=VARCHAR}
-        </foreach>
-    </delete>
 </mapper>

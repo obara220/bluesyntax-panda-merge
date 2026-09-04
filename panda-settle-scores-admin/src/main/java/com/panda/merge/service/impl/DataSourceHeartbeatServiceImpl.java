@@ -9,7 +9,10 @@ import com.panda.merge.constant.SettleTemplateTypeEnum;
 import com.panda.merge.dto.DataSourceSettleWeightDto;
 import com.panda.merge.model.*;
 import com.panda.merge.dto.settle.DataSourceConnectionStatusDto;
-import com.panda.merge.service.*;
+import com.panda.merge.service.IDataSourceHeartbeatService;
+import com.panda.merge.service.IWsPushService;
+import com.panda.merge.service.StandardMatchInfoService;
+import com.panda.merge.service.StandardSportTournamentService;
 import com.panda.merge.utils.SettleTemplateJsonUtils;
 import com.panda.merge.v2.repository.MatchSettleDataSourceSwitchRepository;
 import com.panda.merge.v2.repository.MatchSettleTemplateRepository;
@@ -49,9 +52,6 @@ public class DataSourceHeartbeatServiceImpl implements IDataSourceHeartbeatServi
     
     @Autowired(required = false)
     private com.panda.merge.mq.producer.DataSourceConnectionStatusProducer dataSourceConnectionStatusProducer;
-
-    @Autowired
-    ISettleTemplateService settleTemplateService;
     
     // 8小时的毫秒数
     private static final long EIGHT_HOURS_MILLIS = 8 * 60 * 60 * 1000L;
@@ -83,10 +83,10 @@ public class DataSourceHeartbeatServiceImpl implements IDataSourceHeartbeatServi
     }
     
     @Override
-    public Integer getHeartbeatConfigSeconds(String dataSourceCode, Long sportId, Long standardMatchId) {
+    public Integer getHeartbeatConfigSeconds(String dataSourceCode, Long sportId, Integer tournamentLevel) {
         try {
             // 从模板中查询心跳配置时间
-            MatchSettleTemplate template = settleTemplateService.getTemplateByStandardMatchId(standardMatchId, SettleTemplateTypeEnum.DATA_SOURCE_WEIGHT.code);
+            MatchSettleTemplate template = matchSettleTemplateRepository.getMatchSettleTemplateByTypeAndLevel(SettleTemplateTypeEnum.DATA_SOURCE_WEIGHT.code, tournamentLevel, sportId);
             if (template == null || template.getTemplateJson() == null) {
                 return null;
             }
@@ -115,8 +115,8 @@ public class DataSourceHeartbeatServiceImpl implements IDataSourceHeartbeatServi
             
             return null;
         } catch (Exception e) {
-            log.error("查询数据商心跳配置时间失败, dataSourceCode:{}, sportId:{}, standardMatchId:{}",
-                    dataSourceCode, sportId, standardMatchId, e);
+            log.error("查询数据商心跳配置时间失败, dataSourceCode:{}, sportId:{}, tournamentLevel:{}", 
+                    dataSourceCode, sportId, tournamentLevel, e);
             return null;
         }
     }
@@ -166,7 +166,7 @@ public class DataSourceHeartbeatServiceImpl implements IDataSourceHeartbeatServi
             long timeDiff = currentTime - lastTimestamp;
             
             // 获取心跳配置时间（秒），转换为毫秒
-            Integer heartbeatSeconds = getHeartbeatConfigSeconds(dataSourceCode, sportId, standardMatchId);
+            Integer heartbeatSeconds = getHeartbeatConfigSeconds(dataSourceCode, sportId, tournamentLevel);
             if (heartbeatSeconds == null) {
                 // 未配置心跳时间，默认认为断连
                 boolean statusChanged = updateMatchConnectionStatus(matchStatusKey, 2, standardMatchId, dataSourceCode);
@@ -291,10 +291,10 @@ public class DataSourceHeartbeatServiceImpl implements IDataSourceHeartbeatServi
                     Long sportId = match.getSportId();
                     
                     // 获取联赛等级
-//                    Integer tournamentLevel = getTournamentLevelInternal(standardMatchId);
-//                    if (tournamentLevel == null) {
-//                        continue;
-//                    }
+                    Integer tournamentLevel = getTournamentLevelInternal(standardMatchId);
+                    if (tournamentLevel == null) {
+                        continue;
+                    }
                     
                     // 获取该赛事关联的所有数据商列表
                     java.util.Set<String> dataSourceCodes = getDataSourceCodesForMatch(standardMatchId);
@@ -310,7 +310,7 @@ public class DataSourceHeartbeatServiceImpl implements IDataSourceHeartbeatServi
                     for (String dataSourceCode : dataSourceCodes) {
                         try {
                             // 计算连接状态码
-                            Integer newStatus = calculateConnectionStatus(standardMatchId, dataSourceCode, sportId);
+                            Integer newStatus = calculateConnectionStatus(standardMatchId, dataSourceCode, sportId, tournamentLevel);
                             log.info("scanAllMatchesConnectionStatus inside 3 dataSourceCode:{} newStatus:{}", dataSourceCode, newStatus);
                             // 获取旧的状态码
                             String matchStatusKey = buildMatchConnectionStatusKey(standardMatchId, dataSourceCode);
@@ -584,10 +584,10 @@ public class DataSourceHeartbeatServiceImpl implements IDataSourceHeartbeatServi
      * @param standardMatchId 标准赛事ID
      * @param dataSourceCode 数据商编码
      * @param sportId 球种ID
-     * @param standardMatchId 联赛等级
+     * @param tournamentLevel 联赛等级
      * @return 0=开关未开启（前端不展示），1=开关开启且连接，2=开关开启且断连或维护
      */
-    private Integer calculateConnectionStatus(Long standardMatchId, String dataSourceCode, Long sportId) {
+    private Integer calculateConnectionStatus(Long standardMatchId, String dataSourceCode, Long sportId, Integer tournamentLevel) {
         try {
             long currentTime = System.currentTimeMillis();
             
@@ -617,7 +617,7 @@ public class DataSourceHeartbeatServiceImpl implements IDataSourceHeartbeatServi
             long timeDiff = currentTime - lastTimestamp;
             
             // 获取心跳配置时间（秒），转换为毫秒
-            Integer heartbeatSeconds = getHeartbeatConfigSeconds(dataSourceCode, sportId, standardMatchId);
+            Integer heartbeatSeconds = getHeartbeatConfigSeconds(dataSourceCode, sportId, tournamentLevel);
             if (heartbeatSeconds == null) {
                 // 未配置心跳时间，认为断连，返回2
                 return 2;
@@ -632,8 +632,8 @@ public class DataSourceHeartbeatServiceImpl implements IDataSourceHeartbeatServi
             return isConnected ? 1 : 2;
             
         } catch (Exception e) {
-            log.error("计算数据商连接状态失败, standardMatchId:{}, dataSourceCode:{}, sportId:{}, standardMatchId:{}",
-                    standardMatchId, dataSourceCode, sportId, standardMatchId, e);
+            log.error("计算数据商连接状态失败, standardMatchId:{}, dataSourceCode:{}, sportId:{}, tournamentLevel:{}", 
+                    standardMatchId, dataSourceCode, sportId, tournamentLevel, e);
             return 0; // 异常情况返回0，前端不展示
         }
     }
