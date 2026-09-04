@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<!-- saved from url=(0107)http://panda-send-manager.dbsportxxx14bl5.com/ao/rhAoMatchMarketIndex?dataDate=2026-09-03&sportId=8&page=30 -->
+<html xmlns:mo="https://gitee.com/aun/Timo"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+        <title>数据支撑后台</title>
+    
+    
+
+    
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="数据支撑后台管理系统">
+    <meta name="keywords" content="数据支撑, 数据支撑后台管理系统, SpringBoot, Jpa, Thymeleaf, Shiro">
+
+    <link rel="shortcut icon" href="http://panda-send-manager.dbsportxxx14bl5.com/mo-favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="./font-awesome.min.css" media="all">
+    <link rel="stylesheet" href="./layui.css" media="all">
+    <link rel="stylesheet" href="./main.css" media="all">
+    
+
+    
+    <script>
+        //定义函数 $ 根据元素id获得页面元素,提高效率
+        function $(id){
+            return document.getElementById(id);
+        }
+    </script>
+    
+        <script src="./jquery-2.2.4.js.download" charset="utf-8"></script>
+    
+<script type="text/javascript">
+    function matchEventExport() {
+        var matchId= $('#matchId').val()
+        if(matchId == undefined || matchId == ''){
+            alert("请输入赛事ID")
+            return
+        }
+        document.getElementById('export').submit();
+    }
+
+</script><link id="layuicss-laydate" rel="stylesheet" href="./laydate.css" media="all"><link id="layuicss-layer" rel="stylesheet" href="./layer.css" media="all"></head>
+
+<body class="timo-layout-page">
+<div class="layui-card">
+    <div class="layui-card-header timo-card-header">
+        <span><i class="fa fa-bars"></i>A01赔率列表</span>
+        <i class="layui-icon layui-icon-refresh refresh-btn"></i>
+    </div>
+    <div class="layui-card-body">
+        <div class="layui-row timo-card-screen">
+            <div class="pull-left layui-form-pane timo-search-box">
+                <form id="export" action="http://panda-send-manager.dbsportxxx14bl5.com/ao/rhAoMatchMarketExport" method="get">
+                <div class="layui-inline">
+                    <label class="layui-form-label required">数据分表</label>
+                    <div class="layui-input-block" style="width: 150px">
+                        <input type="text" name="dataDate" width="150px" value="2026-09-03" placeholder="--请选择日期--" id="datePicker" readonly="" class="layui-input" lay-key="1">
+                    </div>
+                </div>
+<!--                <div class="layui-inline">-->
+<!--                    <label class="layui-form-label">数据来源</label>-->
+<!--                    <div class="layui-input-block timo-search-status">-->
+<!--                        <select class="timo-search-select" name="dataSourceCode" th:value="${param.dataSourceCode}" placeholder="请输入数据源" ></select>-->
+<!--                    </div>-->
+<!--                </div>-->
+
+                <div class="layui-inline">
+                    <label class="layui-form-label">运动种类</label>
+                    <div class="layui-input-block timo-search-status">
+                        <select class="timo-search-select" name="sportId"><option value="1">足球</option><option value="2">篮球</option><option value="8" selected="selected">乒乓球</option></select>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">赛事ID</label>
+                    <div class="layui-input-block">
+                        <input type="number" name="thirdMatchSourceId" id="matchId" value="" placeholder="请输入赛事ID" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-inline">
+                    <label class="layui-form-label">链路ID</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="linkId" value="" placeholder="请输入链路ID" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <div class="layui-form">
+                        <label class="layui-form-label">玩法名称</label>
+                        <div class="layui-input-block timo-search-status">
+                            <select class="timo-search-select" name="thirdMarketDTO.thirdMarketCategorySourceId" lay-search=""><option value="">全部</option><option value="10001">10001-全场独赢</option><option value="10005">10005-全场大小</option><option value="10004">10004-全场让球</option><option value="10002">10002-双重机会</option><option value="10008">10008-全场比分</option><option value="10006">10006-{主队}进球大小</option><option value="10007">10007-{客队}进球大小</option><option value="10003">10003-进球单/双</option><option value="20001">20001-半场独赢</option><option value="20005">20005-半场大小</option><option value="20004">20004-半场让球</option><option value="20008">20008-上半场比分</option><option value="30001">30001-15分钟进球-独赢({a}-{b})</option><option value="30002">30002-15分钟进球-让球({a}-{b})</option><option value="30003">30003-15分钟进球-大小({a}-{b})</option><option value="20003">20003-上半场进球单/双</option><option value="20002">20002-上半场双重机会</option><option value="20006">20006-上半场{主队}进球大小</option><option value="20007">20007-上半场{客队}进球大小</option><option value="40002">40002-角球让球</option><option value="40003">40003-角球大小</option><option value="40005">40005-{主队}角球大小</option><option value="40009">40009-上半场角球让球</option><option value="40010">40010-上半场角球大小</option><option value="10012">10012-净胜分</option><option value="10009">10009-净胜分（4+）</option><option value="10013">10013-全场让球胜平负</option><option value="10014">10014-平局退款</option><option value="10017">10017-{主队}准确进球数</option><option value="10018">10018-{客队}准确进球数</option><option value="10019">10019-两队都进球</option><option value="10033">10033-独赢 &amp; 进球大小</option><option value="10015">10015-准确进球数</option><option value="20011">20011-上半场准确进球数</option><option value="20013">20013-上半场两队都进球</option><option value="60001">60001-下半场独赢</option><option value="60003">60003-下半场大小</option><option value="20012">20012-上半场平局退款</option><option value="10016">10016-总进球数区间</option><option value="60002">60002-下半场双重机会</option><option value="60005">60005-下半场准确进球数</option><option value="60006">60006-下半场比分</option><option value="60004">60004-下半场进球单/双</option><option value="60008">60008-下半场两队都进球</option><option value="10023">10023-{主队}进球单/双</option><option value="10029">10029-{客队}零失球</option><option value="10030">10030-{客队}零失球获胜</option><option value="10024">10024-{主队}零失球</option><option value="10025">10025-{主队}零失球获胜</option><option value="10026">10026-{主队}上/下半场全胜</option><option value="10027">10027-{主队}任意半场获胜</option><option value="10028">10028-{客队}进球单/双</option><option value="10031">10031-{客队}上/下半场全胜</option><option value="10032">10032-{客队}任意半场获胜</option><option value="10034">10034-独赢 &amp; 两队都进球</option><option value="10035">10035-进球大小 &amp; 两队都进球</option><option value="10020">10020-半/全场比分</option><option value="10021">10021-半/全场</option><option value="20014">20014-上半场独赢 &amp; 上半场两队都进球</option><option value="60009">60009-下半场独赢 &amp; 下半场两队都进球</option><option value="10036">10036-双重机会 &amp; 两队都进球</option><option value="10037">10037-上/下半场两队都进球</option><option value="40001">40001-角球独赢</option><option value="40007">40007-最后一个角球</option><option value="40006">40006-{客队}角球大小</option><option value="40004">40004-角球单/双</option><option value="40008">40008-上半场角球独赢</option><option value="40012">40012-上半场{主队}角球大小</option><option value="40013">40013-上半场{客队}角球大小</option><option value="60007">60007-下半场平局退款</option><option value="10022">10022-最后进球队伍</option><option value="40011">40011-上半场角球单/双</option><option value="50002">50002-罚牌让分</option><option value="50004">50004-罚牌大小</option><option value="50006">50006-上半场罚牌让分</option><option value="50008">50008-上半场罚牌大小</option><option value="50001">50001-罚牌独赢</option><option value="50005">50005-上半场罚牌独赢</option><option value="50003">50003-罚牌单/双</option><option value="50007">50007-上半场罚牌单/双</option><option value="10038">10038-最多进球的半场</option><option value="20015">20015-上半场{主队}准确进球数</option><option value="20016">20016-上半场{客队}准确进球数</option><option value="10039">10039-第{X}个进球</option><option value="20017">20017-上半场第{X}个进球</option><option value="10040">10040-第{X}个进球何时发生？</option><option value="20018">20018-上半场让球胜平负</option><option value="60010">60010-下半场让球胜平负</option><option value="10041">10041-{主队}获胜退款</option><option value="10042">10042-{主队}最高得分半场</option><option value="10043">10043-{主队}上/下半场均进球</option><option value="60011">60011-下半场{主队}进球大小</option><option value="60012">60012-下半场{主队}零失球</option><option value="20019">20019-上半场{主队}零失球</option><option value="10044">10044-{客队}获胜退款</option><option value="10045">10045-{客队}最高得分半场</option><option value="10046">10046-{客队}上/下半场均进球</option><option value="60013">60013-下半场{客队}进球大小</option><option value="60014">60014-下半场{客队}零失球</option><option value="20020">20020-上半场{客队}零失球</option><option value="10047">10047-上/下半场进球数均大于{X.5}</option><option value="10048">10048-上/下半场进球数均小于{X.5}</option><option value="40014">40014-角球总数区间</option><option value="40021">40021-上半场第{X}个角球</option><option value="40017">40017-谁先获得{X}个角球</option><option value="70001">70001-加时赛-独赢</option><option value="70003">70003-加时赛-大小</option><option value="70002">70002-加时赛-让球</option><option value="70008">70008-加时赛-上半场独赢</option><option value="70009">70009-加时赛-上半场让球</option><option value="80009">80009-是否进行点球大战</option><option value="80001">80001-点球大战-独赢</option><option value="80003">80003-点球大战-大小</option><option value="90001">90001-晋级球队</option><option value="90002">90002-获胜方式</option><option value="50009">50009-比赛中出现红牌</option><option value="50010">50010-{主队}获得红牌</option><option value="50011">50011-{客队}获得红牌</option><option value="60015">60015-下半场让球</option><option value="50012">50012-第{X}张罚牌</option><option value="40018">40018-第{X}个角球</option><option value="40015">40015-{主队}角球总数区间</option><option value="40016">40016-{客队}角球总数区间</option><option value="40019">40019-上半场角球总数区间</option><option value="40020">40020-上半场谁先获得{X}个角球</option><option value="40022">40022-15分钟角球-独赢({a}-{b})</option><option value="40023">40023-15分钟角球-让球({a}-{b})</option><option value="40024">40024-15分钟角球-大小({a}-{b})</option><option value="70006">70006-加时赛是否进球</option><option value="70007">70007-加时赛-第{X}个进球</option><option value="70005">70005-加时赛-正确比分</option><option value="80008">80008-点球大战-第{X}个进球</option><option value="80006">80006-点球大战-净胜分</option><option value="80007">80007-点球大战-准确进球数</option><option value="80004">80004-点球大战-单/双</option><option value="80005">80005-点球大战-正确比分</option><option value="50013">50013-{主队}罚牌大小</option><option value="50014">50014-{客队}罚牌大小</option><option value="50018">50018-上半场{主队}罚牌大小</option><option value="50019">50019-上半场{客队}罚牌大小</option><option value="50015">50015-准确罚牌分数</option><option value="50020">50020-上半场准确罚牌分数</option><option value="50016">50016-{主队}准确罚牌分数</option><option value="50017">50017-{客队}准确罚牌分数</option><option value="50021">50021-上半场{主队}准确罚牌分数</option><option value="50022">50022-上半场{客队}准确罚牌分数</option><option value="50023">50023-黄牌让分</option><option value="50024">50024-黄牌大小</option><option value="50025">50025-黄牌独赢</option><option value="50026">50026-上半场黄牌让分</option><option value="50027">50027-上半场黄牌大小</option><option value="50028">50028-上半场黄牌独赢</option><option value="70004">70004-加时赛-单/双</option><option value="40025">40025-加时赛-角球大小</option><option value="70010">70010-加时赛-上半场大小</option><option value="80002">80002-点球大战-让球</option><option value="10049">10049-第{X}进球</option><option value="80010">80010-点球大战-前5轮独赢</option><option value="80011">80011-点球大战-前5轮大小</option><option value="80012">80012-点球大战-第{X}个点球是否射进</option><option value="10050">10050-波胆玩法</option><option value="20021">20021-上半场独赢&amp;上半场进球大小</option><option value="60016">60016-下半场独赢&amp;下半场进球大小</option><option value="10051">10051-双重机会&amp;进球大小</option><option value="10052">10052-半/全场&amp;进球大小</option><option value="10053">10053-半/全场&amp;上半场进球大小</option><option value="10054">10054-半/全场 单双</option><option value="10055">10055-进球单双&amp;进球大小</option><option value="10056">10056-落后反超获胜</option><option value="10057">10057-独赢&amp;最先进球球队</option><option value="10058">10058-首个进球的半场</option><option value="10059">10059-主队首个进球半场</option><option value="10060">10060-客队首个进球半场</option><option value="10061">10061-先进{X}球的一方</option><option value="20022">20022-上半场净胜分</option><option value="10062">10062-半/全场&amp;准确进球数</option><option value="10063">10063-任何进球时分(5min)</option><option value="10064">10064-第{X}个进球时分(5min)</option><option value="11001">11001-全场独赢(含加时)</option><option value="11002">11002-全场大小(含加时)</option><option value="11003">11003-全场让分(含加时)</option><option value="11004">11004-全场单双(含加时)</option><option value="11005">11005-全场{主队}大小(含加时)</option><option value="11006">11006-全场{客队}大小(含加时)</option><option value="11007">11007-上半场独赢</option><option value="11008">11008-上半场大小</option><option value="11009">11009-上半场让分</option><option value="11010">11010-上半场单双</option><option value="11011">11011-上半场{主队}大小</option><option value="11012">11012-上半场{客队}大小</option><option value="11013">11013-下半场独赢(含加时)</option><option value="11014">11014-下半场大小(含加时)</option><option value="11015">11015-下半场让分(含加时)</option><option value="11016">11016-下半场单双(含加时)</option><option value="11017">11017-下半场{主队}大小(含加时)</option><option value="11018">11018-下半场{客队}大小(含加时)</option><option value="11019">11019-第一节独赢</option><option value="11020">11020-第一节大小</option><option value="11021">11021-第一节让分</option><option value="11022">11022-第一节单双</option><option value="11023">11023-第一节{主队}大小</option><option value="11024">11024-第一节{客队}大小</option><option value="11025">11025-第二节独赢</option><option value="11026">11026-第二节大小</option><option value="11027">11027-第二节让分</option><option value="11028">11028-第二节单双</option><option value="11029">11029-第二节{主队}大小</option><option value="11030">11030-第二节{客队}大小</option><option value="11031">11031-第三节独赢</option><option value="11032">11032-第三节大小</option><option value="11033">11033-第三节让分</option><option value="11034">11034-第三节单双</option><option value="11035">11035-第三节{主队}大小</option><option value="11036">11036-第三节{客队}大小</option><option value="11037">11037-第四节独赢</option><option value="11038">11038-第四节大小</option><option value="11039">11039-第四节让分</option><option value="11040">11040-第四节单双</option><option value="11041">11041-第四节{主队}大小</option><option value="11042">11042-第四节{客队}大小</option><option value="10065">10065-全场反波胆</option><option value="20023">20023-上半场反波胆</option><option value="60017">60017-下半场反波胆</option><option value="50029">50029-15分钟罚牌-独赢({a}-{b})</option><option value="50030">50030-15分钟罚牌-让球({a}-{b})</option><option value="50031">50031-15分钟罚牌-大小({a}-{b})</option><option value="20024">20024-上半场{主队}进球单/双</option><option value="20025">20025-上半场{客队}进球单/双</option><option value="20026">20026-上半场{主队}零失球获胜</option><option value="20027">20027-上半场{客队}零失球获胜</option><option value="60018">60018-下半场{主队}进球单/双</option><option value="60019">60019-下半场{客队}进球单/双</option><option value="60020">60020-下半场{主队}准确进球数</option><option value="60021">60021-下半场{客队}准确进球数</option><option value="60022">60022-下半场{主队}零失球获胜</option><option value="60023">60023-下半场{客队}零失球获胜</option><option value="60024">60024-下半场净胜分</option><option value="11043">11043-净胜分 3项</option><option value="11044">11044-首先获得{X}分</option><option value="11045">11045-净胜分6项</option><option value="11046">11046净胜分7项</option><option value="11047">11047-净胜分12项</option><option value="11048">11048-净胜分14项</option><option value="11049">11049-谁先获得第{X}分</option><option value="11050">11050-独赢 &amp; 总分</option><option value="11051">11051上半场净胜分</option><option value="11052">11052-第一节净胜分</option><option value="11053">11053-第二节净胜分</option><option value="11054">11054-第三节净胜分</option><option value="11055">11055-第四节净胜分</option><option value="11056">11056-第一节首先获得{X}分(三项)</option><option value="11057">11057-第二节首先获得{X}分(三项)</option><option value="11058">11058-第三节首先获得{X}分(三项)</option><option value="11059">11059-第四节首先获得{X}分(三项)</option><option value="11060">11060-得分最高的赛节</option><option value="11061">11061-第一节首先获得{X}分</option><option value="11062">11062-第二节首先获得{X}分</option><option value="11063">11063-第三节首先获得{X}分</option><option value="11064">11064-第四节首先获得{X}分</option><option value="10066">10066独赢&amp;进球单/双</option><option value="10067">10067赢得任意半场 </option><option value="10068">10068赢得所有半场</option><option value="10069">10069上/下半场双方均进球（两项）</option><option value="20028">20028上半场最后进球球队</option><option value="40026">40026角球-双重机会</option><option value="40027">40027角球-波胆</option><option value="40028">40028角球-大小盘三项 </option><option value="40029">40029角球-上半场最后角球</option><option value="50032">50032罚牌-双重机会</option><option value="50033">50033罚牌-上半场最后得牌 </option><option value="50034">50034罚牌-上半场双重机会</option><option value="50035">50035罚牌-全场最后得牌</option><option value="40030">40030上半场{主队}角球总数区间</option><option value="40031">40031上半场{客队}角球总数区间</option><option value="50036">50036上半场比赛中出现红牌</option><option value="50037">50037上半场{主队}获得红牌</option><option value="50038">50038上半场{客队}获得红牌</option><option value="50040">50040加时赛罚牌-让球</option><option value="50041">50041加时赛罚牌-大小</option><option value="50042">50042加时赛罚牌-上半场独赢</option><option value="50043">50043加时赛罚牌-上半场让球</option><option value="50044">50044加时赛罚牌-上半场大小</option><option value="50045">50045加时赛罚牌-单/双</option><option value="50046">50046加时赛罚牌-第{X}个罚牌</option><option value="40032">40032加时赛角球-独赢</option><option value="40033">40033加时赛角球-让球</option><option value="40034">40034加时赛角球-上半场独赢</option><option value="40035">40035加时赛角球-上半场让球</option><option value="40036">40036加时赛角球-上半场大小</option><option value="40037">40037加时赛角球-单/双</option><option value="40038">40038加时赛角球-第{X}个角球</option><option value="80013">80013点球大战第几轮结束 </option><option value="10070">10070双重机会 &amp; 上半場双方均进球</option><option value="10071">10071双重机会 &amp; 下半场双方均进球</option><option value="10072">10072进球 大/小&amp;首次进球队伍</option><option value="10073">10073双重机会&amp;首次进球队伍</option><option value="60025">60025下半场-双重机会 &amp; 双方球队皆进球</option><option value="10074">100741X2 或 任何零失球</option><option value="20029">20029上半场-双重机会 &amp; 双方球队皆进球</option><option value="10075">10075双方/一方/两者皆不得分</option><option value="10076">10076获胜球队</option><option value="10077">10077进球球队</option><option value="20030">20030上半场-最先进球 / 最后进球</option><option value="10078">10078首颗入球时间 -3项</option><option value="20032">20032上半場-第一個進球 -3項</option><option value="20031">20031上半場-第一個進球&nbsp; 無進球退款 -2項</option><option value="60026">60026下半場-第一個進球 -3項</option><option value="60027">60027下半場-第一個進球&nbsp; 無進球退款 -2項</option><option value="10079">10079总进球数 - 大 / 小 0.5</option><option value="10080">10080主隊 获胜</option><option value="10081">10081客隊 获胜</option><option value="40039">40039下半场第一个角球</option><option value="40040">40040最后一个角球 -2項</option><option value="40042">40042第一个角球 -3項</option><option value="40041">40041第一个角球 -2項</option><option value="11084">11084上半场-让分&amp;大小</option><option value="11085">11085第1节让分&amp;大小</option><option value="11086">11086让分&amp;大小</option><option value="11087">11087主队获胜节数大小</option><option value="11088">11088客队获胜节数大小</option><option value="11089">11089上半场净胜分数13项</option><option value="11090">11090下半场净胜分数13项</option><option value="11091">11091第一节 净胜分数13项</option><option value="11092">11092第二节 净胜分数13项</option><option value="11093">11093第三节 净胜分数13项</option><option value="11094">11094第四节 净胜分数13项&nbsp;</option><option value="11095">11095总分末位数</option><option value="11096">11096上半场总分末位数</option><option value="11097">11097上半场主队总分末位数</option><option value="11098">11098上半场客队总分末位数</option><option value="11099">11099下半场总分末位数</option><option value="11101">11101下半场主队总分末位数</option><option value="11102">11102下半场客队总分末位数</option><option value="50039">50039加时赛罚牌-独赢</option><option value="11065">11065是否有加时赛</option><option value="11066">11066半场/全场</option><option value="11067">11067首个进球队伍</option><option value="11068">11068最高得分的半场</option><option value="11069">11069最后进球队伍</option><option value="11070">11070下半場首先获得{Y}分</option><option value="11071">11071{主队}第{X}节获得{Y}分</option><option value="11072">11072{主队}第{X}节获得{Y}分</option><option value="11073">11073{主队}第{X}节获得{Y}分</option><option value="11074">11074{主队}第{X}节获得{Y}分</option><option value="11075">11075{客队}第{X}节获得{Y}分</option><option value="11076">11076{客队}第{X}节获得{Y}分</option><option value="11077">11077{客队}第{X}节获得{Y}分</option><option value="11078">11078{客队}第{X}节获得{Y}分</option><option value="11079">11079第{X}节双重机会</option><option value="11080">11080第{X}节双重机会</option><option value="11081">11081第{X}节双重机会</option><option value="11082">11082第{X}节双重机会</option><option value="11083">11083上半场首先获得{Y}分</option><option value="11103">11103 6分钟总分（第1节开始-06：01）</option><option value="11104">11104 6分钟总分（06：00-第1节结束）</option><option value="11105">11105 6分钟总分（第2节开始-06：01）</option><option value="11106">11106 6分钟总分（06：00-第2节结束）</option><option value="11107">11107 6分钟总分（第3节开始-06：01）</option><option value="11108">11108 6分钟总分（06：00-第3节结束）</option><option value="11109">11109 6分钟总分（第4节开始-06：01）</option><option value="11110">11110 6分钟总分（06：00-第4节结束）</option><option value="11111">11111 6分钟{主队}总分（第1节开始-06：01）</option><option value="11112">11112 6分钟{主队}总分（06：00-第1节结束）</option><option value="11113">11113 6分钟{主队}总分（第2节开始-06：01）</option><option value="11114">11114 6分钟{主队}总分（06：00-第2节结束）</option><option value="11115">11115 6分钟{主队}总分（第3节开始-06：01）</option><option value="11116">11116 6分钟{主队}总分（06：00-第3节结束）</option><option value="11117">11117 6分钟{主队}总分（第4节开始-06：01</option><option value="11118">11118 6分钟{主队}总分（06：00-第4节结束）</option><option value="11119">11119 6分钟{客队}总分（第1节开始-06：01）</option><option value="11120">11120 6分钟{客队}总分（06：00-第1节结束）</option><option value="11121">11121 6分钟{客队}总分（第2节开始-06：01）</option><option value="11122">11122 6分钟{客队}总分（06：00-第2节结束）</option><option value="11123">11123 6分钟{客队}总分（第3节开始-06：01）</option><option value="11124">11124 6分钟{客队}总分（06：00-第3节结束）</option><option value="11125">11125 6分钟{客队}总分（第4节开始-06：01）</option><option value="11126">11126 6分钟{客队}总分（06：00-第4节结束</option><option value="11127">11127 6分钟总分单/双 （第1节开始-06：01)</option><option value="11128">11128 6分钟总分单/双 （06：00-第1节结束）</option><option value="11129">11129 6分钟总分单/双 （第2节开始-06：01）</option><option value="11130">11130 6分钟总分单/双 （06：00-第2节结束）</option><option value="11131">11131 6分钟总分单/双 （第3节开始-06：01）</option><option value="11132">11132 6分钟总分单/双 （06：00-第3节结束）</option><option value="11133">11133 6分钟总分单/双 （第4节开始-06：01）</option><option value="11134">11134 6分钟总分单/双 （06：00-第4节结束）</option><option value="40043">40043-角球-上半场波胆</option><option value="40044">40044-角球-下半场波胆</option><option value="12001">12001全场独赢</option><option value="12002">12002准确局数</option><option value="12003">12003全场比分</option><option value="12004">12004全场让分（分数）</option><option value="12005">12005全场总分（分数）</option><option value="12006">12006第1局独赢</option><option value="12007">12007第1局让分</option><option value="12008">12008第1局总分</option><option value="12009">12009第1局单双</option><option value="12010">12010第1局Y分</option><option value="12011">12011第1局首先获得Y分</option><option value="12012">12012第2局独赢</option><option value="12013">12013第2局让分</option><option value="12014">12014第2局总分</option><option value="12015">12015第2局单双</option><option value="12016">12016第2局Y分</option><option value="12017">12017第2局首先获得Y分</option><option value="12018">12018第3局独赢</option><option value="12019">12019第3局让分</option><option value="12020">12020第3局总分</option><option value="12021">12021第3局单双</option><option value="12022">12022第3局Y分</option><option value="12023">12023第3局首先获得Y分</option><option value="12024">12024第4局独赢</option><option value="12025">12025第4局让分</option><option value="12026">12026第4局总分</option><option value="12027">12027第4局单双</option><option value="12028">12028第4局Y分</option><option value="12029">12029第4局首先获得Y分</option><option value="12030">12030第5局独赢</option><option value="12031">12031第5局让分</option><option value="12032">12032第5局总分</option><option value="12033">12033第5局单双</option><option value="12034">12034第5局Y分</option><option value="12035">12035第5局首先获得Y分</option><option value="10082">10082全场高倍波胆</option><option value="20033">20033上半场高倍波胆</option><option value="60028">60028下半场高倍波胆</option><option value="80014">80014-点球大战-{主队}大小</option><option value="80015">80015-点球大战-{客队}大小</option><option value="80016">80016-点球大战-{主队}罚点球总数</option><option value="80017">80017-点球大战-{客队}罚点球总数</option><option value="80018">80018-点球大-战-罚失点球总数</option><option value="80019">80019-点球大战-{主队}罚失点球总数</option><option value="80020">80020-点球大战-{客队}罚失点球总数</option><option value="80021">80021-点球大战-第{X}轮独赢</option><option value="80022">80022-点球大战前五轮-双重机会</option><option value="80023">80023-点球大战-是否进入骤死赛</option><option value="80024">80024-点球大战-开始队伍 &amp; 独赢</option><option value="80025">80025-点球大战-先进{X}个球</option><option value="80026">80026-点球大战前五轮-独赢 &amp; 大小</option><option value="11135">11135-上半场-独赢&amp;总分</option><option value="11136">11136-下半场-独赢&amp;总分</option><option value="11137">11137-第一节-独赢&amp;总分</option><option value="11138">11138-第二节-独赢&amp;总分</option><option value="11139">11139-第三节-独赢&amp;总分</option><option value="11140">11140-第四节-独赢&amp;总分</option><option value="11141">11141-独赢&amp;两队都获得{X}分</option><option value="11142">11142-第二节-让分&amp;总分</option><option value="11143">11143-第三节-让分&amp;总分</option><option value="11144">11144-第四节-让分&amp;总分</option><option value="11145">11145-上半场&amp;下半场 是否全胜</option><option value="11146">11146-上半场&amp;全场 是否全胜</option><option value="11147">11147-第一节&amp;全程 是否全胜</option><option value="11148">11148-{主队}总分单/双</option><option value="11149">11149-{客队}总分单/双</option><option value="10083">10083-全场自选波胆</option><option value="20034">20034-上半场自选波胆</option><option value="60029">60029-下半场自选波胆</option><option value="40045">40045-1100446-上半场角球大小盘三项-{X}</option><option value="40046">40046-1100447-下半场角球大小盘三项-{X}</option><option value="40047">40047-1100448-角球让球胜平负</option><option value="40048">40048-1100449-上半场角球让球胜平负</option><option value="40049">40049-1100450-下半场角球让球胜平负</option><option value="40052">40052-1100451-角球最多的半场</option><option value="40053">40053-1100454-角球最多的半场(三项)</option><option value="40054">40054-1100455-下半场角球独赢</option><option value="40050">40050-1100456-下半场角球让球</option><option value="40051">40051-1100457-下半场角球大小</option><option value="40055">40055-1100458-下半场角球单/双</option><option value="50047">50047-1100459-下半场罚牌独赢</option><option value="50048">50048-1100460-下半场罚牌让分</option><option value="50049">50049-1100461-下半场罚牌大小</option></select><div class="layui-form-select"><div class="layui-select-title"><input type="text" placeholder="全部" value="" class="layui-input"><i class="layui-edge"></i></div><dl class="layui-anim layui-anim-upbit"><dd lay-value="" class="layui-select-tips">全部</dd><dd lay-value="10001" class="">10001-全场独赢</dd><dd lay-value="10005" class="">10005-全场大小</dd><dd lay-value="10004" class="">10004-全场让球</dd><dd lay-value="10002" class="">10002-双重机会</dd><dd lay-value="10008" class="">10008-全场比分</dd><dd lay-value="10006" class="">10006-{主队}进球大小</dd><dd lay-value="10007" class="">10007-{客队}进球大小</dd><dd lay-value="10003" class="">10003-进球单/双</dd><dd lay-value="20001" class="">20001-半场独赢</dd><dd lay-value="20005" class="">20005-半场大小</dd><dd lay-value="20004" class="">20004-半场让球</dd><dd lay-value="20008" class="">20008-上半场比分</dd><dd lay-value="30001" class="">30001-15分钟进球-独赢({a}-{b})</dd><dd lay-value="30002" class="">30002-15分钟进球-让球({a}-{b})</dd><dd lay-value="30003" class="">30003-15分钟进球-大小({a}-{b})</dd><dd lay-value="20003" class="">20003-上半场进球单/双</dd><dd lay-value="20002" class="">20002-上半场双重机会</dd><dd lay-value="20006" class="">20006-上半场{主队}进球大小</dd><dd lay-value="20007" class="">20007-上半场{客队}进球大小</dd><dd lay-value="40002" class="">40002-角球让球</dd><dd lay-value="40003" class="">40003-角球大小</dd><dd lay-value="40005" class="">40005-{主队}角球大小</dd><dd lay-value="40009" class="">40009-上半场角球让球</dd><dd lay-value="40010" class="">40010-上半场角球大小</dd><dd lay-value="10012" class="">10012-净胜分</dd><dd lay-value="10009" class="">10009-净胜分（4+）</dd><dd lay-value="10013" class="">10013-全场让球胜平负</dd><dd lay-value="10014" class="">10014-平局退款</dd><dd lay-value="10017" class="">10017-{主队}准确进球数</dd><dd lay-value="10018" class="">10018-{客队}准确进球数</dd><dd lay-value="10019" class="">10019-两队都进球</dd><dd lay-value="10033" class="">10033-独赢 &amp; 进球大小</dd><dd lay-value="10015" class="">10015-准确进球数</dd><dd lay-value="20011" class="">20011-上半场准确进球数</dd><dd lay-value="20013" class="">20013-上半场两队都进球</dd><dd lay-value="60001" class="">60001-下半场独赢</dd><dd lay-value="60003" class="">60003-下半场大小</dd><dd lay-value="20012" class="">20012-上半场平局退款</dd><dd lay-value="10016" class="">10016-总进球数区间</dd><dd lay-value="60002" class="">60002-下半场双重机会</dd><dd lay-value="60005" class="">60005-下半场准确进球数</dd><dd lay-value="60006" class="">60006-下半场比分</dd><dd lay-value="60004" class="">60004-下半场进球单/双</dd><dd lay-value="60008" class="">60008-下半场两队都进球</dd><dd lay-value="10023" class="">10023-{主队}进球单/双</dd><dd lay-value="10029" class="">10029-{客队}零失球</dd><dd lay-value="10030" class="">10030-{客队}零失球获胜</dd><dd lay-value="10024" class="">10024-{主队}零失球</dd><dd lay-value="10025" class="">10025-{主队}零失球获胜</dd><dd lay-value="10026" class="">10026-{主队}上/下半场全胜</dd><dd lay-value="10027" class="">10027-{主队}任意半场获胜</dd><dd lay-value="10028" class="">10028-{客队}进球单/双</dd><dd lay-value="10031" class="">10031-{客队}上/下半场全胜</dd><dd lay-value="10032" class="">10032-{客队}任意半场获胜</dd><dd lay-value="10034" class="">10034-独赢 &amp; 两队都进球</dd><dd lay-value="10035" class="">10035-进球大小 &amp; 两队都进球</dd><dd lay-value="10020" class="">10020-半/全场比分</dd><dd lay-value="10021" class="">10021-半/全场</dd><dd lay-value="20014" class="">20014-上半场独赢 &amp; 上半场两队都进球</dd><dd lay-value="60009" class="">60009-下半场独赢 &amp; 下半场两队都进球</dd><dd lay-value="10036" class="">10036-双重机会 &amp; 两队都进球</dd><dd lay-value="10037" class="">10037-上/下半场两队都进球</dd><dd lay-value="40001" class="">40001-角球独赢</dd><dd lay-value="40007" class="">40007-最后一个角球</dd><dd lay-value="40006" class="">40006-{客队}角球大小</dd><dd lay-value="40004" class="">40004-角球单/双</dd><dd lay-value="40008" class="">40008-上半场角球独赢</dd><dd lay-value="40012" class="">40012-上半场{主队}角球大小</dd><dd lay-value="40013" class="">40013-上半场{客队}角球大小</dd><dd lay-value="60007" class="">60007-下半场平局退款</dd><dd lay-value="10022" class="">10022-最后进球队伍</dd><dd lay-value="40011" class="">40011-上半场角球单/双</dd><dd lay-value="50002" class="">50002-罚牌让分</dd><dd lay-value="50004" class="">50004-罚牌大小</dd><dd lay-value="50006" class="">50006-上半场罚牌让分</dd><dd lay-value="50008" class="">50008-上半场罚牌大小</dd><dd lay-value="50001" class="">50001-罚牌独赢</dd><dd lay-value="50005" class="">50005-上半场罚牌独赢</dd><dd lay-value="50003" class="">50003-罚牌单/双</dd><dd lay-value="50007" class="">50007-上半场罚牌单/双</dd><dd lay-value="10038" class="">10038-最多进球的半场</dd><dd lay-value="20015" class="">20015-上半场{主队}准确进球数</dd><dd lay-value="20016" class="">20016-上半场{客队}准确进球数</dd><dd lay-value="10039" class="">10039-第{X}个进球</dd><dd lay-value="20017" class="">20017-上半场第{X}个进球</dd><dd lay-value="10040" class="">10040-第{X}个进球何时发生？</dd><dd lay-value="20018" class="">20018-上半场让球胜平负</dd><dd lay-value="60010" class="">60010-下半场让球胜平负</dd><dd lay-value="10041" class="">10041-{主队}获胜退款</dd><dd lay-value="10042" class="">10042-{主队}最高得分半场</dd><dd lay-value="10043" class="">10043-{主队}上/下半场均进球</dd><dd lay-value="60011" class="">60011-下半场{主队}进球大小</dd><dd lay-value="60012" class="">60012-下半场{主队}零失球</dd><dd lay-value="20019" class="">20019-上半场{主队}零失球</dd><dd lay-value="10044" class="">10044-{客队}获胜退款</dd><dd lay-value="10045" class="">10045-{客队}最高得分半场</dd><dd lay-value="10046" class="">10046-{客队}上/下半场均进球</dd><dd lay-value="60013" class="">60013-下半场{客队}进球大小</dd><dd lay-value="60014" class="">60014-下半场{客队}零失球</dd><dd lay-value="20020" class="">20020-上半场{客队}零失球</dd><dd lay-value="10047" class="">10047-上/下半场进球数均大于{X.5}</dd><dd lay-value="10048" class="">10048-上/下半场进球数均小于{X.5}</dd><dd lay-value="40014" class="">40014-角球总数区间</dd><dd lay-value="40021" class="">40021-上半场第{X}个角球</dd><dd lay-value="40017" class="">40017-谁先获得{X}个角球</dd><dd lay-value="70001" class="">70001-加时赛-独赢</dd><dd lay-value="70003" class="">70003-加时赛-大小</dd><dd lay-value="70002" class="">70002-加时赛-让球</dd><dd lay-value="70008" class="">70008-加时赛-上半场独赢</dd><dd lay-value="70009" class="">70009-加时赛-上半场让球</dd><dd lay-value="80009" class="">80009-是否进行点球大战</dd><dd lay-value="80001" class="">80001-点球大战-独赢</dd><dd lay-value="80003" class="">80003-点球大战-大小</dd><dd lay-value="90001" class="">90001-晋级球队</dd><dd lay-value="90002" class="">90002-获胜方式</dd><dd lay-value="50009" class="">50009-比赛中出现红牌</dd><dd lay-value="50010" class="">50010-{主队}获得红牌</dd><dd lay-value="50011" class="">50011-{客队}获得红牌</dd><dd lay-value="60015" class="">60015-下半场让球</dd><dd lay-value="50012" class="">50012-第{X}张罚牌</dd><dd lay-value="40018" class="">40018-第{X}个角球</dd><dd lay-value="40015" class="">40015-{主队}角球总数区间</dd><dd lay-value="40016" class="">40016-{客队}角球总数区间</dd><dd lay-value="40019" class="">40019-上半场角球总数区间</dd><dd lay-value="40020" class="">40020-上半场谁先获得{X}个角球</dd><dd lay-value="40022" class="">40022-15分钟角球-独赢({a}-{b})</dd><dd lay-value="40023" class="">40023-15分钟角球-让球({a}-{b})</dd><dd lay-value="40024" class="">40024-15分钟角球-大小({a}-{b})</dd><dd lay-value="70006" class="">70006-加时赛是否进球</dd><dd lay-value="70007" class="">70007-加时赛-第{X}个进球</dd><dd lay-value="70005" class="">70005-加时赛-正确比分</dd><dd lay-value="80008" class="">80008-点球大战-第{X}个进球</dd><dd lay-value="80006" class="">80006-点球大战-净胜分</dd><dd lay-value="80007" class="">80007-点球大战-准确进球数</dd><dd lay-value="80004" class="">80004-点球大战-单/双</dd><dd lay-value="80005" class="">80005-点球大战-正确比分</dd><dd lay-value="50013" class="">50013-{主队}罚牌大小</dd><dd lay-value="50014" class="">50014-{客队}罚牌大小</dd><dd lay-value="50018" class="">50018-上半场{主队}罚牌大小</dd><dd lay-value="50019" class="">50019-上半场{客队}罚牌大小</dd><dd lay-value="50015" class="">50015-准确罚牌分数</dd><dd lay-value="50020" class="">50020-上半场准确罚牌分数</dd><dd lay-value="50016" class="">50016-{主队}准确罚牌分数</dd><dd lay-value="50017" class="">50017-{客队}准确罚牌分数</dd><dd lay-value="50021" class="">50021-上半场{主队}准确罚牌分数</dd><dd lay-value="50022" class="">50022-上半场{客队}准确罚牌分数</dd><dd lay-value="50023" class="">50023-黄牌让分</dd><dd lay-value="50024" class="">50024-黄牌大小</dd><dd lay-value="50025" class="">50025-黄牌独赢</dd><dd lay-value="50026" class="">50026-上半场黄牌让分</dd><dd lay-value="50027" class="">50027-上半场黄牌大小</dd><dd lay-value="50028" class="">50028-上半场黄牌独赢</dd><dd lay-value="70004" class="">70004-加时赛-单/双</dd><dd lay-value="40025" class="">40025-加时赛-角球大小</dd><dd lay-value="70010" class="">70010-加时赛-上半场大小</dd><dd lay-value="80002" class="">80002-点球大战-让球</dd><dd lay-value="10049" class="">10049-第{X}进球</dd><dd lay-value="80010" class="">80010-点球大战-前5轮独赢</dd><dd lay-value="80011" class="">80011-点球大战-前5轮大小</dd><dd lay-value="80012" class="">80012-点球大战-第{X}个点球是否射进</dd><dd lay-value="10050" class="">10050-波胆玩法</dd><dd lay-value="20021" class="">20021-上半场独赢&amp;上半场进球大小</dd><dd lay-value="60016" class="">60016-下半场独赢&amp;下半场进球大小</dd><dd lay-value="10051" class="">10051-双重机会&amp;进球大小</dd><dd lay-value="10052" class="">10052-半/全场&amp;进球大小</dd><dd lay-value="10053" class="">10053-半/全场&amp;上半场进球大小</dd><dd lay-value="10054" class="">10054-半/全场 单双</dd><dd lay-value="10055" class="">10055-进球单双&amp;进球大小</dd><dd lay-value="10056" class="">10056-落后反超获胜</dd><dd lay-value="10057" class="">10057-独赢&amp;最先进球球队</dd><dd lay-value="10058" class="">10058-首个进球的半场</dd><dd lay-value="10059" class="">10059-主队首个进球半场</dd><dd lay-value="10060" class="">10060-客队首个进球半场</dd><dd lay-value="10061" class="">10061-先进{X}球的一方</dd><dd lay-value="20022" class="">20022-上半场净胜分</dd><dd lay-value="10062" class="">10062-半/全场&amp;准确进球数</dd><dd lay-value="10063" class="">10063-任何进球时分(5min)</dd><dd lay-value="10064" class="">10064-第{X}个进球时分(5min)</dd><dd lay-value="11001" class="">11001-全场独赢(含加时)</dd><dd lay-value="11002" class="">11002-全场大小(含加时)</dd><dd lay-value="11003" class="">11003-全场让分(含加时)</dd><dd lay-value="11004" class="">11004-全场单双(含加时)</dd><dd lay-value="11005" class="">11005-全场{主队}大小(含加时)</dd><dd lay-value="11006" class="">11006-全场{客队}大小(含加时)</dd><dd lay-value="11007" class="">11007-上半场独赢</dd><dd lay-value="11008" class="">11008-上半场大小</dd><dd lay-value="11009" class="">11009-上半场让分</dd><dd lay-value="11010" class="">11010-上半场单双</dd><dd lay-value="11011" class="">11011-上半场{主队}大小</dd><dd lay-value="11012" class="">11012-上半场{客队}大小</dd><dd lay-value="11013" class="">11013-下半场独赢(含加时)</dd><dd lay-value="11014" class="">11014-下半场大小(含加时)</dd><dd lay-value="11015" class="">11015-下半场让分(含加时)</dd><dd lay-value="11016" class="">11016-下半场单双(含加时)</dd><dd lay-value="11017" class="">11017-下半场{主队}大小(含加时)</dd><dd lay-value="11018" class="">11018-下半场{客队}大小(含加时)</dd><dd lay-value="11019" class="">11019-第一节独赢</dd><dd lay-value="11020" class="">11020-第一节大小</dd><dd lay-value="11021" class="">11021-第一节让分</dd><dd lay-value="11022" class="">11022-第一节单双</dd><dd lay-value="11023" class="">11023-第一节{主队}大小</dd><dd lay-value="11024" class="">11024-第一节{客队}大小</dd><dd lay-value="11025" class="">11025-第二节独赢</dd><dd lay-value="11026" class="">11026-第二节大小</dd><dd lay-value="11027" class="">11027-第二节让分</dd><dd lay-value="11028" class="">11028-第二节单双</dd><dd lay-value="11029" class="">11029-第二节{主队}大小</dd><dd lay-value="11030" class="">11030-第二节{客队}大小</dd><dd lay-value="11031" class="">11031-第三节独赢</dd><dd lay-value="11032" class="">11032-第三节大小</dd><dd lay-value="11033" class="">11033-第三节让分</dd><dd lay-value="11034" class="">11034-第三节单双</dd><dd lay-value="11035" class="">11035-第三节{主队}大小</dd><dd lay-value="11036" class="">11036-第三节{客队}大小</dd><dd lay-value="11037" class="">11037-第四节独赢</dd><dd lay-value="11038" class="">11038-第四节大小</dd><dd lay-value="11039" class="">11039-第四节让分</dd><dd lay-value="11040" class="">11040-第四节单双</dd><dd lay-value="11041" class="">11041-第四节{主队}大小</dd><dd lay-value="11042" class="">11042-第四节{客队}大小</dd><dd lay-value="10065" class="">10065-全场反波胆</dd><dd lay-value="20023" class="">20023-上半场反波胆</dd><dd lay-value="60017" class="">60017-下半场反波胆</dd><dd lay-value="50029" class="">50029-15分钟罚牌-独赢({a}-{b})</dd><dd lay-value="50030" class="">50030-15分钟罚牌-让球({a}-{b})</dd><dd lay-value="50031" class="">50031-15分钟罚牌-大小({a}-{b})</dd><dd lay-value="20024" class="">20024-上半场{主队}进球单/双</dd><dd lay-value="20025" class="">20025-上半场{客队}进球单/双</dd><dd lay-value="20026" class="">20026-上半场{主队}零失球获胜</dd><dd lay-value="20027" class="">20027-上半场{客队}零失球获胜</dd><dd lay-value="60018" class="">60018-下半场{主队}进球单/双</dd><dd lay-value="60019" class="">60019-下半场{客队}进球单/双</dd><dd lay-value="60020" class="">60020-下半场{主队}准确进球数</dd><dd lay-value="60021" class="">60021-下半场{客队}准确进球数</dd><dd lay-value="60022" class="">60022-下半场{主队}零失球获胜</dd><dd lay-value="60023" class="">60023-下半场{客队}零失球获胜</dd><dd lay-value="60024" class="">60024-下半场净胜分</dd><dd lay-value="11043" class="">11043-净胜分 3项</dd><dd lay-value="11044" class="">11044-首先获得{X}分</dd><dd lay-value="11045" class="">11045-净胜分6项</dd><dd lay-value="11046" class="">11046净胜分7项</dd><dd lay-value="11047" class="">11047-净胜分12项</dd><dd lay-value="11048" class="">11048-净胜分14项</dd><dd lay-value="11049" class="">11049-谁先获得第{X}分</dd><dd lay-value="11050" class="">11050-独赢 &amp; 总分</dd><dd lay-value="11051" class="">11051上半场净胜分</dd><dd lay-value="11052" class="">11052-第一节净胜分</dd><dd lay-value="11053" class="">11053-第二节净胜分</dd><dd lay-value="11054" class="">11054-第三节净胜分</dd><dd lay-value="11055" class="">11055-第四节净胜分</dd><dd lay-value="11056" class="">11056-第一节首先获得{X}分(三项)</dd><dd lay-value="11057" class="">11057-第二节首先获得{X}分(三项)</dd><dd lay-value="11058" class="">11058-第三节首先获得{X}分(三项)</dd><dd lay-value="11059" class="">11059-第四节首先获得{X}分(三项)</dd><dd lay-value="11060" class="">11060-得分最高的赛节</dd><dd lay-value="11061" class="">11061-第一节首先获得{X}分</dd><dd lay-value="11062" class="">11062-第二节首先获得{X}分</dd><dd lay-value="11063" class="">11063-第三节首先获得{X}分</dd><dd lay-value="11064" class="">11064-第四节首先获得{X}分</dd><dd lay-value="10066" class="">10066独赢&amp;进球单/双</dd><dd lay-value="10067" class="">10067赢得任意半场 </dd><dd lay-value="10068" class="">10068赢得所有半场</dd><dd lay-value="10069" class="">10069上/下半场双方均进球（两项）</dd><dd lay-value="20028" class="">20028上半场最后进球球队</dd><dd lay-value="40026" class="">40026角球-双重机会</dd><dd lay-value="40027" class="">40027角球-波胆</dd><dd lay-value="40028" class="">40028角球-大小盘三项 </dd><dd lay-value="40029" class="">40029角球-上半场最后角球</dd><dd lay-value="50032" class="">50032罚牌-双重机会</dd><dd lay-value="50033" class="">50033罚牌-上半场最后得牌 </dd><dd lay-value="50034" class="">50034罚牌-上半场双重机会</dd><dd lay-value="50035" class="">50035罚牌-全场最后得牌</dd><dd lay-value="40030" class="">40030上半场{主队}角球总数区间</dd><dd lay-value="40031" class="">40031上半场{客队}角球总数区间</dd><dd lay-value="50036" class="">50036上半场比赛中出现红牌</dd><dd lay-value="50037" class="">50037上半场{主队}获得红牌</dd><dd lay-value="50038" class="">50038上半场{客队}获得红牌</dd><dd lay-value="50040" class="">50040加时赛罚牌-让球</dd><dd lay-value="50041" class="">50041加时赛罚牌-大小</dd><dd lay-value="50042" class="">50042加时赛罚牌-上半场独赢</dd><dd lay-value="50043" class="">50043加时赛罚牌-上半场让球</dd><dd lay-value="50044" class="">50044加时赛罚牌-上半场大小</dd><dd lay-value="50045" class="">50045加时赛罚牌-单/双</dd><dd lay-value="50046" class="">50046加时赛罚牌-第{X}个罚牌</dd><dd lay-value="40032" class="">40032加时赛角球-独赢</dd><dd lay-value="40033" class="">40033加时赛角球-让球</dd><dd lay-value="40034" class="">40034加时赛角球-上半场独赢</dd><dd lay-value="40035" class="">40035加时赛角球-上半场让球</dd><dd lay-value="40036" class="">40036加时赛角球-上半场大小</dd><dd lay-value="40037" class="">40037加时赛角球-单/双</dd><dd lay-value="40038" class="">40038加时赛角球-第{X}个角球</dd><dd lay-value="80013" class="">80013点球大战第几轮结束 </dd><dd lay-value="10070" class="">10070双重机会 &amp; 上半場双方均进球</dd><dd lay-value="10071" class="">10071双重机会 &amp; 下半场双方均进球</dd><dd lay-value="10072" class="">10072进球 大/小&amp;首次进球队伍</dd><dd lay-value="10073" class="">10073双重机会&amp;首次进球队伍</dd><dd lay-value="60025" class="">60025下半场-双重机会 &amp; 双方球队皆进球</dd><dd lay-value="10074" class="">100741X2 或 任何零失球</dd><dd lay-value="20029" class="">20029上半场-双重机会 &amp; 双方球队皆进球</dd><dd lay-value="10075" class="">10075双方/一方/两者皆不得分</dd><dd lay-value="10076" class="">10076获胜球队</dd><dd lay-value="10077" class="">10077进球球队</dd><dd lay-value="20030" class="">20030上半场-最先进球 / 最后进球</dd><dd lay-value="10078" class="">10078首颗入球时间 -3项</dd><dd lay-value="20032" class="">20032上半場-第一個進球 -3項</dd><dd lay-value="20031" class="">20031上半場-第一個進球&nbsp; 無進球退款 -2項</dd><dd lay-value="60026" class="">60026下半場-第一個進球 -3項</dd><dd lay-value="60027" class="">60027下半場-第一個進球&nbsp; 無進球退款 -2項</dd><dd lay-value="10079" class="">10079总进球数 - 大 / 小 0.5</dd><dd lay-value="10080" class="">10080主隊 获胜</dd><dd lay-value="10081" class="">10081客隊 获胜</dd><dd lay-value="40039" class="">40039下半场第一个角球</dd><dd lay-value="40040" class="">40040最后一个角球 -2項</dd><dd lay-value="40042" class="">40042第一个角球 -3項</dd><dd lay-value="40041" class="">40041第一个角球 -2項</dd><dd lay-value="11084" class="">11084上半场-让分&amp;大小</dd><dd lay-value="11085" class="">11085第1节让分&amp;大小</dd><dd lay-value="11086" class="">11086让分&amp;大小</dd><dd lay-value="11087" class="">11087主队获胜节数大小</dd><dd lay-value="11088" class="">11088客队获胜节数大小</dd><dd lay-value="11089" class="">11089上半场净胜分数13项</dd><dd lay-value="11090" class="">11090下半场净胜分数13项</dd><dd lay-value="11091" class="">11091第一节 净胜分数13项</dd><dd lay-value="11092" class="">11092第二节 净胜分数13项</dd><dd lay-value="11093" class="">11093第三节 净胜分数13项</dd><dd lay-value="11094" class="">11094第四节 净胜分数13项&nbsp;</dd><dd lay-value="11095" class="">11095总分末位数</dd><dd lay-value="11096" class="">11096上半场总分末位数</dd><dd lay-value="11097" class="">11097上半场主队总分末位数</dd><dd lay-value="11098" class="">11098上半场客队总分末位数</dd><dd lay-value="11099" class="">11099下半场总分末位数</dd><dd lay-value="11101" class="">11101下半场主队总分末位数</dd><dd lay-value="11102" class="">11102下半场客队总分末位数</dd><dd lay-value="50039" class="">50039加时赛罚牌-独赢</dd><dd lay-value="11065" class="">11065是否有加时赛</dd><dd lay-value="11066" class="">11066半场/全场</dd><dd lay-value="11067" class="">11067首个进球队伍</dd><dd lay-value="11068" class="">11068最高得分的半场</dd><dd lay-value="11069" class="">11069最后进球队伍</dd><dd lay-value="11070" class="">11070下半場首先获得{Y}分</dd><dd lay-value="11071" class="">11071{主队}第{X}节获得{Y}分</dd><dd lay-value="11072" class="">11072{主队}第{X}节获得{Y}分</dd><dd lay-value="11073" class="">11073{主队}第{X}节获得{Y}分</dd><dd lay-value="11074" class="">11074{主队}第{X}节获得{Y}分</dd><dd lay-value="11075" class="">11075{客队}第{X}节获得{Y}分</dd><dd lay-value="11076" class="">11076{客队}第{X}节获得{Y}分</dd><dd lay-value="11077" class="">11077{客队}第{X}节获得{Y}分</dd><dd lay-value="11078" class="">11078{客队}第{X}节获得{Y}分</dd><dd lay-value="11079" class="">11079第{X}节双重机会</dd><dd lay-value="11080" class="">11080第{X}节双重机会</dd><dd lay-value="11081" class="">11081第{X}节双重机会</dd><dd lay-value="11082" class="">11082第{X}节双重机会</dd><dd lay-value="11083" class="">11083上半场首先获得{Y}分</dd><dd lay-value="11103" class="">11103 6分钟总分（第1节开始-06：01）</dd><dd lay-value="11104" class="">11104 6分钟总分（06：00-第1节结束）</dd><dd lay-value="11105" class="">11105 6分钟总分（第2节开始-06：01）</dd><dd lay-value="11106" class="">11106 6分钟总分（06：00-第2节结束）</dd><dd lay-value="11107" class="">11107 6分钟总分（第3节开始-06：01）</dd><dd lay-value="11108" class="">11108 6分钟总分（06：00-第3节结束）</dd><dd lay-value="11109" class="">11109 6分钟总分（第4节开始-06：01）</dd><dd lay-value="11110" class="">11110 6分钟总分（06：00-第4节结束）</dd><dd lay-value="11111" class="">11111 6分钟{主队}总分（第1节开始-06：01）</dd><dd lay-value="11112" class="">11112 6分钟{主队}总分（06：00-第1节结束）</dd><dd lay-value="11113" class="">11113 6分钟{主队}总分（第2节开始-06：01）</dd><dd lay-value="11114" class="">11114 6分钟{主队}总分（06：00-第2节结束）</dd><dd lay-value="11115" class="">11115 6分钟{主队}总分（第3节开始-06：01）</dd><dd lay-value="11116" class="">11116 6分钟{主队}总分（06：00-第3节结束）</dd><dd lay-value="11117" class="">11117 6分钟{主队}总分（第4节开始-06：01</dd><dd lay-value="11118" class="">11118 6分钟{主队}总分（06：00-第4节结束）</dd><dd lay-value="11119" class="">11119 6分钟{客队}总分（第1节开始-06：01）</dd><dd lay-value="11120" class="">11120 6分钟{客队}总分（06：00-第1节结束）</dd><dd lay-value="11121" class="">11121 6分钟{客队}总分（第2节开始-06：01）</dd><dd lay-value="11122" class="">11122 6分钟{客队}总分（06：00-第2节结束）</dd><dd lay-value="11123" class="">11123 6分钟{客队}总分（第3节开始-06：01）</dd><dd lay-value="11124" class="">11124 6分钟{客队}总分（06：00-第3节结束）</dd><dd lay-value="11125" class="">11125 6分钟{客队}总分（第4节开始-06：01）</dd><dd lay-value="11126" class="">11126 6分钟{客队}总分（06：00-第4节结束</dd><dd lay-value="11127" class="">11127 6分钟总分单/双 （第1节开始-06：01)</dd><dd lay-value="11128" class="">11128 6分钟总分单/双 （06：00-第1节结束）</dd><dd lay-value="11129" class="">11129 6分钟总分单/双 （第2节开始-06：01）</dd><dd lay-value="11130" class="">11130 6分钟总分单/双 （06：00-第2节结束）</dd><dd lay-value="11131" class="">11131 6分钟总分单/双 （第3节开始-06：01）</dd><dd lay-value="11132" class="">11132 6分钟总分单/双 （06：00-第3节结束）</dd><dd lay-value="11133" class="">11133 6分钟总分单/双 （第4节开始-06：01）</dd><dd lay-value="11134" class="">11134 6分钟总分单/双 （06：00-第4节结束）</dd><dd lay-value="40043" class="">40043-角球-上半场波胆</dd><dd lay-value="40044" class="">40044-角球-下半场波胆</dd><dd lay-value="12001" class="">12001全场独赢</dd><dd lay-value="12002" class="">12002准确局数</dd><dd lay-value="12003" class="">12003全场比分</dd><dd lay-value="12004" class="">12004全场让分（分数）</dd><dd lay-value="12005" class="">12005全场总分（分数）</dd><dd lay-value="12006" class="">12006第1局独赢</dd><dd lay-value="12007" class="">12007第1局让分</dd><dd lay-value="12008" class="">12008第1局总分</dd><dd lay-value="12009" class="">12009第1局单双</dd><dd lay-value="12010" class="">12010第1局Y分</dd><dd lay-value="12011" class="">12011第1局首先获得Y分</dd><dd lay-value="12012" class="">12012第2局独赢</dd><dd lay-value="12013" class="">12013第2局让分</dd><dd lay-value="12014" class="">12014第2局总分</dd><dd lay-value="12015" class="">12015第2局单双</dd><dd lay-value="12016" class="">12016第2局Y分</dd><dd lay-value="12017" class="">12017第2局首先获得Y分</dd><dd lay-value="12018" class="">12018第3局独赢</dd><dd lay-value="12019" class="">12019第3局让分</dd><dd lay-value="12020" class="">12020第3局总分</dd><dd lay-value="12021" class="">12021第3局单双</dd><dd lay-value="12022" class="">12022第3局Y分</dd><dd lay-value="12023" class="">12023第3局首先获得Y分</dd><dd lay-value="12024" class="">12024第4局独赢</dd><dd lay-value="12025" class="">12025第4局让分</dd><dd lay-value="12026" class="">12026第4局总分</dd><dd lay-value="12027" class="">12027第4局单双</dd><dd lay-value="12028" class="">12028第4局Y分</dd><dd lay-value="12029" class="">12029第4局首先获得Y分</dd><dd lay-value="12030" class="">12030第5局独赢</dd><dd lay-value="12031" class="">12031第5局让分</dd><dd lay-value="12032" class="">12032第5局总分</dd><dd lay-value="12033" class="">12033第5局单双</dd><dd lay-value="12034" class="">12034第5局Y分</dd><dd lay-value="12035" class="">12035第5局首先获得Y分</dd><dd lay-value="10082" class="">10082全场高倍波胆</dd><dd lay-value="20033" class="">20033上半场高倍波胆</dd><dd lay-value="60028" class="">60028下半场高倍波胆</dd><dd lay-value="80014" class="">80014-点球大战-{主队}大小</dd><dd lay-value="80015" class="">80015-点球大战-{客队}大小</dd><dd lay-value="80016" class="">80016-点球大战-{主队}罚点球总数</dd><dd lay-value="80017" class="">80017-点球大战-{客队}罚点球总数</dd><dd lay-value="80018" class="">80018-点球大-战-罚失点球总数</dd><dd lay-value="80019" class="">80019-点球大战-{主队}罚失点球总数</dd><dd lay-value="80020" class="">80020-点球大战-{客队}罚失点球总数</dd><dd lay-value="80021" class="">80021-点球大战-第{X}轮独赢</dd><dd lay-value="80022" class="">80022-点球大战前五轮-双重机会</dd><dd lay-value="80023" class="">80023-点球大战-是否进入骤死赛</dd><dd lay-value="80024" class="">80024-点球大战-开始队伍 &amp; 独赢</dd><dd lay-value="80025" class="">80025-点球大战-先进{X}个球</dd><dd lay-value="80026" class="">80026-点球大战前五轮-独赢 &amp; 大小</dd><dd lay-value="11135" class="">11135-上半场-独赢&amp;总分</dd><dd lay-value="11136" class="">11136-下半场-独赢&amp;总分</dd><dd lay-value="11137" class="">11137-第一节-独赢&amp;总分</dd><dd lay-value="11138" class="">11138-第二节-独赢&amp;总分</dd><dd lay-value="11139" class="">11139-第三节-独赢&amp;总分</dd><dd lay-value="11140" class="">11140-第四节-独赢&amp;总分</dd><dd lay-value="11141" class="">11141-独赢&amp;两队都获得{X}分</dd><dd lay-value="11142" class="">11142-第二节-让分&amp;总分</dd><dd lay-value="11143" class="">11143-第三节-让分&amp;总分</dd><dd lay-value="11144" class="">11144-第四节-让分&amp;总分</dd><dd lay-value="11145" class="">11145-上半场&amp;下半场 是否全胜</dd><dd lay-value="11146" class="">11146-上半场&amp;全场 是否全胜</dd><dd lay-value="11147" class="">11147-第一节&amp;全程 是否全胜</dd><dd lay-value="11148" class="">11148-{主队}总分单/双</dd><dd lay-value="11149" class="">11149-{客队}总分单/双</dd><dd lay-value="10083" class="">10083-全场自选波胆</dd><dd lay-value="20034" class="">20034-上半场自选波胆</dd><dd lay-value="60029" class="">60029-下半场自选波胆</dd><dd lay-value="40045" class="">40045-1100446-上半场角球大小盘三项-{X}</dd><dd lay-value="40046" class="">40046-1100447-下半场角球大小盘三项-{X}</dd><dd lay-value="40047" class="">40047-1100448-角球让球胜平负</dd><dd lay-value="40048" class="">40048-1100449-上半场角球让球胜平负</dd><dd lay-value="40049" class="">40049-1100450-下半场角球让球胜平负</dd><dd lay-value="40052" class="">40052-1100451-角球最多的半场</dd><dd lay-value="40053" class="">40053-1100454-角球最多的半场(三项)</dd><dd lay-value="40054" class="">40054-1100455-下半场角球独赢</dd><dd lay-value="40050" class="">40050-1100456-下半场角球让球</dd><dd lay-value="40051" class="">40051-1100457-下半场角球大小</dd><dd lay-value="40055" class="">40055-1100458-下半场角球单/双</dd><dd lay-value="50047" class="">50047-1100459-下半场罚牌独赢</dd><dd lay-value="50048" class="">50048-1100460-下半场罚牌让分</dd><dd lay-value="50049" class="">50049-1100461-下半场罚牌大小</dd></dl></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">盘口ID</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="thirdMarketDTO.thirdMarketSourceId" value="" placeholder="请输入盘口ID" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">盘口类型</label>
+                    <div class="layui-input-block timo-search-status">
+                        <select class="timo-search-select" name="thirdMarketDTO.marketType"><option value="">全部</option><option value="0">滚球盘</option><option value="1">赛前盘</option><option value="2">冠军盘</option></select>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">位置</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="thirdMarketDTO.offerLineId" value="" placeholder="请输入位置" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                </form>
+                <div class="layui-inline">
+                    <button class="layui-btn timo-search-btn">
+                        <i class="fa fa-search"></i>
+                    </button>
+                    <button type="button" id="submit" class="layui-btn" onclick="javascript:matchEventExport()">
+                        <i class="fa fa-download"> 导出XLS</i>
+                    </button>
+                    <!--<button class="layui-btn layui-btn-primary" th:onclick="reset(org.thymeleaf.context.WebEngineContext$RequestParametersMap@777f6fd5)">重置</button>-->
+                </div>
+            </div>
+        </div>
+        <div class="timo-table-wrap">
+            <table class="layui-table timo-table">
+                <thead>
+                <tr>
+                    <th data-field="linkId">链路ID</th>
+                    <th data-field="modifyTime">A01推送时间</th>
+                    <th data-field="sportId">运动种类</th>
+                    <th data-field="dataSourceCode">数据来源</th>
+                    <th data-field="thirdMatchSourceId">赛事ID</th>
+                    <th data-field="thirdMarketCategorySourceId">玩法ID</th>
+                    <th data-field="thirdMarketCategorySourceId">玩法名称</th>
+                    <th data-field="thirdMarketSourceId">盘口ID</th>
+                    <th data-field="marketType">盘口类型</th>
+                    <th data-field="status">盘口状态</th>
+                    <th data-field="oddsName">盘口名称</th>
+                    <th data-field="addition1">addition1</th>
+                    <th data-field="addition2">addition2</th>
+                    <th data-field="addition3">addition3</th>
+                    <th data-field="addition4">addition4</th>
+                    <th data-field="addition5">addition5</th>
+                    <th data-field="offerLineId">位置</th>
+                    <th data-field="startTime">数据商下发时间</th>
+                    <th data-field="pushTIme">上游推送时间</th>
+                    <th data-field="marketOddsList">盘口投注项</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>AO_0af4533820260903135327578daea2ac_0</td>
+                    <td>2026-09-03 13:53:27.600</td>
+                    <td>乒乓球</td>
+                    <td>AO</td>
+                    <td>763456975215083522</td>
+                    <td>AO:12008</td>
+                    <td>12008第1局总分</td>
+                    <td>763456975215083522_12008_14.5</td>
+                    <td>赛前盘</td>
+                    <td>active</td>
+                    <td>1th Game - Total Points</td>
+                    <td>14.5</td>
+                    <td>1</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>3</td>
+                    <td></td>
+                    <td></td>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/ao/rhAoMatchMarketIndex?dataDate=2026-09-03&amp;sportId=8&amp;page=30#" data-url="/ao/rhAoMatchMarketIndex/marketOddsList/6a990b570492d73bbab4c6df/8?dataDate=2026-09-03">投注项列表</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>AO_0af4533820260903135327578daea2ac_0</td>
+                    <td>2026-09-03 13:53:27.600</td>
+                    <td>乒乓球</td>
+                    <td>AO</td>
+                    <td>763456975215083522</td>
+                    <td>AO:12007</td>
+                    <td>12007第1局让分</td>
+                    <td>763456975215083522_12007_-7.5</td>
+                    <td>赛前盘</td>
+                    <td>active</td>
+                    <td>1th Game - Point Handicap</td>
+                    <td>-7.5</td>
+                    <td>1</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>3</td>
+                    <td></td>
+                    <td></td>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/ao/rhAoMatchMarketIndex?dataDate=2026-09-03&amp;sportId=8&amp;page=30#" data-url="/ao/rhAoMatchMarketIndex/marketOddsList/6a990b570492d73bbab4c6dc/8?dataDate=2026-09-03">投注项列表</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>AO_0af4533820260903135327578daea2ac_1</td>
+                    <td>2026-09-03 13:53:27.600</td>
+                    <td>乒乓球</td>
+                    <td>AO</td>
+                    <td>763456975215083522</td>
+                    <td>AO:12018</td>
+                    <td>12018第3局独赢</td>
+                    <td>763456975215083522_12018_</td>
+                    <td>赛前盘</td>
+                    <td>active</td>
+                    <td>3th Game - Winner</td>
+                    <td></td>
+                    <td>3</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>1</td>
+                    <td></td>
+                    <td></td>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/ao/rhAoMatchMarketIndex?dataDate=2026-09-03&amp;sportId=8&amp;page=30#" data-url="/ao/rhAoMatchMarketIndex/marketOddsList/6a990b570492d73bbab4c6f3/8?dataDate=2026-09-03">投注项列表</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>AO_0af4533820260903135327578daea2ac_1</td>
+                    <td>2026-09-03 13:53:27.600</td>
+                    <td>乒乓球</td>
+                    <td>AO</td>
+                    <td>763456975215083522</td>
+                    <td>AO:12014</td>
+                    <td>12014第2局总分</td>
+                    <td>763456975215083522_12014_13.5</td>
+                    <td>赛前盘</td>
+                    <td>active</td>
+                    <td>2th Game - Total Points</td>
+                    <td>13.5</td>
+                    <td>2</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>3</td>
+                    <td></td>
+                    <td></td>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/ao/rhAoMatchMarketIndex?dataDate=2026-09-03&amp;sportId=8&amp;page=30#" data-url="/ao/rhAoMatchMarketIndex/marketOddsList/6a990b570492d73bbab4c6ec/8?dataDate=2026-09-03">投注项列表</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>AO_0af4533820260903135327578daea2ac_1</td>
+                    <td>2026-09-03 13:53:27.600</td>
+                    <td>乒乓球</td>
+                    <td>AO</td>
+                    <td>763456975215083522</td>
+                    <td>AO:12011</td>
+                    <td>12011第1局首先获得Y分</td>
+                    <td>763456975215083522_12011_9</td>
+                    <td>赛前盘</td>
+                    <td>active</td>
+                    <td>1th Game - Race to {Y} Points</td>
+                    <td>1</td>
+                    <td>9</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>1</td>
+                    <td></td>
+                    <td></td>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/ao/rhAoMatchMarketIndex?dataDate=2026-09-03&amp;sportId=8&amp;page=30#" data-url="/ao/rhAoMatchMarketIndex/marketOddsList/6a990b570492d73bbab4c6e5/8?dataDate=2026-09-03">投注项列表</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>AO_0af4533820260903135327578daea2ac_0</td>
+                    <td>2026-09-03 13:53:27.600</td>
+                    <td>乒乓球</td>
+                    <td>AO</td>
+                    <td>763456975215083522</td>
+                    <td>AO:12004</td>
+                    <td>12004全场让分（分数）</td>
+                    <td>763456975215083522_12004_-25.5</td>
+                    <td>赛前盘</td>
+                    <td>active</td>
+                    <td>Point Handicap</td>
+                    <td>-25.5</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>1</td>
+                    <td></td>
+                    <td></td>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/ao/rhAoMatchMarketIndex?dataDate=2026-09-03&amp;sportId=8&amp;page=30#" data-url="/ao/rhAoMatchMarketIndex/marketOddsList/6a990b570492d73bbab4c6d3/8?dataDate=2026-09-03">投注项列表</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>AO_0af4533820260903135327578daea2ac_1</td>
+                    <td>2026-09-03 13:53:27.600</td>
+                    <td>乒乓球</td>
+                    <td>AO</td>
+                    <td>763456975215083522</td>
+                    <td>AO:12020</td>
+                    <td>12020第3局总分</td>
+                    <td>763456975215083522_12020_11.5</td>
+                    <td>赛前盘</td>
+                    <td>active</td>
+                    <td>3th Game - Total Points</td>
+                    <td>11.5</td>
+                    <td>3</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>2</td>
+                    <td></td>
+                    <td></td>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/ao/rhAoMatchMarketIndex?dataDate=2026-09-03&amp;sportId=8&amp;page=30#" data-url="/ao/rhAoMatchMarketIndex/marketOddsList/6a990b570492d73bbab4c6f8/8?dataDate=2026-09-03">投注项列表</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>AO_0af4533820260903135327578daea2ac_1</td>
+                    <td>2026-09-03 13:53:27.600</td>
+                    <td>乒乓球</td>
+                    <td>AO</td>
+                    <td>763456975215083522</td>
+                    <td>AO:12019</td>
+                    <td>12019第3局让分</td>
+                    <td>763456975215083522_12019_-8.5</td>
+                    <td>赛前盘</td>
+                    <td>active</td>
+                    <td>3th Game - Point Handicap</td>
+                    <td>-8.5</td>
+                    <td>3</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>3</td>
+                    <td></td>
+                    <td></td>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/ao/rhAoMatchMarketIndex?dataDate=2026-09-03&amp;sportId=8&amp;page=30#" data-url="/ao/rhAoMatchMarketIndex/marketOddsList/6a990b570492d73bbab4c6f6/8?dataDate=2026-09-03">投注项列表</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>AO_0af4533820260903135327578daea2ac_1</td>
+                    <td>2026-09-03 13:53:27.600</td>
+                    <td>乒乓球</td>
+                    <td>AO</td>
+                    <td>763456975215083522</td>
+                    <td>AO:12017</td>
+                    <td>12017第2局首先获得Y分</td>
+                    <td>763456975215083522_12017_9</td>
+                    <td>赛前盘</td>
+                    <td>active</td>
+                    <td>2th Game - Race to {Y} Points</td>
+                    <td>2</td>
+                    <td>9</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>1</td>
+                    <td></td>
+                    <td></td>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/ao/rhAoMatchMarketIndex?dataDate=2026-09-03&amp;sportId=8&amp;page=30#" data-url="/ao/rhAoMatchMarketIndex/marketOddsList/6a990b570492d73bbab4c6f2/8?dataDate=2026-09-03">投注项列表</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>AO_0af4533820260903135327578daea2ac_2</td>
+                    <td>2026-09-03 13:53:27.600</td>
+                    <td>乒乓球</td>
+                    <td>AO</td>
+                    <td>763456975215083522</td>
+                    <td>AO:12023</td>
+                    <td>12023第3局首先获得Y分</td>
+                    <td>763456975215083522_12023_5</td>
+                    <td>赛前盘</td>
+                    <td>active</td>
+                    <td>3th Game - Race to {Y} Points</td>
+                    <td>3</td>
+                    <td>5</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>1</td>
+                    <td></td>
+                    <td></td>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/ao/rhAoMatchMarketIndex?dataDate=2026-09-03&amp;sportId=8&amp;page=30#" data-url="/ao/rhAoMatchMarketIndex/marketOddsList/6a990b570492d73bbab4c6fd/8?dataDate=2026-09-03">投注项列表</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        
+    <div class="layui-row">
+        <div class="layui-col-sm4">
+            <div class="page-info">
+                <span>显示 291/300 条，共 336 条记录</span>
+                <select class="timo-select page-number">
+                    <option value="10" selected="selected">10 条/页</option>
+                    <option value="20">20 条/页</option>
+                    <option value="30">30 条/页</option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-col-sm7" style="float: right;">
+            <ul class="pagination list-page">
+                <li class="page-item"><a class="page-link" href="http://panda-send-manager.dbsportxxx14bl5.com/ao/rhAoMatchMarketIndex?dataDate=2026-09-03&amp;sportId=8&amp;page=29">上一页</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="http://panda-send-manager.dbsportxxx14bl5.com/ao/rhAoMatchMarketIndex?dataDate=2026-09-03&amp;sportId=8&amp;page=1">1</a>
+                    
+                </li>
+                <li class="page-item">
+                    
+                    <a class="page-link breviary">…</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="http://panda-send-manager.dbsportxxx14bl5.com/ao/rhAoMatchMarketIndex?dataDate=2026-09-03&amp;sportId=8&amp;page=29">29</a>
+                    
+                </li>
+                <li class="page-item active">
+                    <a class="page-link" href="http://panda-send-manager.dbsportxxx14bl5.com/ao/rhAoMatchMarketIndex?dataDate=2026-09-03&amp;sportId=8&amp;page=30">30</a>
+                    
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="http://panda-send-manager.dbsportxxx14bl5.com/ao/rhAoMatchMarketIndex?dataDate=2026-09-03&amp;sportId=8&amp;page=31">31</a>
+                    
+                </li>
+                <li class="page-item">
+                    
+                    <a class="page-link breviary">…</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="http://panda-send-manager.dbsportxxx14bl5.com/ao/rhAoMatchMarketIndex?dataDate=2026-09-03&amp;sportId=8&amp;page=34">34</a>
+                    
+                </li>
+                <li class="page-item"><a class="page-link" href="http://panda-send-manager.dbsportxxx14bl5.com/ao/rhAoMatchMarketIndex?dataDate=2026-09-03&amp;sportId=8&amp;page=31">下一页</a>
+                </li>
+               <li class="page-item">
+                    <span class="page-link noHover">
+                        跳到第
+                    </span>
+               </li>
+                <li class="page-item">
+                    <input id="pageParamHrefSkip" type="hidden" value="/ao/rhAoMatchMarketIndex?dataDate=2026-09-03&amp;sportId=8&amp;">
+                    <input class="page-link" style="text-align: center; width: 50px" id="pageNumberSkip" type="number" min="1" value="30">
+                </li>
+                <li class="page-item">
+                    <span class="page-link noHover">页</span>
+                </li>
+                <li class="page-item">
+                    <button type="button" class="page-link page-number-skip">确定</button>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    </div>
+</div>
+<script>
+        //定义函数 $ 根据元素id获得页面元素,提高效率
+        function $(id){
+            return document.getElementById(id);
+        }
+    </script><script src="./jquery-2.2.4.js.download" charset="utf-8"></script>
+        <script src="./layui.js.download" charset="utf-8"></script>
+        <script src="./main.js.download" charset="utf-8"></script>
+    
+<script type="text/javascript">
+    $(document).ready(function () {
+    });
+    layui.use('laydate', function () {
+        var laydate = layui.laydate;
+        laydate.render({
+            elem: '#datePicker',
+            type: 'date',
+            format: 'yyyy-MM-dd'
+        });
+    });
+</script>
+
+
+</body></html>
