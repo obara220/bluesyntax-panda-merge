@@ -13,6 +13,7 @@ import com.panda.merge.dao.MatchEventInfoDao;
 import com.panda.merge.dto.MatchEventInfoDTO;
 import com.panda.merge.dto.MatchEventInfoDetail;
 import com.panda.merge.dto.WarningEventDTO;
+import com.panda.merge.exception.ApiException;
 import com.panda.merge.exception.Asserts;
 import com.panda.merge.mapper.MatchEventInfoMapper;
 import com.panda.merge.model.*;
@@ -33,6 +34,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.panda.merge.config.RedisConfig.REDIS_FIVE_MINS_TIME;
+import static com.panda.merge.config.RedisConfig.REDIS_HOUR_TIME;
 import static com.panda.merge.constant.ConstantSystem.ONE;
 
 /**
@@ -164,7 +166,7 @@ public class MatchEventInfoServiceImpl implements MatchEventInfoService {
                 if (matchEventInfoLoad == null) {
                     //优化单：81636 删除事件处理先于进球事件，导致删除无效,需要缓存删除事件
                     String deleteEventKey = String.format(ConstantSystem.getDeleteEventKey(), matchEventInfoDTO.getDataSourceCode(),matchEventInfoDTO.getThirdMatchSourceId(),matchEventInfoDTO.getExtrainfo());
-                    redisService.set(deleteEventKey,matchEventInfoDTO.getExtrainfo(), RedisConfig.REDIS_HOUR_TIME);
+                    redisService.set(deleteEventKey,matchEventInfoDTO.getExtrainfo(), REDIS_HOUR_TIME);
                     Asserts.fail("第三方赛事体育删除事件非法"+matchEventInfoDTO.getThirdEventId()+"，暂时缓存被删除的事件ID，方便后续处理，请确认数据是否正确,Extrainfo:"+matchEventInfoDTO.getExtrainfo());
                 }
             } finally {
@@ -437,7 +439,7 @@ public class MatchEventInfoServiceImpl implements MatchEventInfoService {
         long currentTimeMillis = System.currentTimeMillis();
         MatchEventInfoDetail item = new MatchEventInfoDetail();
         try{
-             item.setTableName("match_event_info_"+thirdMatchInfo.getDataSourceCode().toLowerCase(Locale.ROOT));
+            item.setTableName("match_event_info_"+thirdMatchInfo.getDataSourceCode().toLowerCase(Locale.ROOT));
             item.setStandardMatchId(thirdMatchInfo.getReferenceId());
             item.setModifyTime(TimeUtils.millsSecondsEast8ZoneGmt());
             item.setLinkId(linkId);

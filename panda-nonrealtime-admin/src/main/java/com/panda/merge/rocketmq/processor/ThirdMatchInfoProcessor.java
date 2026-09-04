@@ -82,6 +82,7 @@ public class ThirdMatchInfoProcessor extends BaseProcessor {
     private String autoSaleSources;
 
     /**
+     *
      * 处理赛事数据
      * @param request  三方数据源赛事入参
      * */
@@ -232,6 +233,18 @@ public class ThirdMatchInfoProcessor extends BaseProcessor {
                 //=============================场地信息结束=============================
                 /**统一入库赛事，赛事球队关系，场地信息多语言入库*/
                 log.info("【"+ PROJECT_ID_NOREALTIME +" ："+ THIRD_MATCH_INFO_API+"】【"+dataSource.getCode()+" ::"+linkId+"::】本次处理的三方赛事信息:{},开赛时间={},liveEventSource={}",thirdMatchInfo.getThirdMatchSourceId(),thirdMatchInfo.getBeginTime(), thirdMatchInfoDTO.getLiveEventSource());
+                //108326 【日常】【生产】L01篮球，三方赛事结束了，阶段却显示0
+                try {
+                    Long.valueOf(thirdMatchInfo.getMatchPeriod());
+                } catch (Exception e) {
+                    log.info("【linkId="+linkId+",源赛事ID={}】,三方赛事阶段转换异常,原始值:{},转换为'0'", thirdMatchInfo.getThirdMatchSourceId(), thirdMatchInfo.getMatchPeriod());
+                    thirdMatchInfo.setMatchPeriod("0");
+                }
+                if (DataSourceCodeEnum.LS.getCode().equals(thirdMatchInfo.getDataSourceCode())) {
+                    if ("0".equals(thirdMatchInfo.getMatchPeriod()) && oldThirdMatchInfo != null && StringUtils.isNotBlank(oldThirdMatchInfo.getMatchPeriod())) {
+                        thirdMatchInfo.setMatchPeriod(null);
+                    }
+                }
                 transactionalProcessor.saveOrupdateThirdMatch(linkId, thirdMatchInfo, isNewThirdMatch, thirdMatchInfoDTO.getSportId());
                 thirdMatchInfoProducer.pushQueueMatch(linkId,dataSource,thirdMatchInfo);
                 //如果为0则不开启自动开售

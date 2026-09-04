@@ -70,8 +70,10 @@ public class SkgMatchAssociationConsumer implements RocketMQListener<MessageExt>
     @Override
     public void onMessage(MessageExt ext) {
         if (!realtimeSwitch && !realtimeEventSwitch) {
-            dataCenterProducer.send(ext,MATCH_ASSOCIATION_INFO_SK);
-            return;
+            if (dataCenterProducer.checkForward(ext,MATCH_ASSOCIATION_INFO_SK)) {
+                dataCenterProducer.send(ext,MATCH_ASSOCIATION_INFO_SK);
+                return;
+            }
         }
         String linkId = null;
         Long standardMatchId = null;

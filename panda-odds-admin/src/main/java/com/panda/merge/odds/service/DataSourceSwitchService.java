@@ -180,6 +180,14 @@ public class DataSourceSwitchService {
                  cds.linkId,
                  cds.standardMatchInfo.getId(),
                  cds.categoryId,cds.internalOds,cds.internalTds);
+        if (cds.marketCategorySell != null
+                && DataSourceUtils.isSameDataSourceCode(cds.marketCategorySell.getDataSourceCode(), cds.internalTds)) {
+            log.info("linkId:{},matchId:{},categoryId:{}, switchCategory skip, already on target ds:{}, current:{}",
+                     cds.linkId, cds.standardMatchInfo.getId(), cds.categoryId,
+                     cds.internalTds, cds.marketCategorySell.getDataSourceCode());
+            cds.status = 0;
+            return;
+        }
         String dataSourceCode = cds.tds;
         MarketCategorySell marketCategorySell = new MarketCategorySell();
         marketCategorySell.setSrWeight((DataSourceCodeEnum.SR.code.equals(dataSourceCode) ? 1 : 0));

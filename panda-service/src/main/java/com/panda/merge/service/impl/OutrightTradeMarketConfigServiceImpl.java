@@ -10,7 +10,11 @@ import com.panda.merge.model.ConfigOutrightTradeMarket;
 import com.panda.merge.model.ConfigOutrightTradeMarketExample;
 import com.panda.merge.service.OutrightTradeMarketConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.*;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -40,7 +44,7 @@ public class OutrightTradeMarketConfigServiceImpl implements OutrightTradeMarket
 
     @Override
     @Caching(put = @CachePut(key = "'ConfigOutrightTradeMarket:' +#outrightTradeMarketConfigDTO.standardMatchId+'-'+#outrightTradeMarketConfigDTO.standardMarketId"),
-            evict = @CacheEvict(key = "'ConfigTradeMarketByMatchId:' +#outrightTradeMarketConfigDTO.standardMatchId"))
+             evict = @CacheEvict(key = "'ConfigTradeMarketByMatchId:' +#outrightTradeMarketConfigDTO.standardMatchId"))
     public ConfigOutrightTradeMarket insertItem(String linkId, OutrightTradeMarketConfigDTO outrightTradeMarketConfigDTO) {
         ConfigOutrightTradeMarket configOutrightTradeMarket = new ConfigOutrightTradeMarket();
         configOutrightTradeMarket.setId(UUIdUtils.getId());
@@ -72,6 +76,15 @@ public class OutrightTradeMarketConfigServiceImpl implements OutrightTradeMarket
             return null;
         }
         return configOutrightTradeMarketList.get(0);
+    }
+
+    @Override
+    public List<ConfigOutrightTradeMarket> selectItems(Map<Long, Set<Long>> matchAndMarketIdsMap) {
+        ConfigOutrightTradeMarketExample example = new ConfigOutrightTradeMarketExample();
+        for(Map.Entry<Long, Set<Long>> entry : matchAndMarketIdsMap.entrySet()) {
+            example.or().andStandardMatchIdEqualTo(entry.getKey()).andStandardMarketIdIn((List<Long>) entry.getValue());
+        }
+        return configOutrightTradeMarketMapper.selectByExample(example);
     }
 
 

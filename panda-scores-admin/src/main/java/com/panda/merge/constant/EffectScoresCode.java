@@ -19,9 +19,12 @@ public class EffectScoresCode {
             "4: 'coverage_status,goal,suspension,match_status,5mins_pen,2mins_pen' ," +
             "5: 'coverage_status,match_status,tennis_score_change,delete_event,tennis_service_fault' ," +
             "6: 'coverage_status,match_status,delete_event,touchdown,extra_point,point2_conversion,field_goal,safety,play_start,rush,challenge,penalty,turn_over,af_kick_off' ," +
-            "7: 'coverage_status,match_status,snooker_score_change,ball_pot,snooker_foul,match_status,free_ball,ball_possession' ," +
+            "7: 'coverage_status,match_status,snooker_score_change,ball_pot,snooker_foul,match_status,free_ball,ball_possession," +
+            "snooker_score_red,snooker_score_yellow,snooker_score_green,snooker_score_brown,snooker_score_blue," +
+            "snooker_score_pink,snooker_score_black,free_ball_pot,snooker_foul_red,snooker_foul_yellow,snooke_foul_green," +
+            "snookerr_foul_brown,snookerr_foul_blue,snookerr_foul_pink,snookerr_foul_black,snooker_foul_4,snooker_foul_7' ," +
             "8: 'coverage_status,match_status,red_card,yellow_card,match_status,which_team_serves_first,delete_event,re_serve,table_tennis_score_change,table_tennis_violation,yellowred_card_same_hand,game_winner,match_over,game_start' ," +
-            "9: 'coverage_status,match_status,volleyball_score_change,current_serve_volleyball' ," +
+            "9: 'coverage_status,match_status,volleyball_score_change,current_serve_volleyball,which_team_serves_first,ace,kill,block,service_error,out,penalty,error,expulsion,disqualification,suspension,suspension_over,timeout,timeout_over,delete_event,batch_edit_set_scores' ," +
             "10: 'coverage_status,match_status,yellow_card,red_card,match_status,delete_event,badminton_score_change,black_card,match_stop_suspension,match_stop_suspension_over' ," +
             "11: 'goal,match_status,delete_event' ,12: '' ,13: 'score_change,match_status,delete_event', " +
             "14: 'delete_event,yellow_card,red_card,coverage_status,match_status,try,penalty_try,conversion,penalty_points,drop_goal,penalty_comp_goal'," +
@@ -39,7 +42,10 @@ public class EffectScoresCode {
     public static String BREAK_POINT_EVENT="break_point";
     public static String BREAK_SUCCESS_EVENT="break_success";
     public static List<String> FOOTBALL_POSSESSION_EVENT = new ArrayList<>(Arrays.asList("match_status","possible_red_card","possible_yellow_card","possible_corner","possible_penalty","possible_goal","dangerous_attack","ball_safe","yellow_card","red_card","corner","goal","canceled_yellow_card","canceled_red_card","canceled_corner","canceled_goal","canceled_penalty","penalty_missed","kick_off","kick_off_team","var_reason","attack","yellow_red_card","throw_in","possession","goal_kick","possible_free_kick","free_kick","offside","shot_on_target","shot_off_target","substitution","injury","water_break","injury_time","possible_video_assistant_referee","video_assistant_referee_over","canceled_video_assistant_referee","canceled_free_kick","penalty","possible_var_red_card","possible_var_goal","possible_var_penalty","var_red_card","var_goal","var_penalty","var_yellow_card","canceled_var_red_card","canceled_var_goal","canceled_var_penalty","penalty_goal","penalty_canceled","retake_pen"));
-    public static List<Long> FOOTBALL_POSSESSION_PERIOD = new ArrayList<>(Arrays.asList(6L, 304L,7L, 41L, 42L,100L,999L));
+    public static List<Long> FOOTBALL_POSSESSION_PERIOD = new ArrayList<>(Arrays.asList(6L,7L, 41L, 42L,100L,999L));
+
+    //斯诺克比分事件
+    public static List<String> SNOOKER_SCORES_EVENT = new ArrayList<>(Arrays.asList("match_status","snooker_score_red","snooker_score_yellow","snooker_score_green","snooker_score_brown","snooker_score_blue","snooker_score_pink","snooker_score_black","free_ball_pot","snooker_foul_red","snooker_foul_yellow","snooke_foul_green","snookerr_foul_brown","snookerr_foul_blue","snookerr_foul_pink","snookerr_foul_black","snooker_foul_4","snooker_foul_7"));
 
 
 

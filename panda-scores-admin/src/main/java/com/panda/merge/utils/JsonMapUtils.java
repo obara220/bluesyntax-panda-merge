@@ -4,6 +4,8 @@ package com.panda.merge.utils;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.panda.merge.dto.*;
+import com.panda.merge.snooker.dto.SnookerV2Scores;
+import com.panda.merge.volleyball.dto.VolleyballV2Scores;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
@@ -253,6 +255,124 @@ public class JsonMapUtils {
             } else {
                 map3.put((Long) o, JSONObject.toJavaObject((JSONObject) map.get(o), SnookerScores.class));
             }
+        }
+        return map3;
+    }
+
+    public static Map<Long, SnookerV2Scores> parseSnookerV2Map(JSONObject jsonObject) {
+        Map<Long, SnookerV2Scores> map3 = new HashMap<>();
+        if (jsonObject == null) {
+            return map3;
+        }
+        try {
+            String jsonString = jsonObject.toJSONString();
+            // 检查是否是有效的 JSON 字符串
+            if (StringUtils.isEmpty(jsonString) || !jsonString.trim().startsWith("{")) {
+                return map3;
+            }
+            Map map = JSONObject.parseObject(jsonString, Map.class);
+            if (map == null) {
+                return map3;
+            }
+            for (Object o : map.keySet()) {
+                try {
+                    Object value = map.get(o);
+                    if (value == null) {
+                        continue;
+                    }
+                    // 如果 value 不是 JSONObject，尝试转换
+                    JSONObject valueJson;
+                    if (value instanceof JSONObject) {
+                        valueJson = (JSONObject) value;
+                    } else {
+                        // 尝试将 value 转换为 JSONObject
+                        String valueStr = value.toString();
+                        if (valueStr.trim().startsWith("{")) {
+                            valueJson = JSONObject.parseObject(valueStr);
+                        } else {
+                            // 如果不是 JSON 格式，跳过
+                            continue;
+                        }
+                    }
+                    SnookerV2Scores scores = JSONObject.toJavaObject(valueJson, SnookerV2Scores.class);
+                    if (scores != null) {
+                        if (o instanceof String) {
+                            map3.put(Long.parseLong(o.toString()), scores);
+                        } else if (o instanceof Integer) {
+                            map3.put((Integer) o + 0l, scores);
+                        } else if (o instanceof Long) {
+                            map3.put((Long) o, scores);
+                        } else {
+                            map3.put(Long.parseLong(o.toString()), scores);
+                        }
+                    }
+                } catch (Exception e) {
+                    // 单个条目解析失败，记录日志但继续处理其他条目
+                    continue;
+                }
+            }
+        } catch (Exception e) {
+            // 解析失败，返回空 Map
+            return map3;
+        }
+        return map3;
+    }
+
+    public static Map<Long, VolleyballV2Scores> parseVolleyballV2Map(JSONObject jsonObject) {
+        Map<Long, VolleyballV2Scores> map3 = new HashMap<>();
+        if (jsonObject == null) {
+            return map3;
+        }
+        try {
+            String jsonString = jsonObject.toJSONString();
+            // 检查是否是有效的 JSON 字符串
+            if (StringUtils.isEmpty(jsonString) || !jsonString.trim().startsWith("{")) {
+                return map3;
+            }
+            Map map = JSONObject.parseObject(jsonString, Map.class);
+            if (map == null) {
+                return map3;
+            }
+            for (Object o : map.keySet()) {
+                try {
+                    Object value = map.get(o);
+                    if (value == null) {
+                        continue;
+                    }
+                    // 如果 value 不是 JSONObject，尝试转换
+                    JSONObject valueJson;
+                    if (value instanceof JSONObject) {
+                        valueJson = (JSONObject) value;
+                    } else {
+                        // 尝试将 value 转换为 JSONObject
+                        String valueStr = value.toString();
+                        if (valueStr.trim().startsWith("{")) {
+                            valueJson = JSONObject.parseObject(valueStr);
+                        } else {
+                            // 如果不是 JSON 格式，跳过
+                            continue;
+                        }
+                    }
+                    VolleyballV2Scores scores = JSONObject.toJavaObject(valueJson, VolleyballV2Scores.class);
+                    if (scores != null) {
+                        if (o instanceof String) {
+                            map3.put(Long.parseLong(o.toString()), scores);
+                        } else if (o instanceof Integer) {
+                            map3.put((Integer) o + 0l, scores);
+                        } else if (o instanceof Long) {
+                            map3.put((Long) o, scores);
+                        } else {
+                            map3.put(Long.parseLong(o.toString()), scores);
+                        }
+                    }
+                } catch (Exception e) {
+                    // 单个条目解析失败，记录日志但继续处理其他条目
+                    continue;
+                }
+            }
+        } catch (Exception e) {
+            // 解析失败，返回空 Map
+            return map3;
         }
         return map3;
     }

@@ -32,7 +32,7 @@
                         <!--当前行-->
                         ,"line": "%line"
                         <!--日志打印的信息-->
-                        ,"message": "%message"
+                        ,"msg": "%msg"
                         <!--堆栈异常信息-->
                         ,"statck_trace":"%exception"
                         }
@@ -75,7 +75,7 @@
                         <!--当前行-->
                         ,"line": "%line"
                         <!--日志打印的信息-->
-                        ,"message": "%message"
+                        ,"msg": "%msg"
                         <!--堆栈异常信息-->
                         ,"statck_trace":"%exception"
                         }
@@ -118,7 +118,7 @@
                         <!--当前行-->
                         ,"line": "%line"
                         <!--日志打印的信息-->
-                        ,"message": "%message"
+                        ,"msg": "%msg"
                         <!--堆栈异常信息-->
                         ,"statck_trace":"%exception"
                         }
@@ -161,7 +161,7 @@
                         <!--当前行-->
                         ,"line": "%line"
                         <!--日志打印的信息-->
-                        ,"message": "%message"
+                        ,"msg": "%msg"
                         <!--堆栈异常信息-->
                         ,"statck_trace":"%exception"
                         }
@@ -204,7 +204,7 @@
                         <!--当前行-->
                         ,"line": "%line"
                         <!--日志打印的信息-->
-                        ,"message": "%message"
+                        ,"msg": "%msg"
                         <!--堆栈异常信息-->
                         ,"statck_trace":"%exception"
                         }
@@ -214,7 +214,7 @@
         </encoder>
     </appender>
     <!--数据商盘口处理相关日志输出-->  
-    <appender name="ThirdMatchMarketBatchProcessor" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <appender name="ThirdMatchMarketProcessor" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <!--日志文件输出的文件名-->
             <FileNamePattern>${LOG_HOME}/ThirdMatchMarketProcessor/ThirdMatchMarketProcessor.%d{yyyy-MM-dd}.%i.log</FileNamePattern>
@@ -244,7 +244,7 @@
                         <!--当前行-->
                         ,"line": "%line"
                         <!--日志打印的信息-->
-                        ,"message": "%message"
+                        ,"msg": "%msg"
                         <!--堆栈异常信息-->
                         ,"statck_trace":"%exception"
                         }
@@ -284,7 +284,7 @@
                         <!--当前行-->
                         ,"line": "%line"
                         <!--日志打印的信息-->
-                        ,"message": "%message"
+                        ,"msg": "%msg"
                         <!--堆栈异常信息-->
                         ,"statck_trace":"%exception"
                         }
@@ -325,7 +325,7 @@
                         <!--当前行-->
                         ,"line": "%line"
                         <!--日志打印的信息-->
-                        ,"message": "%message"
+                        ,"msg": "%msg"
                         <!--堆栈异常信息-->
                         ,"statck_trace":"%exception"
                         }
@@ -336,8 +336,8 @@
     </appender>
 
     <!--数据商盘口处理相关日志输出--> 
-    <logger name="com.panda.merge.rocketmq.processor.ThirdMatchMarketBatchProcessor" level="INFO" additivity="false">
-        <appender-ref ref="ThirdMatchMarketBatchProcessor" />
+    <logger name="com.panda.merge.rocketmq.processor.ThirdMatchMarketProcessor" level="INFO" additivity="false">
+        <appender-ref ref="ThirdMatchMarketProcessor" />
         <appender-ref ref="STDOUT"/>
     </logger>
     <!--操盘配置相关的日志输出-->

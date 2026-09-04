@@ -732,7 +732,7 @@ public class FootBallEventServiceImpl implements FootBallEventService {
          * */
         data.getMatchScoresInfo().setScoresJsonType(kickOff.getOperatorName());
         //推送比分
-        scoresProducer.sendToMQ(data.getThirdMatchInfo(),data.getMatchScoresInfo(),kickOff.getLinkedId());
+//        scoresProducer.sendToMQ(data.getThirdMatchInfo(),data.getMatchScoresInfo(),kickOff.getLinkedId());
         return Response.success();
     }
 
@@ -776,6 +776,13 @@ public class FootBallEventServiceImpl implements FootBallEventService {
         if( commonItem==null )
         {
             return Response.failed("事件比分已经为0无法删除");
+        }
+        // 兜底校验：删除后比分不能小于0（防止并发/脏数据导致扣成负数）
+        if ((commonItem.getHome() != null && commonItem.getHome() < 0) || (commonItem.getAway() != null && commonItem.getAway() < 0)) {
+            log.warn("::{}::deleteEvent invalid score after delete, home:{} away:{} thirdMatchId:{} deleteEventId:{}",
+                    deleteEventDto.getLinkedId(), commonItem.getHome(), commonItem.getAway(),
+                    deleteEventDto.getThirdMatchId(), deleteEventDto.getDeleteEventId());
+            return Response.failed("删除后比分将小于0，无法删除");
         }
         String homeAway = "";
         if ("home".equals(oldEvent.getHomeAway())) {
@@ -908,8 +915,7 @@ public class FootBallEventServiceImpl implements FootBallEventService {
         data.getMatchScoresInfo().setModifyTime( System.currentTimeMillis());
         pdMatchInfoRepository.setRedisAndMatchScoresInfo( data.getMatchScoresInfo(), null);
         // 发送实时服务
-        eventProducer.sendPenaltyEvent(penaltyScoresEditDto,data);
-        scoresProducer.sendToMQ(data.getThirdMatchInfo(),data.getMatchScoresInfo(),penaltyScoresEditDto.getLinkedId());
+        eventProducer.sendPenaltyEvent( penaltyScoresEditDto, data);
         return Response.success();
     }
 

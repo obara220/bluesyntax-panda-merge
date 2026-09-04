@@ -25,7 +25,7 @@ public class EditScoreResultStatusRequest implements Serializable {
 
 
     /**
-     * 修改数据类型，0赛果状态，1默认值
+     * 修改数据类型，1无比分自动关闭，2无注单自动关闭 3比分中心手动操作打开/关闭  4棒球赛事取消自动关闭
      */
     private Integer type;
 

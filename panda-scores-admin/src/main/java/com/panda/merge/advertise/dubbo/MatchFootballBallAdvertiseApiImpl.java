@@ -259,44 +259,50 @@ public class MatchFootballBallAdvertiseApiImpl implements IMatchFootballBallAdve
 
     @Override
     public Response getMatchAdvertiseInfo(MatchAdvertiseQueryDto matchAdvertiseQueryDto) {
-        Response<MatchScoreAndTimeVo> response = commonAdvertiseService.checkMatchScoreAndTimeCreate(matchAdvertiseQueryDto.getThirdMatchId());
-        if (!response.isSuccess()) {
-            return response;
+        try {
+            Response<MatchScoreAndTimeVo> response = commonAdvertiseService.checkMatchScoreAndTimeCreate(matchAdvertiseQueryDto.getThirdMatchId());
+            if (!response.isSuccess()) {
+                return response;
+            }
+            if ("en".equals(matchAdvertiseQueryDto.getLanguage())) {
+                Response<FootBallAdvertiseVo> data = footBallAdvertiseService.buildFootBallAdvertiseVo(response.getData());
+                FootballMatchStageVo attack = data.getData().getFootballScoreboardVo().getAttack();
+                attack.setTechName("attack");
+                FootballMatchStageVo corner = data.getData().getFootballScoreboardVo().getCorner();
+                corner.setTechName("corner");
+                FootballMatchStageVo dangerousAttack = data.getData().getFootballScoreboardVo().getDangerousAttack();
+                dangerousAttack.setTechName("dangerousAttack");
+                FootballMatchStageVo freeKick = data.getData().getFootballScoreboardVo().getFreeKick();
+                freeKick.setTechName("freeKick");
+                FootballMatchStageVo goal = data.getData().getFootballScoreboardVo().getGoal();
+                goal.setTechName("goal");
+                FootballMatchStageVo goalKick = data.getData().getFootballScoreboardVo().getGoalKick();
+                goalKick.setTechName("goalKick");
+                FootballMatchStageVo offside = data.getData().getFootballScoreboardVo().getOffside();
+                offside.setTechName("offside");
+                FootballMatchStageVo redCard = data.getData().getFootballScoreboardVo().getRedCard();
+                redCard.setTechName("redCard");
+                FootballMatchStageVo shotOffTarget = data.getData().getFootballScoreboardVo().getShotOffTarget();
+                shotOffTarget.setTechName("shotOffTarget");
+                FootballMatchStageVo shotOnTarget = data.getData().getFootballScoreboardVo().getShotOnTarget();
+                shotOnTarget.setTechName("shotOnTarget");
+                FootballMatchStageVo throwIn = data.getData().getFootballScoreboardVo().getThrowIn();
+                throwIn.setTechName("throwIn");
+                FootballMatchStageVo yellowCard = data.getData().getFootballScoreboardVo().getYellowCard();
+                yellowCard.setTechName("yellowCard");
+                FootballMatchStageVo possessionCount = data.getData().getFootballScoreboardVo().getPossessionCount();
+                possessionCount.setTechName("possCount");
+                FootballMatchStageVo ballPossessionPercentage = data.getData().getFootballScoreboardVo().getBallPossessionPercentage();
+                ballPossessionPercentage.setTechName("ballPossPct");
+                data.getData().setLiveEventSource(response.getData().getStandardMatchInfo().getLiveEventSource());
+                return data;
+            } else {
+                return footBallAdvertiseService.buildFootBallAdvertiseVo(response.getData());
+            }
+        } catch (Exception e) {
+            log.error("getMatchAdvertiseInfo-error:", e);
         }
-        if ("en".equals(matchAdvertiseQueryDto.getLanguage())) {
-            Response<FootBallAdvertiseVo> data = footBallAdvertiseService.buildFootBallAdvertiseVo(response.getData());
-            FootballMatchStageVo attack = data.getData().getFootballScoreboardVo().getAttack();
-            attack.setTechName("attack");
-            FootballMatchStageVo corner = data.getData().getFootballScoreboardVo().getCorner();
-            corner.setTechName("corner");
-            FootballMatchStageVo dangerousAttack = data.getData().getFootballScoreboardVo().getDangerousAttack();
-            dangerousAttack.setTechName("dangerousAttack");
-            FootballMatchStageVo freeKick = data.getData().getFootballScoreboardVo().getFreeKick();
-            freeKick.setTechName("freeKick");
-            FootballMatchStageVo goal = data.getData().getFootballScoreboardVo().getGoal();
-            goal.setTechName("goal");
-            FootballMatchStageVo goalKick = data.getData().getFootballScoreboardVo().getGoalKick();
-            goalKick.setTechName("goalKick");
-            FootballMatchStageVo offside = data.getData().getFootballScoreboardVo().getOffside();
-            offside.setTechName("offside");
-            FootballMatchStageVo redCard = data.getData().getFootballScoreboardVo().getRedCard();
-            redCard.setTechName("redCard");
-            FootballMatchStageVo shotOffTarget = data.getData().getFootballScoreboardVo().getShotOffTarget();
-            shotOffTarget.setTechName("shotOffTarget");
-            FootballMatchStageVo shotOnTarget = data.getData().getFootballScoreboardVo().getShotOnTarget();
-            shotOnTarget.setTechName("shotOnTarget");
-            FootballMatchStageVo throwIn = data.getData().getFootballScoreboardVo().getThrowIn();
-            throwIn.setTechName("throwIn");
-            FootballMatchStageVo yellowCard = data.getData().getFootballScoreboardVo().getYellowCard();
-            yellowCard.setTechName("yellowCard");
-            FootballMatchStageVo possessionCount = data.getData().getFootballScoreboardVo().getPossessionCount();
-            possessionCount.setTechName("possCount");
-            FootballMatchStageVo ballPossessionPercentage = data.getData().getFootballScoreboardVo().getBallPossessionPercentage();
-            ballPossessionPercentage.setTechName("ballPossPct");
-            return data;
-        } else {
-            return footBallAdvertiseService.buildFootBallAdvertiseVo(response.getData());
-        }
+        return Response.failed("PA查询异常");
     }
 
     @Override
@@ -983,8 +989,11 @@ public class MatchFootballBallAdvertiseApiImpl implements IMatchFootballBallAdve
         String homeAway = cancelEventDto.getHomeAway();
         String eventCode = cancelEventDto.getCancelEventCode();
         Long thirdMatchId = cancelEventDto.getThirdMatchId();
+        log.info("{}，cancelEvent取消事件删除缓存：{}",cancelEventDto.getThirdMatchId(),eventCode);
         eventCode = FootBallScoreServiceImpl.cancelEventViaPossible(eventCode);
+        log.info("{}，cancelEvent取消事件删除缓存：{}",cancelEventDto.getThirdMatchId(),eventCode);
         String cacheKey = homeAway + eventCode + thirdMatchId;
+        log.info("{},cancelEvent取消事件删除缓存：{},key：{}",cancelEventDto.getThirdMatchId(),eventCode,cacheKey);
         Object obj = redisService.get(cacheKey);
         try {
             if (redisUtils.checkRequestLinkId(cancelEventDto.getLinkedId())) {
@@ -1007,11 +1016,15 @@ public class MatchFootballBallAdvertiseApiImpl implements IMatchFootballBallAdve
             }
             // 点球大战禁止操作事件--结束
             if (redisService.tryLock(key, key, 2, 3)) {
-                List<String> list = Arrays.asList("possible_red_card,possible_yellow_card,possible_goal,possible_free_kick,possible_corner,possible_penalty,possible_var_red_card,possible_var_goal,possible_var_penalty".split(","));
+                List<String> list = Arrays.asList(("possible_red_card,possible_yellow_card,possible_goal," +
+                        "possible_free_kick,possible_corner,possible_penalty," +
+                        "possible_var_red_card,possible_var_goal," +
+                        "possible_var_penalty").split(","));
                 if (list.contains(eventCode) && obj == null) {
                     return Response.failed("zs".equals(cancelEventDto.getLanguage()) ? "请刷新，稍等或点击事件" : "please refresh, wait or click event");
                 }
                 if (list.contains(eventCode) && obj != null) {
+                    log.info("{}，cancelEvent取消事件删除缓存：{},删除key：{}",cancelEventDto.getThirdMatchId(),eventCode,cacheKey);
                     redisService.del(cacheKey);
                 }
                 //事件触发15分钟 和 5分钟比分生成
@@ -1608,7 +1621,7 @@ public class MatchFootballBallAdvertiseApiImpl implements IMatchFootballBallAdve
                 // 下发实时服务
                 addPenaltyRounds(response.getData(),penaltyAddRoundsDto);
                 //推送比分
-                scoresProducer.sendToMQ(response.getData().getThirdMatchInfo(),response.getData().getMatchScoresInfo(),penaltyAddRoundsDto.getLinkedId());
+//                scoresProducer.sendToMQ(response.getData().getThirdMatchInfo(),response.getData().getMatchScoresInfo(),penaltyAddRoundsDto.getLinkedId());
                 matchScorePdLogService.addPenaltyRoundsLog(response.getData(), penaltyAddRoundsDto);
                 return res;
             } else {
@@ -2247,7 +2260,7 @@ public class MatchFootballBallAdvertiseApiImpl implements IMatchFootballBallAdve
     /**
      * 点球即将开始
      *
-     * @param penaltyAboutToBeTakenDto 点球即将开始
+     * @param penaltyAboutToBeTakenDTO 点球即将开始
      * @return 响应点球即将开始数据
      */
     @Override

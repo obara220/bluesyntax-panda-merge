@@ -105,7 +105,7 @@ public interface Constant {
         //赛事+数据源+玩法
         String RONGHE_STANDARD_CATEGORY_MARKET = "Ronghe:StandardCategoryMarketData:";
         String RONGHE_STANDARD_MARKET_ODDS_ID = "Ronghe:StandardMarketOdds:ID:";
-        String RONGHE_THRID_MARKET_DATASOURCE_TIME = "Ronghe:ThridMarket:dataSourceTime:new:";
+        String RONGHE_THRID_MARKET_DATASOURCE_TIME = "Ronghe:ThridMarket:dataSourceTime:";
         String RONGHE_STANDARD_MARKET_RELATION_MARKET_ID = "Ronghe:StandardMarket:RelationMarketId:";
         String RONGHE_STANDARD_MARKET_ODDS_RELATION_MARKET_ODDS_ID = "Ronghe:StandardMarketOdds:RelationMarketOddsId:";
         /** hash {categoryId: dataSourceCode} **/
@@ -163,6 +163,8 @@ public interface Constant {
         String RONGHE_STANDARD_CATEGORY_SET_STATUS = "Ronghe:standardCategorySetStatus:";
         //赛事玩法集缓存key
         String RONGHE_STANDARD_CATEGORY_SETCODE_CACHE = "Ronghe:standardCategorySetCodeCache:";
+
+        String RONGHE_STANDARD_THE_LAST_MARKETODDS_TIME = "Ronghe:theLastAMarketOddsTimeKey:";
         /**
          * 4405 玩法级操盘模式（Hash）
          * key: Ronghe:playRiskManager:{matchId}:{marketType}
@@ -207,6 +209,9 @@ public interface Constant {
         String AO_MAINTAIN_DATA_SOURCE = "Ronghe:maintain:datasource";
 
         String CACHE_KEY_PRE_SOLD_REPORT = "Ronghe:preSold:Report:";
+
+        //108048
+        String THIRD_MARKET_108048 = "Ronghe:CACHE:THIRD_MARKET_108048:";
         /**
          * 将废弃
          */
@@ -361,8 +366,8 @@ public interface Constant {
 
         String RONGHE_A99_THIRD_MARKET_ODDS_LIVE = "Ronghe:a99:thirdMatchMarketOdds:live:";
 
-        String RONGHE_A99_PRE_MATCH_IDS = "Ronghe:a99:match:ids:pre";
-        String RONGHE_A99_LIVE_MATCH_IDS = "Ronghe:a99:match:ids:live";
+        String RONGHE_A99_PRE_MATCH_IDS = "Ronghe:a99:match:pre:ids";
+        String RONGHE_A99_LIVE_MATCH_IDS = "Ronghe:a99:match:live:ids";
 
         String RONGHE_A99_DATA_SOURCE_WEIGHT = "Ronghe:a99:datasource:weight";
 

@@ -93,7 +93,10 @@ public enum PDEventCodeEnum {
     /**
      * ------------------------------- 点击进球后，启用VAR按钮------------------------------------
      */
-    public static final List<PDEventCodeEnum> ENABLE_VAR_BUTTON = Arrays.asList(VIDEO_ASSISTANT_REFEREE_OVER, CANCELED_VIDEO_ASSISTANT_REFEREE);
+    public static final List<PDEventCodeEnum> ENABLE_VAR_BUTTON = Arrays.asList(
+            VIDEO_ASSISTANT_REFEREE_OVER,
+            CANCELED_VIDEO_ASSISTANT_REFEREE,
+            POSSIBLE_VIDEO_ASSISTANT_REFEREE);
 
     /**
      * ------------------------------- 点击进球后，禁用相关可能事件按钮------------------------------------

@@ -160,6 +160,9 @@ public class OutrightTradeConfigApiServiceImpl extends BaseProcessor implements 
             redisService.hSet(redisKey, configDTO.getStandardMarketId().toString(), standardMarketMessage, RedisConfig.REDIS_YEAR_TIME);
         }
 
+        log.info("::{}::oldTradeType:{}, newTradeType:{}, Constant.OUTRIGHT_ONE.equals(oldTradeType):{}, Constant.OUTRIGHT_ZERO.equals(newTradeType):{}",
+                linkId, oldTradeType, newTradeType, Constant.OUTRIGHT_ONE.equals(oldTradeType), Constant.OUTRIGHT_ZERO.equals(newTradeType));
+
         if ( null != oldTradeType && Constant.OUTRIGHT_ONE.equals(oldTradeType) && Constant.OUTRIGHT_ZERO.equals(newTradeType) ) {
             revertOddsByTradeType( linkId, redisKey, configDTO.getStandardMatchId(), configDTO, standardMarketMessage);
         }
@@ -337,7 +340,7 @@ public class OutrightTradeConfigApiServiceImpl extends BaseProcessor implements 
                 thirdMatchMarketProcessor.getChampionStandardMarketDataMessageMap( request.getLinkId(), standardMatchInfo,  standardSportMarketSell);
         Set<Long> marketIdSet = new HashSet<>();
         marketIdSet.add(configDTO.getStandardMarketId());
-        thirdMatchMarketProcessor.processOddsByAll(request.getLinkId(),request.getOddsSource(), request.getOperaterId(),standardMatchInfo, marketIdSet,standardMarketDataMessageMap, request.getDataSourceTime(), standardSportMarketSell, new HashMap<>());
+        thirdMatchMarketProcessor.processOddsByAll(request.getLinkId(),request.getOddsSource(),request.getOperaterId(), standardMatchInfo, marketIdSet,standardMarketDataMessageMap, request.getDataSourceTime(), standardSportMarketSell, new HashMap<>());
         return Response.success();
     }
 
@@ -372,7 +375,7 @@ public class OutrightTradeConfigApiServiceImpl extends BaseProcessor implements 
                 thirdMatchMarketProcessor.getChampionStandardMarketDataMessageMap( request.getLinkId(), standardMatchInfo,  standardSportMarketSell);
         Set<Long> marketIdSet = new HashSet<>();
         marketIdSet.add(configDTO.getStandardMarketId());
-        thirdMatchMarketProcessor.processOddsByAll(request.getLinkId(),request.getOddsSource(),request.getOperaterId(), standardMatchInfo, marketIdSet,standardMarketDataMessageMap, request.getDataSourceTime(), standardSportMarketSell, new HashMap<>());
+        thirdMatchMarketProcessor.processOddsByAll(request.getLinkId(),request.getOddsSource(), request.getOperaterId(),standardMatchInfo, marketIdSet,standardMarketDataMessageMap, request.getDataSourceTime(), standardSportMarketSell, new HashMap<>());
         return Response.success();
     }
 

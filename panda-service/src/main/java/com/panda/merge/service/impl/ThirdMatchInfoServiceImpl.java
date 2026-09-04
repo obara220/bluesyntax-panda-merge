@@ -76,12 +76,12 @@ public class ThirdMatchInfoServiceImpl extends BaseServiceImpl<ThirdMatchInfo> i
     @Override
 //    @CachePut(key = "'ThirdMatchInfoDetail:' + #upItem.dataSourceCode +  '-' + #upItem.thirdMatchSourceId",unless="#result == null")
     public ThirdMatchInfoDetail saveOrupdate(ThirdMatchInfoDetail upItem,String linkId) {
-        try {
-            Long.valueOf(upItem.getMatchPeriod());
-        } catch (Exception e) {
-            log.info("【linkId="+linkId+",源赛事ID={}】,三方赛事阶段转换异常,原始值:{},转换为'0'", upItem.getThirdMatchSourceId(), upItem.getMatchPeriod());
-            upItem.setMatchPeriod("0");
-        }
+//        try {
+//            Long.valueOf(upItem.getMatchPeriod());
+//        } catch (Exception e) {
+//            log.info("【linkId="+linkId+",源赛事ID={}】,三方赛事阶段转换异常,原始值:{},转换为'0'", upItem.getThirdMatchSourceId(), upItem.getMatchPeriod());
+//            upItem.setMatchPeriod("0");
+//        }
         String redisKey = RedisConfig.REDIS_KEY_DATABASE + "::lock:ThirdMatchInfo:" + upItem.getDataSourceCode()+ upItem.getSportId()+ upItem.getThirdMatchSourceId();
         boolean flag = false;
         try {

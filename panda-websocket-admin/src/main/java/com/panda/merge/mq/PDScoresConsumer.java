@@ -29,7 +29,7 @@ public class PDScoresConsumer implements RocketMQListener<Request<String>> {
 
     @Override
     public void onMessage(Request<String> request) {
-//        log.info("PD_FOOTBALL_SCORE_GET:{}",request.getData());
+        log.info("PD_FOOTBALL_SCORE_GET:{}",request.getData());
         pdSubcribe.sendPdScore(request.getData());
         log.info("PD_FOOTBALL_SCORE_GET_END:");
     }

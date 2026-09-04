@@ -76,6 +76,9 @@ public class ThirdSportTournament implements Serializable {
     @ApiModelProperty(value = "赛事类型（默认1）1：普通赛事、2：电竞赛事")
     private Integer matchType;
 
+    @ApiModelProperty(value = "联赛规则")
+    private String zsTournamentRule;
+
     private static final long serialVersionUID = 1L;
 
     public Long getId() {
@@ -270,6 +273,14 @@ public class ThirdSportTournament implements Serializable {
         this.matchType = matchType;
     }
 
+    public String getZsTournamentRule() {
+        return zsTournamentRule;
+    }
+
+    public void setZsTournamentRule(String zsTournamentRule) {
+        this.zsTournamentRule = zsTournamentRule;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -300,6 +311,7 @@ public class ThirdSportTournament implements Serializable {
         sb.append(", modifyTime=").append(modifyTime);
         sb.append(", season=").append(season);
         sb.append(", matchType=").append(matchType);
+        sb.append(", zsTournamentRule=").append(zsTournamentRule);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

@@ -233,7 +233,7 @@ public class StandardMarketMessage implements StandardMarketScoreModification, S
      * @param obj
      * @return
      */
-    private Integer riskStatus = 0;
+    private Integer riskStatus;
 
     /**
      * 标准不走关转封 1关转封 ，2不走

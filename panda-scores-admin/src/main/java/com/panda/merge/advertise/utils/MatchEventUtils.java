@@ -4,11 +4,13 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.panda.merge.advertise.dto.MatchScoreAndTimeVo;
 import com.panda.merge.advertise.dto.MatchScoreCommonVo;
+import com.panda.merge.constant.SportPeriodConstant;
 import com.panda.merge.dto.FootballScores;
 import com.panda.merge.dto.MatchEventInfoDTO;
 import com.panda.merge.dto.advertise.InjuryTimeEventDto;
 import com.panda.merge.dto.advertise.PDBasketBallSendEventDto;
 import com.panda.merge.dto.advertise.PenaltyScoresEditDto;
+import com.panda.merge.dto.advertise.v2.EventOperationV2Dto;
 import com.panda.merge.model.MatchScoresInfo;
 import com.panda.merge.model.MatchTimeInfo;
 import com.panda.merge.model.ThirdMatchInfo;
@@ -199,6 +201,55 @@ public class MatchEventUtils {
         matchEventInfoDTO.setEventCode(eventCode);
         matchEventInfoDTO.setExtrainfo("1001");
         matchEventInfoDTO.setCopyLinkId(matchEventInfoDTO.getThirdEventId());
+        return matchEventInfoDTO;
+    }
+    public static MatchEventInfoDTO createCommonMatchEvent(MatchScoreAndTimeVo data, EventOperationV2Dto eventOperationV2Dto, Integer canceled, Long remainTime, Long periodId) {
+        // 防御：部分链路下 MapStruct/注入异常可能导致 null，避免 NPE（原 210 行 eventOperationV2Dto.getLinkedId）
+        if (eventOperationV2Dto == null) {
+            eventOperationV2Dto = EventOperationV2Dto.builder().build();
+            eventOperationV2Dto.setEventCode("which_team_serves_first");
+            eventOperationV2Dto.setSecondFromStart(0L);
+            eventOperationV2Dto.setLinkedId("");
+            eventOperationV2Dto.setHomeAway("none");
+        }
+        ThirdMatchInfo thirdMatchInfo = data.getThirdMatchInfo();
+        MatchEventInfoDTO matchEventInfoDTO=new MatchEventInfoDTO();
+        matchEventInfoDTO.setThirdMatchSourceId(thirdMatchInfo.getThirdMatchSourceId());
+        matchEventInfoDTO.setDataSourceCode(thirdMatchInfo.getDataSourceCode());
+        matchEventInfoDTO.setCopyLinkId(eventOperationV2Dto.getLinkedId());
+        matchEventInfoDTO.setSportId(thirdMatchInfo.getSportId());
+        matchEventInfoDTO.setEventTime(System.currentTimeMillis());
+        matchEventInfoDTO.setCanceled(canceled);
+        matchEventInfoDTO.setHomeAway(eventOperationV2Dto.getHomeAway());
+        Long resolvedPeriodId = periodId;
+        if (resolvedPeriodId == null && data.getMatchTimeInfo() != null) {
+            resolvedPeriodId = data.getMatchTimeInfo().getPeriod();
+        }
+        matchEventInfoDTO.setMatchPeriodId(resolvedPeriodId);
+        Long firstNum = SportPeriodConstant.SnookerPeriod.SnookerPeriodScores.periodMaps.getOrDefault(matchEventInfoDTO.getMatchPeriodId(), null);
+        matchEventInfoDTO.setFirstNum(firstNum==null?null : Integer.valueOf(firstNum+""));
+        matchEventInfoDTO.setAddition3(matchEventInfoDTO.getHomeAway());
+        // 对于斯诺克（sportId=7），如果前端/调用方未传 secondFromStart，则默认补 0，避免下游 NPE
+        Long secondFromStart = eventOperationV2Dto.getSecondFromStart();
+        if (secondFromStart == null && thirdMatchInfo.getSportId() != null && thirdMatchInfo.getSportId().equals(7L)) {
+            secondFromStart = 0L;
+        }
+        if (secondFromStart == null) {
+            secondFromStart = 0L;
+        }
+        matchEventInfoDTO.setSecondsFromStart(secondFromStart);
+        matchEventInfoDTO.setPeriodRemainingSeconds(remainTime);
+        matchEventInfoDTO.setThirdEventId(PD+"_"+ UUID.randomUUID().toString());
+        matchEventInfoDTO.setMatchLength(thirdMatchInfo.getMatchLength());
+        String sourceType = "1";
+        if (data.getMatchScoresInfo() != null && data.getMatchScoresInfo().getDataSourceType() != null) {
+            sourceType = data.getMatchScoresInfo().getDataSourceType();
+        }
+        matchEventInfoDTO.setSourceType(sourceType);
+        matchEventInfoDTO.setEventCode(eventOperationV2Dto.getEventCode());
+        matchEventInfoDTO.setCopyLinkId(matchEventInfoDTO.getThirdEventId());
+        matchEventInfoDTO.setT1(data.getMatchScoresInfo().getT1());
+        matchEventInfoDTO.setT2(data.getMatchScoresInfo().getT2());
         return matchEventInfoDTO;
     }
     public static  MatchScoreCommonVo getMatchScoreCommonVo(MatchScoreAndTimeVo data){

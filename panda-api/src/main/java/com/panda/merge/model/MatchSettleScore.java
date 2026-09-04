@@ -94,7 +94,8 @@ public class MatchSettleScore implements Serializable {
     private String addition2;
 
     @ApiModelProperty(value = "当前事件状态：0无1灰色区间2删除事件")
-    private Integer currentEventStatus;
+    private
+    Integer currentEventStatus;
 
     @ApiModelProperty(value = "是否灰色区间：1是0不是")
     private Integer isGrey;

@@ -19,6 +19,7 @@ import com.panda.sports.api.ISystemUserOrgAuthApi;
 import com.panda.sports.api.vo.SysOrgAuthVO;
 import io.netty.handler.codec.http.HttpHeaders;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -84,11 +85,7 @@ public class WebSocketOperator {
      */
     @OnClose
     public void onClose(Session session) {
-        try {
-            session.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        session.close();
     }
 
     /**
@@ -199,14 +196,14 @@ public class WebSocketOperator {
                     log.info("ws handleMatchSettleRollBackSourceSub use total time:{} ms",(end-start));
                 }
             }
-//            if(requestVo.getCommand().equals( SubscriptionTypeEnum.BASKETBALL_PERIOD_SCORES_PUSH.getCode())) {
-//                start = System.currentTimeMillis();
-//                handleBasketballPeriodScoresSub(session);
-//                end = System.currentTimeMillis();
-//                if (end-start>100){
-//                    log.info("ws handleBasketballPeriodScoresSub use total time:{} ms",(end-start));
-//                }
-//            }
+            if(requestVo.getCommand().equals( SubscriptionTypeEnum.BASKETBALL_PERIOD_SCORES_PUSH.getCode())) {
+                start = System.currentTimeMillis();
+                handleBasketballPeriodScoresSub(session);
+                end = System.currentTimeMillis();
+                if (end-start>100){
+                    log.info("ws handleBasketballPeriodScoresSub use total time:{} ms",(end-start));
+                }
+            }
             if(requestVo.getCommand().equals( SubscriptionTypeEnum.MATCH_STANDARD_SCORES_PUSH.getCode())) {
                 start = System.currentTimeMillis();
                 handleMatchScoresSub(session,requestVo);
@@ -228,11 +225,7 @@ public class WebSocketOperator {
             log.info("ws realData use total time:{} ms",(endTotal-startTotal));
         } catch (Exception e) {
             log.error("command:{}，消息接收处理出错------------------------------:{}", e);
-            try {
-                session.close();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
+            session.close();
         }
     }
 
@@ -243,7 +236,6 @@ public class WebSocketOperator {
         if (userIds == null) {
             return;
         }
-        log.info("操盘手Userid处理:userIds{}", JSONUtil.toJsonStr(userIds));
         OperatorOnlineCatchVo subCacheVo = new OperatorOnlineCatchVo();
         subCacheVo.setCreateTime(System.currentTimeMillis());
         subCacheVo.setLostTimes(0);
@@ -270,34 +262,17 @@ public class WebSocketOperator {
         log.info("返回操盘手信息结束:{}", JSONUtil.toJsonStr(onlineResponseVo));
     }
 
-    private void handleSettleMatchListCancel(Session session)
-    {
+    private void handleSettleMatchListCancel(Session session) {
         MyCacheService.sessionIdSettleMatchListMap.remove(session.id().asLongText());
     }
 
-    private void handleSettleMatchListSub(Session session, RequestVo requestVo) throws IOException
-    {
-        SettleMatchListSubVo request = JSONObject.toJavaObject( JSON.parseObject( requestVo.getPara().toString())  ,SettleMatchListSubVo.class);
-        List<Long> standardMatchIdList = request.getStandardMatchIdList();
-        if(CollectionUtil.isEmpty(standardMatchIdList)){
-            return;
-        }
-        SettleMatchListSubCacheVo subCacheVo=new SettleMatchListSubCacheVo();
-        subCacheVo.setCreateTime(System.currentTimeMillis());
-        subCacheVo.setLostTimes(0);
-        subCacheVo.setSession(session);
-        subCacheVo.setSessionId(session.id().asLongText());
-        subCacheVo.setEventCodeList(Lists.newArrayList("fa_card","corner","goal"));
-        subCacheVo.setStandardMatchIdList(standardMatchIdList);
+    private void handleSettleMatchListSub(Session session, RequestVo requestVo) throws IOException {
 
-        MyCacheService.sessionIdSettleMatchListMap.put(session.id().asLongText(),subCacheVo);
-        sendMessage(JSONObject.toJSONString(new SettleMatchListSubMessage(1l)), session);
     }
 
 
-    private void handleMatchScoresSub(Session session, RequestVo requestVo) throws IOException
-    {
-        StandardMatchScoreRequestVo request = JSONObject.toJavaObject( JSON.parseObject( requestVo.getPara().toString())  ,StandardMatchScoreRequestVo.class);
+    private void handleMatchScoresSub(Session session, RequestVo requestVo) throws IOException {
+        StandardMatchScoreRequestVo request = JSONObject.toJavaObject(JSON.parseObject(requestVo.getPara().toString()), StandardMatchScoreRequestVo.class);
         Long standardMatchId = request.getMatchId();
         if(standardMatchId == null){
             return;
@@ -364,9 +339,8 @@ public class WebSocketOperator {
         subCacheVo.setSessionId(session.id().asLongText());
 
         MyCacheService.sessionIdMatchSettleRollBackSourceMap.put(session.id().asLongText(),subCacheVo);
-        sendMessage(JSONObject.toJSONString(new MatchSettleRollBackMessage(1l)), session);
+        sendMessage(JSONObject.toJSONString(new BasketballPeriodScoresMessage(1l)), session);
     }
-
     private void handleSettleMatchCancel(Session session)
     {
         MyCacheService.sessionIdSettleMatchMap.remove(session.id().asLongText());
@@ -467,11 +441,7 @@ public class WebSocketOperator {
     @OnError
     public void onError(Session session, Throwable error)
     {
-        try {
-            session.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        session.close();
     }
 
 
@@ -503,7 +473,8 @@ public class WebSocketOperator {
 
 
 
-    @Reference(check = false, lazy = true, timeout = 10000)
+//    @Reference(check = false, lazy = true, timeout = 10000)
+    @DubboReference(check = false)
     private ISystemUserOrgAuthApi iSystemUserOrgAuthApi;
 
     private ISystemUserOrgAuthApi getSystemUserOrgAuthApi() {

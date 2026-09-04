@@ -2,6 +2,9 @@ package com.panda.merge.mq.producer;
 
 import com.alibaba.fastjson.JSON;
 
+import com.panda.merge.config.RedisConfig;
+import com.panda.merge.config.RedisService;
+import com.panda.merge.constant.CommonConstant;
 import com.panda.merge.constant.SportPeriodConstant;
 import com.panda.merge.dto.MatchSettleEventMessage;
 import com.panda.merge.dto.MatchSettleScoreMessage;
@@ -26,6 +29,8 @@ public class MatchSettleScoresProducer {
 
     @Autowired
     private RocketMQTemplate rocketMqTemplate;
+    @Autowired
+    private RedisService redisService;
 
     private static List<String> list = Arrays.asList("1028", "1029", "1030");
     //结算下半场阶段修改
@@ -35,6 +40,11 @@ public class MatchSettleScoresProducer {
 
     //赛事级别重跑结算比分
     public void sendMatchSettleScores(MatchSettleScoreMessage matchSettleScore) {
+        String redisKey = CommonConstant.MATCH_SETTLE_SCORE_COUNT+matchSettleScore.getId();
+        if (redisService.get(redisKey) != null) {
+            return;
+        }
+        redisService.set(redisKey, 1, RedisConfig.REDIS_FOUR_SECOND);
         if(settelNum2H.contains(matchSettleScore.getSettleNum())){
             matchSettleScore.setPeriodId(8l);
         }
@@ -101,6 +111,11 @@ public class MatchSettleScoresProducer {
 
 
     public void sendMatchSettleScores(MatchSettleScore matchSettleScore) {
+        String redisKey = CommonConstant.MATCH_SETTLE_SCORE_COUNT+matchSettleScore.getId();
+        if (redisService.get(redisKey) != null) {
+            return;
+        }
+        redisService.set(redisKey, 1, RedisConfig.REDIS_FOUR_SECOND);
         if(settelNum2H.contains(matchSettleScore.getSettleNum())){
             matchSettleScore.setPeriodId(8l);
         }
@@ -119,6 +134,11 @@ public class MatchSettleScoresProducer {
     }
 
     public void sendMatchSettleScores(MatchSettleScore matchSettleScore, int delayLevel) {
+        String redisKey = CommonConstant.MATCH_SETTLE_SCORE_COUNT+matchSettleScore.getId();
+        if (redisService.get(redisKey) != null) {
+            return;
+        }
+        redisService.set(redisKey, 1, RedisConfig.REDIS_FOUR_SECOND);
         if(settelNum2H.contains(matchSettleScore.getSettleNum())){
             matchSettleScore.setPeriodId(8l);
         }

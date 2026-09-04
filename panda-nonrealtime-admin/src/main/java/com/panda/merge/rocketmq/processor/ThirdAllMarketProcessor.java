@@ -128,9 +128,12 @@ public class ThirdAllMarketProcessor extends BaseProcessor {
             List<ThirdMarketDTO> value = entry.getValue();
             log.info("::{}::百家赔:接收数据源赔率开始,玩法id:{} ,异步处理数据开始", linkId, thirdCategorySourceId);
             for (ThirdMarketDTO thirdMarketDTO : value) {
+                Long marketCategoryId = applyHomeAwayOppositeForThirdMarket(linkId, dataSourceCode, standardMatchInfo,
+                        thirdMatchInfo, thirdMarketCategory, thirdMarketDTO);
+                thirdMarketDTO.setMarketCategoryId(marketCategoryId);
                 ThirdSportMarketMessage thirdSportMarketMessage = copyThirdMarketDTO(thirdMarketDTO);
                 List<ThirdSportMarketOdds> thirdSportMarketOddsList = new ArrayList<>();
-                thirdSportMarketMessage.setMarketCategoryId(thirdMarketCategory.getReferenceId());
+                thirdSportMarketMessage.setMarketCategoryId(marketCategoryId);
                 thirdSportMarketMessage.setDataSourceCode(dataSourceCode);
                 thirdSportMarketMessage.setThirdMarketSourceStatus(thirdMarketDTO.getStatus());
                 thirdSportMarketMessage.setStatus(thirdMarketDTO.getStatus());

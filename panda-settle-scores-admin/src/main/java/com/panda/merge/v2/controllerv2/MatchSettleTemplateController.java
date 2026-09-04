@@ -440,13 +440,13 @@ public class MatchSettleTemplateController {
         Map<String, DataSourceSettleWeightDto> lOldMap = lOld.stream().collect(Collectors.toMap(t->t.getDataSourceCode(), Function.identity(),(v1, v2)->v1));
         List<DataSourceSettleWeightDto> l = SettleTemplateJsonUtils.tansferDataSourceSettleWeightDtoList(settleTemplateUpdateDto.getWeightJson());
 
-        for (DataSourceSettleWeightDto dataSourceSettleWeightDto : l) {
-            DataSourceSettleWeightDto lOldSingle = lOldMap.get(dataSourceSettleWeightDto.getDataSourceCode());
-            if (lOldMap != null) {
-                dataSourceSettleWeightDto.setHeartbeatSecond(lOldSingle.getHeartbeatSecond());
-                dataSourceSettleWeightDto.setSingleDatasourceSettleSwitch(lOldSingle.getSingleDatasourceSettleSwitch());
-            }
-        }
+//        for (DataSourceSettleWeightDto dataSourceSettleWeightDto : l) {
+//            DataSourceSettleWeightDto lOldSingle = lOldMap.get(dataSourceSettleWeightDto.getDataSourceCode());
+//            if (lOldMap != null) {
+//                dataSourceSettleWeightDto.setHeartbeatSecond(lOldSingle.getHeartbeatSecond());
+//                dataSourceSettleWeightDto.setSingleDatasourceSettleSwitch(lOldSingle.getSingleDatasourceSettleSwitch());
+//            }
+//        }
         String newTemplateJson = JSONObject.toJSONString(l);
         matchSettleTemplate.setModifyTime(System.currentTimeMillis());
         matchSettleTemplate.setTemplateJson(newTemplateJson);

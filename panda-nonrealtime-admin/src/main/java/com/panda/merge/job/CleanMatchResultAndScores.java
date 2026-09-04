@@ -2,6 +2,7 @@ package com.panda.merge.job;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.nacos.api.config.annotation.NacosValue;
 import com.github.pagehelper.PageHelper;
 import com.panda.merge.mapper.*;
 import com.panda.merge.model.*;
@@ -46,6 +47,12 @@ public class CleanMatchResultAndScores extends IJobHandler {
     MatchResultLogMapper matchResultLogMapper;
     @Autowired
     MatchEventCommonMapper matchEventCommonMapper;
+    /**
+     * 循环删除时间审核赛果日志可控上限次数
+     */
+    @NacosValue(value = "${clean-match.match-result-log.totalDeleted:10}", autoRefreshed = true)
+    private Integer totalDeletedMatchResultLogCount;
+
 
     static Integer DELETE_DATE_7 = -7;
 
@@ -159,23 +166,33 @@ public class CleanMatchResultAndScores extends IJobHandler {
             log.info("CleanMatchResultAndScores,事件审核统计基础事件清理异常,Exception：{}", e);
         }
 
-        try {
-            MatchResultLogExample example5 = new MatchResultLogExample();
-            example5.createCriteria().andCreateTimeLessThan(dateTime);
-            PageHelper.startPage(ONE, pageSize);
-            List<MatchResultLog> resList5 = matchResultLogMapper.selectByExample(example5);
-            int num5 = 0;
-            if (!CollectionUtils.isEmpty(resList5)) {
-                List<Long> ids = resList5.stream().map(obj -> obj.getId()).collect(Collectors.toList());
-                MatchResultLogExample delExample5 = new MatchResultLogExample();
-                delExample5.createCriteria().andIdIn(ids);
-                num5 = matchResultLogMapper.deleteByExample(delExample5);
+        int count = 0;
+        int totalDeleted = 0;
+
+        while (true) {
+            int rows =  clearMatchResultLog(dateTime, pageSize);
+
+            totalDeleted += rows;
+            count++;
+            log.info("CleanMatchResultAndScores,事件审核赛果日志清理,dateTime={},第{}批,删除{},累计{}", dateTime, count, rows, totalDeleted);
+
+            if (rows == 0 || rows < pageSize) {
+                log.info("CleanMatchResultAndScores,事件审核赛果日志清理,dateTime={},删除完成", dateTime);
+                break;
             }
-            log.info("CleanMatchResultAndScores,事件审核赛果日志清理完成,dateTime={},num={}", dateTime, num5);
-            XxlJobLogger.log("CleanMatchResultAndScores,事件审核赛果日志清理完成,dateTime={},num={}", dateTime, num5);
-        } catch (Exception e) {
-            log.info("CleanMatchResultAndScores,事件审核赛果日志清理异常,Exception：{}", e);
+            if (count >= totalDeletedMatchResultLogCount) {
+                log.info("CleanMatchResultAndScores,事件审核赛果日志清理,dateTime={},达到最大批次数，停止（防止风险）", dateTime);
+                break;
+            }
+
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
+        XxlJobLogger.log("CleanMatchResultAndScores,事件审核赛果日志清理完成,dateTime={},num={}", dateTime, totalDeleted);
+
 
         try {
             ThirdMatchResultExample example6 = new ThirdMatchResultExample();
@@ -212,6 +229,27 @@ public class CleanMatchResultAndScores extends IJobHandler {
         } catch (Exception e) {
             log.info("CleanMatchResultAndScores,事件审核原始赛果清理异常,Exception：{}", e);
         }
+    }
+
+    private int clearMatchResultLog(Long dateTime, Integer pageSize) {
+        try {
+            MatchResultLogExample example5 = new MatchResultLogExample();
+            example5.createCriteria().andCreateTimeLessThan(dateTime);
+            PageHelper.startPage(ONE, pageSize);
+            List<MatchResultLog> resList5 = matchResultLogMapper.selectByExample(example5);
+            int num5 = 0;
+            if (!CollectionUtils.isEmpty(resList5)) {
+                List<Long> ids = resList5.stream().map(obj -> obj.getId()).collect(Collectors.toList());
+                MatchResultLogExample delExample5 = new MatchResultLogExample();
+                delExample5.createCriteria().andIdIn(ids);
+                return matchResultLogMapper.deleteByExample(delExample5);
+            }
+            //log.info("CleanMatchResultAndScores,事件审核赛果日志清理完成,dateTime={},num={}", dateTime, num5);
+//            XxlJobLogger.log("CleanMatchResultAndScores,事件审核赛果日志清理完成,dateTime={},num={}", dateTime, num5);
+        } catch (Exception e) {
+            log.info("CleanMatchResultAndScores,事件审核赛果日志清理异常,Exception：{}", e);
+        }
+        return 0;
     }
 
     /**

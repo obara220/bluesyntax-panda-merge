@@ -32,4 +32,5 @@ public interface CommonAdvertiseService {
     void updateMatchStatus(MatchScoreAndTimeVo data, MatchEventInfoDTO matchEventInfoDTO);
 
     ThirdSportTeam  getThirdSportTeamByThirdMatch(ThirdMatchInfo thirdMatchInfo,String homeAway);
+    MatchScoreAndTimeVo searchMatchScoreAndTime(Long thirdMatchId) throws Exception;
 }

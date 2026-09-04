@@ -166,7 +166,7 @@ public class BaseBatchProcessor {
     }
 
     public boolean supportA99(String linkId,Long matchId,Integer marketType,Long categoryId){
-        String key = marketType==1?Constant.REDIS_KEY.RONGHE_A99_PRE_MATCH_IDS:Constant.REDIS_KEY.RONGHE_A99_LIVE_MATCH_IDS;
+/*        String key = marketType==1?Constant.REDIS_KEY.RONGHE_A99_PRE_MATCH_IDS:Constant.REDIS_KEY.RONGHE_A99_LIVE_MATCH_IDS;
         Map<String, Object> map = redisService.hGetAll(key);
         Set<String> matchSet = map.keySet();
         Set<Long> set = matchSet.stream()
@@ -194,7 +194,7 @@ public class BaseBatchProcessor {
             if (MarginCategoryConfig.A99_category.containsKey(cat) && MarginCategoryConfig.A99_category.get(cat).contains(categoryId)){
                 return true;
             }
-        }
+        }*/
         return false;
     }
     /**
@@ -1167,27 +1167,5 @@ public class BaseBatchProcessor {
         standardMarketDataMessage.setMarketOddsList(standardMarketOddsDataMessages);
         return standardMarketDataMessage;
     }
-
-
-    /**
-     * BC事件相关特殊处理 优化单：42254
-     * */
-    public Boolean bcEventProcessor(String linkId,StandardMatchInfo standardMatchInfo,ThirdMatchInfo oldThirdMatchInfo) {
-        //bc事件相关特殊处理 402优化单
-        if(DataSourceCodeEnum.BC.getCode().equals(oldThirdMatchInfo.getDataSourceCode())){
-            Integer liveOddBusiness = 1;
-            if(null != standardMatchInfo){
-                liveOddBusiness = standardMatchInfo.getLiveOddBusiness();
-            }
-            //如果BC不支持滚球或者标准赛事不支持滚球 则不需要接入事件
-            if(ZERO.equals(oldThirdMatchInfo.getLiveOddSupport()) || ZERO.equals(liveOddBusiness)){
-                log.info("::{}::process2MatchEvent，当前三方赛事不支持滚球不需要接入事件数据，三方数据源赛事id:{},数据来源：{},是否支持滚球：{},{}",
-                        linkId,oldThirdMatchInfo.getThirdMatchSourceId(),oldThirdMatchInfo.getDataSourceCode(),oldThirdMatchInfo.getLiveOddSupport(),liveOddBusiness);
-                return false;
-            }
-        }
-        return true;
-    }
-
 
 }

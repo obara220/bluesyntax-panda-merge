@@ -50,7 +50,7 @@ public class ThirdMatchStatusTest {
 
   @Test
     public void testMatchStatus() {
-      Response response = iStandardStatusApi.updataMatchStatus(0L, "4001202012037900891", 0, 0L);
+      Response response = iStandardStatusApi.updataMatchStatus(0L, "4001202012037900891", 0,null);
       System.out.println("response = " + response);
   }
 

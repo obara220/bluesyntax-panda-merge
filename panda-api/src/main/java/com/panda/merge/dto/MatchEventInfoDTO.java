@@ -222,6 +222,16 @@ public class MatchEventInfoDTO implements Serializable {
      */
     private Integer controlType;
 
+    /**
+     * 删除事件的目标事件是否过滤的标记
+     */
+    private boolean deleteNotFilterFlag;
+
+    /**
+     * 标准赛事ID
+     */
+    private Long standardMatchId;
+
     public String getExtrainfo() {
         return extrainfo;
     }

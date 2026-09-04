@@ -2,6 +2,7 @@ package com.panda.merge.job;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.nacos.api.config.annotation.NacosValue;
 import com.github.pagehelper.PageHelper;
 import com.panda.merge.common.enums.DataSourceCodeEnum;
 import com.panda.merge.common.enums.YesNoEnum;
@@ -44,6 +45,13 @@ public class CleanCacheByMatch extends IJobHandler {
 
     @Autowired
     private RcsHisDataService rcsHisDataService;
+
+
+    /**
+     * 循环删除事件可控上限次数
+     */
+    @NacosValue(value = "${clean-match.event.totalDeleted:10}", autoRefreshed = true)
+    private Integer totalDeletedEventCount;
 
     @Override
     public ReturnT<String> execute(String param) {
@@ -602,7 +610,30 @@ public class CleanCacheByMatch extends IJobHandler {
                 stopWatch.start();
                 Integer num;
                 if(deleteEvent == 1){
-                    num = rcsHisDataService.cleanMatchEventInfoData(dataSourceCode,dayDateTime,matchEventNum);
+                    int count = 0;
+                    int totalDeleted = 0;
+
+                    while (true) {
+                        int rows = cleanMatchEventInfoData(dataSourceCode,dayDateTime,matchEventNum);
+
+                        totalDeleted += rows;
+                        count++;
+
+                        log.info("linkId=【" + dayDateTime + "】," + matchEventNum + ",deleteMatchEvenIdsByDayDateTime,数据源编码={},第{}批,删除{},累计{}", dataSourceCode, count, rows, totalDeleted);
+
+                        if (rows == 0 || rows < matchEventNum) {
+                            log.info("linkId=【" + dayDateTime + "】," + matchEventNum + ",deleteMatchEvenIdsByDayDateTime,数据源编码={},删除完成", dataSourceCode);
+                            break;
+                        }
+
+                        if (count >= totalDeletedEventCount) {
+                            log.info("linkId=【" + dayDateTime + "】," + matchEventNum + ",deleteMatchEvenIdsByDayDateTime,数据源编码={},达到最大批次数，停止（防止风险）", dataSourceCode);
+                            break;
+                        }
+
+                        Thread.sleep(500);
+                    }
+                    num = totalDeleted;
                 }else{
                     MatchEventInfoDetail matchEventInfoDetail = new MatchEventInfoDetail();
                     matchEventInfoDetail.setTableName("match_event_info_"+dataSourceCode.toLowerCase(Locale.ROOT));
@@ -620,4 +651,27 @@ public class CleanCacheByMatch extends IJobHandler {
 
     }
 
+    /**
+     * 因为RcsHisDataService.cleanMatchEventInfoData 方法使用了线程池,返回null,所以把方法复制了一份
+     * @param dataSourceCode
+     * @param dayDateTime
+     * @param matchEventNum
+     * @return
+     */
+    private int cleanMatchEventInfoData(String dataSourceCode,Long dayDateTime,Integer matchEventNum){
+        MatchEventInfoDetail matchEventInfoDetail = new MatchEventInfoDetail();
+        matchEventInfoDetail.setTableName("match_event_info_"+dataSourceCode.toLowerCase(Locale.ROOT));
+        matchEventInfoDetail.setDataSourceCode(dataSourceCode);
+        matchEventInfoDetail.setDayDateTime(dayDateTime);
+        matchEventInfoDetail.setSize(matchEventNum);
+        PageHelper.startPage(ONE, matchEventNum);
+        List<MatchEventInfo> resMatchEventInfoList = matchEventInfoService.getMatchEvenIdsByDayDateTime(matchEventInfoDetail);
+        if(!CollectionUtils.isEmpty(resMatchEventInfoList)){
+            List<Long> eventIds = resMatchEventInfoList.stream().map(obj -> obj.getId()).collect(Collectors.toList());
+            MatchEventInfoExample matchEventInfoDelExample = new MatchEventInfoExample();
+            matchEventInfoDelExample.createCriteria().andDataSourceCodeEqualTo(dataSourceCode).andIdIn(eventIds);
+            return matchEventInfoMapper.deleteByExample(matchEventInfoDelExample);
+        }
+        return 0;
+    }
 }

@@ -2,6 +2,7 @@ package com.panda.merge.dao;
 
 
 import com.github.pagehelper.Page;
+import com.panda.merge.dto.StandardTournamentRuleDTO;
 import com.panda.merge.dto.nonrealttime.query.QueryThirdRankingInfoDTO;
 import com.panda.merge.model.ThirdSportTournament;
 import org.springframework.stereotype.Repository;
@@ -22,5 +23,5 @@ public interface ThirdSportTournamentDao {
     Page<ThirdSportTournament> getItemPageByModifyTime(QueryThirdRankingInfoDTO queryThirdRankingInfoDTO);
 
 
-
+    Page<ThirdSportTournament> getTournamentRulePage(StandardTournamentRuleDTO query);
 }

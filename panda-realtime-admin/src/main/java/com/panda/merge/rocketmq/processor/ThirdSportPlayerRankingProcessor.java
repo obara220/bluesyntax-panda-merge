@@ -79,7 +79,7 @@ public class ThirdSportPlayerRankingProcessor extends BaseProcessor {
             }
 
             //3875 【比分网】比分网后台-榜單管理
-//            thirdSportRankingProducer.pushThirdSportPlayerRankingPLS(request.getLinkId(),dtoItem.getDataSourceCode(),item);
+            thirdSportRankingProducer.pushThirdSportPlayerRankingPLS(request.getLinkId(),dtoItem.getDataSourceCode(),item);
         }
         response.setDataSourceTime(System.currentTimeMillis() - beginTime);
         log.info("【"+PROJECT_ID_REALTIME+" ："+THIRD_SPORT_PAYER_RANKING_API+"】【TS ::"+request.getLinkId()+"::】联赛下球员排行榜单数据接收结束,返回结果 ：{}" , JSON.toJSONString(response));

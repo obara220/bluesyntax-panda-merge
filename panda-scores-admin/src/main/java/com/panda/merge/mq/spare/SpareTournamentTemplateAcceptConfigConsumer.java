@@ -31,7 +31,7 @@ import java.util.List;
 @Component
 public class SpareTournamentTemplateAcceptConfigConsumer {
     private static final String TOPIC = "Tournament_Template_Accept_Config_Score";
-    private static final String CONSUMER_GROUP = "scores-group-Tournament_Template_Accept_Config_Score";
+    private static final String CONSUMER_GROUP = "scores-group-Tournament_Template_Accept_Config_Score2";
 
     @Value("${slaveNamesrvAddr}")
     private String nameServers;

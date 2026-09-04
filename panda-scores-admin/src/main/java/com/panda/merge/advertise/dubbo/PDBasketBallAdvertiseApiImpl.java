@@ -203,8 +203,9 @@ public class PDBasketBallAdvertiseApiImpl implements IPDBasketBallAdvertiseApi {
      * */
     @Override
     public Response sendBall(PDBasketBallSendBallDto sendBallDto) {
-        String linkId = sendBallDto.getLinkedId();
-        log.info("::{}::新篮球报球板收到事件请求-2分球3分球:{}", linkId, JSON.toJSONString(sendBallDto));
+        log.info("PDBasketBallAdvertiseApiImpl::sendBall::thirdMatchId={},request-id={},入参={}", sendBallDto.getThirdMatchId(),sendBallDto.getRequestId(), JSON.toJSONString(sendBallDto));
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
         String key = "PA_createMatchAdvertise:" + sendBallDto.getThirdMatchId();
         try
         {
@@ -274,7 +275,7 @@ public class PDBasketBallAdvertiseApiImpl implements IPDBasketBallAdvertiseApi {
                 //2.4 下发比分
                 //7. 下发比分变更事件  或者比分修正事件
                 MatchScoresInfo matchScoresInfo = response.getData().getMatchScoresInfo();
-                scoresProducer.sendToMQ(response.getData().getThirdMatchInfo(),matchScoresInfo,sendBallDto.getLinkedId());
+//                scoresProducer.sendToMQ(response.getData().getThirdMatchInfo(),matchScoresInfo,sendBallDto.getLinkedId());
                 //2.5 记录日志
                 matchScorePdLogService.sendBallLog(oldScore, basketballScores, response, sendBallDto);
             }
@@ -284,6 +285,8 @@ public class PDBasketBallAdvertiseApiImpl implements IPDBasketBallAdvertiseApi {
         }finally {
             redisService.unLock(key,key);
         }
+        stopWatch.stop();
+        log.info("耗时::PDBasketBallAdvertiseApiImpl::sendBall::thirdMatchId={},time={}",sendBallDto.getThirdMatchId(),stopWatch.getTotalTimeMillis());
         return Response.success();
     }
 
@@ -361,7 +364,7 @@ public class PDBasketBallAdvertiseApiImpl implements IPDBasketBallAdvertiseApi {
                 //2.4 下发比分
                 //7. 下发比分变更事件  或者比分修正事件
                 MatchScoresInfo matchScoresInfo = response.getData().getMatchScoresInfo();
-                scoresProducer.sendToMQ(response.getData().getThirdMatchInfo(),matchScoresInfo,sendBallDto.getLinkedId());
+//                scoresProducer.sendToMQ(response.getData().getThirdMatchInfo(),matchScoresInfo,sendBallDto.getLinkedId());
                 //2.5 记录日志
                 matchScorePdLogService.sendBallLog(responseBuffer, response, sendBallDto);
             }
@@ -392,6 +395,8 @@ public class PDBasketBallAdvertiseApiImpl implements IPDBasketBallAdvertiseApi {
                 changeMatchStatusDto.setLinkedId(pdBaskectBallMatchStartDto.getLinkedId());
                 changeMatchStatusDto.setIsJump(changeMatchStatusDto.getIsJump());
                 matchBasketBallAdvertiseApi.changeMatchStatus(changeMatchStatusDto);
+                // 补充 matchStatus=1，与 release 的 changeMatchStartStatus 逻辑对齐
+                commonAdvertiseService.changeMatchStartStatus(pdMatchInfoRepository.getThirdMatchInfo(pdBaskectBallMatchStartDto.getThirdMatchId(), null), linkId);
                 //2.跳球
                 if (pdBaskectBallMatchStartDto.getIsJump() != null && pdBaskectBallMatchStartDto.getIsJump() == 1) {
                     this.takeJumpWonEvent(pdBaskectBallMatchStartDto);
@@ -483,7 +488,7 @@ public class PDBasketBallAdvertiseApiImpl implements IPDBasketBallAdvertiseApi {
             eventProducer.sendPDDeleteEventInfo(matchEventInfoDto);
         }
         //下发新的比分
-        scoresProducer.sendToMQ(response.getData().getThirdMatchInfo(),response.getData().getMatchScoresInfo(),pdBasketBallDeleteEventDto.getLinkedId());
+//        scoresProducer.sendToMQ(response.getData().getThirdMatchInfo(),response.getData().getMatchScoresInfo(),pdBasketBallDeleteEventDto.getLinkedId());
         return Response.success();
     }
 
@@ -582,7 +587,7 @@ public class PDBasketBallAdvertiseApiImpl implements IPDBasketBallAdvertiseApi {
             eventProducer.sendPDBasketballEditEventInfo(matchEventInfoDto);
         }
         //下发新的比分
-        scoresProducer.sendToMQ(response.getData().getThirdMatchInfo(),response.getData().getMatchScoresInfo(),editEventDto.getLinkedId());
+//        scoresProducer.sendToMQ(response.getData().getThirdMatchInfo(),response.getData().getMatchScoresInfo(),editEventDto.getLinkedId());
         return Response.success();
     }
 
@@ -667,7 +672,7 @@ public class PDBasketBallAdvertiseApiImpl implements IPDBasketBallAdvertiseApi {
 
     @Override
     public Response getFreeThrow(PDBasketBallPauseDto basketBallPauseDto) {
-        log.info("PDBasketBallAdvertiseApiImpl::getFreeThrow::basketBallPauseDto={}", JSON.toJSONString(basketBallPauseDto));
+        log.info("PDBasketBallAdvertiseApiImpl::getFreeThrow::thirdMatchId={},request-id={},获取罚球入参={}", basketBallPauseDto.getThirdMatchId(),basketBallPauseDto.getRequestId(), JSON.toJSONString(basketBallPauseDto));
         Long thirdMatchId = basketBallPauseDto.getThirdMatchId();
         String key  = "PD_FREE_THROW:"+thirdMatchId;
         Object o     = redisService.get(key);
@@ -681,7 +686,7 @@ public class PDBasketBallAdvertiseApiImpl implements IPDBasketBallAdvertiseApi {
 
     @Override
     public Response setFreeThrow(SetFreeThrowDto setFreeThrowDto) {
-        log.info("PDBasketBallAdvertiseApiImpl::setFreeThrow::setFreeThrowDto={}", JSON.toJSONString(setFreeThrowDto));
+        log.info("PDBasketBallAdvertiseApiImpl::setFreeThrow::thirdMatchId={},request-id={},设置罚球入参={}", setFreeThrowDto.getThirdMatchId(),setFreeThrowDto.getRequestId(), JSON.toJSONString(setFreeThrowDto));
         String key  = "PD_FREE_THROW:"+setFreeThrowDto.getThirdMatchId();
         Object o     = redisService.get(key);
         //1.查询出当前赛事的赛制
@@ -870,7 +875,7 @@ public class PDBasketBallAdvertiseApiImpl implements IPDBasketBallAdvertiseApi {
 
     @Override
     public Response goFreeThrow(GoFreeThrowDto setFreeThrowDto) {
-        log.info("PDBasketBallAdvertiseApiImpl::goFreeThrow::setFreeThrowDto={}", JSON.toJSONString(setFreeThrowDto));
+        log.info("PDBasketBallAdvertiseApiImpl::goFreeThrow::thirdMatchId={},request-id={},罚球事件入参={}", setFreeThrowDto.getThirdMatchId(),setFreeThrowDto.getRequestId(), JSON.toJSONString(setFreeThrowDto));
         String key  = "PD_FREE_THROW:"+setFreeThrowDto.getThirdMatchId();
         Object o     = redisService.get(key);
         if(o==null){
@@ -936,7 +941,7 @@ public class PDBasketBallAdvertiseApiImpl implements IPDBasketBallAdvertiseApi {
 
     @Override
     public Response sendFreeThrow(SendFreeThrowDto setFreeThrowDto) {
-        log.info("PDBasketBallAdvertiseApiImpl::sendFreeThrow::setFreeThrowDto={}", JSON.toJSONString(setFreeThrowDto));
+        log.info("PDBasketBallAdvertiseApiImpl::sendFreeThrow::thirdMatchId={},request-id={},罚球发送事件入参={}", setFreeThrowDto.getThirdMatchId(),setFreeThrowDto.getRequestId(), JSON.toJSONString(setFreeThrowDto));
         String key  = "PD_FREE_THROW:"+setFreeThrowDto.getThirdMatchId();
         if (setFreeThrowDto.isType()) {
             redisService.del(key);
@@ -1025,7 +1030,7 @@ public class PDBasketBallAdvertiseApiImpl implements IPDBasketBallAdvertiseApi {
         matchScoresEventInfoMapper.insert(matchScoresEventInfo);
         //2.4 下发比分
         //7. 下发比分变更事件  或者比分修正事件
-        scoresProducer.sendToMQ(response.getData().getThirdMatchInfo(),response.getData().getMatchScoresInfo(),pdBaskectBallMatchStartDto.getLinkedId());
+//        scoresProducer.sendToMQ(response.getData().getThirdMatchInfo(),response.getData().getMatchScoresInfo(),pdBaskectBallMatchStartDto.getLinkedId());
 
         //4.记录跳球日志
         matchScorePdLogService.changeJumpWonScoreLog(response,pdBaskectBallMatchStartDto);
@@ -1195,7 +1200,7 @@ public class PDBasketBallAdvertiseApiImpl implements IPDBasketBallAdvertiseApi {
         if (editSixScoreDto.getPeriodId().equals(matchScoresInfo.getPeriod())) {
             eventProducer.sendPDBasketballEditEventInfo(eventInfoDTO);
         }
-        scoresProducer.sendToMQ(response.getData().getThirdMatchInfo(), response.getData().getMatchScoresInfo(), editSixScoreDto.getLinkedId());
+//        scoresProducer.sendToMQ(response.getData().getThirdMatchInfo(), response.getData().getMatchScoresInfo(), editSixScoreDto.getLinkedId());
         // 记录日志
         matchScorePdLogService.editSixScoreLog(oldAllScores, response, editSixScoreDto);
         return Response.success();

@@ -62,7 +62,7 @@
         <guava.version>20.0</guava.version>
         <panda-common.version>1.3-SNAPSHOT</panda-common.version>
         <panda-repo.version>1.0-SNAPSHOT</panda-repo.version>
-        <panda-api.version>1.10.32-SNAPSHOT</panda-api.version>
+        <panda-api.version>1.10.33-SNAPSHOT</panda-api.version>
         <panda-service.version>1.0-SNAPSHOT</panda-service.version>
         <panda-odds-service.version>1.0-SNAPSHOT</panda-odds-service.version>
         <jackson.version> 2.13.4</jackson.version>

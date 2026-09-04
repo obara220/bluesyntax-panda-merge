@@ -33,7 +33,7 @@ import java.util.List;
 @Component
 public class SpareMatchScoreSourceTypeConsumer {
     private static final String TOPIC = "MATCH_SCORES_SOURCE_TYPE_UPDATE";
-    private static final String CONSUMER_GROUP = "scores-group-MATCH_SCORES_SOURCE_TYPE_UPDATE";
+    private static final String CONSUMER_GROUP = "scores-group-MATCH_SCORES_SOURCE_TYPE_UPDATE2";
 
     @Value("${slaveNamesrvAddr}")
     private String nameServers;

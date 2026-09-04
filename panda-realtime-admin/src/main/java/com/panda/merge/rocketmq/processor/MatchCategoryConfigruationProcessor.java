@@ -9,6 +9,7 @@ import com.google.common.collect.Maps;
 import com.panda.merge.common.BaseProcessor;
 import com.panda.merge.common.enums.*;
 import com.panda.merge.common.utils.TimeUtils;
+import com.panda.merge.component.MatchEventMarketXCloseProcessor;
 import com.panda.merge.config.RedisService;
 import com.panda.merge.dto.Request;
 import com.panda.merge.dto.message.MatchCategoryConfigurationMessage;
@@ -62,6 +63,9 @@ public class MatchCategoryConfigruationProcessor extends BaseProcessor {
 
     @Autowired
     DataSourceService dataSourceService;
+
+    @Autowired
+    MatchEventMarketXCloseProcessor matchEventMarketXCloseProcessor;
 
     @Autowired
     RedisService redisService;
@@ -151,6 +155,7 @@ public class MatchCategoryConfigruationProcessor extends BaseProcessor {
                } else{
                    marketCategorySell.setSellStatus(SellStatusEnum.UNSOLD.getValue());
                }
+                matchEventMarketXCloseProcessor.marketCategoryApportionToPeriod(message.getLinkId(), marketSellInfo.getSportId(), standardMatchId, marketCategorySell.getMarketCategoryId(), marketCategorySell.getAutoCloseMarket(), marketCategorySell.getMatchProgressTime());
             }
             if (MapUtil.isNotEmpty(stringStringMap)) {
                 redisService.hSetAll(categoryRedisKey, stringStringMap, marketCacheTime(marketSellInfo.getBeginTime()));
@@ -276,20 +281,21 @@ public class MatchCategoryConfigruationProcessor extends BaseProcessor {
             /** 赛事状态源及事件源默认与赔率源一致 **/
             String matchStatusUsingSource = oddsUsingDataSource;
             /**
-             * 设置滚球操盘时如果该赛事数据源包含TX，则剔除掉TX按原有逻辑确认赛事状态源及事件源  add_by riben 2020-12-23
+             * 设置滚球操盘时剔除 TX/LS/N01/N02/N03，按原有逻辑确认赛事状态源及事件源
+             * TX add_by riben 2020-12-23；LS add_by runner 2022-7-15；N系列对齐扩展
              ***/
-            if(marketType == 0 && dataMatchSourceCodes.contains(DataSourceCodeEnum.TX.getCode())) {
-                thirdMatchInfos = thirdMatchInfos.stream().filter(e -> !DataSourceCodeEnum.TX.getCode().equals(e.getDataSourceCode())).collect(Collectors.toList());
-                dataMatchSourceCodes = this.getLiveMatchOddsDataSourcesByThirdMatchInfos(thirdMatchInfos);
-                matchStatusUsingSource = this.getUsingDataSourceByDataWeightAndMatchInfos(riskManagerCode,
-                        dataWeightMap, dataMatchSourceCodes);
-            }
-
-            /**
-             * 设置滚球操盘时如果该赛事数据源包含LS，则剔除掉LS按原有逻辑确认赛事状态源及事件源  add_by runner 2022-7-15
-             ***/
-            if(marketType == 0 && dataMatchSourceCodes.contains(DataSourceCodeEnum.LS.getCode())) {
-                thirdMatchInfos = thirdMatchInfos.stream().filter(e -> !DataSourceCodeEnum.LS.getCode().equals(e.getDataSourceCode())).collect(Collectors.toList());
+            if (marketType == 0 && (dataMatchSourceCodes.contains(DataSourceCodeEnum.TX.getCode())
+                    || dataMatchSourceCodes.contains(DataSourceCodeEnum.LS.getCode())
+                    || dataMatchSourceCodes.contains(DataSourceCodeEnum.N01.getCode())
+                    || dataMatchSourceCodes.contains(DataSourceCodeEnum.N02.getCode())
+                    || dataMatchSourceCodes.contains(DataSourceCodeEnum.N03.getCode()))) {
+                thirdMatchInfos = thirdMatchInfos.stream()
+                        .filter(e -> !DataSourceCodeEnum.TX.getCode().equals(e.getDataSourceCode())
+                                && !DataSourceCodeEnum.LS.getCode().equals(e.getDataSourceCode())
+                                && !DataSourceCodeEnum.N01.getCode().equals(e.getDataSourceCode())
+                                && !DataSourceCodeEnum.N02.getCode().equals(e.getDataSourceCode())
+                                && !DataSourceCodeEnum.N03.getCode().equals(e.getDataSourceCode()))
+                        .collect(Collectors.toList());
                 dataMatchSourceCodes = this.getLiveMatchOddsDataSourcesByThirdMatchInfos(thirdMatchInfos);
                 matchStatusUsingSource = this.getUsingDataSourceByDataWeightAndMatchInfos(riskManagerCode,
                         dataWeightMap, dataMatchSourceCodes);
@@ -447,7 +453,13 @@ public class MatchCategoryConfigruationProcessor extends BaseProcessor {
             log.info("{} 赛事模版事件源:::{}",linkId,matchStatusUsingSource);
             if (!CollectionUtils.isEmpty(thirdMatchInfos)){
                 if (StringUtils.isNotBlank(matchStatusUsingSource) && matchStatusUsingSource.equals(DataSourceCodeEnum.AO.code)) {
-                    List<ThirdMatchInfo> noAoThirdMatchs = thirdMatchInfos.stream().filter(e -> !e.getDataSourceCode().equals(DataSourceCodeEnum.AO.code)).collect(Collectors.toList());
+                    // 非AO重选时剔除N系列，避免回落到N01/N02/N03
+                    List<ThirdMatchInfo> noAoThirdMatchs = thirdMatchInfos.stream()
+                            .filter(e -> !DataSourceCodeEnum.AO.code.equals(e.getDataSourceCode())
+                                    && !DataSourceCodeEnum.N01.getCode().equals(e.getDataSourceCode())
+                                    && !DataSourceCodeEnum.N02.getCode().equals(e.getDataSourceCode())
+                                    && !DataSourceCodeEnum.N03.getCode().equals(e.getDataSourceCode()))
+                            .collect(Collectors.toList());
                     if(!CollectionUtils.isEmpty(noAoThirdMatchs)){
                         Set<String> dataMatchSourceCodes = this.getLiveMatchOddsDataSourcesByThirdMatchInfos(noAoThirdMatchs);
                         Optional<Map.Entry<String, Integer>> maxWeightCode = Maps.filterKeys(dataWeightMap, e -> dataMatchSourceCodes.contains(e)).entrySet().stream().min(Map.Entry.comparingByValue(Comparator.naturalOrder()));
@@ -564,6 +576,7 @@ public class MatchCategoryConfigruationProcessor extends BaseProcessor {
                 //                categoryItem.setBcWeight(bcWeight);
                 //                categoryItem.setBgWeight(bgWeight);
                 categorySellService.update(categoryItem);
+                matchEventMarketXCloseProcessor.marketCategoryApportionToPeriod(linkId, sportId, standardMatchId, categoryItem.getMarketCategoryId(), categoryItem.getAutoCloseMarket(), categoryItem.getMatchProgressTime());
             }
 
             //过滤出DB中已存在的配置信息，让下面不再做重复新增
@@ -632,6 +645,7 @@ public class MatchCategoryConfigruationProcessor extends BaseProcessor {
                 if (StringUtils.isNotBlank(configuration.getDataSourceCode())) {
                     categorySellConfigurations.add(configuration);
                 }
+                matchEventMarketXCloseProcessor.marketCategoryApportionToPeriod(linkId, sportId, standardMatchId, configuration.getMarketCategoryId(), configuration.getAutoCloseMarket(), configuration.getMatchProgressTime());
             }
             if(!categorySellConfigurations.isEmpty()&&!categoryConfigutaionInfo.getRiskManagerCode().equals(DataSourceCodeEnum.PA.getCode())&&!CollectionUtils.isEmpty(categoryConfigutaionInfo.getCategoryIds4405())){
                 handleCategorySell(categorySellConfigurations,categoryConfigutaionInfo.getCategoryIds4405());

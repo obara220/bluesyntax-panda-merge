@@ -63,7 +63,9 @@ public class LiveOddsJob extends IJobHandler {
                 int start = i * chunkSize;
                 int end = Math.min(start + chunkSize, size);
                 List<Long> subList = new ArrayList<>(list.subList(start, end));
-                marketOddsCommon.calculateMarketOdds(subList, 0, 1);
+                if (CollectionUtil.isNotEmpty(subList)) {
+                    marketOddsCommon.calculateMarketOdds(subList, 0, 1);
+                }
             }
         }
         //bug-107772
@@ -105,57 +107,57 @@ public class LiveOddsJob extends IJobHandler {
         );
     }*/
 
-    public void liveOddsJob(ThreadPoolTaskScheduler scheduler){
-      /*  if (StringUtils.isEmpty(HOST_ADDRESS)) {
-            InetAddress address = null;
-            try {
-                address = getLocalHostExactAddress();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            HOST_ADDRESS = address.getHostAddress();
-        }
-        Object oldAddress = redisService.get(KEY);
-        if (oldAddress == null || StringUtils.equals((String) oldAddress, HOST_ADDRESS)) {*/
-            /*log.info("执行滚球定时任务,当前执行节点:{}", oldAddress);
-            redisService.set(KEY, HOST_ADDRESS, RedisConfig.REDIS_SIXTY_SECOND);*/
-            //获取需要计算A99赔率的滚球赛事id
-//            Object matchIds = redisService.get(Constant.REDIS_KEY.RONGHE_A99_LIVE_MATCH_IDS);
-//            if(matchIds != null) {
-//                Set<Long> set = (Set)matchIds;
-//                marketOddsCommon.calculateMarketOdds(new ArrayList<>(set), 0);
+//    public void liveOddsJob(ThreadPoolTaskScheduler scheduler){
+//      /*  if (StringUtils.isEmpty(HOST_ADDRESS)) {
+//            InetAddress address = null;
+//            try {
+//                address = getLocalHostExactAddress();
+//            } catch (Exception e) {
+//                e.printStackTrace();
 //            }
-            Set<Long> liveSet = marketOddsCommon.getA99MatchIds(Constant.REDIS_KEY.RONGHE_A99_LIVE_MATCH_IDS);
-            if (CollectionUtil.isNotEmpty(liveSet)) {
-                List<Long> list = new ArrayList<>(liveSet);
-                int numberOfThreads = 5;
-                int size = list.size();
-                int chunkSize = (int) Math.ceil((double) size / numberOfThreads);
-
-                for (int i = 0; i < numberOfThreads; i++) {
-                    int start = i * chunkSize;
-                    int end = Math.min(start + chunkSize, size);
-                    List<Long> subList = list.subList(start, end);
-
-                    scheduler.submit(new Runnable() {
-                        @Override
-                        public void run() {
-                            marketOddsCommon.calculateMarketOdds(subList, 0, 3);
-                        }
-                    });
-                }
-            }
-            //bug-107772
-            Object cacheCronObj = redisService.get(RONGHE_A99_LIVE_TASK_CRON);
-            if (ObjectUtil.isNotNull(cacheCronObj)) {
-                String cacheCron = (String)cacheCronObj;
-                if (!StringUtils.equals(cronExpression, cacheCron)) {
-                    log.info("检测到A99系统参数滚球下发间隔秒数已调整为:{}", cacheCron);
-                    this.cronExpression = cacheCron;
-                }
-            }
-        /*}*/
-    }
+//            HOST_ADDRESS = address.getHostAddress();
+//        }
+//        Object oldAddress = redisService.get(KEY);
+//        if (oldAddress == null || StringUtils.equals((String) oldAddress, HOST_ADDRESS)) {*/
+//            /*log.info("执行滚球定时任务,当前执行节点:{}", oldAddress);
+//            redisService.set(KEY, HOST_ADDRESS, RedisConfig.REDIS_SIXTY_SECOND);*/
+//            //获取需要计算A99赔率的滚球赛事id
+////            Object matchIds = redisService.get(Constant.REDIS_KEY.RONGHE_A99_LIVE_MATCH_IDS);
+////            if(matchIds != null) {
+////                Set<Long> set = (Set)matchIds;
+////                marketOddsCommon.calculateMarketOdds(new ArrayList<>(set), 0);
+////            }
+//            Set<Long> liveSet = marketOddsCommon.getA99MatchIds(Constant.REDIS_KEY.RONGHE_A99_LIVE_MATCH_IDS);
+//            if (CollectionUtil.isNotEmpty(liveSet)) {
+//                List<Long> list = new ArrayList<>(liveSet);
+//                int numberOfThreads = 5;
+//                int size = list.size();
+//                int chunkSize = (int) Math.ceil((double) size / numberOfThreads);
+//
+//                for (int i = 0; i < numberOfThreads; i++) {
+//                    int start = i * chunkSize;
+//                    int end = Math.min(start + chunkSize, size);
+//                    List<Long> subList = list.subList(start, end);
+//
+//                    scheduler.submit(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            marketOddsCommon.calculateMarketOdds(subList, 0, 3);
+//                        }
+//                    });
+//                }
+//            }
+//            //bug-107772
+//            Object cacheCronObj = redisService.get(RONGHE_A99_LIVE_TASK_CRON);
+//            if (ObjectUtil.isNotNull(cacheCronObj)) {
+//                String cacheCron = (String)cacheCronObj;
+//                if (!StringUtils.equals(cronExpression, cacheCron)) {
+//                    log.info("检测到A99系统参数滚球下发间隔秒数已调整为:{}", cacheCron);
+//                    this.cronExpression = cacheCron;
+//                }
+//            }
+//        /*}*/
+//    }
 
 
 

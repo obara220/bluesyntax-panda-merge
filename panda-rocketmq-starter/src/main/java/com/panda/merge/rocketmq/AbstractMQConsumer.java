@@ -107,7 +107,16 @@ public abstract class AbstractMQConsumer<T extends Request<?>>
         processConsumerConfigDetail(consumer,mqConsumerConfig);
         consumer.registerMessageListener(getBizLogic());
         consumer.setAwaitTerminationMillisWhenShutdown(awaitShutDownAwaitMilli);
-        consumer.start();
+        // 方法二：直接 try-catch 吞掉重复start的异常（最简单）
+        try {
+            consumer.start();
+        } catch (MQClientException e) {
+            if (e.getMessage().contains("RUNNING")) {
+                log.warn("Consumer already running, skip start");
+            } else {
+                throw e; // 其他异常继续抛
+            }
+        }
     }
 
     /**

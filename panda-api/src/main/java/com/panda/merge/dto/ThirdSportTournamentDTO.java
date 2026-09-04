@@ -94,4 +94,8 @@ public class ThirdSportTournamentDTO implements Serializable {
      * }
      */
     private Integer matchType;
+    /**
+     * 联赛规则,中文
+     */
+    private String zsTournamentRule;
 }

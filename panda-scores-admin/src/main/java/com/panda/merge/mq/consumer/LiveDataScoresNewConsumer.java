@@ -16,6 +16,12 @@ import com.panda.merge.config.mq.ConsumerConfigDetail;
 import com.panda.merge.config.mq.MqConsumerConfig;
 import com.panda.merge.constant.*;
 import com.panda.merge.dto.*;
+import com.panda.merge.common.enums.MatchStatusEnum;
+import com.panda.merge.common.enums.OperateLogTypeEnum;
+import com.panda.merge.dto.scores.EditScoreResultStatusRequest;
+import com.panda.merge.dto.scores.StandardScoreCenterDTO;
+import com.panda.merge.mapper.MatchScoresCenterLogMapper;
+import com.panda.merge.mapper.StandardSportMarketSellMapper;
 import com.panda.merge.dto.scores.StandardScoreCenter;
 import com.panda.merge.dto.sourceSwitch.BasketballSwitch;
 import com.panda.merge.dto.sourceSwitch.FootballSwitch;
@@ -138,6 +144,12 @@ public class LiveDataScoresNewConsumer extends AbstractSingleMessageMQConsumer<R
     @NacosValue(value = "${delay.event.sendmq.switch:0}", autoRefreshed = true)
     private int DELAY_EVENT_SENDMQ_SWITCH;
 
+    @Autowired
+    private StandardSportMarketSellMapper standardSportMarketSellMapper;
+
+    @Autowired
+    private MatchScoresCenterLogMapper matchScoresCenterLogMapper;
+
     /**
      * 点球事件
      * 获得点球、点球重提、点球未进、点球取消
@@ -237,6 +249,9 @@ public class LiveDataScoresNewConsumer extends AbstractSingleMessageMQConsumer<R
             if(StringUtils.isBlank(event.getLinkId())){
                 event.setLinkId(linkId);
             }
+
+            //主客队相反
+            scoresService.changePDHomeAwayScores(matchScoresInfo, thirdMatchInfo);
             scoresProducer.sendToMQ(thirdMatchInfo, matchScoresInfo, event);
             if(event.getSportId()==1L){
                 //比分写入缓存
@@ -250,6 +265,7 @@ public class LiveDataScoresNewConsumer extends AbstractSingleMessageMQConsumer<R
                 return ;
             }
             this.saveStandardScores(matchScoresInfo,event,thirdMatchInfo,standardMatchInfo,standardSportMarketSell);
+            handleBaseballRollingSwitch(event, linkId, standardMatchInfo, standardSportMarketSell);
             //标准比分通知WS服务，推送到比分中心页面，SCORE_CENTER_MATCH_SCORES
             if(DataSourceConstant.STANDARC_SCORE_SPORTIDS.contains(event.getSportId())){
                 pushMatchStandScores(event.getStandardMatchId(), event.getLinkId());
@@ -396,6 +412,7 @@ public class LiveDataScoresNewConsumer extends AbstractSingleMessageMQConsumer<R
 
                         //标准比分下发并入库，只处理5网，8乒，9排，10羽赛种
                         this.saveStandardScores(matchScoresInfo, event,thirdMatchInfo,standardMatchInfo,standardSportMarketSell);
+                        handleBaseballRollingSwitch(event, link, standardMatchInfo, standardSportMarketSell);
                         //标准比分通知WS服务，推送到比分中心页面，SCORE_CENTER_MATCH_SCORES
                         if(DataSourceConstant.STANDARC_SCORE_SPORTIDS.contains(event.getSportId())){
                             pushMatchStandScores(event.getStandardMatchId(), event.getLinkId());
@@ -611,8 +628,7 @@ public class LiveDataScoresNewConsumer extends AbstractSingleMessageMQConsumer<R
     private void saveStandardScores(MatchScoresInfo matchScoresInfo, MatchEventInfo data,ThirdMatchInfo thirdMatchInfo,StandardMatchInfo standardMatchInfo,StandardSportMarketSell standardSportMarketSell ) {
         log.info("linkId::{}::saveStandardScores start", data.getLinkId());
         Long oldPeriod = data.getMatchPeriodId();
-        List<Long> STANDARC_SCORE_SPORTIDS = new ArrayList<>(Arrays.asList(1L,2L,5L,8L,9L,10L));
-        if(!STANDARC_SCORE_SPORTIDS.contains(data.getSportId())){
+        if(!DataSourceConstant.STANDARC_SCORE_SPORTIDS.contains(data.getSportId())){
             return;
         }
         if(!standardSportMarketSell.getBusinessEvent().equals(matchScoresInfo.getDataSourceCode())){
@@ -620,6 +636,7 @@ public class LiveDataScoresNewConsumer extends AbstractSingleMessageMQConsumer<R
             return;
         }
         log.info("linkId::{}::saveStandardScores 开始保存标准比分(网乒排羽足蓝)", data.getLinkId());
+
         StandardMatchScores score = scoresRedisHelp.getCatchStandScoreByMatchId(data.getStandardMatchId());
         //更新对应数据源的标准比分
         if(null == score){
@@ -643,6 +660,17 @@ public class LiveDataScoresNewConsumer extends AbstractSingleMessageMQConsumer<R
             score.setDataSourceCode(standardSportMarketSell.getBusinessEvent());
             score.setMatchManageId(standardMatchInfo.getMatchManageId());
         }
+        if(SportTypeEnum.BASKETBALL.getValue().equals(standardMatchInfo.getSportId())){
+            if(!Objects.equals(score.getMatchLength(), matchScoresInfo.getMatchLength())){
+                log.info("linkId::{}::saveStandardScores 篮球赛制不相等！ 更新赛制,清空比分::{} : {}",data.getLinkId(),score.getMatchLength(),matchScoresInfo.getMatchLength());
+                //赛制不相等时,更新赛制,并且清空标准比分,再同步
+                score.setMatchLength(matchScoresInfo.getMatchLength());
+                score.setUpdateTime(System.currentTimeMillis());
+                score.setScoreJson(null);
+                score.setDataSourceAccoSwitch(getSwitchsAsSportId(data.getSportId()));
+                scoresRedisHelp.saveCatchStandScore(score);
+            }
+        }
         String redisLockKey = "STAND:SCORES:MATCHID:"+data.getStandardMatchId()+"_"+data.getDataSourceCode();
 
         try {
@@ -662,6 +690,8 @@ public class LiveDataScoresNewConsumer extends AbstractSingleMessageMQConsumer<R
                 //标准比分入库
 //                standardMatchScoresMapper.update(score);
                 scoresRedisHelp.saveCatchStandScore(score);
+                //主客队相反
+//                scoresService.changePDHomeAwayScores(score, thirdMatchInfo);
                 //1.发送 标准比分
                 CommonStandardScoresDto commonScoresDto = messageBuilderUtils.buildStandardMatchScoreCommonScoresDto(score, data,matchScoresInfo);
                 commonScoresDto.setPeriodId(oldPeriod);
@@ -678,7 +708,7 @@ public class LiveDataScoresNewConsumer extends AbstractSingleMessageMQConsumer<R
                 }
                 log.info("linkId::{}::saveStandardScores 标准比分更新完成,发送标准比分开始", data.getLinkId());
                 if (!scoresService.ifMatchSoldByThirdMatchId(thirdMatchInfo,standardMatchInfo)) {
-                    log.info("linkId::{}::saveStandardScores sendToMQ 该赛事未开售滚球！", data.getLinkId());
+                    log.info("linkId::{}::saveStandardScores sendToMQ 该赛事未开售！", data.getLinkId());
                     return;
                 }
 
@@ -857,5 +887,87 @@ public class LiveDataScoresNewConsumer extends AbstractSingleMessageMQConsumer<R
             dataSourceAccoSwitch = JSONUtil.toJsonStr(switchs);
         }
         return dataSourceAccoSwitch;
+    }
+
+    /**
+     * 处理棒球滚球赛果展示开关
+     * 等比分逻辑处理完后，判断棒球match_status事件是否为取消/延期/放弃状态
+     * 如果是，则更新standard_sport_market_sell.show_result_status=0，下发SHOW_SCORE_STATUS MQ并保存操作日志
+     */
+    private void handleBaseballRollingSwitch(MatchEventInfo event, String linkId,
+                                              StandardMatchInfo standardMatchInfo,
+                                              StandardSportMarketSell standardSportMarketSell) {
+        // 仅处理棒球(sportId=3)的match_status事件
+        if (!SportTypeEnum.BASEBALL.getValue().equals(event.getSportId())) {
+            return;
+        }
+        if (!"match_status".equals(event.getEventCode())) {
+            return;
+        }
+        // extraInfo 为 null 或空时不处理
+        String extraInfo = event.getExtraInfo();
+        if (StringUtils.isBlank(extraInfo)) {
+            return;
+        }
+        // 解析 matchStatus: 5=取消, 6=放弃, 7=延期
+        int matchStatus;
+        try {
+            matchStatus = Integer.parseInt(extraInfo);
+        } catch (NumberFormatException e) {
+            log.warn("linkId::{}::handleBaseballRollingSwitch extraInfo格式错误:{}", linkId, extraInfo);
+            return;
+        }
+        if (matchStatus != MatchStatusEnum.Cancelled.value
+                && matchStatus != MatchStatusEnum.Abandoned.value
+                && matchStatus != MatchStatusEnum.Delayed.value) {
+            return;
+        }
+        log.info("linkId::{}::handleBaseballRollingSwitch 检测到棒球取消/延期/放弃, standardMatchId:{}, matchStatus:{}",
+                linkId, event.getStandardMatchId(), matchStatus);
+        int showStatus = 0;
+        long now = System.currentTimeMillis();
+        // 关闭开售表的开关（赛果开关与三方赛事无关）
+        List<Long> matchIds = Collections.singletonList(event.getStandardMatchId());
+        standardSportMarketSellMapper.updateShowResultStatusAll(matchIds, now, showStatus);
+
+        // 下发SHOW_SCORE_STATUS MQ
+        EditScoreResultStatusRequest request = new EditScoreResultStatusRequest();
+        request.setType(0);
+        request.setStatus(showStatus);
+        request.setStandardMatchId(event.getStandardMatchId());
+        request.setSportId(event.getSportId());
+        scoresProducer.sendMatchShowStatus(request, event.getStandardMatchId() + "_baseballRolling");
+        log.info("linkId::{}::handleBaseballRollingSwitch 下发SHOW_SCORE_STATUS完成,关闭赛果展示，standardMatchId:{}", linkId, event.getStandardMatchId());
+        // 保存操作日志
+        StandardScoreCenterDTO centerDto = new StandardScoreCenterDTO();
+        centerDto.setStandardMatchId(event.getStandardMatchId());
+        centerDto.setSportId(event.getSportId());
+        centerDto.setShowStatus(showStatus);
+        centerDto.setOperatorName(event.getDataSourceCode());
+        centerDto.setMatchManageId(standardMatchInfo.getMatchManageId());
+        editMatchResultShowStatusLog(centerDto);
+        log.info("linkId::{}::handleBaseballRollingSwitch 保存操作日志完成，standardMatchId:{}", linkId, event.getStandardMatchId());
+    }
+
+    private void editMatchResultShowStatusLog(StandardScoreCenterDTO logDto) {
+        log.info("保存操作日志:{}", logDto);
+        Integer showStatus = logDto.getShowStatus();
+        MatchScoresCenterLog matchScoresCenterLog = new MatchScoresCenterLog();
+        String matchManageId = logDto.getMatchManageId();
+        matchScoresCenterLog.setMatchManageId(matchManageId);
+        matchScoresCenterLog.setOperateId(matchManageId);
+        matchScoresCenterLog.setOperateName("");
+        matchScoresCenterLog.setOperateParaName(OperateLogTypeEnum.SCORES_CENTER_MATCH_SETTING.getCode() + "");
+        matchScoresCenterLog.setOperateType(OperateLogTypeEnum.SCORES_CENTER_MATCH_SETTING.getCode() + "");
+        matchScoresCenterLog.setOperateRearText(String.valueOf(showStatus));
+        // 取低位翻转作为操作前值：showStatus=0→before=1, showStatus=1→before=0
+        matchScoresCenterLog.setOperateForwText(String.valueOf(showStatus ^ 1));
+        matchScoresCenterLog.setOperateModule(OperateLogTypeEnum.SCORES_SETTLE_10038.getCode() + "");
+        matchScoresCenterLog.setOperateUserName(logDto.getOperatorName() != null ? logDto.getOperatorName() : "match status auto close");
+        matchScoresCenterLog.setIpAddress("");
+        matchScoresCenterLog.setOperateMatchId(matchManageId);
+        matchScoresCenterLog.setCreateTime(System.currentTimeMillis());
+        matchScoresCenterLog.setModifyTime(System.currentTimeMillis());
+        matchScoresCenterLogMapper.insert(matchScoresCenterLog);
     }
 }

@@ -5,6 +5,7 @@ import com.panda.merge.model.ConfigOutrightTradeMarket;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * <Description> <br>
@@ -42,6 +43,8 @@ public interface OutrightTradeMarketConfigService {
      * @return
      */
     ConfigOutrightTradeMarket selectItem(Long standardMatchId, Long standardMarketId);
+
+    List<ConfigOutrightTradeMarket> selectItems(Map<Long, Set<Long>> matchAndMarketIdsMap);
 
 
     /**

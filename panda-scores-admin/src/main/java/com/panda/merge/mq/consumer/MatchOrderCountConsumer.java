@@ -39,7 +39,7 @@ import java.util.List;
         consumeTimeout = 10000L
 )
 @DependsOn("scoresAdminApplication")
-public class MatchOrderCountConsumer implements RocketMQListener<String> {
+public class MatchOrderCountConsumer implements RocketMQListener<List<MatchOrderCountDTO>> {
 
     @Autowired
     private StandardSportMarketSellService standardSportMarketSellService;
@@ -53,32 +53,101 @@ public class MatchOrderCountConsumer implements RocketMQListener<String> {
     private Boolean datacenterMergeSwitch;
     @Autowired
     CommonProducer commonProducer;
-    /**
-     *
-     * @param s
-     * 下发的数据为已结束并且注单数为0的赛事
-     */
+//    /**
+//     *
+//     * @param s
+//     * 下发的数据为已结束并且注单数为0的赛事
+//     */
+//    @Override
+//    public void onMessage(String s) {
+//        log.info("MatchOrderCountConsumer MQ消费数据开始...{}",datacenterMergeSwitch);
+//        if (datacenterMergeSwitch) {
+//            //MQ消息转发给数据中心
+//            commonProducer.asyncSend(s, "datacenter-MATCH_RESULT_ORDER_COUNT_INFO",System.currentTimeMillis()+"");
+//            return;
+//        }
+//        StopWatch extWatch = new StopWatch();
+//        extWatch.start();
+//        if(StrUtil.isEmpty(s)){
+//            return;
+//        }
+//        log.info("无注单自动关闭赛果开关：{}",s);
+//        try{
+//            //[{"linkId":"76567a0a-784b-419a-b09c-5d30668e880a","timestamp":1755334742428,"mid":3904624,"orderCount":1}]
+//            JSONArray array = new JSONArray(s) ;
+//            List<MatchOrderCountDTO> list = array.toList(MatchOrderCountDTO.class);
+//            if(list.isEmpty()){
+//                return;
+//            }
+//            String key = "AUTO_CLOSE_RESULT_SHOW_SWITCH";
+//            String redisMatchIds = "";
+//            if(redisService.get(key)!=null){
+//                redisMatchIds = (String) redisService.get(key);
+//            }
+//            List<Long> matchIds = new ArrayList<>();
+//            StringBuilder idsStr = new StringBuilder();
+//            for (MatchOrderCountDTO dto : list){
+//                if(redisMatchIds.contains(dto.getMid().toString())){
+//                    continue;
+//                }
+//                Integer count = dto.getOrderCount();
+//                if(count!=0){
+//                    return;
+//                }
+//                matchIds.add(dto.getMid());
+//                idsStr.append(dto.getMid()).append(",");
+//            }
+//            //刷新缓存
+//            List<StandardSportMarketSell> standardSportMarketSells = standardSportMarketSellService.getItems(matchIds);
+//            if(standardSportMarketSells.isEmpty()){
+//                log.info("无注单自动关闭赛果开关：无赛事：{}",matchIds);
+//                return;
+//            }
+//            //发送MQ通知业务侧全部显示/隐藏
+//            for (StandardSportMarketSell match : standardSportMarketSells) {
+//                EditScoreResultStatusRequest request = new EditScoreResultStatusRequest();
+//                request.setStatus(0);
+//                //定义类型为2 无注单自动关闭赛果展示
+//                request.setType(2);
+//                request.setStandardMatchId(match.getMatchInfoId());
+//                request.setSportId(match.getSportId());
+//                scoresProducer.sendMatchShowStatus(request,match.getMatchInfoId()+"_order");
+//                match.setShowResultStatus(0);
+//                standardSportMarketSellService.refreshCache(match);
+//            }
+//            //数据入库
+//            if(!matchIds.isEmpty()){
+//                standardSportMarketSellMapper.updateShowResultStatusAll(matchIds,System.currentTimeMillis(),0);
+//                log.info("无注单自动关闭赛果开关：{}",matchIds);
+//            }
+//            if(StringUtils.isNotEmpty(idsStr)){
+//                redisService.set(key,redisMatchIds+","+matchIds, RedisConfig.REDIS_HOUR_TIME);
+//            }
+//            extWatch.stop();
+//            log.info("无注单自动关闭赛果开关：{},用时:{}",matchIds,extWatch.getTotalTimeMillis());
+//       }catch (Exception e){
+//           log.error("无注单自动关闭赛果开关异常：{}",e.getMessage(),e);
+//       }
+//    }
+
+
+
     @Override
-    public void onMessage(String s) {
+    public void onMessage(List<MatchOrderCountDTO> matchOrderCountDTOS) {
         log.info("MatchOrderCountConsumer MQ消费数据开始...{}",datacenterMergeSwitch);
         if (datacenterMergeSwitch) {
             //MQ消息转发给数据中心
-            commonProducer.asyncSend(s, "datacenter-MATCH_RESULT_ORDER_COUNT_INFO",System.currentTimeMillis()+"");
+            commonProducer.asyncSend(matchOrderCountDTOS, "datacenter-MATCH_RESULT_ORDER_COUNT_INFO",System.currentTimeMillis()+"");
             return;
         }
         StopWatch extWatch = new StopWatch();
         extWatch.start();
-        if(StrUtil.isEmpty(s)){
+        if(matchOrderCountDTOS.isEmpty()){
+            log.info("无数据==============================");
             return;
         }
-        log.info("无注单自动关闭赛果开关：{}",s);
+        log.info("无注单自动关闭赛果开关，原始数据：{}",matchOrderCountDTOS);
         try{
-            //[{"linkId":"76567a0a-784b-419a-b09c-5d30668e880a","timestamp":1755334742428,"mid":3904624,"orderCount":1}]
-            JSONArray array = new JSONArray(s) ;
-            List<MatchOrderCountDTO> list = array.toList(MatchOrderCountDTO.class);
-            if(list.isEmpty()){
-                return;
-            }
             String key = "AUTO_CLOSE_RESULT_SHOW_SWITCH";
             String redisMatchIds = "";
             if(redisService.get(key)!=null){
@@ -86,7 +155,7 @@ public class MatchOrderCountConsumer implements RocketMQListener<String> {
             }
             List<Long> matchIds = new ArrayList<>();
             StringBuilder idsStr = new StringBuilder();
-            for (MatchOrderCountDTO dto : list){
+            for (MatchOrderCountDTO dto : matchOrderCountDTOS){
                 if(redisMatchIds.contains(dto.getMid().toString())){
                     continue;
                 }
@@ -111,7 +180,7 @@ public class MatchOrderCountConsumer implements RocketMQListener<String> {
                 request.setType(2);
                 request.setStandardMatchId(match.getMatchInfoId());
                 request.setSportId(match.getSportId());
-                scoresProducer.sendMatchShowStatus(request,match.getMatchInfoId()+"");
+                scoresProducer.sendMatchShowStatus(request,match.getMatchInfoId()+"_order");
                 match.setShowResultStatus(0);
                 standardSportMarketSellService.refreshCache(match);
             }
@@ -125,9 +194,9 @@ public class MatchOrderCountConsumer implements RocketMQListener<String> {
             }
             extWatch.stop();
             log.info("无注单自动关闭赛果开关：{},用时:{}",matchIds,extWatch.getTotalTimeMillis());
-       }catch (Exception e){
-           log.error("无注单自动关闭赛果开关异常：{}",e.getMessage(),e);
-       }
+        }catch (Exception e){
+            log.error("无注单自动关闭赛果开关异常：{}",e.getMessage(),e);
+        }
     }
 
 }

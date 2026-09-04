@@ -41,7 +41,7 @@ public class SystemDeActiveLogProducer {
         MessageBuilder<Request<OperationLogMessage>> builder =
             MessageBuilder.withPayload(sendMessageRequest)
                     .setHeader(MessageConst.PROPERTY_KEYS, sendMessageRequest.getLinkId());
-        log.info("::{}::开始下发系统关盘日志到风控,topic:OPERATION_LOG_TO_RISK", sendMessageRequest.getLinkId());
+        log.info("::{}::开始下发系统关盘日志到风控:{},topic:OPERATION_LOG_TO_RISK", standardMatchInfo, sendMessageRequest.getLinkId());
         rocketMqTemplate.asyncSend("OPERATION_LOG_TO_RISK", builder.build(), new SendCallback() {
             @Override
             public void onSuccess(SendResult sendResult) {
@@ -62,7 +62,8 @@ public class SystemDeActiveLogProducer {
             Integer marketType = standardMarketMessage.getMarketType();
             OperationLogMessage operationLogMessage = new OperationLogMessage();
             operationLogMessage.setMatchId(standardMatchInfo.getId());
-            operationLogMessage.setObjectId(marketCategoryId.toString());
+            Long childMarketCategoryId = standardMarketMessage.getChildMarketCategoryId();
+            operationLogMessage.setObjectId(null == childMarketCategoryId ? marketCategoryId + "" : childMarketCategoryId + "");
             operationLogMessage.setObjectName(marketCategoryId.toString());
             operationLogMessage.setExtObjectId(marketId.toString());
             operationLogMessage.setExtObjectName(standardMatchInfo.getHomeAwayInfo());

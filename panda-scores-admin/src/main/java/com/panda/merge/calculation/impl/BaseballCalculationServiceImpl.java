@@ -1,6 +1,7 @@
 package com.panda.merge.calculation.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.panda.merge.common.enums.DataSourceCodeEnum;
 import com.panda.merge.constant.SportPeriodConstant;
 import com.panda.merge.dto.BaseballScores;
 import com.panda.merge.dto.MatchStatisticsInfoDTO;
@@ -179,6 +180,11 @@ public class BaseballCalculationServiceImpl extends AbstractCalculationServiceIm
         //保存比分
         if(data.getMatchStatisticsInfoDetailList()==null){
             log.error("createMatchStatistics data:null");
+            return;
+        }
+        //109122 【日常】【生产】棒球统计比分 比赛没有进入加时赛时 比分中心下发加时比分0:0
+        if(DataSourceCodeEnum.SR.code.equals(data.getDataSourceCode()) && data.getPeriod()==999L){
+            log.info("::保存赛事统计比分,棒球统计比分暂不处理999的比分变更:{}",data);
             return;
         }
         //1.得到阶段map 转化的

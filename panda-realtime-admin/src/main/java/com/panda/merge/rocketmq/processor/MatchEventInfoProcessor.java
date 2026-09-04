@@ -25,6 +25,7 @@ import com.panda.merge.config.RedisService;
 import com.panda.merge.config.ThreadPoolConfig;
 import com.panda.merge.constant.ConstantSystem;
 import com.panda.merge.dto.*;
+import com.panda.merge.exception.Asserts;
 import com.panda.merge.exception.ExceptionHelper;
 import com.panda.merge.mapper.StandardRelationNewStandardMapper;
 import com.panda.merge.mapper.ThirdRelationNewThirdMapper;
@@ -36,6 +37,7 @@ import com.panda.sport.manager.api.IMarketCategorySellApi;
 import com.panda.sport.manager.api.dto.ChangeBusinessEventSaleDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.rocketmq.common.message.MessageExt;
 import org.springframework.beans.BeanUtils;
@@ -55,6 +57,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.panda.merge.config.RedisConfig.REDIS_HOUR_TIME;
 import static com.panda.merge.constant.ConstantSystem.*;
 
 /**
@@ -113,7 +116,7 @@ public class MatchEventInfoProcessor extends BaseProcessor {
     private IMarketCategorySellApi iMarketCategorySellApi;
 
     @Resource(name = "ProcessTradeSystemThreadPool")
-    private ThreadPoolTaskExecutor processTradeSystemThreadPool;
+    private TaskExecutor processTradeSystemThreadPool;
 
     /**
      *  优化单79713，需要告警的足球事件
@@ -150,9 +153,31 @@ public class MatchEventInfoProcessor extends BaseProcessor {
     @NacosValue(value = "${panda.interrupted.event.switch:true}", autoRefreshed = true)
     private boolean interruptedEventSwitch;
 
+    /**
+     *  r01足球,第二次的100阶段事件和999事件睡眠开关（false:关，true：开）
+     * */
+    @NacosValue(value = "${event.r01_sleep_switch:false}", autoRefreshed = true)
+    private boolean r01SleepSwitch;
+
+
 
     @Resource
     private RateLimiterHandler rateLimiterHandler;
+
+    /**
+     * -- KEYS[1] = key
+     * -- ARGV[1] = isScoreEqual (1=一致, 0=不一致)
+     * -- ARGV[2] = expireSeconds
+     */
+    private static final String SCORE_SCRIPT =
+            "if tonumber(ARGV[1]) == 1 then " +
+                    "   redis.call('del', KEYS[1]); " +
+                    "   return 0; " +
+                    "else " +
+                    "   local count = redis.call('incr', KEYS[1]); " +
+                    "   redis.call('expire', KEYS[1], ARGV[2]); " +
+                    "   return count; " +
+                    "end";
 
     /**
      * 第三方赛事盘中事件列表接收（list增量事件）
@@ -352,6 +377,27 @@ public class MatchEventInfoProcessor extends BaseProcessor {
             //当前传入数据源类型
             String dataSourceCode = matchEventInfoDTO.getDataSourceCode();
             log.info("linkId=【{}】putMatchEventInfo，事件信息处理开始，thirdMatchSourceId={},dataSourceCode={},spareMq={}", request.getLinkId(), thirdMatchSourceId,dataSourceCode,request.getSpareMq());
+
+            String ended999KeyForCheck = String.format(ConstantSystem.getMatchPeriod999KeyForCheck(), dataSourceCode,thirdMatchSourceId);
+            String ended100KeyForCheck = String.format(ConstantSystem.getMatchPeriod100KeyForCheck(), dataSourceCode,thirdMatchSourceId);
+            if (r01SleepSwitch 
+                    && DataSourceCodeEnum.RB.code.equals(dataSourceCode)
+                    && StandardSportTypeEnum.FootBall.getCode().equals(matchEventInfoDTO.getSportId())
+                    && EventCodeEnum.MATCH_STATUS.code.equalsIgnoreCase(matchEventInfoDTO.getEventCode())
+                    && (MatchPeriodForMatchOverEnum.Ended999.value.equals(matchEventInfoDTO.getMatchPeriodId()) || MatchPeriodForMatchOverEnum.Ended.value.equals(matchEventInfoDTO.getMatchPeriodId()))) {
+
+                if (redisService.get(ended999KeyForCheck) != null) {
+
+                    if (redisService.get(ended100KeyForCheck) != null) {
+                        try {
+                            log.info("linkId=【{}】putMatchEventInfo，已经下发了100阶段和999阶段事件,睡眠3000毫秒", request.getLinkId());
+                            Thread.sleep(3000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
             //校验当前赛事对应事件数据是否需要下发
             if(!checkMatchEventInfo(request.getLinkId(),thirdMatchSourceId,dataSourceCode)){
                 response.setCode(ResultCode.VALIDATE_FAILED.getCode());
@@ -559,10 +605,16 @@ public class MatchEventInfoProcessor extends BaseProcessor {
         //需要保存的事件列表
         List<MatchEventInfo> matchEventInfoList = new LinkedList<>();
         Long ended999 = MatchPeriodForMatchOverEnum.Ended999.value;
+        Long ended100 = MatchPeriodForMatchOverEnum.Ended.value;
+        List<Long> endedList = Lists.newArrayList(ended100, ended999);
         //需求：2659 【操盘风控管理优化】足球 - PD报球板新增可删除数据商事件
         boolean flag_2659 = false;
         //记录三方事件是否下发过999
         String ended999Key = String.format(ConstantSystem.getMatchPeriod999Key(), dataSourceCode,thirdMatchSourceId);
+
+        String ended999KeyForCheck = String.format(ConstantSystem.getMatchPeriod999KeyForCheck(), dataSourceCode,thirdMatchSourceId);
+        String ended100KeyForCheck = String.format(ConstantSystem.getMatchPeriod100KeyForCheck(), dataSourceCode,thirdMatchSourceId);
+
         //记录当前三方赛事最新事件发生时间,单号：81639
         String eventTimeKey = RedisConfig.REDIS_KEY_DATABASE + "::MatchEventInfo:eventTime:" + oldThirdMatchInfo.getDataSourceCode()+"_"+ oldThirdMatchInfo.getThirdMatchSourceId();
         //是否补发事件(true:切换事件源，或者延迟消费的事件，false:开售事件，或者正常通道下发事件）
@@ -654,12 +706,11 @@ public class MatchEventInfoProcessor extends BaseProcessor {
                 }
 //                106533 【日常】【生产】删除事件比进球事件先下发200毫秒，事件并发导致拦截被删除事件失效
                 boolean eventDeleteLockFlag = false;
-                String deleteEventLock = String.format(ConstantSystem.getDeleteEventLockKey(), matchEventInfoDTO.getDataSourceCode(),matchEventInfoDTO.getThirdMatchSourceId(),matchEventInfoDTO.getThirdEventId());
+                String deleteEventLock = String.format(ConstantSystem.getDeleteEventLockKey(), matchEventInfoDTO.getDataSourceCode(),matchEventInfoDTO.getThirdMatchSourceId(),matchEventInfoDTO.getExtrainfo());
                 try {
                     eventDeleteLockFlag = redisService.tryLock(deleteEventLock, deleteEventLock, 2, 3);
                     //获取缓存中未找到源事件的删除事件信息,优化单：81636
                     String deleteEventKey = String.format(ConstantSystem.getDeleteEventKey(), matchEventInfoDTO.getDataSourceCode(),matchEventInfoDTO.getThirdMatchSourceId(),matchEventInfoDTO.getThirdEventId());
-                    //缓存中需要被删除的事件ID
                     if(redisService.hasKey(deleteEventKey)){
                         redisService.del(deleteEventKey);
                         log.info("linkId=【{}】process2MatchEvent，当前三方事件已被删除,无需处理，事件ID={}", newLinkId, matchEventInfoDTO.getThirdEventId());
@@ -732,6 +783,24 @@ public class MatchEventInfoProcessor extends BaseProcessor {
                             continue;
                         }
                     }
+
+                    if (
+                            StandardSportTypeEnum.FootBall.getCode().equals(sportId) 
+                            && DataSourceCodeEnum.RB.code.equals(dataSourceCode)
+                            && EventCodeEnum.MATCH_STATUS.code.equalsIgnoreCase(matchEventInfoDTO.getEventCode())
+                    ) {
+                        
+                        if (MatchPeriodForMatchOverEnum.Ended999.value.equals(matchEventInfoDTO.getMatchPeriodId())) {
+                            
+                            redisService.set(ended999KeyForCheck,ended999KeyForCheck, 4);
+                            log.info("linkId=【{}】process2MatchEvent，set ended999KeyForCheck", newLinkId);
+                        } else if (MatchPeriodForMatchOverEnum.Ended.value.equals(matchEventInfoDTO.getMatchPeriodId())) {
+
+                            redisService.set(ended100KeyForCheck,ended100KeyForCheck, 4);
+                            log.info("linkId=【{}】process2MatchEvent，set ended100KeyForCheck", newLinkId);
+                        }
+                    }
+
                     //赛事阶段为999,100，则延迟下发
                     Long sleepTime = periodId2Time.get(matchPeriodId);
                     if (null != sleepTime) {
@@ -820,7 +889,7 @@ public class MatchEventInfoProcessor extends BaseProcessor {
 
                             try {
                                 //106537 足球赛事比分与统计比分不一致时预警并赛事级关盘
-//                                checkEventScoreValidation(matchEventInfo, oldThirdMatchInfo, linkId);
+                                checkEventScoreValidation(matchEventInfo, oldThirdMatchInfo, linkId);
                             } catch (Exception e){
                                 log.error("linkId=【{}】process2MatchEvent,checkEventScoreValidation异常,e={}",
                                         newLinkId, e.toString());
@@ -830,8 +899,8 @@ public class MatchEventInfoProcessor extends BaseProcessor {
 
                         //篮球标准事件特殊处理
                         if(StandardSportTypeEnum.Basketball.getCode().equals(sportId)){
-                            //跨阶段事件特殊处理
-                            if(!oldThirdMatchInfo.getMatchPeriod().equals(matchPeriodId+"")){
+                            //跨阶段事件特殊处理  && 106379单处理,篮球999&100阶段不拦截
+                            if(!oldThirdMatchInfo.getMatchPeriod().equals(matchPeriodId+"") && !endedList.contains(matchPeriodId)){
                                 //缓存最新的事件发生时间,单号：81639
                                 Long redisEventTime = (Long) redisService.get(eventTimeKey);
                                 //如果当前事件发生时间小于缓存中事件发生时间，则特别标识
@@ -1306,16 +1375,15 @@ public class MatchEventInfoProcessor extends BaseProcessor {
         });
     }
 
+
     /**
      * 106537
      * 商业数据源（S01 G01 K01 R01 B02）下发的所有事件中新增附带进球比分，当收到进球比分与标准统计进球比分对比，比分连续5次不一致时弹窗预警并对应自动赛事级关盘
+     * 111278 改封盘
      */
     private void checkEventScoreValidation(MatchEventInfo matchEventInfo, ThirdMatchInfo thirdMatchInfo, String linkId){
-//        log.info("linkId=【{}】checkEventScoreValidation, 入口1, matchEventInfo={}",
-//                linkId, JSON.toJSONString(matchEventInfo));
         String dataSourceCode = matchEventInfo.getDataSourceCode();
-        if (!DataSourceCodeEnum.getCrossPeriodScoreChangedCode().contains(dataSourceCode)
-                || MatchPeriodForMatchOverEnum.NOT_STARTED.value.equals(matchEventInfo.getMatchPeriodId())){
+        if (!DataSourceCodeEnum.getCrossPeriodScoreChangedCode().contains(dataSourceCode)){
             return;
         }
 
@@ -1325,6 +1393,22 @@ public class MatchEventInfoProcessor extends BaseProcessor {
                 || referenceId == null || StringUtils.isBlank(thirdMatchSourceId)){
             log.info("linkId=【{}】checkEventScoreValidation, 部分参数为空, addition7={}, addition8={}, referenceId={}, dataSourceCode={}, thirdMatchSourceId={}",
                     linkId, matchEventInfo.getAddition7(), matchEventInfo.getAddition8(), referenceId, dataSourceCode, thirdMatchSourceId);
+            return;
+        }
+
+        //常规赛
+        List<Long> commonPeriods = Lists.newArrayList(MatchPeriodForMatchOverEnum.MATCH_1H.value,
+                MatchPeriodForMatchOverEnum.MATCH_2H.value, MatchPeriodForMatchOverEnum.HALF_TIME.value);
+        boolean isCommonPeriod = commonPeriods.contains(matchEventInfo.getMatchPeriodId());
+
+        //表示加时赛的阶段, 参考MatchEventInfoProducer.matchEventScores2Redis
+        List<Long> overTimePeriods = Lists.newArrayList(MatchPeriodForMatchOverEnum.OverTime_1H.value,
+                MatchPeriodForMatchOverEnum.OverTime_HT.value, MatchPeriodForMatchOverEnum.OverTime_2H.value);
+        boolean isOvertimePeriod = overTimePeriods.contains(matchEventInfo.getMatchPeriodId());
+
+        if (!isCommonPeriod && !isOvertimePeriod){
+            log.info("linkId=【{}】checkEventScoreValidation, 非常规赛，非加时赛，不校验, referenceId={}, dataSourceCode={}, thirdMatchSourceId={}",
+                    linkId, referenceId, dataSourceCode, thirdMatchSourceId);
             return;
         }
 
@@ -1355,55 +1439,49 @@ public class MatchEventInfoProcessor extends BaseProcessor {
             }
         }
 
-        if (footballCacheScores == null){
+        if (footballCacheScores == null || footballCacheScores.getGoal() == null){
             log.info("linkId=【{}】checkEventScoreValidation, 未获取到比分缓存, FOOTBALL_STANDARD_MATCH_SCORES, cacheScoresKey={}, scores={}, matchEventInfo={}, referenceId={}, dataSourceCode={}, thirdMatchSourceId={}",
                     linkId, cacheScoresKey, scores, JSON.toJSONString(matchEventInfo), referenceId, dataSourceCode, thirdMatchSourceId);
             return;
         }
 
-        log.info("linkId=【{}】checkEventScoreValidation, 事件信息, matchEventInfo={}, referenceId={}, dataSourceCode={}, thirdMatchSourceId={}",
-                linkId, JSON.toJSONString(matchEventInfo), referenceId, dataSourceCode, thirdMatchSourceId);
-
         CommonItem cacheCommonGoal = footballCacheScores.getGoal();
         CommonItem cacheExtraGoal = footballCacheScores.getOverTimeGoal();
-        Integer standardHomeScore = null;
-        Integer standardAwayScore = null;
-        if (cacheCommonGoal != null){
-            //表示加时赛的阶段, 参考MatchEventInfoProducer.matchEventScores2Redis
-            List<Long> overTimePeriods = Lists.newArrayList(MatchPeriodForMatchOverEnum.OverTime_1H.value,
-                    MatchPeriodForMatchOverEnum.OverTime_HT.value, MatchPeriodForMatchOverEnum.OverTime_2H.value);
-            if (overTimePeriods.contains(matchEventInfo.getMatchPeriodId())) {
-                try {
-                    if (null != cacheExtraGoal) {
-                        standardHomeScore = cacheExtraGoal.getHome() + cacheCommonGoal.getHome();
-                        standardAwayScore = cacheExtraGoal.getAway() + cacheCommonGoal.getAway();
-                        log.info("linkId=【{}】checkEventScoreValidation, 加时赛比分, commonHome={}, commonAway={}, extraHome={}, extraAway={}, referenceId={}, dataSourceCode={}, thirdMatchSourceId={}",
-                                linkId, cacheCommonGoal.getHome(), cacheCommonGoal.getAway(), cacheExtraGoal.getHome(), cacheExtraGoal.getAway(), referenceId, dataSourceCode, thirdMatchSourceId);
-                    }
-                } catch (Exception e){
-                    log.error("linkId=【{}】checkEventScoreValidation, 比分校验异常, cacheCommonGoal={}, cacheExtraGoal={}, referenceId={}, dataSourceCode={}, thirdMatchSourceId={}, Exception={}",
-                            linkId, JSON.toJSONString(cacheCommonGoal), JSON.toJSONString(cacheExtraGoal), referenceId, dataSourceCode, thirdMatchSourceId, e);
-                }
+        //总比分：比分中心的常规赛比分 + 加时赛比分，不包含点球
+        Integer totalHomeScore = null;
+        Integer totalAwayScore = null;
 
-            } else {
-                //常规赛
-                standardHomeScore = cacheCommonGoal.getHome();
-                standardAwayScore = cacheCommonGoal.getAway();
+        if (isOvertimePeriod) {
+            try {
+                if (null != cacheExtraGoal) {
+                    totalHomeScore = cacheExtraGoal.getHome() + cacheCommonGoal.getHome();
+                    totalAwayScore = cacheExtraGoal.getAway() + cacheCommonGoal.getAway();
+                    log.info("linkId=【{}】checkEventScoreValidation, 加时赛比分, commonHome={}, commonAway={}, extraHome={}, extraAway={}, referenceId={}, dataSourceCode={}, thirdMatchSourceId={}",
+                            linkId, cacheCommonGoal.getHome(), cacheCommonGoal.getAway(), cacheExtraGoal.getHome(), cacheExtraGoal.getAway(), referenceId, dataSourceCode, thirdMatchSourceId);
+                }
+            } catch (Exception e){
+                log.error("linkId=【{}】checkEventScoreValidation, 比分校验异常, cacheCommonGoal={}, cacheExtraGoal={}, referenceId={}, dataSourceCode={}, thirdMatchSourceId={}, Exception={}",
+                        linkId, JSON.toJSONString(cacheCommonGoal), JSON.toJSONString(cacheExtraGoal), referenceId, dataSourceCode, thirdMatchSourceId, e);
             }
+
+        } else {
+            //常规赛
+            totalHomeScore = cacheCommonGoal.getHome();
+            totalAwayScore = cacheCommonGoal.getAway();
         }
 
-        log.info("linkId=【{}】checkEventScoreValidation, 标准比分, standardHomeScore={}, standardAwayScore={}, referenceId={}, dataSourceCode={}, thirdMatchSourceId={}",
-                linkId, standardHomeScore, standardAwayScore, referenceId, dataSourceCode, thirdMatchSourceId);
+        log.info("linkId=【{}】checkEventScoreValidation, 总比分, totalHomeScore={}, totalAwayScore={}, referenceId={}, dataSourceCode={}, thirdMatchSourceId={}",
+                linkId, totalHomeScore, totalAwayScore, referenceId, dataSourceCode, thirdMatchSourceId);
 
-        if (standardHomeScore == null || standardAwayScore == null){
+        if (totalHomeScore == null || totalAwayScore == null){
             return;
         }
 
-        boolean isScoreEqual = Objects.equals(eventHomeScore, standardHomeScore)
-                && Objects.equals(eventAwayScore, standardAwayScore);
+        boolean isScoreEqual = Objects.equals(eventHomeScore, totalHomeScore)
+                && Objects.equals(eventAwayScore, totalAwayScore);
 
         String scoreCountKey = String.format(ConstantSystem.getScoreValidationKey(), dataSourceCode, thirdMatchSourceId,
-                standardHomeScore, standardAwayScore);
+                totalHomeScore, totalAwayScore);
 
         String indexKey = String.format(ConstantSystem.getScoreValidationIndexKey(), dataSourceCode, thirdMatchSourceId);
         if (!redisService.sIsMember(indexKey, scoreCountKey)){
@@ -1485,7 +1563,8 @@ public class MatchEventInfoProcessor extends BaseProcessor {
                     matchEventInfoListPush.add(matchEventInfo);
                 } else {
                     matchEventInfo.setLinkId(matchEventInfo.getLinkId()+"_"+YesNoEnum.N.name());
-                    log.info("linkId=【{}】当前赛事补时事件已补手动修改，补时事件无需下发，三方赛事ID={}，赛事ID={},赛事阶段={}",linkId,
+                    log.info("linkId=【{}】当前赛事补时事件已补手动修改，补时事件无需下发，三方赛事ID={}，赛事ID={},赛事阶段={}",
+                            matchEventInfo.getLinkId(),
                             matchEventInfo.getThirdMatchId(), matchEventInfo.getStandardMatchId(), matchEventInfo.getMatchPeriodId());
                 }
             }
@@ -1647,6 +1726,10 @@ public class MatchEventInfoProcessor extends BaseProcessor {
                 Set<Long> marketCategoryIds = getAutoCloseMarketDisposeBySportId(linkId, secondsFromStart, standardMatchInfo, matchEventInfoDTO.getMatchPeriodId(), matchEventInfoDTO.getSourceType()+"");
                 if (marketCategoryIds == null) {
                     marketCategoryIds = new HashSet<Long>();
+                }
+                Pair<Set<Long>, Map<String, JSONObject>> childCloseMarketCategory = getAutoCloseChildMarketCategoryDisposeBySportId(linkId, secondsFromStart, standardMatchInfo, matchEventInfoDTO.getMatchPeriodId(), matchEventInfoDTO.getSourceType()+"");
+                if (null != childCloseMarketCategory) {
+                    iTradeMarketConfigApi.autoCloseChildMarketCategory(linkId+"_childCloseMarket", standardMatchInfo.getId(), childCloseMarketCategory, TimeUtils.millsSecondsEast8ZoneGmt());
                 }
                 //1852 兜底功能，进入下一个阶段时，关闭上一个阶段的玩法盘口
                 Set<Long> marketCategoryIds1 = getAutoCloseBeforePeriodCategory(linkId, standardMatchInfo, matchEventInfoDTO.getMatchPeriodId());

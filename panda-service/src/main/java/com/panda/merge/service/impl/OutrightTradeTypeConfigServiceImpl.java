@@ -114,4 +114,5 @@ public class OutrightTradeTypeConfigServiceImpl implements OutrightTradeTypeConf
         }
         return configOutrightTradeTypeList.stream().collect(Collectors.toMap(ConfigOutrightTradeType::getStandardMarketId, ConfigOutrightTradeType::getTradeType));
     }
+
 }

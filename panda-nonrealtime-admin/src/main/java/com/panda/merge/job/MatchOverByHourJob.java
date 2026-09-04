@@ -72,10 +72,10 @@ public class MatchOverByHourJob extends IJobHandler {
     private Integer footBallMatchOverDays;
 
     //92233 【产品】【生产】足球完赛兜底机制优化
-    @NacosValue(value = "${match.over.third.tournament:1356965774763839490}", autoRefreshed = true)
+    @NacosValue(value = "${match.over.third.tournament:10011003316}", autoRefreshed = true)
     private String matchOverThirdTournamentIds;
 
-    @NacosValue(value = "${match.over.standard.tournament:3316}", autoRefreshed = true)
+    @NacosValue(value = "${match.over.standard.tournament:10011003316}", autoRefreshed = true)
     private String matchOverStandardTournaments;
 
 

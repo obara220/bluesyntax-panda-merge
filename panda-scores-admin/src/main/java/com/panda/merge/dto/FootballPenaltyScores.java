@@ -169,6 +169,7 @@ public class FootballPenaltyScores implements Serializable {
             return;
         }
         log.info("删除点球进球或者点球未进，score-center:linkId：{}，firstNum={},pointNum:{},前5轮比分：{},每局比分：{}",data.getLinkId(),firstNum,pointNum,round5Scores,roundScores);
+        pointNum--;
         //1.计算局数
         //2.根据局数得到当前局数比分
         CommonItem commonItem=roundScores.get(firstNum.toString().trim());

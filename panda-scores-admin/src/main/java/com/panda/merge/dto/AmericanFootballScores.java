@@ -85,6 +85,43 @@ public class AmericanFootballScores extends  AbstractSportScores{
             //全局射门比分
             this.fieldGoal.setHome(data.getT1());
             this.fieldGoal.setAway(data.getT2());
+
+
+//            CommonItem commonItem = allPeriodScores.get(data.getMatchPeriodId()).fieldGoal;
+//            if(commonItem==null){
+//                commonItem = new CommonItem();
+//            }
+//            CommonItem wholeItem =  allPeriodScores.get(-1L).fieldGoal;
+//            if(wholeItem==null){
+//                wholeItem = new CommonItem();
+//            }
+//            Integer addH = data.getT1()-wholeItem.getHome();
+//            Integer addW = data.getT2()-wholeItem.getAway();
+//            if(commonItem.getHome()+addH<0){
+//                commonItem.setHome(0);
+//            }else{
+//                if(commonItem.getHome()+addH<commonItem.getHome()){
+//                    log.info("{} updateEvent，非删除事件比分异常，home原比分：{},新比分：{}，本次不处理",data.getLinkId(),commonItem.getHome(),commonItem.getHome()+addH);
+//                    return ;
+//                }
+//            }
+//            if(commonItem.getAway()+addW<0){
+//                commonItem.setAway(0);
+//            }else{
+//                if(commonItem.getAway()+addW<commonItem.getAway()){
+//                    log.info("{} updateEvent，非删除事件比分异常，away原比分：{},新比分：{}，本次不处理",data.getLinkId(),commonItem.getAway(),commonItem.getAway()+addW);
+//                    return ;
+//                }
+//            }
+//            log.info("{} updateEvent，本次处理美足field_goal事件，home原比分：{},新比分：{}",data.getLinkId(),oldHomeScore,data.getT1() - oldHomeScore);
+//            log.info("{} updateEvent，本次处理美足field_goal事件，away原比分：{},新比分：{}",data.getLinkId(),oldAwayScore,data.getT2() - oldAwayScore);
+
+            //当前阶段射门比分 = 当前最新比分-历史阶段比分
+//            periodScores.fieldGoal.setHome( commonItem.getHome()+addH);
+//            periodScores.fieldGoal.setAway( commonItem.getAway()+addW);
+//            periodScores.matchScore.setHome(commonItem.getHome()+addH);
+//            periodScores.matchScore.setAway(commonItem.getAway()+addW);
+
             //当前阶段射门比分 = 当前最新比分-历史阶段比分
             periodScores.fieldGoal.setHome( data.getT1() - oldHomeScore);
             periodScores.fieldGoal.setAway( data.getT2() - oldAwayScore);

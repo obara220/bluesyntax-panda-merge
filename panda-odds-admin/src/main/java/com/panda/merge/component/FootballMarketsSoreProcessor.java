@@ -92,12 +92,12 @@ public class FootballMarketsSoreProcessor extends BaseProcessor {
 
             String marketScore = standardMarketMessage.score();
             if (StringUtils.isEmpty(marketScore)) {
-                continue;
+                marketScore = "0_0";
             }
 
             String cacheScore = getCacheScore(footballCacheScores, marketCategoryId);
             if (StringUtils.isEmpty(cacheScore)) {
-                continue;
+                cacheScore = "0_0";
             }
 
             if (!StringUtils.equals(marketScore, cacheScore)) {
@@ -135,7 +135,7 @@ public class FootballMarketsSoreProcessor extends BaseProcessor {
         //只处理足球主玩法 、和需要处理的数据源 ,数据源开盘的
         List<T> standardMarketMessages = standardMarketMessageList
                 .stream()
-                .filter(s -> checkMarketsSoreCodes.contains(s.getDataSourceCode()) &&
+                .filter(s -> //checkMarketsSoreCodes.contains(s.getDataSourceCode()) &&
                         !s.getDataSourceCode().equalsIgnoreCase(DataSourceCodeEnum.OD.getCode()) &&
                         isTargetCategory(s.getMarketCategoryId())  &&
                         s.getThirdMarketSourceStatus() < Constant.SPORT_MARKET.STATUS.DEACTIVATED)

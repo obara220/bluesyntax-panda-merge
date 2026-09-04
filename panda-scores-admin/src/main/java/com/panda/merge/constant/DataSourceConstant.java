@@ -10,12 +10,12 @@ public class DataSourceConstant {
     /**
      * 现有对接商业数据源-事件
      */
-    public static HashSet<String> DATA_SOURCES=new HashSet<String>(Arrays.asList("SR","BG","RB","BC","PD","1X","KO","BE","LS","OD","TS","N01","N02","N03","A01","S01","FTS","F01"));
+    public static HashSet<String> DATA_SOURCES=new HashSet<String>(Arrays.asList("SR","BG","RB","BC","PD","1X","KO","BE","LS","OD","TS",/*"N01","N02","N03",*/"A01","S01","FTS","F01"));
 
     /**
      * 现有对接商业数据源  并且有效数据源-统计
      */
-    public static HashSet<String> VALID_DATA_SOURCES=new HashSet<String>(Arrays.asList("SR","BG","BC","BT","1X","KO","BE","LS","OD","TS","N01","N02","N03","A01","S01","FTS","F01"));
+    public static HashSet<String> VALID_DATA_SOURCES=new HashSet<String>(Arrays.asList("SR","BG","BC","BT","1X","KO","BE","LS","OD","TS"/*,"N01","N02","N03"*/,"A01","S01","FTS","F01"));
     /**
      * 现有有效的赛种
      */

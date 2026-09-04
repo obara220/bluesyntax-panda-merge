@@ -91,7 +91,6 @@ public class CheckStandardMatchMarketJob extends BaseProcessor {
 //                        log.info("::{}::【CheckStandardMatchMarketJob 提前结算是否关盘检测任务失败,标准赛事不存在:{}】", linkId, standardMatchId);
                         continue;
                     }
-                    standardMatchInfo.setMatchPeriodId(getMatchPeriod(standardMatchInfo.getId()));
                     //赛事未到LIVE状态、中场休息阶段 不下发
                     if (!standardMatchInfo.getMatchStatus().equals(MatchStatusEnum.Live.value)
                             || Constant.FOOT_BALL_PERIOD_FILTER_WARNING.contains(standardMatchInfo.getMatchPeriodId())) {

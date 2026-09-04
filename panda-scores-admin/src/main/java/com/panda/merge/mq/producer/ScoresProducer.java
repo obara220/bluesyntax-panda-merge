@@ -113,15 +113,6 @@ public class ScoresProducer {
         if (data.getSportId().equals(2L)) {
             data.setMatchPeriodId(data.getMatchPeriodId()==100?data.getMatchPeriodId():matchScoresInfo.getPeriod());
         }
-        if ((!scoresService.ifMatchSoldByThirdMatchId(thirdMatchInfo, standardMatchInfo))) {
-            log.info("linkId::{}::sendToMQ 该赛事未开售！scores:{}", data.getLinkId(),matchScoresInfo.getScoresJson());
-            return;
-        }
-        if (data.getSportId().equals(1L) || data.getSportId().equals(2L)) {
-            String eventKey = "SCORES:" + data.getDataSourceCode() + ":" + data.getId();
-            redisService.set(eventKey, JSONObject.toJSON(data).toString(), 3600);
-            log.info("linkId::{}::sendToMQ 缓存足蓝下发的比分事件信息,key:{}", data.getLinkId(), eventKey);
-        }
         if (data.getSportId().equals(1L)) {
             List<String> scoresEventCodes = EventCodeEnum.getScoresEventCodes();
             if (scoresEventCodes.contains(data.getEventCode())) {
@@ -129,6 +120,15 @@ public class ScoresProducer {
                 redisService.set(eventKey, JSONObject.toJSON(data).toString(), 3600);
                 log.info("linkId::{}::sendToMQ 缓存足球下发的比分事件信息,key:{}", data.getLinkId(), eventKey);
             }
+        }
+        if (data.getSportId().equals(1L) || data.getSportId().equals(2L)) {
+            String eventKey = "SCORES:" + data.getDataSourceCode() + ":" + data.getId();
+            redisService.set(eventKey, JSONObject.toJSON(data).toString(), 3600);
+            log.info("linkId::{}::sendToMQ 缓存足蓝下发的比分事件信息,key:{}", data.getLinkId(), eventKey);
+        }
+        if ((!scoresService.ifMatchSoldByThirdMatchId(thirdMatchInfo, standardMatchInfo))) {
+            log.info("linkId::{}::sendToMQ 该赛事未开售！scores:{}", data.getLinkId(),matchScoresInfo.getScoresJson());
+            return;
         }
         //标准比分不处理 5网，8乒，9排，10羽赛种
         if (!DataSourceConstant.STANDARC_SCORE_SPORTIDS.contains(matchScoresInfo.getSportId())
@@ -790,18 +790,18 @@ public class ScoresProducer {
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
             StandardMatchInfo standardMatchInfo = standardMatchInfoRepository.selectStandardMatchPrimaryKey(thirdMatchInfo.getReferenceId());
-
-            // 1.发送到业务风控
-            if (!scoresService.ifMatchSoldByThirdMatchId(thirdMatchInfo,standardMatchInfo)) {
-                log.info("linkId::{}::该赛事未开售", linkedId);
-                return;
-            }
             if (event.getSportId().equals(1L) || event.getSportId().equals(2L)) {
                 String eventKey = "SCORES:" + event.getDataSourceCode() + ":" + event.getId();
                 redisService.set(eventKey, JSONObject.toJSON(event).toString(), 3600);
                 log.info("linkId::{}::sendToMQ 缓存足蓝下发的比分事件信息,key:{}", event.getLinkId(), eventKey);
             }
-            scoresService.changeHomeAway(matchScoresInfo,thirdMatchInfo);
+            // 1.发送到业务风控
+            if (!scoresService.ifMatchSoldByThirdMatchId(thirdMatchInfo,standardMatchInfo)) {
+                log.info("linkId::{}::该赛事未开售", linkedId);
+                return;
+            }
+            //ps:事件已经标反下发，无需重复处理
+//            scoresService.changeHomeAway(matchScoresInfo,thirdMatchInfo);
             //非网乒羽排足蓝 才下发
             if (!DataSourceConstant.STANDARC_SCORE_SPORTIDS.contains(matchScoresInfo.getSportId())) {
                 sendToBussiness(thirdMatchInfo, matchScoresInfo, event);
@@ -824,6 +824,14 @@ public class ScoresProducer {
      * 报球板/结算比分触发
      * */
     public void sendToMQ(ThirdMatchInfo thirdMatchInfo, MatchScoresInfo matchScoresInfo, String linkedId) {
+        sendToMQ(thirdMatchInfo, matchScoresInfo, linkedId, null);
+    }
+
+    /**
+     * 与上面的三参重载完全一致，额外允许调用方（如 batchEditScores）显式标注 eventCode，
+     * 写入 STANDARD_MATCH_SCORES 消息；其余既有调用方不传该参数，行为不变（eventCode 仍为 null）。
+     */
+    public void sendToMQ(ThirdMatchInfo thirdMatchInfo, MatchScoresInfo matchScoresInfo, String linkedId, String eventCode) {
         log.info("linkId::{}::sendToMQ in UOF start", linkedId);
         try {
             StopWatch stopWatch = new StopWatch();
@@ -835,11 +843,11 @@ public class ScoresProducer {
                 log.info("linkId::{}::该赛事未开售", linkedId);
                 return;
             }
-            scoresService.changeHomeAway(matchScoresInfo,thirdMatchInfo);
+//            scoresService.changeHomeAway(matchScoresInfo,thirdMatchInfo);
             //非网乒羽排足蓝 才下发
             if (!DataSourceConstant.STANDARC_SCORE_SPORTIDS.contains(matchScoresInfo.getSportId())
                     || matchScoresInfo.getSportId()==1 || matchScoresInfo.getSportId()==2L) {
-                sendToBussiness(thirdMatchInfo, matchScoresInfo, linkedId);
+                sendToBussiness(thirdMatchInfo, matchScoresInfo, linkedId, eventCode);
             }
             //2.发送 三方比分 THIRD_MATCH_SCORES (使用方:操盘,结算2.0)
             sendToMatchManager(thirdMatchInfo, matchScoresInfo, linkedId);
@@ -869,7 +877,7 @@ public class ScoresProducer {
                 log.info("linkId::{}::该赛事未开售", linkedId);
                 return;
             }
-            scoresService.changeHomeAway(matchScoresInfo,thirdMatchInfo);
+//            scoresService.changeHomeAway(matchScoresInfo,thirdMatchInfo);
             //非网乒羽排足蓝 才下发
             if (!DataSourceConstant.STANDARC_SCORE_SPORTIDS.contains(matchScoresInfo.getSportId())) {
                 sendToBussiness(thirdMatchInfo, matchScoresInfo, linkedId);
@@ -909,6 +917,10 @@ public class ScoresProducer {
     }
 
     private void sendToBussiness(ThirdMatchInfo thirdMatchInfo, MatchScoresInfo matchScoresInfo, String linkedId) {
+        sendToBussiness(thirdMatchInfo, matchScoresInfo, linkedId, null);
+    }
+
+    private void sendToBussiness(ThirdMatchInfo thirdMatchInfo, MatchScoresInfo matchScoresInfo, String linkedId, String eventCode) {
         //1.标准赛事绑定逻辑 判断当前比分是否为标准赛事的开售事件的比分
         if (thirdMatchInfo.getReferenceId() == null || thirdMatchInfo.getReferenceId().equals(0l)) {
             return;
@@ -922,6 +934,7 @@ public class ScoresProducer {
         //数据组装
         CommonStandardScoresDto commonScoresDto = messageBuilderUtils.buildCommonScoresDto(thirdMatchInfo, matchScoresInfo);
         commonScoresDto.setLinkedId(linkedId);
+        commonScoresDto.setEventCode(eventCode);
         //发布操作
         log.info("{},下发三方比分的关联关系为： 三方赛事ID：{},标准赛事ID：{}", linkedId, thirdMatchInfo.getId(), thirdMatchInfo.getReferenceId());
 
@@ -971,7 +984,7 @@ public class ScoresProducer {
     public void sendToMQ(MatchScoresBetterDto matchScoresBetterDto, String linkId) {
         //开售切换只有UOF的比分才需要变更主客队
 
-        scoresService.changeHomeAway(matchScoresBetterDto);
+//        scoresService.changeHomeAway(matchScoresBetterDto);
 
         //数据组装
         CommonStandardScoresDto commonScoresDto = messageBuilderUtils.buildCommonScoresDto(matchScoresBetterDto, linkId);
@@ -1020,7 +1033,7 @@ public class ScoresProducer {
         reqMessage.setData(commonScoresDto);
         MessageBuilder<Request<EditScoreResultStatusRequest>> builder = MessageBuilder.withPayload(reqMessage)
                 .setHeader(MessageConst.PROPERTY_KEYS, reqMessage.getLinkId());
-        rocketMqTemplate.send("SHOW_SCORE_STATUS:" + linkId, builder.build());
+        rocketMqTemplate.send("SHOW_SCORE_STATUS:" + commonScoresDto.getStandardMatchId(), builder.build());
         log.info("{}，下发赛果开关:{}",linkId,reqMessage);
 
     }

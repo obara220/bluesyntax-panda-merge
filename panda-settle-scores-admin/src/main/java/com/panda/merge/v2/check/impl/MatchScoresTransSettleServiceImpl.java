@@ -102,6 +102,8 @@ public class MatchScoresTransSettleServiceImpl implements IMatchScoresTransSettl
     private MatchSettleThirdEventRepository matchSettleThirdEventRepository;
     @Autowired
     private MatchSettleScoreV2Repository matchSettleScoreV2Repository;
+    @Autowired
+    private GrayPhaseEventHelper grayPhaseEventHelper;
     
     @Autowired
     private com.panda.merge.service.IDataSourceHeartbeatService dataSourceHeartbeatService;
@@ -430,7 +432,7 @@ public class MatchScoresTransSettleServiceImpl implements IMatchScoresTransSettl
             //删除事件过滤
             List<MatchEventInfo> list = doOldDelEvent(eventInfos);
 //            主客队互换逻辑
-            matchSettleBatchCheckService.changeHomeAway(eventInfos);
+//            matchSettleBatchCheckService.changeHomeAway(list);
             //计算当前的事件次序
             Integer order = countEventOrder(list,data);
             log.info("linkId::{}::eventId:{} 当前计算事件次序为:{} ",data.getLinkId(), data.getThirdEventId(),order);
@@ -602,7 +604,7 @@ public class MatchScoresTransSettleServiceImpl implements IMatchScoresTransSettl
 //                thirdEvent.setIsGrey(0);
 //            }
             if (Integer.valueOf(3).equals(matchSettleEvent.getEventType())) {
-                CheckIsGreyDto phaseGreyDto = this.checkIsGreyEvent(data);
+                CheckIsGreyDto phaseGreyDto = grayPhaseEventHelper.checkIsGreyPhaseEvent(data, data.getLinkId());
                 phaseGreyDto.setStandardMatchId(data.getStandardMatchId());
                 if (phaseGreyDto.getIsGrey() != null && phaseGreyDto.getIsGrey() != 0) {
                     this.updateGrayMatchSettleScore(phaseGreyDto,data.getHomeAway());
@@ -670,9 +672,11 @@ public class MatchScoresTransSettleServiceImpl implements IMatchScoresTransSettl
 
             // 上半场 order= 1  此时 删 第一个错误   // 如果是下半场
             MatchEventInfo oldEvent = matchSettleBatchCheckService.getOldMatchInfoByCancel(data);
+            log.info("linkId::{}::eventId:{} oldEvent:{} doDelMatchEvent start",data.getLinkId(), data.getThirdEventId(), oldEvent);
             MatchSettleThirdEventExample matchSettleEventExample = new MatchSettleThirdEventExample();
             matchSettleEventExample.createCriteria().andEventCodeIn(eventCodes).andPeriodIdIn(periods).andStandardMatchIdEqualTo(data.getStandardMatchId()).andThirdEventSourceIdEqualTo(oldEvent.getId());
             List<MatchSettleThirdEvent> list = matchSettleThirdEventRepository.getModelByItemsOrderBySettleNum(data.getStandardMatchId(),eventCodes,periods, null,oldEvent.getId());
+            log.info("linkId::{}::eventId:{} size:{} doDelMatchEvent start",data.getLinkId(), data.getThirdEventId(), list.size());
             if (list.size() != 0) {
                 for (MatchSettleThirdEvent matchSettleEvent : list) {
                     if (matchSettleEvent.getStatus() <= 1) {

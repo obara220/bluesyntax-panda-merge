@@ -272,10 +272,10 @@ public class FootBallAdvertiseServiceImpl implements FootBallAdvertiseService {
         Integer infoTimeGo = timeInfo.getTimeGo();
         MatchTimeInfo matchTimeInfo = pdMatchInfoRepository.getMatchTimeInfo(data.getMatchTimeInfo().getThirdMatchId(), SourceTypeEnum.LIVE_DATA.getCode(), null);
         if ( !Objects.isNull(matchTimeInfo) ) {
-            if ( null == matchTimeInfo.getTimeGo() || !infoTimeGo.equals(matchTimeInfo.getTimeGo())) {
+            if ( null == matchTimeInfo.getTimeGo() || !Objects.equals(infoTimeGo, matchTimeInfo.getTimeGo())) {
                 matchTimeInfo.setTimeGo(infoTimeGo);
             }
-            if ( !infoPeriod.equals(matchTimeInfo.getPeriod()) ) {
+            if ( !Objects.equals(infoPeriod, matchTimeInfo.getPeriod()) ) {
                 matchTimeInfo.setPeriod(infoPeriod);
             }
         }
@@ -386,6 +386,7 @@ public class FootBallAdvertiseServiceImpl implements FootBallAdvertiseService {
 
         //查询结算状态
         buildSettleStatus(pdMatchAdvertiseVo);
+        pdMatchAdvertiseVo.setLiveEventSource(data.getStandardMatchInfo().getLiveEventSource());
         stopWatch.stop();
         log.info("BasketBallAdvertiseServiceImpl-buildFootBallAdvertiseVo-耗时={}, thirdMatchId={}",stopWatch.getTotalTimeMillis(),matchTimeInfo.getThirdMatchId());
         return Response.success(pdMatchAdvertiseVo);

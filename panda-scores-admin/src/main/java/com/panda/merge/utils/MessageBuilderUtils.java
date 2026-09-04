@@ -48,6 +48,8 @@ public class MessageBuilderUtils {
     @Autowired
     AmericanFootballCalculationServiceImpl americanFootballCalculationService;
     @Autowired
+    SnookerCalculationServiceImpl snookerCalculationServiceImpl;
+    @Autowired
     TennisCalculationServiceImpl tennisCalculationServiceImpl;
     @Autowired
     TableTennisCalculationServiceImpl tableTennisCalculationServiceImpl;
@@ -97,6 +99,9 @@ public class MessageBuilderUtils {
         if(SportTypeEnum.AMERICAN_FOOTBALL.getValue().equals(matchScoresInfo.getSportId())){
             commonScoresDto.setAllScores(americanFootballCalculationService.buildStandardMatchScoreByMap(matchScoresInfo.getScoresJson()));
         }
+        if(SportTypeEnum.SNOOKER.getValue().equals(matchScoresInfo.getSportId())){
+            matchScoresInfo.setScoresJson(snookerCalculationServiceImpl.buildStandardMatchScoreByMap(matchScoresInfo.getScoresJson(),data.getLinkId()));
+        }
         if(StringUtils.isNotEmpty(matchScoresInfo.getScoresJsonExtra()) && !SportTypeEnum.CRICKET_BALL.getValue().equals(matchScoresInfo.getSportId())){
             JSONObject extrayScore=JSONObject.parseObject(matchScoresInfo.getScoresJsonExtra());
             commonScoresDto.setExtraScores(extrayScore);
@@ -118,6 +123,28 @@ public class MessageBuilderUtils {
         return commonScoresDto;
     }
 
+    /**
+     * 推送板球发球轮数
+     * @param data
+     */
+    private void pushDeliveryOver(MatchEventInfo data) {
+        if(!"delivery".equals(data.getEventCode()) || ObjectUtils.isEmpty(data.getAddition1())){
+            return;
+        }
+        log.info("{} deliveryOver板球推送:赛事ID：{}，轮数：{}", data.getLinkId(),data.getStandardMatchId(), data.getAddition1());
+        Request<String> reqMessage = new Request<>();
+        reqMessage.setLinkId(data.getStandardMatchId().toString());
+        CricketOverPushDTO cricketOverPushDTO = new CricketOverPushDTO();
+        cricketOverPushDTO.setStandardMatchId(data.getStandardMatchId());
+        cricketOverPushDTO.setOver(data.getAddition1());
+        log.info("linkId::{}::pushDeliveryOver,livedata 推送轮数到ws服务开始:{}", data.getLinkId(), cricketOverPushDTO);
+        reqMessage.setData(JSONObject.toJSONString(cricketOverPushDTO, SerializerFeature.DisableCircularReferenceDetect));
+        MessageBuilder<Request<String>> builder = MessageBuilder.withPayload(reqMessage)
+                .setHeader(MessageConst.PROPERTY_KEYS, reqMessage.getLinkId());
+        rocketMqTemplate.send("CRICKET_OVER_MATCH_PUSH" +":" +reqMessage.getLinkId(), builder.build());
+        log.info("linkId::{}::pushDeliveryOver,livedata 推送轮数到ws服务结束", data.getLinkId());
+
+    }
 
     /**
      * 组装预期失球、预期进球数据
@@ -242,7 +269,7 @@ public class MessageBuilderUtils {
 //            log.info("15minuteScore {}:事件三方赛事:{} ,标准赛事ID：{} 的15分钟比分为:{}",data.getLinkId(),thirdMatchInfo.getId(),thirdMatchInfo.getReferenceId(),commonScoresDto.getMinuteScores());
         }
         if(matchScoresInfo.getSportId().equals(2L)){
-            commonScoresDto.setAllScores(basketballCalculationService.buildStandardMatchScoreByMap(matchScoresInfo.getScoresJson()));
+            commonScoresDto.setAllScores(basketballCalculationService.buildThirdMatchScoreByMap(matchScoresInfo.getScoresJson()));
 //            extraBasketballSixScores(commonScoresDto,matchScoresInfo);
         }
         if(SportTypeEnum.AMERICAN_FOOTBALL.getValue().equals(matchScoresInfo.getSportId())){
@@ -753,6 +780,7 @@ public class MessageBuilderUtils {
         }
         return commonScoresDto;
     }
+
 
 //    public static void main(String[] args) {
 //        MatchScoresInfo matchScoresInfo = new MatchScoresInfo();

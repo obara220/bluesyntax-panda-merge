@@ -24,8 +24,10 @@ public class SettleTemplateWeightUtils {
         }else {
             map = dataSourceSettleWeightDtos.stream().collect(Collectors.toMap(DataSourceSettleWeightDto::getDataSourceCode, DataSourceSettleWeightDto::getBookingWeight));
         }
+        log.info("weight cal map:{}", map);
         for (MatchSettleCheckInfo matchSettleCheckInfo : value) {
             Integer weight = map.get(matchSettleCheckInfo.getDataSourceCode());
+            log.info("weight cal dataSourceCode:{} weight:{}", matchSettleCheckInfo.getDataSourceCode(), weight);
             if(weight!=null){
                 sum+=weight;
                 //人工录入为PA

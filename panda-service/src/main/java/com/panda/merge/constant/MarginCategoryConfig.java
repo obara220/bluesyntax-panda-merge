@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.panda.merge.common.enums.DataSourceCodeEnum;
 import com.panda.merge.common.enums.StandardSportTypeEnum;
 
+
 import java.util.*;
 
 /**
@@ -717,6 +718,11 @@ public class MarginCategoryConfig {
     public static List<String> SPORT_TX_LOGIC = Arrays.asList(DataSourceCodeEnum.TX.code,DataSourceCodeEnum.AO.code);
 
     /**
+     * 支持百家赔数据源
+     */
+    public static List<String> THIRD_ALL_MARKET_DATA_SOURCE_CODE = Arrays.asList(DataSourceCodeEnum.TX.code, DataSourceCodeEnum.AO.code, DataSourceCodeEnum.LS.code, DataSourceCodeEnum.L02.code);
+
+    /**
      * 1852 足球增加开盘时间-封、关盘/接拒-2.0 支持的数据源
      */
     public static List<String> NO_CLOS_DATA_SOURCE_CODE = Arrays.asList(DataSourceCodeEnum.TX.code,DataSourceCodeEnum.SR.code,DataSourceCodeEnum.BG.code);
@@ -935,8 +941,8 @@ public class MarginCategoryConfig {
     public static Map<String,List<Long>> A99_category = new HashMap(){{
         put("10001",Arrays.asList(4L,2L,19L,18L));
         put("10002",Arrays.asList(113L,114L,121L,122L));
-        put("10003",Arrays.asList(306L,307L,308L,309L));
-        put("10005",Arrays.asList(128L,127L,130L,332L));
+        put("10005",Arrays.asList(306L,307L,308L,309L));
+        put("10003",Arrays.asList(128L,127L,130L,332L));
         put("10006",Arrays.asList(1100414L,331L,1100416L,1100417L));
         put("10007",Arrays.asList(1100406L,1100407L,1100409L,1100410L));
     }};

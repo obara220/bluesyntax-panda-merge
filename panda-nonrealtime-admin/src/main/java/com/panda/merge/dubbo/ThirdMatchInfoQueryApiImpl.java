@@ -12,6 +12,7 @@ import com.panda.merge.common.enums.LanguageTypeEnum;
 import com.panda.merge.common.enums.PlayerPositionTypeEnum;
 import com.panda.merge.config.RedisConfig;
 import com.panda.merge.config.RedisService;
+import com.panda.merge.constant.ConstantSystem;
 import com.panda.merge.dto.*;
 import com.panda.merge.dto.nonrealttime.query.QueryThirdSportTournamentDTO;
 import com.panda.merge.dto.nonrealttime.query.ThirdMatchInfoDTO;
@@ -56,6 +57,9 @@ public class ThirdMatchInfoQueryApiImpl extends BaseProcessor implements IThirdM
 
     @Autowired
     private StandardSportTeamService standardSportTeamService;
+
+    @Autowired
+    public RedisService redisService;
 
     @Override
     public Response<ThirdMatchInfoBO> queryThirdMatchInfoByThirdSourceId(Request<ThirdMatchInfoDTO> request) {
@@ -408,7 +412,7 @@ public class ThirdMatchInfoQueryApiImpl extends BaseProcessor implements IThirdM
                     ThirdMatchLineupBO itemBo = new ThirdMatchLineupBO();
                     //拷贝信息
                     BeanUtils.copyProperties(item, itemBo);
-                     itemBo.setPositionName(PlayerPositionTypeEnum.convertMsg(itemBo.getPositionName()));
+                    itemBo.setPositionName(PlayerPositionTypeEnum.convertMsg(itemBo.getPositionName()));
                     PlayerPositionTypeEnum positionTypeEnum = PlayerPositionTypeEnum.getItemByMsg(itemBo.getPositionName());
                     if(null != positionTypeEnum){
 //                        itemBo.setPositionEnName(positionTypeEnum.getCode());
@@ -419,14 +423,22 @@ public class ThirdMatchInfoQueryApiImpl extends BaseProcessor implements IThirdM
                     ThirdMatchInfo thirdMatchInfo = thirdMatchSourceId2Obj.get(itemBo.getDataSourceCode()+ FIX +itemBo.getThirdMatchSourceId());
                     if(null != thirdMatchInfo){
                         itemBo.setThirdMatchId(thirdMatchInfo.getId());
-                        if(StringUtils.isBlank(item.getHomeFormation())){
-                            itemBo.setHomeFormation(thirdMatchInfo.getHomeFormation());
-                        }
-                        if(StringUtils.isBlank(item.getAwayFormation())){
-                            itemBo.setAwayFormation(thirdMatchInfo.getAwayFormation());
-                        }
                         if(null != thirdMatchInfo.getReferenceId() && thirdMatchInfo.getReferenceId() != 0){
                             itemBo.setStandardMatchId(thirdMatchInfo.getReferenceId());
+                        }
+                        //109917 主客队反转
+                        if (ConstantSystem.ONE.equals(thirdMatchInfo.getHomeAwayOpposite())){
+                            if (ONE.equals(itemBo.getHomeAway())){
+                                itemBo.setHomeAway(TWO);
+                            } else if (TWO.equals(itemBo.getHomeAway())){
+                                itemBo.setHomeAway(ONE);
+                            }
+                            if(StringUtils.isNotBlank(item.getHomeFormation())){
+                                itemBo.setAwayFormation(thirdMatchInfo.getHomeFormation());
+                            }
+                            if(StringUtils.isNotBlank(item.getAwayFormation())){
+                                itemBo.setHomeFormation(thirdMatchInfo.getAwayFormation());
+                            }
                         }
                     }
                     log.info("【queryThirdMatchLineupPage】【::"+request.getLinkId()+"::】分页获取三方赛事阵容信息={}" ,JSON.toJSONString(itemBo));
@@ -454,7 +466,7 @@ public class ThirdMatchInfoQueryApiImpl extends BaseProcessor implements IThirdM
     public Response<PageModel<List<ThirdMatchHistoryOddsBO>>> queryThirdMatchHistoryOddsPage(Request<PageModel<ThirdMatchInfoDTO>> request) {
         long beginTime = System.currentTimeMillis();
         Response response = Response.success();
-        log.info("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdMatchHistoryOddsPage】【::"+request.getLinkId()+"::】分页获取三方赛事百家赔列表开始,入参：{}", JSON.toJSONString(request.getData()));
+        log.info("【queryThirdMatchHistoryOddsPage】【::"+request.getLinkId()+"::】分页获取三方赛事百家赔列表开始,入参：{}", JSON.toJSONString(request.getData()));
         Page<ThirdMatchHistoryOdds> resPage = thirdMatchHistoryOddsService.getItemPageByModifyTime(request.getData());
         log.info(("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdMatchHistoryOddsPage】【::"+request.getLinkId()+"::】分页获取三方赛事百家赔列表条数：{}，耗时={}"),resPage.size(),System.currentTimeMillis() - beginTime);
         if(!CollectionUtils.isEmpty(resPage)){
@@ -497,7 +509,7 @@ public class ThirdMatchInfoQueryApiImpl extends BaseProcessor implements IThirdM
                             itemBo.setStandardMatchId(thirdMatchInfo.getReferenceId());
                         }
                     }
-                    log.info("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdMatchHistoryOddsPage】【::"+request.getLinkId()+"::】分页获取三方赛事百家赔信息={}" ,itemBo.getId());
+                    log.info("【queryThirdMatchHistoryOddsPage】【::"+request.getLinkId()+"::】分页获取三方赛事百家赔信息={}" ,itemBo.getId());
 //                    log.info("【测试环境调试专用日志】【"+ PROJECT_ID_NOREALTIME +" ：queryThirdMatchHistoryOddsPage】【::"+request.getLinkId()+"::】分页获取三方赛事百家赔信息={}" ,JSON.toJSONString(itemBo));
                     resList.add(itemBo);
                 }catch (Exception e){
@@ -506,7 +518,7 @@ public class ThirdMatchInfoQueryApiImpl extends BaseProcessor implements IThirdM
             }
             response.setData(pageModel);
             response.setDataSourceTime(System.currentTimeMillis() - beginTime);
-            log.info("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdMatchHistoryOddsPage】【::"+request.getLinkId()+"::】分页获取三方赛事百家赔列表结束,返回结果 ：{}" ,JSON.toJSONString(response));
+            log.info("【queryThirdMatchHistoryOddsPage】【::"+request.getLinkId()+"::】分页获取三方赛事百家赔列表结束,返回结果 ：{}" ,JSON.toJSONString(response));
             pageModel.setData(resList);
         }
         return response;
@@ -519,7 +531,7 @@ public class ThirdMatchInfoQueryApiImpl extends BaseProcessor implements IThirdM
     public Response<PageModel<List<ThirdMatchSidelinedBO>>> queryThirdMatchSidelinedPage(Request<PageModel<ThirdMatchInfoDTO>> request) {
         long beginTime = System.currentTimeMillis();
         Response response = Response.success();
-        log.info("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdMatchSidelinedPage】【::"+request.getLinkId()+"::】分页获取三方赛事伤停球员列表开始,入参：{}", JSON.toJSONString(request.getData()));
+        log.info("【queryThirdMatchSidelinedPage】【::"+request.getLinkId()+"::】分页获取三方赛事伤停球员列表开始,入参：{}", JSON.toJSONString(request.getData()));
         Page<ThirdMatchSidelined> resPage = thirdMatchSidelinedService.getItemPageByModifyTime(request.getData());
         log.info(("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdMatchSidelinedPage】【::"+request.getLinkId()+"::】分页获取三方赛事停球员列表条数：{}，耗时={}"),resPage.size(),System.currentTimeMillis() - beginTime);
         if(!CollectionUtils.isEmpty(resPage)){
@@ -549,8 +561,16 @@ public class ThirdMatchInfoQueryApiImpl extends BaseProcessor implements IThirdM
                         if(null != thirdMatchInfo.getReferenceId() && thirdMatchInfo.getReferenceId() != 0){
                             itemBo.setStandardMatchId(thirdMatchInfo.getReferenceId());
                         }
+                        //109917 主客队反转
+                        if (ConstantSystem.ONE.equals(thirdMatchInfo.getHomeAwayOpposite())){
+                            if (ONE.equals(itemBo.getHomeAway())){
+                                itemBo.setHomeAway(TWO);
+                            } else if (TWO.equals(itemBo.getHomeAway())){
+                                itemBo.setHomeAway(ONE);
+                            }
+                        }
                     }
-                    log.info("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdMatchSidelinedPage】【::"+request.getLinkId()+"::】分页获取三方赛事停球员信息={}" ,JSON.toJSONString(itemBo));
+                    log.info("【queryThirdMatchSidelinedPage】【::"+request.getLinkId()+"::】分页获取三方赛事停球员信息={}" ,JSON.toJSONString(itemBo));
                     resList.add(itemBo);
                 }catch (Exception e){
                     log.error("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdMatchSidelinedPage】【::"+request.getLinkId()+"::】分页获取三方赛事停球员信息异常,源赛事ID="+item.getThirdMatchSourceId()+",Exception:",e);
@@ -558,7 +578,7 @@ public class ThirdMatchInfoQueryApiImpl extends BaseProcessor implements IThirdM
             }
             response.setData(pageModel);
             response.setDataSourceTime(System.currentTimeMillis() - beginTime);
-            log.info("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdMatchSidelinedPage】【::"+request.getLinkId()+"::】分页获取三方赛事停球员列表结束,返回结果 ：{}" ,JSON.toJSONString(response));
+            log.info("【queryThirdMatchSidelinedPage】【::"+request.getLinkId()+"::】分页获取三方赛事停球员列表结束,返回结果 ：{}" ,JSON.toJSONString(response));
             pageModel.setData(resList);
         }
         return response;
@@ -571,7 +591,7 @@ public class ThirdMatchInfoQueryApiImpl extends BaseProcessor implements IThirdM
     public Response<PageModel<List<ThirdMatchExInfomationBO>>> queryThirdMatchExInfomationPage(Request<PageModel<ThirdMatchInfoDTO>> request) {
         long beginTime = System.currentTimeMillis();
         Response response = Response.success();
-        log.info("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdMatchExInfomationPage】【::"+request.getLinkId()+"::】分页获取三方赛事比赛情报综合资讯数据列表开始,入参：{}", JSON.toJSONString(request.getData()));
+        log.info("【queryThirdMatchExInfomationPage】【::"+request.getLinkId()+"::】分页获取三方赛事比赛情报综合资讯数据列表开始,入参：{}", JSON.toJSONString(request.getData()));
         Page<ThirdMatchExInfomation> resPage = thirdMatchExInfomationService.getItemPageByModifyTime(request.getData());
         log.info(("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdMatchExInfomationPage】【::"+request.getLinkId()+"::】分页获取三方赛事比赛情报综合资讯数据列表条数：{}，耗时={}"),resPage.size(),System.currentTimeMillis() - beginTime);
         if(!CollectionUtils.isEmpty(resPage)){
@@ -611,7 +631,7 @@ public class ThirdMatchInfoQueryApiImpl extends BaseProcessor implements IThirdM
                             itemBo.setStandardMatchId(thirdMatchInfo.getReferenceId());
                         }
                     }
-                    log.info("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdMatchExInfomationPage】【::"+request.getLinkId()+"::】获取三方赛事比赛情报综合资讯信息={}" ,JSON.toJSONString(itemBo));
+                    log.info("【queryThirdMatchExInfomationPage】【::"+request.getLinkId()+"::】获取三方赛事比赛情报综合资讯信息={}" ,JSON.toJSONString(itemBo));
                     resList.add(itemBo);
                 }catch (Exception e){
                     log.error("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdMatchExInfomationPage】【::"+request.getLinkId()+"::】获取三方赛事比赛情报综合资讯信息异常,源赛事ID="+item.getThirdMatchSourceId()+",Exception:",e);
@@ -619,7 +639,7 @@ public class ThirdMatchInfoQueryApiImpl extends BaseProcessor implements IThirdM
             }
             response.setData(pageModel);
             response.setDataSourceTime(System.currentTimeMillis() - beginTime);
-            log.info("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdMatchExInfomationPage】【::"+request.getLinkId()+"::】分页获取三方赛事比赛情报综合资讯数据列表结束,返回结果 ：{}" ,JSON.toJSONString(response));
+            log.info("【queryThirdMatchExInfomationPage】【::"+request.getLinkId()+"::】分页获取三方赛事比赛情报综合资讯数据列表结束,返回结果 ：{}" ,JSON.toJSONString(response));
             pageModel.setData(resList);
         }
         return response;
@@ -633,7 +653,7 @@ public class ThirdMatchInfoQueryApiImpl extends BaseProcessor implements IThirdM
     public Response<PageModel<List<ThirdMatchFrontStatisticsBO>>> queryThirdMatchFrontStatisticsPage(Request<PageModel<ThirdMatchInfoDTO>> request){
         long beginTime = System.currentTimeMillis();
         Response response = Response.success();
-        log.info("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdMatchFrontStatisticsPage】【::"+request.getLinkId()+"::】分页同步三方赛事正面交手数据列表开始,入参：{}", JSON.toJSONString(request.getData()));
+        log.info("【queryThirdMatchFrontStatisticsPage】【::"+request.getLinkId()+"::】分页同步三方赛事正面交手数据列表开始,入参：{}", JSON.toJSONString(request.getData()));
         Page<ThirdMatchFrontStatistics> resPage = thirdMatchFrontStatisticsService.getFrontStatisticsPageByModifyTime(request.getData());
         log.info(("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdMatchFrontStatisticsPage】【::"+request.getLinkId()+"::】分页同步三方赛事正面交手数据列表条数：{}，耗时={}"),resPage.size(),System.currentTimeMillis() - beginTime);
         if(!CollectionUtils.isEmpty(resPage)){
@@ -719,7 +739,7 @@ public class ThirdMatchInfoQueryApiImpl extends BaseProcessor implements IThirdM
                             }
                         }
                     }
-                    log.info("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdMatchFrontStatisticsPage】【::"+request.getLinkId()+"::】获取三方赛事正面交手数据={}" ,JSON.toJSONString(itemBo));
+                    log.info("【queryThirdMatchFrontStatisticsPage】【::"+request.getLinkId()+"::】获取三方赛事正面交手数据={}" ,JSON.toJSONString(itemBo));
                     resList.add(itemBo);
                 }catch (Exception e){
                     log.error("【"+ PROJECT_ID_NOREALTIME +" ：getThirdMatchHistoryStatisticsPage】【::"+request.getLinkId()+"::】获取三方赛事正面交手数据异常,源赛事ID="+item.getThirdMatchSourceId()+",Exception:",e);
@@ -732,9 +752,9 @@ public class ThirdMatchInfoQueryApiImpl extends BaseProcessor implements IThirdM
                 response.setData(null);
             }
             if (removeIds.size()>0) {
-                log.info("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdMatchFrontStatisticsPage】【::"+request.getLinkId()+"::】分页同步三方赛事正面交手数据过滤移除数据,{}" ,JSON.toJSONString(removeIds));
+                log.info("【queryThirdMatchFrontStatisticsPage】【::"+request.getLinkId()+"::】分页同步三方赛事正面交手数据过滤移除数据,{}" ,JSON.toJSONString(removeIds));
             }
-            log.info("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdMatchFrontStatisticsPage】【::"+request.getLinkId()+"::】分页同步三方赛事正面交手数据列表结束,返回结果 ：{}" ,JSON.toJSONString(response));
+            log.info("【queryThirdMatchFrontStatisticsPage】【::"+request.getLinkId()+"::】分页同步三方赛事正面交手数据列表结束,返回结果 ：{}" ,JSON.toJSONString(response));
             pageModel.setData(resList);
         }
         return response;
@@ -760,7 +780,7 @@ public class ThirdMatchInfoQueryApiImpl extends BaseProcessor implements IThirdM
     public Response<PageModel<List<ThirdMatchTeamSkillStatisticsBO>>> queryThirdMatchTeamSkillStatisticsPage(Request<PageModel<ThirdMatchInfoDTO>> request) {
         long beginTime = System.currentTimeMillis();
         Response response = Response.success();
-        log.info("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdMatchTeamSkillStatisticsPage】【::"+request.getLinkId()+"::】分页获取三方赛事球队技术统计数据列表开始,入参：{}", JSON.toJSONString(request.getData()));
+        log.info("【queryThirdMatchTeamSkillStatisticsPage】【::"+request.getLinkId()+"::】分页获取三方赛事球队技术统计数据列表开始,入参：{}", JSON.toJSONString(request.getData()));
         Page<ThirdMatchTeamSkillStatistics> resPage = thirdMatchTeamSkillStatisticsService.getItemPageByModifyTime(request.getData());
         log.info(("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdMatchTeamSkillStatisticsPage】【::"+request.getLinkId()+"::】分页获取三方赛事球队技术统计数据列表条数：{}，耗时={}"),resPage.size(),System.currentTimeMillis() - beginTime);
         if(!CollectionUtils.isEmpty(resPage)){
@@ -834,7 +854,7 @@ public class ThirdMatchInfoQueryApiImpl extends BaseProcessor implements IThirdM
                             }
                         }
                     }
-                    log.info("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdMatchTeamSkillStatisticsPage】【::"+request.getLinkId()+"::】获取三方赛事球队技术统计信息={}" ,JSON.toJSONString(itemBo));
+                    log.info("【queryThirdMatchTeamSkillStatisticsPage】【::"+request.getLinkId()+"::】获取三方赛事球队技术统计信息={}" ,JSON.toJSONString(itemBo));
                     resList.add(itemBo);
                 }catch (Exception e){
                     log.error("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdMatchTeamSkillStatisticsPage】【::"+request.getLinkId()+"::】获取三方赛事球队技术统计信息异常,源赛事ID="+item.getMatchId()+",Exception:",e);
@@ -842,7 +862,7 @@ public class ThirdMatchInfoQueryApiImpl extends BaseProcessor implements IThirdM
             }
             response.setData(pageModel);
             response.setDataSourceTime(System.currentTimeMillis() - beginTime);
-            log.info("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdMatchTeamSkillStatisticsPage】【::"+request.getLinkId()+"::】分页获取三方赛事球队技术统计数据列表结束,返回结果 ：{}" ,JSON.toJSONString(response));
+            log.info("【queryThirdMatchTeamSkillStatisticsPage】【::"+request.getLinkId()+"::】分页获取三方赛事球队技术统计数据列表结束,返回结果 ：{}" ,JSON.toJSONString(response));
             pageModel.setData(resList);
         }
         return response;
@@ -856,7 +876,7 @@ public class ThirdMatchInfoQueryApiImpl extends BaseProcessor implements IThirdM
     public Response<PageModel<List<ThirdMatchPromotionChartBO>>> queryThirdMatchPromotionChartPage(Request<PageModel<ThirdMatchInfoDTO>> request) {
         long beginTime = System.currentTimeMillis();
         Response response = Response.success();
-        log.info("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdMatchPromotionChartPage】【::"+request.getLinkId()+"::】分页获取三方杯赛淘汰赛事数据列表开始,入参：{}", JSON.toJSONString(request.getData()));
+        log.info("【queryThirdMatchPromotionChartPage】【::"+request.getLinkId()+"::】分页获取三方杯赛淘汰赛事数据列表开始,入参：{}", JSON.toJSONString(request.getData()));
         Page<ThirdMatchPromotionChart> resPage = thirdMatchPromotionChartService.getItemPageByModifyTime(request.getData());
         log.info(("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdMatchPromotionChartPage】【::"+request.getLinkId()+"::】分页获取三方杯赛淘汰赛事数据列表条数：{}，耗时={}"),resPage.size(),System.currentTimeMillis() - beginTime);
         if(!CollectionUtils.isEmpty(resPage)){
@@ -912,7 +932,7 @@ public class ThirdMatchInfoQueryApiImpl extends BaseProcessor implements IThirdM
                     //获取三方联赛信息
                     ThirdSportTournament thirdSportTournament = thirdTournamentSourceId2Tournament.get(item.getDataSourceCode() + FIX + item.getSportId() + FIX + item.getTournamentId());
                     if(Objects.isNull(thirdSportTournament)){
-                        log.info("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdMatchPromotionChartPage】【::"+request.getLinkId()+"::】分页同步三方杯赛淘汰赛事数据,当前三方联赛数据为空,联赛源ID：{}",item.getTournamentId());
+                        log.info("【queryThirdMatchPromotionChartPage】【::"+request.getLinkId()+"::】分页同步三方杯赛淘汰赛事数据,当前三方联赛数据为空,联赛源ID：{}",item.getTournamentId());
                         continue;
                     }
                     itemBo.setStandardTournamentId(thirdSportTournament.getReferenceId());
@@ -1006,7 +1026,7 @@ public class ThirdMatchInfoQueryApiImpl extends BaseProcessor implements IThirdM
             }
             response.setData(pageModel);
             response.setDataSourceTime(System.currentTimeMillis() - beginTime);
-            log.info("【"+ PROJECT_ID_NOREALTIME +" ：queryThirdMatchPromotionChartPage】【::"+request.getLinkId()+"::】分页获取三方杯赛淘汰赛事数据列表结束,返回结果 ：{}" ,JSON.toJSONString(response));
+            log.info("【queryThirdMatchPromotionChartPage】【::"+request.getLinkId()+"::】分页获取三方杯赛淘汰赛事数据列表结束,返回结果 ：{}" ,JSON.toJSONString(response));
             pageModel.setData(resList);
         }
         return response;

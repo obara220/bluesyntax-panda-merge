@@ -27,7 +27,9 @@
                 data_source_acco_switch,
                 show_status,
                 create_time,
-                update_time
+                update_time,
+                send_settle_count,
+                match_length
   </sql>
 
   <insert id="insert" parameterType="com.panda.merge.model.StandardMatchScores">
@@ -64,7 +66,10 @@
         update_time,
       </if>
       <if test="null != sendSettleCount ">
-        send_settle_count
+        send_settle_count,
+      </if>
+      <if test="null != matchLength ">
+        match_length
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -99,15 +104,14 @@
         #{updateTime},
       </if>
       <if test="null != sendSettleCount ">
-        #{sendSettleCount}
+        #{sendSettleCount},
+      </if>
+      <if test="null != matchLength ">
+        #{matchLength}
       </if>
     </trim>
   </insert>
 
-  <delete id="delete" >
-    DELETE FROM standard_match_scores
-    WHERE id = #{id}
-  </delete>
 
   <update id="update" parameterType="com.panda.merge.model.StandardMatchScores">
     UPDATE standard_match_scores
@@ -122,7 +126,9 @@
       <if test="null != showStatus ">show_status = #{showStatus},</if>
       <if test="null != createTime ">create_time = #{createTime},</if>
       <if test="null != updateTime ">update_time = #{updateTime},</if>
-      <if test="null != sendSettleCount ">send_settle_count = #{sendSettleCount}</if>
+      <if test="null != sendSettleCount ">send_settle_count = #{sendSettleCount},</if>
+      <if test="null != matchLength ">match_length = #{matchLength}</if>
+
     </set>
     WHERE id = #{id}
   </update>
@@ -184,7 +190,7 @@
   <insert id="batchUpdateByPrimaryKey" parameterType="java.util.List">
     insert into standard_match_scores (
       id,third_match_id,sport_id,match_id,data_source_code,match_manage_id,
-      score_json,data_source_acco_switch,show_status,create_time,update_time,send_settle_count
+      score_json,data_source_acco_switch,show_status,create_time,update_time,send_settle_count,match_length
     )
     VALUES
     <foreach collection="list" index="index" item="item" separator=",">
@@ -199,7 +205,9 @@
       #{item.showStatus,jdbcType=BIGINT},
       #{item.createTime,jdbcType=BIGINT},
       #{item.updateTime,jdbcType=BIGINT},
-      #{item.sendSettleCount,jdbcType=BIGINT}
+      #{item.sendSettleCount,jdbcType=BIGINT},
+      #{item.matchLength,jdbcType=BIGINT}
+
       )
     </foreach>
     ON DUPLICATE KEY UPDATE
@@ -214,7 +222,8 @@
     show_status = VALUES(show_status),
     create_time = VALUES(create_time),
     update_time = VALUES(update_time),
-    send_settle_count = VALUES(send_settle_count)
+    send_settle_count = VALUES(send_settle_count),
+    match_length = VALUES(match_length)
   </insert>
 
   <select id="queryScoresByMatchIds" resultMap="BaseResultMap">

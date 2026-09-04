@@ -25,7 +25,7 @@ public final class ConstantSystem {
 
     public static final String PAND_ODDS_GROUP = "panda-odds-group-";
 
-    public static final String CONSUMER_PANDA_A99_GROUP = "panda-a99-group-";
+    public static final String CONSUMER_PANDA_A99_GROUP = "panda-a99-new-";
     /**
      * 比分中心&WS服务
      */
@@ -179,7 +179,10 @@ public final class ConstantSystem {
     public static final String DATA_THIRD_MATCH_INFO_DB = "DATA_THIRD_MATCH_INFO_DB";
     /** 标准赛事信息异步入库topic*/
     public static final String DATA_STANDARD_MATCH_INFO_DB = "DATA_STANDARD_MATCH_INFO_DB";
-
+    /**
+     * 球员信息变动预警
+     */
+    public static final String PLAYER_MODIFY_ALERT = "PLAYER_MODIFY_ALERT";
     //======================================非实时服务MQ常量结束=============================================
     //======================================实时服务MQ常量开始===============================================
 
@@ -485,6 +488,9 @@ public final class ConstantSystem {
 
     /** A99赔率变化差值*/
     public static final String A99_MATCH_ODDS_CHANGE_DIFFERENCE = "A99_MATCH_ODDS_CHANGE_DIFFERENCE";
+
+    /** A99下发主盘口给A01*/
+    public static final String A99_STANDARD_ODDS_TO_A01 = "A99_STANDARD_ODDS_TO_A01";
     //======================================A99服务MQ常量结束===============================================
 
 
@@ -512,6 +518,10 @@ public final class ConstantSystem {
     public static final String QUERY_STANDARD_SPORT_TYPE_PAGE = "queryStandardSportTypePage";
     /** 分页查询标准联赛列表*/
     public static final String QUERY_SPORT_TOURNAMENT_PAGE = "querySportTournamentPage";
+    /**
+     * 分页查询标准联赛规则列表
+     */
+    public static final String QUERY_TOURNAMENT_RULE_PAGE = "queryTournamentRulePage";
     /** 分页查询标准赛程（球队）列表*/
     public static final String QUERY_SPORT_MATH_TEAM_PAGE = "querySportMathTeamPage";
     /** 分页查询体育区域列表*/
@@ -706,6 +716,23 @@ public final class ConstantSystem {
 
     public static String getBusinessEventLockKey() {
         return RedisConfig.REDIS_KEY_DATABASE + "::MatchEventInfo:BusinessEventSwitchLock:{%s}";
+    }
+
+    public static String getPlayerModifyAlertKey() {
+        return RedisConfig.REDIS_KEY_DATABASE + "::ThirdSportPlayer:ModifyAlterKey:%s_%s_%s";
+    }
+
+    /**
+     * R01足球下发了100阶段和999阶段事件后,又会下发一次100阶段和999阶段事件 单号109329
+     * %s : 数据源编码
+     * %s : 数据源赛事ID
+     */
+    public static String getMatchPeriod999KeyForCheck() {
+        return RedisConfig.REDIS_KEY_DATABASE + "::MatchEventInfo:c999:%s_%s";
+    }
+
+    public static String getMatchPeriod100KeyForCheck() {
+        return RedisConfig.REDIS_KEY_DATABASE + "::MatchEventInfo:c100:%s_%s";
     }
 
 }

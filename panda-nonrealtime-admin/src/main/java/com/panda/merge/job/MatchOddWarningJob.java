@@ -77,6 +77,11 @@ public class MatchOddWarningJob extends BaseProcessor {
                         redisService.hDel(oddsWarningKey, entry.getKey());
                         continue;
                     }
+                    Boolean sign = (Boolean) infoMap.get("sign");
+                    //true 发送一次不再下发，赔率主流程会刷新
+                    if (sign) {
+                        continue;
+                    }
                     Long time = (Long) infoMap.get("time");
                     StandardMatchInfo standardMatchInfo = standardMatchInfoService.getItem(standardMatchId);
                     if (null == standardMatchInfo) {
@@ -88,7 +93,6 @@ public class MatchOddWarningJob extends BaseProcessor {
                         redisService.hDel(oddsWarningKey, entry.getKey());
                         continue;
                     }
-                    standardMatchInfo.setMatchPeriodId(getMatchPeriod(standardMatchInfo.getId()));
                     //赛事未到LIVE状态、中场休息阶段 不下发
                     if (!standardMatchInfo.getMatchStatus().equals(MatchStatusEnum.Live.value) || Constant.FOOT_BALL_PERIOD_FILTER_WARNING.contains(standardMatchInfo.getMatchPeriodId())) {
                         String linkId = IdWorker.getId() + "_PERIOD_REST";
@@ -110,11 +114,7 @@ public class MatchOddWarningJob extends BaseProcessor {
                         liftedMatchOddsWarning(linkId, standardMatchInfo, marketCategoryId, entry.getKey());
                         continue;
                     }
-                    Boolean sign = (Boolean) infoMap.get("sign");
-                    //true 发送一次不再下发，赔率主流程会刷新
-                    if (sign) {
-                        continue;
-                    }
+
                     //系统时间 - 赔率时间 一分钟赔率未更新发送赔率告警给风控
                     long nowTime = TimeUtils.millsSecondsEast8ZoneGmt();
                     //TRUE 5分钟报警 false 1 分钟报警

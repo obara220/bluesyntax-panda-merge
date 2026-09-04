@@ -26,14 +26,14 @@ public class RocketmqScoreCenterConsumerJob extends IJobHandler {
     @Override
     public ReturnT<String> execute(String param) {
         long currentTime = System.currentTimeMillis();
-        //log.info("【RocketmqScoreCenterConsumerJob 手动触发MQ暂停消费（部分topic）:{}】 处理开始,入参: {}", currentTime, param);
+        log.info("【RocketmqScoreCenterConsumerJob 手动触发MQ暂停消费（部分topic）:{}】 处理开始,入参: {}", currentTime, param);
         try {
             JSONObject jsonObject = JSON.parseObject(param);
             scoreCenterSpareMqApi.slaveRocketMqStopResume(jsonObject.getInteger("pandaDbIsError"));
         } catch (Exception e) {
             log.error("【RocketmqScoreCenterConsumerJob 手动触发MQ暂停消费（部分topic）执行异常:" + currentTime + "】 Exception:", e);
         }
-        //log.info("【RocketmqScoreCenterConsumerJob 手动触发MQ暂停消费（部分topic）:{}】 处理结束", currentTime);
+        log.info("【RocketmqScoreCenterConsumerJob 手动触发MQ暂停消费（部分topic）:{}】 处理结束", currentTime);
         return ReturnT.SUCCESS;
     }
 }

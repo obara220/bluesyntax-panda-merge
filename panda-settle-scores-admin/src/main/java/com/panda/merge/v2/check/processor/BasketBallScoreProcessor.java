@@ -208,8 +208,10 @@ public class BasketBallScoreProcessor {
 
             log.info("linkId::{}::结算比分映射,查询到老的转化后map有:{}",data.getLinkedId(),oldScoresMap.size());
             for (MatchSettleScore matchSettleScore : list) {
+                log.info("linkId::{}::begin save matchSettleScore:{}",data.getLinkedId(),matchSettleScore);
                 //1.查询当前阶段比分
                 MatchSettleThirdScore oldScore= oldScoresMap.get(matchSettleScore.getSettleNum());
+                log.info("linkId::{}::begin save1 oldScore:{}",data.getLinkedId(),oldScore);
                 if(oldScore==null){
                     oldScore=new MatchSettleThirdScore();
                     BeanUtils.copyProperties(matchSettleScore,oldScore);

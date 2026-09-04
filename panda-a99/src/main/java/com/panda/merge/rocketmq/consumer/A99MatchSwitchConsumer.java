@@ -20,6 +20,7 @@ import static com.panda.merge.constant.ConstantSystem.*;
 @Component
 @RocketMQMessageListener(
         topic = A99_MATCH_SWITCH,
+//        topic = "rcs_trade_a_ninetynine_swtich_test",
         consumerGroup = CONSUMER_PANDA_A99_GROUP + A99_MATCH_SWITCH,
         consumeThreadMax = 128,
         consumeTimeout = 10000L

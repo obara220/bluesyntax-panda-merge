@@ -21,6 +21,7 @@ import com.panda.merge.constant.ConstantSystem;
 import com.panda.merge.constant.MarginCategoryConfig;
 import com.panda.merge.dto.*;
 import com.panda.merge.dto.message.StandardMarketDataMessage;
+import com.panda.merge.dto.message.StandardMarketMessage;
 import com.panda.merge.dto.message.StandardMarketOddsDataMessage;
 import com.panda.merge.dto.message.StandardMatchMarketPreResultMessage;
 import com.panda.merge.exception.ApiException;
@@ -128,7 +129,8 @@ public class BaseProcessor {
         }
     }
     public boolean supportA99(String linkId,Long matchId,Integer marketType,Long categoryId){
-        String key = marketType==1?Constant.REDIS_KEY.RONGHE_A99_PRE_MATCH_IDS:Constant.REDIS_KEY.RONGHE_A99_LIVE_MATCH_IDS;
+        return false;
+/*        String key = marketType==1?Constant.REDIS_KEY.RONGHE_A99_PRE_MATCH_IDS:Constant.REDIS_KEY.RONGHE_A99_LIVE_MATCH_IDS;
         Map<String, Object> map = redisService.hGetAll(key);
         Set<String> matchSet = map.keySet();
         Set<Long> set = matchSet.stream()
@@ -153,7 +155,7 @@ public class BaseProcessor {
                 return true;
             }
         }
-        return false;
+        return false;*/
     }
     /**
      * 判断请求数据源种类是否为空和超长
@@ -1125,6 +1127,15 @@ public class BaseProcessor {
                         item.setT1(t2);
                         item.setT2(t1);
                     }
+
+                    // 109419
+                    Integer firstT1 = item.getFirstT1() == null ? ZERO:item.getFirstT1();
+                    Integer firstT2 = item.getFirstT2() == null ? ZERO: item.getFirstT2();
+                    if (!firstT1.equals(firstT2)){
+                        item.setFirstT1(firstT2);
+                        item.setFirstT2(firstT1);
+                    }
+
                     list.add(item);
                 }
                 return list;
@@ -1224,14 +1235,20 @@ public class BaseProcessor {
     }
 
     /**
-     * 获取赛事阶段
-     * @param standardMatchInfoId
+     * 获取缓存中标准赛事阶段
+     * @param standardMatchInfoId   标准赛事ID
+     * @param matchPeriodId         赛事信息中赛事阶段
      * @return
      */
-    public long getMatchPeriod(Long standardMatchInfoId) {
-        String matchPeriodKey = RedisConfig.REDIS_KEY_DATABASE + "::MatchEventInfo:MatchPeriod:" + standardMatchInfoId;
-        Object o = redisService.get(matchPeriodKey);
-        return Objects.isNull(o) ? 0 : (long) o;
+    public Long getMatchPeriod(Long standardMatchInfoId,Long matchPeriodId) {
+        String standardMatchPeriodKey = String.format(getStandardMatchPeriodKey(), standardMatchInfoId);
+        if(redisService.hasKey(standardMatchPeriodKey)){
+            matchPeriodId = (Long)redisService.get(standardMatchPeriodKey);
+        }
+        if(matchPeriodId == null){
+            matchPeriodId = 0L;
+        }
+        return matchPeriodId;
     }
 
     /**
@@ -1464,6 +1481,52 @@ public class BaseProcessor {
         return true;
     }
 
+    protected String resolveBaseDataSourceCode(String dataSourceCode) {
+        if (StringUtils.isBlank(dataSourceCode)) {
+            return dataSourceCode;
+        }
+        return dataSourceCode.split("-")[0].toUpperCase();
+    }
+
+    /**
+     * A01(AO)与主数据源一致，接入侧投递的赔率已随主源处理主客相反，融合赔率服务不再重复翻转。
+     */
+    protected boolean skipHomeAwayOppositeForDataSource(String dataSourceCode) {
+        if (StringUtils.isBlank(dataSourceCode)) {
+            return false;
+        }
+        return DataSourceCodeEnum.AO.code.equalsIgnoreCase(resolveBaseDataSourceCode(dataSourceCode));
+    }
+
+    /**
+     * 百家赔等非实时链路：三方赛事已标记主客队相反时，替换盘口/投注项内容
+     */
+    protected Long applyHomeAwayOppositeForThirdMarket(String linkId,
+                                                       String dataSourceCode,
+                                                       StandardMatchInfo standardMatchInfo,
+                                                       ThirdMatchInfo thirdMatchInfo,
+                                                       ThirdMarketCategory thirdMarketCategory,
+                                                       ThirdMarketDTO thirdMarketDTO) {
+        if (thirdMarketCategory == null) {
+            return null;
+        }
+        if (thirdMatchInfo == null || !ONE.equals(thirdMatchInfo.getHomeAwayOpposite())) {
+            return thirdMarketCategory.getReferenceId();
+        }
+        if (standardMatchInfo == null || !StandardSportTypeEnum.FootBall.code.equals(standardMatchInfo.getSportId())) {
+            return thirdMarketCategory.getReferenceId();
+        }
+        Long marketCategoryId = thirdMarketCategory.getReferenceId();
+        if (!CategoryOppositeConfig.FootBall.containsCategory(marketCategoryId)) {
+            return marketCategoryId;
+        }
+        // 每次独立拷贝，避免 changeStandardMarketContent 原地修改共享的玩法缓存对象
+        ThirdMarketCategory categoryCopy = new ThirdMarketCategory();
+        BeanUtils.copyProperties(thirdMarketCategory, categoryCopy);
+        changeStandardMarketContent(linkId, resolveBaseDataSourceCode(dataSourceCode), categoryCopy, thirdMarketDTO);
+        return categoryCopy.getReferenceId();
+    }
+
     /**
      * 主客队相反：盘口、投注项内容替换
      *
@@ -1572,6 +1635,18 @@ public class BaseProcessor {
                 }
             }
         }
+    }
+
+    public StandardMarketMessage convertLog(StandardMarketDataMessage standardMarketDataMessage) {
+        // 发送操盘日志给风控
+        StandardMarketMessage logData = new StandardMarketMessage();
+        logData.setMarketCategoryId(standardMarketDataMessage.getMarketCategoryId());
+        logData.setChildMarketCategoryId(standardMarketDataMessage.getChildMarketCategoryId());
+        logData.setMarketType(standardMarketDataMessage.getMarketType());
+        logData.setPaStatus(standardMarketDataMessage.getStatus());
+        logData.setThirdMarketSourceStatus(standardMarketDataMessage.getThirdMarketSourceStatus());
+        logData.setId(standardMarketDataMessage.getRelationMarketId());
+        return logData;
     }
 
     /**

@@ -22,6 +22,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -119,7 +121,14 @@ public class MatchTennisAdvertiseApiImpl implements IMatchTennisAdvertiseApi {
         log.info("::{}::setMatchSecondScore的入参:{}", tennisEditSecondScoreDto.getLinkedId(), JSON.toJSONString(tennisEditSecondScoreDto));
         Response<MatchScoreAndTimeVo> response = commonAdvertiseService.checkMatchScoreAndTimeCreate(tennisEditSecondScoreDto.getThirdMatchId());
         try{
-//            tennisEditSecondScoreDto.setLinkedId(response.getData().getThirdMatchInfo().getReferenceId()+"_PD");
+            if(response.getData().getMatchTimeInfo()!=null){
+                Long period = response.getData().getMatchTimeInfo().getPeriod();
+                List<Long> setEndPeriod = Arrays.asList(301L, 302L, 303L, 304L, 305L, 100L, 999L);
+                if(setEndPeriod.contains(period)){
+                    return Response.failed("当前盘结束状态不允许编辑局内比分");
+                }
+            }
+            tennisEditSecondScoreDto.setLinkedId(response.getData().getThirdMatchInfo().getReferenceId()+"_PD");
             //重新设置linkId
             tennisEditSecondScoreDto.setLinkedId("PD_" + UUID.randomUUID());
             return tennisAdvertiseService.setMatchSecondScore(tennisEditSecondScoreDto,response);

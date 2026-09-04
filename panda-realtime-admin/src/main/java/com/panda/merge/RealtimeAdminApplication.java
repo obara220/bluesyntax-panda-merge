@@ -17,8 +17,24 @@ import org.springframework.cache.annotation.EnableCaching;
 @NacosPropertySource(dataId = "panda-data-common",autoRefreshed = true)
 public class RealtimeAdminApplication {
 
+    private static boolean rocketmqPandaLogSwitch = true;
+
     public static void main(String[] args) {
+//        initializeConfig();
         SpringApplication.run(RealtimeAdminApplication.class, args);
+    }
+
+
+    public static void initializeConfig() {
+        try {
+            if (rocketmqPandaLogSwitch) {
+                //设置系统属性，启用SLF4J日志输出, rocketmqclient
+                System.setProperty(ClientLogger.CLIENT_LOG_USESLF4J, "true");
+                log.info("InitConfig,设置rocketmq日志交给Slf4j处理");
+            }
+        } catch (Exception e) {
+            log.info("InitConfig,初始化异常,Exception:", e);
+        }
     }
 
 }

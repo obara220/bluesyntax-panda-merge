@@ -551,12 +551,15 @@ public class MatchSettleScoreFootBallServiceImpl implements IMatchSettleScoreFoo
                         matchSettleEvent.setEventCode(scoreEvent.getEventCode());
                     }
                 }
-
+                if(StringUtils.isEmpty(editMatchSettleEventDto.getHomeAway())){
+                    return Response.failed("1031939");
+                }
+                if(matchSettleEvent.getEventType() == 3 && StringUtils.isEmpty(editMatchSettleEventDto.getFiveMinSection())){
+                    return Response.failed("1031939");
+                }
                 if(editMatchSettleEventDto.getEventCode().equals("goal")){
                     // matchSettleEvent已经在上面获取了，如果为null则重新获取
-                    if(StringUtils.isEmpty(editMatchSettleEventDto.getHomeAway())){
-                        return Response.failed("1031939");
-                    }
+
                     if(!matchSettleCheckInfoHelper.isPeriodScoresBeforeSettledByEvent(matchSettleEvent)){
                         return Response.failed("10138");
                     }
@@ -656,9 +659,13 @@ public class MatchSettleScoreFootBallServiceImpl implements IMatchSettleScoreFoo
                     //2.阶段比分
                 }else if(editMatchSettleEventDto.getEventCode().equals("fa_card")){
                     //1.根据facard条件设置 主客队和 罚牌类型
-                    if(StringUtils.isEmpty(editMatchSettleEventDto.getHomeAway())){
-                        return Response.failed("1031939");
-                    }
+//                    if(StringUtils.isEmpty(editMatchSettleEventDto.getHomeAway())){
+//                        return Response.failed("1031939");
+//                    }
+//
+//                    if(matchSettleEvent.getEventType() == 3 && StringUtils.isEmpty(editMatchSettleEventDto.getFiveMinSection())){
+//                        return Response.failed("1031939");
+//                    }
 
                     //2.自动计算罚牌比分
                     if (matchSettleEvent.getEventType() == 1) {
@@ -2557,7 +2564,7 @@ public class MatchSettleScoreFootBallServiceImpl implements IMatchSettleScoreFoo
         if(matchSettleEvent==null){
             return Response.failed("1031935");
         }
-        if(StringUtils.isEmpty(editMatchSettleEventDto.getHomeAway())){
+        if(matchSettleEvent.getEventType() == 3 && StringUtils.isEmpty(editMatchSettleEventDto.getFiveMinSection())){
             return Response.failed("1031939");
         }
         // 审核员编辑时，不更新matchSettleEvent，只更新checkinfo
@@ -2621,6 +2628,9 @@ public class MatchSettleScoreFootBallServiceImpl implements IMatchSettleScoreFoo
 
     private Response editCornerEvent(EditMatchSettleEventDto editMatchSettleEventDto) {
         log.info("editCornerEvent New editMatchSettleEventDto: {}",editMatchSettleEventDto);
+        if(StringUtils.isEmpty(editMatchSettleEventDto.getHomeAway())){
+            return Response.failed("1031939");
+        }
         MatchSettleCheckInfoEntity matchSettleCheckInfo=  matchSettleCheckInfoHelper.searchCheckInfoByUser(editMatchSettleEventDto.getEventId(),editMatchSettleEventDto.getStandardMatchId(),
                 editMatchSettleEventDto.getOperatorName());
         MatchSettleCheckInfoEntity checkInfo =new  MatchSettleCheckInfoEntity();
@@ -2761,6 +2771,9 @@ public class MatchSettleScoreFootBallServiceImpl implements IMatchSettleScoreFoo
         if(StringUtils.isEmpty(editMatchSettleEventDto.getHomeAway())){
             return Response.failed("1031939");
         }
+        if(matchSettleEvent.getEventType() == 3 && StringUtils.isEmpty(editMatchSettleEventDto.getFiveMinSection())){
+            return Response.failed("1031939");
+        }
         if(!matchSettleCheckInfoHelper.isPeriodScoresBeforeSettledByEvent(matchSettleEvent)){
             return Response.failed("10138");
         }
@@ -2832,6 +2845,10 @@ public class MatchSettleScoreFootBallServiceImpl implements IMatchSettleScoreFoo
      */
     private Response editPeriodEvent(EditMatchSettleEventDto editMatchSettleEventDto, MatchSettleEvent matchSettleEvent) {
         try {
+            if(matchSettleEvent.getEventType() == 3 && StringUtils.isEmpty(editMatchSettleEventDto.getFiveMinSection())){
+                return Response.failed("1031939");
+            }
+
             // 编辑时段(eventType=3)时：将“对应次序(eventType=1)的checkinfo比分”复制到时段事件/时段checkinfo中
             MatchSettleEvent scoreEvent = null;
             try {

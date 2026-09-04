@@ -18,6 +18,7 @@ public class CommonConstant {
     public static final String GRAY_TYPE = "grayType";
     public static final String GRAY_Score = "grayScore";
     public static final String SETTLE_SWITCH = "settle-switch:";
+    public static final String MATCH_SETTLE_SCORE_COUNT = "match.settle.score.send.count:";
     public static final String SETTLE_SLAVE_DB_TOPIC = "settle_slave_db_storage";
     public static final String SETTLE_DATA_SOURCE_CONFIG_TABLE = "MatchSettleDataSourceConfigEntity";
     public static final String SETTLE_DATA_SOURCE_SWITCH_TABLE = "MatchSettleDataSourceSwitchEntity";

@@ -1216,19 +1216,8 @@ public class MatchSnookerServiceImpl extends AbsMatchCommonProcessor<MatchScoreC
         }
 
         //阶段比分更新
-        JSONObject noPperiodFootballScores = JSONObject.parseObject(data.getMatchScoresInfo().getScoresJson());
-        Map<Long, SnookerV2Scores> nowAllPeriodScores= JsonMapUtils.parseSnookerV2Map(noPperiodFootballScores);
-        SnookerV2Scores nowPeriodSores = nowAllPeriodScores.get(targetPeriodId);
-        Integer periodHomeScore = data.getMatchScoresInfo().getPeriodT1();
-        Integer periodAwayScore = data.getMatchScoresInfo().getPeriodT2();
-        if(nowPeriodSores != null && nowPeriodSores.getSetScore() != null && nowPeriodSores.getSetScore().getHome() != null) {
-            periodHomeScore = nowPeriodSores.getSetScore().getHome();
-            periodAwayScore = nowPeriodSores.getSetScore().getAway();
-        }
-
-
-        matchEventInfoDTO.setFirstT1(periodHomeScore);
-        matchEventInfoDTO.setFirstT2(periodAwayScore);
+        matchEventInfoDTO.setFirstT1(data.getMatchScoresInfo().getPeriodT1());
+        matchEventInfoDTO.setFirstT2(data.getMatchScoresInfo().getPeriodT2());
         matchEventInfoDTO.setT1(data.getMatchScoresInfo().getT1());
         matchEventInfoDTO.setT2(data.getMatchScoresInfo().getT2());
 

@@ -326,6 +326,11 @@ public class StandardMatchInfoBO implements Serializable {
      */
     private Integer interruptionCancellationStatus;
 
+    /**
+     * 事件来源类型(0:其他，1:现场（VENUE）,2电视（TV）)
+     */
+    private Integer liveEventSource;
+
     /** 赛事坑位排序 **/
     private String orderNo;
 

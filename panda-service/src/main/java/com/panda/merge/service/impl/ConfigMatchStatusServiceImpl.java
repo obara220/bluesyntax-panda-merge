@@ -495,7 +495,7 @@ public class ConfigMatchStatusServiceImpl implements ConfigMatchStatusService {
 			if (Objects.isNull(scoreObj)) {
 				return false;
 			}
-	        scores = (FootballCacheScores) scoreObj;
+			scores = JSONObject.parseObject(scoreObj.toString(), FootballCacheScores.class);
 	        log.info("::{}::processConfigMatchStatus 比分兜底校验。比分信息:{},盘口信息:{}", linkId,scoreObj,market);
             //盘口值验证
             if (MarginCategoryConfig.SCORE_CHECK_GOAL.contains(categoryId)) {

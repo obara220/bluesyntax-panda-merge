@@ -25,7 +25,7 @@ public class PDEventConsumer implements RocketMQListener<Request<String>> {
 
     @Override
     public void onMessage(Request<String> request) {
-//        log.info("PD_FOOTBALL_EVENT_GET:{}",request.getData());
+        log.info("PD_FOOTBALL_EVENT_GET:{}",request.getData());
         pdSubcribe.sendPdEvent(request.getData());
         log.info("PD_FOOTBALL_EVENT_GET_END:");
     }

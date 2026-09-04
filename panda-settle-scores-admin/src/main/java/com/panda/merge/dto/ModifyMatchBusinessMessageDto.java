@@ -26,6 +26,8 @@ public class ModifyMatchBusinessMessageDto implements Serializable {
         private static final long serialVersionUID = 1L;
         /** 标准赛事ID */
         private Long id;
+        /** 事件来源类型(0:其他，1:现场（VENUE）,2电视（TV）) */
+        private Integer liveEventSource;
         /** 三方赛事信息列表，用于提取 dataSourceCode */
         private List<ThirdMatchInfoListEntry> thirdMatchInfoList;
     }

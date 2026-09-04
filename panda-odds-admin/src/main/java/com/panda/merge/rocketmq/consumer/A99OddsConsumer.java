@@ -1,3 +1,4 @@
+/*
 package com.panda.merge.rocketmq.consumer;
 
 import com.alibaba.fastjson.JSONObject;
@@ -20,9 +21,11 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 
+*/
 /**
  * a01 延长开售
- */
+ *//*
+
 @Slf4j
 @Component
 @RocketMQMessageListener(topic = ConstantSystem.A99_STANDARD_ODDS_API,
@@ -42,3 +45,4 @@ public class A99OddsConsumer implements RocketMQListener<Request<List<StandardMa
         a99OddsProcessor.execute(request);
     }
 }
+*/

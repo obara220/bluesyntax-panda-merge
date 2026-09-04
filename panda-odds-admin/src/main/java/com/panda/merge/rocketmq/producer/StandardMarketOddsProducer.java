@@ -71,7 +71,8 @@ public class StandardMarketOddsProducer {
 
     @Autowired
     private StandardSportTournamentService standardSportTournamentService;
-
+    @Autowired
+    private FootballMarketsSoreProcessor checkMarketsSoreProcessor;
     @Lazy
     @Autowired
     private ThirdMatchMarketProcessor thirdMatchMarketProcessor;
@@ -135,6 +136,7 @@ public class StandardMarketOddsProducer {
         }
         //赔率分组计算
         calculateOdds(linkId, standardMatchInfo, matchTradType, standardMatchMarketMessage, dataSourceTime);
+
         //第一个参数表示topic:tag
         //2780需求： 常规赛事赔率和电子赔率topic拆分
         if (1 != standardMatchInfo.getMatchType()) {

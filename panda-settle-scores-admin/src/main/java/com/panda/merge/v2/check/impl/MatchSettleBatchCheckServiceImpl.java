@@ -374,6 +374,12 @@ public class MatchSettleBatchCheckServiceImpl implements IMatchSettleBatchCheckS
             matchSettleEvent.setCurrentEventStatus(1);
             log.info("linkId::{}::eventId:{} settleNum:{} 该事件修改的比分设置为灰色区间", linkedId, matchSettleThirdEvent.getThirdEventSourceId(), matchSettleThirdEvent.getSettleNum());
             matchSettleEventRepository.updateById(matchSettleEvent);
+        } else if (matchSettleEvent.getIsGrey() != null && matchSettleEvent.getIsGrey() == 1) {
+            matchSettleEvent.setIsGrey(0);
+            matchSettleEvent.setModifyTime(System.currentTimeMillis());
+            matchSettleEvent.setCurrentEventStatus(0);
+            log.info("linkId::{}::eventId:{} settleNum:{} 灰色区间已经被取消了", linkedId, matchSettleThirdEvent.getThirdEventSourceId(), matchSettleThirdEvent.getSettleNum());
+            matchSettleEventRepository.updateById(matchSettleEvent);
         }
         //3.1 查询比分核对类是否存在
         List<MatchSettleCheckInfo> list = matchSettleCheckInfoRepository.getModelBySettleScoreEventIdsAndDataSourceCode(Arrays.asList(matchSettleEvent.getId()), matchSettleThirdEvent.getDataSourceCode());
@@ -396,7 +402,8 @@ public class MatchSettleBatchCheckServiceImpl implements IMatchSettleBatchCheckS
             Long minPeriod = FootBallMatchSettleScoreUtils.get5MinPeriod(matchSettleThirdEvent.getPeriodId(), second);
             matchSettleCheckInfo.setFiveMinSection(minPeriod.toString());
 
-            if(matchSettleThirdEvent.getIsGrey()!=1&&(matchSettleCheckInfo.getEventCode().equals("corner")||matchSettleCheckInfo.getEventCode().equals("fa_card")||matchSettleCheckInfo.getEventCode().equals("yellow_card")||matchSettleCheckInfo.getEventCode().equals("red_card"))){
+//            if(matchSettleThirdEvent.getIsGrey()!=1&&(matchSettleCheckInfo.getEventCode().equals("corner")||matchSettleCheckInfo.getEventCode().equals("fa_card")||matchSettleCheckInfo.getEventCode().equals("yellow_card")||matchSettleCheckInfo.getEventCode().equals("red_card"))){
+            if(matchSettleCheckInfo.getEventCode().equals("corner")||matchSettleCheckInfo.getEventCode().equals("fa_card")||matchSettleCheckInfo.getEventCode().equals("yellow_card")||matchSettleCheckInfo.getEventCode().equals("red_card")){
                 //1.计算出角球15分钟区间
                 //2.设置15分钟区间
                 Long period15 = SportPeriodConstant.FootballPeriod.get15MinPeriod(matchSettleThirdEvent.getPeriodId(), second);
@@ -420,14 +427,16 @@ public class MatchSettleBatchCheckServiceImpl implements IMatchSettleBatchCheckS
             matchSettleCheckInfo.setIsGrey(matchSettleThirdEvent.getIsGrey());
             String period5 = SportPeriodConstant.FootballPeriod.get5MinCode(matchSettleThirdEvent.getPeriodId(), second);
             //5分钟灰色区间不做编辑区间
-            if (matchSettleThirdEvent.getIsGrey() != 2) {
-                matchSettleCheckInfo.setFiveMinSection(period5);
-            }
+//            if (matchSettleThirdEvent.getIsGrey() != 2) {
+//                matchSettleCheckInfo.setFiveMinSection(period5);
+//            }
+            matchSettleCheckInfo.setFiveMinSection(period5);
             if(matchSettleCheckInfo.getEventCode().equals("corner")||matchSettleCheckInfo.getEventCode().equals("fa_card")||matchSettleCheckInfo.getEventCode().equals("yellow_card")||matchSettleCheckInfo.getEventCode().equals("red_card")){
                 matchSettleCheckInfo.setFiveMinSection(null);
             }
             //角球返回是1 则判断为15分钟灰色区间 todo
-            if(matchSettleThirdEvent.getIsGrey()!=1&&(matchSettleCheckInfo.getEventCode().equals("corner")||matchSettleCheckInfo.getEventCode().equals("fa_card")||matchSettleCheckInfo.getEventCode().equals("yellow_card")||matchSettleCheckInfo.getEventCode().equals("red_card"))){
+//            if(matchSettleThirdEvent.getIsGrey()!=1&&(matchSettleCheckInfo.getEventCode().equals("corner")||matchSettleCheckInfo.getEventCode().equals("fa_card")||matchSettleCheckInfo.getEventCode().equals("yellow_card")||matchSettleCheckInfo.getEventCode().equals("red_card"))){
+            if(matchSettleCheckInfo.getEventCode().equals("corner")||matchSettleCheckInfo.getEventCode().equals("fa_card")||matchSettleCheckInfo.getEventCode().equals("yellow_card")||matchSettleCheckInfo.getEventCode().equals("red_card")){
                 //1.计算出角球15分钟区间
                 //2.设置15分钟区间
                 Long period15 = SportPeriodConstant.FootballPeriod.get15MinPeriod(matchSettleThirdEvent.getPeriodId(), second);
@@ -569,6 +578,7 @@ public class MatchSettleBatchCheckServiceImpl implements IMatchSettleBatchCheckS
 
         //比分类型灰色区间不走数据商自动结算
         MatchSettleTemplate matchSettleTemplate = matchSettleTemplateHelper.getTemplateByStandardMatchId(matchSettleCheckInfoFirst.getStandardMatchId(), SettleTemplateTypeEnum.DATA_SOURCE_WEIGHT.code);
+        log.info("linkedId::{} batchCheckCommonMatchSettleScoreEvent matchSettleTemplate:{}",linkedId, matchSettleTemplate);
         if(matchSettleTemplate==null){
             log.info("linkedId::{} batchCheckCommonMatchSettleScoreEvent matchSettleTemplate is null", linkedId);
             return res;
@@ -892,7 +902,7 @@ public class MatchSettleBatchCheckServiceImpl implements IMatchSettleBatchCheckS
                     oldSum = SettleTemplateWeightUtils.countBasketballWeightDataSourceCheck(matchSettleTemplate,entry.getValue());
                 }
                 log.info("linkedId::{} "+matchSettleCheckInfo.getStandardMatchId()+":delayLog01-score.id:{} ,check.id: {},oldSum:{}",linkedId, matchSettleCheckInfo.getSettleScoreEventId(),matchSettleCheckInfo.getId(),oldSum);
-                if(oldSum>=100){
+                if(oldSum>=100 || (matchSettleInfo.getSportId().equals(1L) && hasPassCheck)){
                     String key = "delaySettle:"+matchSettleCheckInfo.getSettleScoreEventId();
                     Object old = redisService.get(key);
                     if (null==old){
@@ -946,30 +956,30 @@ public class MatchSettleBatchCheckServiceImpl implements IMatchSettleBatchCheckS
                         // 5/15分钟阶段（重新计算）：先检查所有可利用的数据源是否都有checkinfo
                         StandardMatchInfo recalcStandardMatchInfo = standardMatchInfoService.getItem(matchSettleCheckInfo.getStandardMatchId());
                         if (recalcStandardMatchInfo == null) {
-                            log.warn("linkId::{}::5/15分钟阶段{}（重新计算）::scoreEventId:{}::无法获取赛事信息，跳过结算", 
+                            log.warn("linkId::{}::5/15分钟阶段{}（重新计算）::scoreEventId:{}::无法获取赛事信息，跳过结算",
                                     linkedId, recalcSettleNum, matchSettleCheckInfo.getSettleScoreEventId());
                             continue;
                         }
-                        
+
                         Integer recalcTournamentLevel = dataSourceHeartbeatService.getTournamentLevel(matchSettleCheckInfo.getStandardMatchId());
                         List<String> recalcAvailableDataSources = getAvailableDataSources(
-                                matchSettleCheckInfo.getStandardMatchId(), 
+                                matchSettleCheckInfo.getStandardMatchId(),
                                 matchSettleCheckInfo.getEventCode(),
                                 recalcStandardMatchInfo.getSportId(),
                                 recalcTournamentLevel,
                                 linkedId,
                                 isPaCurrentTrigger
                         );
-                        
+
                         // 获取当前已有的checkinfo数据源
                         Set<String> recalcExistingDataSourceCodes = oldList.stream()
                                 .map(MatchSettleCheckInfo::getDataSourceCode)
                                 .collect(Collectors.toSet());
-                        
+
                         // 检查是否所有可利用的数据源都有checkinfo
                         Set<String> recalcMissingDataSources = new HashSet<>(recalcAvailableDataSources);
                         recalcMissingDataSources.removeAll(recalcExistingDataSourceCodes);
-                        
+
                         // 如果有PA且PA与某个已存在的数据源一致，则不需要等待其他数据源
                         boolean recalcHasPaAndMatches = false;
                         if (recalcExistingDataSourceCodes.contains("PA")) {
@@ -999,18 +1009,18 @@ public class MatchSettleBatchCheckServiceImpl implements IMatchSettleBatchCheckS
                                 }
                             }
                         }
-                        
+
                         // 检查是否所有可利用的数据源都有checkinfo（重新计算）；PA 触发且已有 PA 时不阻塞
                         boolean recalcAllDataSourcesAvailable = recalcMissingDataSources.isEmpty() || recalcHasPaAndMatches
                                 || (isPaCurrentTrigger && recalcExistingDataSourceCodes.contains("PA"));
                         if (!recalcAllDataSourcesAvailable) {
                             log.info("linkId::{}::5/15分钟阶段{}（重新计算）::scoreEventId:{}::等待所有可利用数据源的checkinfo下发。可利用数据源:{}，已有数据源:{}，缺失数据源:{}",
-                                    linkedId, recalcSettleNum, matchSettleCheckInfo.getSettleScoreEventId(), 
+                                    linkedId, recalcSettleNum, matchSettleCheckInfo.getSettleScoreEventId(),
                                     recalcAvailableDataSources, recalcExistingDataSourceCodes, recalcMissingDataSources);
                             // 不直接continue，让hasPassCheck保持为false，以便后续处理能正常执行
                             hasPassCheck = false;
                         }
-                        
+
                         // 只有当所有数据源都可用时，才进行一致性检查（重新计算）
                         if (recalcAllDataSourcesAvailable) {
                             log.info("linkId::{}::5/15分钟阶段{}（重新计算）::scoreEventId:{}::所有可利用数据源{}都有checkinfo，开始检查一致性",
@@ -1024,7 +1034,7 @@ public class MatchSettleBatchCheckServiceImpl implements IMatchSettleBatchCheckS
                                             .map(MatchSettleCheckInfo::getDataSourceCode).distinct().count();
                                     if (hasPa && distinctSources >= 2 && entry.getKey().equals(checkKey)) {
                                         hasPassCheck = true;
-                                        matchSettleCheckInfo.setFiveMinSection(null);
+//                                    matchSettleCheckInfo.setFiveMinSection(null);
                                         finalCheckGroupMap.put(entry.getKey(), entry.getValue());
                                         recalcPaFastPathSettled = true;
                                         log.info("linkId::{}::5/15分钟阶段{}（重新计算）::scoreEventId:{}::PA触发快通：PA与至少一源同组且与输入一致，直接结算",
@@ -1035,116 +1045,116 @@ public class MatchSettleBatchCheckServiceImpl implements IMatchSettleBatchCheckS
                             }
 
                             if (!recalcPaFastPathSettled) {
-                            // 检查单数据源结算开关：当只有一个可利用数据源且只有一个checkinfo时，需要检查单数据源结算开关
-                            boolean recalcSingleDataSourceSettleSwitchEnabled = true;
-                        if (recalcAvailableDataSources.size() == 1 && oldList.size() == 1) {
-                            String recalcSingleDataSourceCode = recalcAvailableDataSources.get(0);
-                            // PA是人工结算，不需要检查单数据源结算开关
-                            if (!"PA".equals(recalcSingleDataSourceCode)) {
-                                List<MatchSettleDataSourceSwitch> recalcSwitches = matchSettleDataSourceSwitchRepository.getModelBySportIdAndDataSource(
-                                        recalcStandardMatchInfo.getSportId(), null, null);
-                                MatchSettleDataSourceSwitch recalcDataSourceSwitch = null;
-                                if (recalcSwitches != null && !recalcSwitches.isEmpty()) {
-                                    recalcDataSourceSwitch = recalcSwitches.stream()
-                                            .filter(s -> recalcSingleDataSourceCode.equals(s.getDataSourceCode()))
-                                            .findFirst()
-                                            .orElse(null);
-                                }
-                                
-                                if (recalcDataSourceSwitch == null || recalcDataSourceSwitch.getSingleDataSourceSettle() == null 
-                                        || recalcDataSourceSwitch.getSingleDataSourceSettle() != 1) {
-                                    log.info("linkId::{}::5/15分钟阶段{}（重新计算）::scoreEventId:{}::单数据源{}的单数据源结算开关未打开，不能结算",
-                                            linkedId, recalcSettleNum, matchSettleCheckInfo.getSettleScoreEventId(), recalcSingleDataSourceCode);
-                                    // 不直接continue，让hasPassCheck保持为false，以便后续处理能正常执行
-                                    recalcSingleDataSourceSettleSwitchEnabled = false;
-                                    hasPassCheck = false;
-                                } else {
-                                    log.info("linkId::{}::5/15分钟阶段{}（重新计算）::scoreEventId:{}::单数据源{}的单数据源结算开关已打开，可以结算",
-                                            linkedId, recalcSettleNum, matchSettleCheckInfo.getSettleScoreEventId(), recalcSingleDataSourceCode);
-                                }
-                            }
-                        }
-                        
-                        // 5/15分钟阶段（重新计算）：检查所有可用数据源的checkinfo值是否全部相等，或支持审核员结算（PA）
-                        // 如果单数据源结算开关未打开，跳过一致性检查，但继续执行后续逻辑
-                        if (recalcSingleDataSourceSettleSwitchEnabled) {
-                            log.info("linkId::{}::5/15分钟阶段{}（重新计算）::scoreEventId:{}::checkGroupMap size:{} oldCheckGroupMap:{}",
-                                    linkedId, recalcSettleNum, matchSettleCheckInfo.getSettleScoreEventId(), checkGroupMap.size(), oldCheckGroupMap.size());
-                        }
-                        if (recalcSingleDataSourceSettleSwitchEnabled && oldCheckGroupMap.size() == 1 && checkGroupMap.size() == oldCheckGroupMap.size()) {
-                            // 所有数据源值都相等
-                            Map.Entry<String, List<MatchSettleCheckInfo>> entry = oldCheckGroupMap.entrySet().iterator().next();
-                            if (entry.getValue().size() == 1 && "PA".equals(entry.getValue().get(0).getDataSourceCode())) {
+                                // 检查单数据源结算开关：当只有一个可利用数据源且只有一个checkinfo时，需要检查单数据源结算开关
+                                boolean recalcSingleDataSourceSettleSwitchEnabled = true;
+                                if (recalcAvailableDataSources.size() == 1 && oldList.size() == 1) {
+                                    String recalcSingleDataSourceCode = recalcAvailableDataSources.get(0);
+                                    // PA是人工结算，不需要检查单数据源结算开关
+                                    if (!"PA".equals(recalcSingleDataSourceCode)) {
+                                        List<MatchSettleDataSourceSwitch> recalcSwitches = matchSettleDataSourceSwitchRepository.getModelBySportIdAndDataSource(
+                                                recalcStandardMatchInfo.getSportId(), null, null);
+                                        MatchSettleDataSourceSwitch recalcDataSourceSwitch = null;
+                                        if (recalcSwitches != null && !recalcSwitches.isEmpty()) {
+                                            recalcDataSourceSwitch = recalcSwitches.stream()
+                                                    .filter(s -> recalcSingleDataSourceCode.equals(s.getDataSourceCode()))
+                                                    .findFirst()
+                                                    .orElse(null);
+                                        }
 
-                            } else {
-                                // 判断当前通过的比分是否与输入的比分一致，不一致则不成功
-                                boolean tag = entry.getKey().equals(checkKey);
-                                log.info("linkId::{}::5/15分钟阶段{}（重新计算）::scoreEventId:{}::所有{}个数据源的值全部相等:{}::与输入一致:{}",
-                                        linkedId, recalcSettleNum, matchSettleCheckInfo.getSettleScoreEventId(), entry.getValue().size(), entry.getKey(), tag);
-                                if (tag) {
-                                    hasPassCheck = true;
-                                    matchSettleCheckInfo.setFiveMinSection(null);
-                                    finalCheckGroupMap.put(entry.getKey(), entry.getValue());
-                                }
-                            }
-
-                        } else if (recalcSingleDataSourceSettleSwitchEnabled && oldCheckGroupMap.size() > 1 && checkGroupMap.size() == oldCheckGroupMap.size()) {
-                            // 数据源值不一致，需要检查审核员结算（PA）
-                            // 查找PA所在的entry（checkinfo值）
-                            String paCheckKey = null;
-                            List<MatchSettleCheckInfo> paEntryValue = null;
-                            for (Map.Entry<String, List<MatchSettleCheckInfo>> entry : oldCheckGroupMap.entrySet()) {
-                                for (MatchSettleCheckInfo checkInfo : entry.getValue()) {
-                                    if ("PA".equals(checkInfo.getDataSourceCode())) {
-                                        paCheckKey = entry.getKey();
-                                        paEntryValue = entry.getValue();
-                                        break;
+                                        if (recalcDataSourceSwitch == null || recalcDataSourceSwitch.getSingleDataSourceSettle() == null
+                                                || recalcDataSourceSwitch.getSingleDataSourceSettle() != 1) {
+                                            log.info("linkId::{}::5/15分钟阶段{}（重新计算）::scoreEventId:{}::单数据源{}的单数据源结算开关未打开，不能结算",
+                                                    linkedId, recalcSettleNum, matchSettleCheckInfo.getSettleScoreEventId(), recalcSingleDataSourceCode);
+                                            // 不直接continue，让hasPassCheck保持为false，以便后续处理能正常执行
+                                            recalcSingleDataSourceSettleSwitchEnabled = false;
+                                            hasPassCheck = false;
+                                        } else {
+                                            log.info("linkId::{}::5/15分钟阶段{}（重新计算）::scoreEventId:{}::单数据源{}的单数据源结算开关已打开，可以结算",
+                                                    linkedId, recalcSettleNum, matchSettleCheckInfo.getSettleScoreEventId(), recalcSingleDataSourceCode);
+                                        }
                                     }
                                 }
-                                if (paCheckKey != null) {
-                                    break;
+
+                                // 5/15分钟阶段（重新计算）：检查所有可用数据源的checkinfo值是否全部相等，或支持审核员结算（PA）
+                                // 如果单数据源结算开关未打开，跳过一致性检查，但继续执行后续逻辑
+                                if (recalcSingleDataSourceSettleSwitchEnabled) {
+                                    log.info("linkId::{}::5/15分钟阶段{}（重新计算）::scoreEventId:{}::checkGroupMap size:{} oldCheckGroupMap:{}",
+                                            linkedId, recalcSettleNum, matchSettleCheckInfo.getSettleScoreEventId(), checkGroupMap.size(), oldCheckGroupMap.size());
                                 }
-                            }
+                                if (recalcSingleDataSourceSettleSwitchEnabled && oldCheckGroupMap.size() == 1 && checkGroupMap.size() == oldCheckGroupMap.size()) {
+                                    // 所有数据源值都相等
+                                    Map.Entry<String, List<MatchSettleCheckInfo>> entry = oldCheckGroupMap.entrySet().iterator().next();
+                                    if (entry.getValue().size() == 1 && "PA".equals(entry.getValue().get(0).getDataSourceCode())) {
 
-                            if (paCheckKey != null && paEntryValue != null) {
-                                // 检查PA所在的entry中是否满足结算条件：
-                                // 1. 如果有2个或更多PA，可以结算（多个PA互相验证）
-                                // 2. 或者除了PA外还有其他数据源（非PA），也可以结算
-                                long paCount = paEntryValue.stream()
-                                        .filter(c -> "PA".equals(c.getDataSourceCode()))
-                                        .count();
-                                long totalDataSourceCount = paEntryValue.stream()
-                                        .map(MatchSettleCheckInfo::getDataSourceCode)
-                                        .distinct()
-                                        .count();
+                                    } else {
+                                        // 判断当前通过的比分是否与输入的比分一致，不一致则不成功
+                                        boolean tag = entry.getKey().equals(checkKey);
+                                        log.info("linkId::{}::5/15分钟阶段{}（重新计算）::scoreEventId:{}::所有{}个数据源的值全部相等:{}::与输入一致:{}",
+                                                linkedId, recalcSettleNum, matchSettleCheckInfo.getSettleScoreEventId(), entry.getValue().size(), entry.getKey(), tag);
+                                        if (tag) {
+                                            hasPassCheck = true;
+//                                        matchSettleCheckInfo.setFiveMinSection(null);
+                                            finalCheckGroupMap.put(entry.getKey(), entry.getValue());
+                                        }
+                                    }
 
-                                if (paCount >= 2 || totalDataSourceCount > 1) {
-                                    // PA与至少一个其他数据源一致（包括其他PA），检查是否与输入一致
-                                    boolean tag = paCheckKey.equals(checkKey);
-                                    log.info("linkId::{}::5/15分钟阶段{}（重新计算）::scoreEventId:{}::审核员结算（PA）所在的entry中有{}个PA，总数据源数{}:{}::与输入一致:{}",
-                                            linkedId, recalcSettleNum, matchSettleCheckInfo.getSettleScoreEventId(), paCount, totalDataSourceCount, paCheckKey, tag);
-                                    if (tag) {
-                                        hasPassCheck = true;
-                                        matchSettleCheckInfo.setFiveMinSection(null);
-                                        finalCheckGroupMap.put(paCheckKey, paEntryValue);
+                                } else if (recalcSingleDataSourceSettleSwitchEnabled && oldCheckGroupMap.size() > 1 && checkGroupMap.size() == oldCheckGroupMap.size()) {
+                                    // 数据源值不一致，需要检查审核员结算（PA）
+                                    // 查找PA所在的entry（checkinfo值）
+                                    String paCheckKey = null;
+                                    List<MatchSettleCheckInfo> paEntryValue = null;
+                                    for (Map.Entry<String, List<MatchSettleCheckInfo>> entry : oldCheckGroupMap.entrySet()) {
+                                        for (MatchSettleCheckInfo checkInfo : entry.getValue()) {
+                                            if ("PA".equals(checkInfo.getDataSourceCode())) {
+                                                paCheckKey = entry.getKey();
+                                                paEntryValue = entry.getValue();
+                                                break;
+                                            }
+                                        }
+                                        if (paCheckKey != null) {
+                                            break;
+                                        }
+                                    }
+
+                                    if (paCheckKey != null && paEntryValue != null) {
+                                        // 检查PA所在的entry中是否满足结算条件：
+                                        // 1. 如果有2个或更多PA，可以结算（多个PA互相验证）
+                                        // 2. 或者除了PA外还有其他数据源（非PA），也可以结算
+                                        long paCount = paEntryValue.stream()
+                                                .filter(c -> "PA".equals(c.getDataSourceCode()))
+                                                .count();
+                                        long totalDataSourceCount = paEntryValue.stream()
+                                                .map(MatchSettleCheckInfo::getDataSourceCode)
+                                                .distinct()
+                                                .count();
+
+                                        if (paCount >= 2 || totalDataSourceCount > 1) {
+                                            // PA与至少一个其他数据源一致（包括其他PA），检查是否与输入一致
+                                            boolean tag = paCheckKey.equals(checkKey);
+                                            log.info("linkId::{}::5/15分钟阶段{}（重新计算）::scoreEventId:{}::审核员结算（PA）所在的entry中有{}个PA，总数据源数{}:{}::与输入一致:{}",
+                                                    linkedId, recalcSettleNum, matchSettleCheckInfo.getSettleScoreEventId(), paCount, totalDataSourceCount, paCheckKey, tag);
+                                            if (tag) {
+                                                hasPassCheck = true;
+//                                            matchSettleCheckInfo.setFiveMinSection(null);
+                                                finalCheckGroupMap.put(paCheckKey, paEntryValue);
+                                            }
+                                        } else {
+                                            log.info("linkId::{}::5/15分钟阶段{}（重新计算）::scoreEventId:{}::审核员结算（PA）未与其他数据源一致，不通过结算",
+                                                    linkedId, recalcSettleNum, matchSettleCheckInfo.getSettleScoreEventId());
+                                            // 不直接continue，让hasPassCheck保持为false，以便后续处理能正常执行
+                                            hasPassCheck = false;
+                                        }
+                                    } else {
+                                        log.info("linkId::{}::5/15分钟阶段{}（重新计算）::scoreEventId:{}::数据源值不一致且无审核员结算（PA），不通过结算（共{}种不同值）",
+                                                linkedId, recalcSettleNum, matchSettleCheckInfo.getSettleScoreEventId(), oldCheckGroupMap.size());
                                     }
                                 } else {
-                                    log.info("linkId::{}::5/15分钟阶段{}（重新计算）::scoreEventId:{}::审核员结算（PA）未与其他数据源一致，不通过结算",
-                                            linkedId, recalcSettleNum, matchSettleCheckInfo.getSettleScoreEventId());
-                                    // 不直接continue，让hasPassCheck保持为false，以便后续处理能正常执行
-                                    hasPassCheck = false;
+                                    log.warn("linkId::{}::5/15分钟阶段{}（重新计算）::scoreEventId:{}::不通过结算。checkGroupMap size:{} oldCheckGroupMap:{}",
+                                            linkedId, recalcSettleNum, matchSettleCheckInfo.getSettleScoreEventId(), checkGroupMap.size(), oldCheckGroupMap.size());
                                 }
-                            } else {
-                                log.info("linkId::{}::5/15分钟阶段{}（重新计算）::scoreEventId:{}::数据源值不一致且无审核员结算（PA），不通过结算（共{}种不同值）",
-                                        linkedId, recalcSettleNum, matchSettleCheckInfo.getSettleScoreEventId(), oldCheckGroupMap.size());
                             }
-                        } else {
-                            log.warn("linkId::{}::5/15分钟阶段{}（重新计算）::scoreEventId:{}::不通过结算。checkGroupMap size:{} oldCheckGroupMap:{}",
-                                    linkedId, recalcSettleNum, matchSettleCheckInfo.getSettleScoreEventId(), checkGroupMap.size(), oldCheckGroupMap.size());
                         }
-                    }
-                    }
-                } else {
+                    } else {
                         // 非5/15分钟阶段：使用原来的权重>=100逻辑
                         for (Map.Entry<String, List<MatchSettleCheckInfo>> entry : checkGroupMap.entrySet()) {
 //                    Integer sameScoreNumber = entry.getValue().size();
@@ -1162,7 +1172,7 @@ public class MatchSettleBatchCheckServiceImpl implements IMatchSettleBatchCheckS
                                 log.info("linkedId::{} thirdScoreEventId::{}::scoreEventId:{}:Tag2matchSettleCheckInfo_id:{},matchSettleCheckInfo:{},Tag:{}",linkedId, matchSettleCheckInfo.getThirdSettleScoreEventId(),matchSettleCheckInfo.getSettleScoreEventId(),matchSettleCheckInfo.getId(),matchSettleCheckInfo,tag);
                                 if (tag){
                                     hasPassCheck = true;
-                                    matchSettleCheckInfo.setFiveMinSection(null);
+//                                matchSettleCheckInfo.setFiveMinSection(null);
                                     finalCheckGroupMap.put(entry.getKey(), entry.getValue());
                                 } else {
                                     hasPassCheck = false;

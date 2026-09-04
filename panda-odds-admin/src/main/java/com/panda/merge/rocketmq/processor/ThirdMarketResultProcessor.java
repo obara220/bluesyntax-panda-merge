@@ -189,6 +189,7 @@ public class ThirdMarketResultProcessor extends BaseProcessor {
             }
             //下发数据到topic
             standardMatchResultProducer.pushStandardMatchResultInfo(linkId, thirdMatchResultDTO.getMatchType(), standardSettledList, standardSportMarket, thirdMatchInfo ,thirdMarketResultDTO,thirdMatchInfo.getReferenceId());
+
             /*if (isNeedSend)
             {
                 standardMatchResultProducer.pushStandardMatchResultInfo(linkId, thirdMatchResultDTO.getMatchType(), standardSettledList, standardSportMarket, thirdMatchInfo ,thirdMarketResultDTO,thirdMatchInfo.getReferenceId());

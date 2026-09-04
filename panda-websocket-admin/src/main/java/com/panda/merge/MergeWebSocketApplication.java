@@ -1,5 +1,6 @@
 package com.panda.merge;
 
+import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.nacos.spring.context.annotation.config.NacosPropertySource;
 
 import org.apache.dubbo.config.spring.context.annotation.EnableDubbo;
@@ -24,6 +25,7 @@ public class MergeWebSocketApplication {
 
 
     public static void main(String[] args) {
+        ParserConfig.getGlobalInstance().setAutoTypeSupport(false);
         SpringApplication.run(MergeWebSocketApplication.class, args);
     }
 

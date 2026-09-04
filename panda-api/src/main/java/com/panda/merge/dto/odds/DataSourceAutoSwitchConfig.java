@@ -56,7 +56,16 @@ public class DataSourceAutoSwitchConfig {
         }
     }
 
-
+    /*public DataSourceAutoSwitchConfig(Long matchId,int marketType){
+        this.dataSourceList = Arrays.asList("SR", "BC", "BG", "L01-1XBet");
+        this.matchId = matchId;
+        this.marketType = marketType;
+        if (marketType == MarketTypeEnum.PREMATCH.getCode()) {
+            this.validSecond = 24 * 60 * 60 * 1000;
+        } else
+            this.validSecond = 120 * 60 * 60 * 1000;
+        this.changeStatus = 1;
+    }*/
 
 
 }

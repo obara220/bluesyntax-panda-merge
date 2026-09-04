@@ -12,7 +12,6 @@ import com.xxl.job.core.biz.model.ReturnT;
 import com.xxl.job.core.handler.IJobHandler;
 import com.xxl.job.core.handler.annotation.JobHandler;
 import com.xxl.job.core.log.XxlJobLogger;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -45,7 +44,7 @@ public class CleanAutoMatchInfoJob extends IJobHandler {
         String methodName = "deleteAutoMatchInfo";
         String standardTeamId = null;
         try {
-            //log.info("【" + methodName + " 清理自动化赛事相关数据】 开始,入参：{}", param);
+            log.info("【" + methodName + " 清理自动化赛事相关数据】 开始,入参：{}", param);
             XxlJobLogger.log("【" + methodName + "清理自动化赛事相关数据】 开始,入参：{}", param);
             if (StringUtils.isNotBlank(param)) {
                 JSONObject jsonObj = JSON.parseObject(param);
@@ -53,7 +52,7 @@ public class CleanAutoMatchInfoJob extends IJobHandler {
                     standardTeamId = jsonObj.getString("standardTeamId");
                 }
                 if(StringUtils.isBlank(standardTeamId)){
-                    //log.info("【" + methodName + " 清理自动化赛事相关数据】, 标准球队ID不能为空");
+                    log.info("【" + methodName + " 清理自动化赛事相关数据】, 标准球队ID不能为空");
                     XxlJobLogger.log("【" + methodName + " 清理自动化赛事相关数据, 标准球队ID不能为空");
                     return ReturnT.SUCCESS;
                 }
@@ -67,7 +66,7 @@ public class CleanAutoMatchInfoJob extends IJobHandler {
                 }
                 //dayNum天前的时间戳
                 Long dayDateTime = System.currentTimeMillis() - dayNum * 24 * 60 * 60 * 1000L;
-                //log.info("【" + methodName + " 清理自动化赛事相关数据】 数据处理开始,入参：{}, dayDateTime:{}, standardTeamId:{}", jsonObj, dayDateTime, standardTeamId);
+                log.info("【" + methodName + " 清理自动化赛事相关数据】 数据处理开始,入参：{}, dayDateTime:{}, standardTeamId:{}", jsonObj, dayDateTime, standardTeamId);
                 XxlJobLogger.log("【" + methodName + " 清理自动化赛事相关数据】,入参：{}, dayDateTime:{}, standardTeamId:{}", jsonObj, dayDateTime, standardTeamId);
                 deleteAutoStandardMatch(dayDateTime, matchNum, standardTeamId);
             }
@@ -75,7 +74,7 @@ public class CleanAutoMatchInfoJob extends IJobHandler {
             log.error("【" + methodName + " 清理自动化赛事相关数据】 异常,Exception:", e);
             XxlJobLogger.log("【" + methodName + " 清理自动化赛事相关数据】 异常,Exception:" + e.getMessage());
         }
-        //log.info("【" + methodName + " 清理自动化赛事相关数据】 结束");
+        log.info("【" + methodName + " 清理自动化赛事相关数据】 结束");
         XxlJobLogger.log("【" + methodName + " 清理自动化赛事相关数据】 结束");
         return ReturnT.SUCCESS;
 
@@ -130,12 +129,10 @@ public class CleanAutoMatchInfoJob extends IJobHandler {
                 }
             }
         }
-        //log.info("::" + linkId + "::,deleteAutoStandardMatch,定时清除自动化赛事,共删除关联表数据{}条", relationIds.size());
-        //log.info("::" + linkId + "::,deleteAutoStandardMatch,定时清除自动化赛事,共删除标准赛事数据{}条", standardMatchIds.size());
-        XxlJobLogger.log("::" + linkId + "::,deleteAutoStandardMatch,定时清除自动化赛事,共删除关联表数据{}条", relationIds.size());
-        XxlJobLogger.log("::" + linkId + "::,deleteAutoStandardMatch,定时清除自动化赛事,共删除标准赛事数据{}条", standardMatchIds.size());
+        log.info("::" + linkId + "::,deleteAutoStandardMatch,定时清除自动化赛事,共删除关联表数据{}条", relationIds.size());
+        log.info("::" + linkId + "::,deleteAutoStandardMatch,定时清除自动化赛事,共删除标准赛事数据{}条", standardMatchIds.size());
         stopWatch.stop();
-        //log.info("::" + linkId + "::,deleteAutoStandardMatch,定时清除自动化赛事相关信息{}毫秒", stopWatch.getTotalTimeMillis());
+        log.info("::" + linkId + "::,deleteAutoStandardMatch,定时清除自动化赛事相关信息{}毫秒", stopWatch.getTotalTimeMillis());
         XxlJobLogger.log("::" + linkId + "::,deleteAutoStandardMatch,定时清除自动化赛事相关信息{}毫秒", stopWatch.getTotalTimeMillis());
     }
 }

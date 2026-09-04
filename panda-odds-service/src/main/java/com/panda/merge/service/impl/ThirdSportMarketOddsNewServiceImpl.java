@@ -160,7 +160,6 @@ public class ThirdSportMarketOddsNewServiceImpl implements ThirdSportMarketOddsN
         thirdSportMarketOdds.setThirdTemplateSourceId(thirdMarketOddsDTO.getThirdTempletSourceId());
         thirdSportMarketOdds.setCreateTime(TimeUtils.millsSecondsEast8ZoneGmt());
         thirdSportMarketOdds.setModifyTime(thirdMarketOddsDTO.getModifyTime());
-        thirdSportMarketOdds.setExtraInfo(thirdMarketOddsDTO.getExtraInfo());
         if (null == thirdSportMarketOdds.getModifyTime()) {
             thirdSportMarketOdds.setModifyTime(thirdSportMarket.getModifyTime());
         }

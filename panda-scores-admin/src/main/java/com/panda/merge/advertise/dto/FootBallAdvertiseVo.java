@@ -3,6 +3,7 @@ package com.panda.merge.advertise.dto;
 import com.panda.merge.dto.advertise.EventOperationDto;
 import com.panda.merge.dto.advertise.InjuryTimeEventDto;
 import com.panda.merge.model.MatchTimeInfo;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -123,4 +124,9 @@ public class FootBallAdvertiseVo implements Serializable {
      * 点球进球重踢时：主队点球进球值为away，客队点球进球值为home，其它情况置空
      */
     private String retakePen;
+
+    /**
+     * 事件来源类型(0:其他，1:现场（VENUE）,2电视（TV）)
+     */
+    private Integer liveEventSource;
 }

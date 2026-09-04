@@ -9,7 +9,6 @@ import com.panda.merge.mapper.MatchTimeInfoMapper;
 import com.panda.merge.model.MatchTimeInfo;
 import com.panda.merge.model.MatchTimeInfoExample;
 import com.panda.merge.mq.producer.MatchTimeInfoProducer;
-import com.panda.merge.utils.MessageGZIP;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -39,15 +38,14 @@ public class MatchTimeInfoRepository {
                 if (o instanceof MatchTimeInfo) {
                     matchTimeInfo = JSON.parseObject(JSON.toJSONString(o), MatchTimeInfo.class);
                 } else {
-                    String str = MessageGZIP.uncompressToString((byte[]) o);
-                    matchTimeInfo = JSONObject.toJavaObject(JSONObject.parseObject(str), MatchTimeInfo.class);
+                    matchTimeInfo = JSONObject.toJavaObject(JSONObject.parseObject(String.valueOf(o)), MatchTimeInfo.class);
                 }
                 return matchTimeInfo;
             }
             matchTimeInfo = matchTimeInfoMapper.selectByPrimaryKey(id);
             if(matchTimeInfo!=null){
                 JSONObject jsonObject = (JSONObject) JSONObject.toJSON(matchTimeInfo);
-                redisService.set(key, MessageGZIP.compressToByte(jsonObject.toJSONString()), RepositoryConstant.REDIS_THREE_TIME);
+                redisService.set(key, jsonObject.toJSONString(), RepositoryConstant.REDIS_THREE_TIME);
             }
         }catch (Exception e){
             log.error("查询赛事时间异常：",e);
@@ -66,13 +64,12 @@ public class MatchTimeInfoRepository {
                 return null;
             }
             matchTimeInfo = matchTimeInfoList.get(0);
-            redisService.set(key, MessageGZIP.compressToByte(((JSONObject) JSONObject.toJSON(matchTimeInfo)).toJSONString()));
+            redisService.set(key, ((JSONObject) JSONObject.toJSON(matchTimeInfo)).toJSONString(), RepositoryConstant.REDIS_THREE_TIME);
         } else {
             if (o instanceof MatchTimeInfo) {
                 matchTimeInfo = JSON.parseObject(JSON.toJSONString(o), MatchTimeInfo.class);
             } else {
-                String str = MessageGZIP.uncompressToString((byte[]) o);
-                matchTimeInfo = JSON.toJavaObject(JSONObject.parseObject(str), MatchTimeInfo.class);
+                matchTimeInfo = JSON.toJavaObject(JSONObject.parseObject(String.valueOf(o)), MatchTimeInfo.class);
             }
         }
         return matchTimeInfo;
@@ -81,9 +78,9 @@ public class MatchTimeInfoRepository {
     public void updateByPrimaryKey(MatchTimeInfo matchTimeInfo) {
         String key = MATCH_TIME_INFO +matchTimeInfo.getId();
         JSONObject jsonObject = (JSONObject) JSONObject.toJSON(matchTimeInfo);
-        redisService.set(key, MessageGZIP.compressToByte(jsonObject.toJSONString()), RepositoryConstant.REDIS_THREE_TIME);
+        redisService.set(key, jsonObject.toJSONString(), RepositoryConstant.REDIS_THREE_TIME);
         String thirdMatchIdKey = MATCH_TIME_INFO + matchTimeInfo.getThirdMatchId() + "_" + matchTimeInfo.getDataSourceType();
-        redisService.set(thirdMatchIdKey, MessageGZIP.compressToByte(jsonObject.toJSONString()), RepositoryConstant.REDIS_THREE_TIME);
+        redisService.set(thirdMatchIdKey, jsonObject.toJSONString(), RepositoryConstant.REDIS_THREE_TIME);
         matchTimeInfoProducer.updateMatchTimesInfoByMq(matchTimeInfo);
     }
     //根据三方赛事id 和 比分类型查询

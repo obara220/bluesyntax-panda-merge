@@ -70,7 +70,9 @@ public class PreOddsJob extends IJobHandler {
                 int start = i * chunkSize;
                 int end = Math.min(start + chunkSize, size);
                 List<Long> subList = new ArrayList<>(list.subList(start, end));
-                marketOddsCommon.calculateMarketOdds(subList, 1, 2);
+                if (CollectionUtil.isNotEmpty(subList)) {
+                    marketOddsCommon.calculateMarketOdds(subList, 1, 2);
+                }
             }
         }
         //bug-107772

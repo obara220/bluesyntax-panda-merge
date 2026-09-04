@@ -297,6 +297,23 @@ public abstract class AbsMatchCommonProcessor<T> implements IMatchCommonProcesso
             matchEventInfoDTO.setFirstT2(pt2 != null ? pt2 : 0);
             matchEventInfoDTO.setT1(mt1 != null ? mt1 : 0);
             matchEventInfoDTO.setT2(mt2 != null ? mt2 : 0);
+//            if(SportTypeEnum.VOLLEYBALL.getValue().equals(eventOperationV2Dto.getSportId())){
+////                List<Long> endPeriods = new ArrayList<>(Arrays.asList(93L, 94L, 95L, 96L, 100L,999L));
+//                JSONObject periodVolleyballScores = JSONObject.parseObject(matchScoreAndTimeVo.getMatchScoresInfo().getScoresJson());
+//                Map<Long, VolleyballV2Scores> allPeriodScores = JsonMapUtils.parseVolleyballV2Map(periodVolleyballScores);
+//                log.info("[AbsMatchCommonServiceImpl]changeMatchStatus ct=4 volleyball allPeriodScores keys:{}, size:{}", allPeriodScores != null ? allPeriodScores.keySet() : "null", allPeriodScores != null ? allPeriodScores.size() : 0);
+//                //获取最后一局的比分
+//                Long lastPeriodKey = allPeriodScores.keySet().stream().filter(k -> k != null && k > 0).max(Long::compareTo).orElse(null);
+//                log.info("[AbsMatchCommonServiceImpl]changeMatchStatus ct=4 volleyball lastPeriodKey:{}", lastPeriodKey);
+//                VolleyballV2Scores periodScores = allPeriodScores.get(lastPeriodKey);
+////                if(periodScores.getSetScore().getHome()>periodScores.getSetScore().getAway()){
+////                    matchEventInfoDTO.setT1(matchEventInfoDTO.getT1()+1);
+////                }else if(periodScores.getSetScore().getHome()<periodScores.getSetScore().getAway()){
+////                    matchEventInfoDTO.setT2(matchEventInfoDTO.getT2()+1);
+////                }
+//                matchEventInfoDTO.setFirstT1(periodScores.getSetScore() != null ? periodScores.getSetScore().getHome() : null);
+//                matchEventInfoDTO.setFirstT2(periodScores.getSetScore() != null ? periodScores.getSetScore().getAway() : null);
+//            }
         }
         matchEventInfoDTO.setControlType(changeMatchStatusV2Dto.getControlType());
         MatchCommonLogDto matchCommonLogDto = pdOperationLogConverter.convertChangeMatchStatusToLog(changeMatchStatusV2Dto);
@@ -470,15 +487,7 @@ public abstract class AbsMatchCommonProcessor<T> implements IMatchCommonProcesso
      * 覆写场景：排球允许前端传入 93/94/95/96/999 表示不同结束原因——
      * 见 {@link com.panda.merge.volleyball.service.impl.MatchVolleyballServiceImpl}。
      */
-    private static final Set<Long> VOLLEYBALL_MATCH_END_PERIODS =
-            new HashSet<>(Arrays.asList(93L, 94L, 95L, 96L, 999L));
     protected Long resolveMatchEndPeriod(ChangeMatchStatusV2Dto changeMatchStatusV2Dto) {
-        if (Objects.equals(changeMatchStatusV2Dto.getSportId(), 9L)) {
-            Long requested = changeMatchStatusV2Dto.getPeriodId();
-            if (requested != null && VOLLEYBALL_MATCH_END_PERIODS.contains(requested)) {
-                return requested;
-            }
-        }
         return 100L;
     }
 

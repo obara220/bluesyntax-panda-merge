@@ -82,7 +82,7 @@ public class MatchSettleNewScoresConsumer implements RocketMQListener<Request<Ma
             return false;
         }
         //非已结算不对接
-        if (!data.getStatus().equals(3)) {
+        if (data.getStatus()==null || !data.getStatus().equals(3)) {
             log.info("2--------{}",data);
             return false;
         }

@@ -27,7 +27,7 @@ import static com.panda.merge.constant.ConstantSystem.THIRD_MATCH_MARKET_API;
 @Slf4j
 @Component
 @DependsOn("oddsAdminApplication")
-@EnableSecondRocketMQCluster
+//@EnableSecondRocketMQCluster
 public class ThirdMatchMarketConsumer extends AbstractMultipleMessageMQConsumer<Request<ThirdMatchMarketDTO>> {
     private static final String CONSUMER_GROUP="odds-group-"+THIRD_MATCH_MARKET_API;
 

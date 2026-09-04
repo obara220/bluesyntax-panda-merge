@@ -35,7 +35,7 @@ import java.util.List;
 @Component
 public class SpareMatchTimeInfoConsumer {
     private static final String TOPIC = "MATCH_TIME_INFO_UPDATE";
-    private static final String CONSUMER_GROUP = "scores-group-MATCH_TIME_INFO_UPDATE";
+    private static final String CONSUMER_GROUP = "scores-group-MATCH_TIME_INFO_UPDATE2";
 
     @Value("${slaveNamesrvAddr}")
     private String nameServers;

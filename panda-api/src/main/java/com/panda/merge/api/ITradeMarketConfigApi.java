@@ -114,6 +114,15 @@ public interface ITradeMarketConfigApi {
     void autoCloseMarket(String linkId, Long standardMatchId, Set<Long> marketCategoryIds, Long dataSourceTime);
 
     /**
+     * 自动关盘子玩法
+     * @param linkId
+     * @param standardMatchId
+     * @param map
+     * @param dataSourceTime
+     */
+    void autoCloseChildMarketCategory(String linkId, Long standardMatchId, Pair<Set<Long>, Map<String, JSONObject>> map, Long dataSourceTime);
+
+    /**
      * 操盘-盘口差配置
      * @param message
      * @return
@@ -328,4 +337,10 @@ public interface ITradeMarketConfigApi {
      * @return
      */
     Response tournamentLevelChange(Request<TournamentLevelChangeDTO> request);
+
+    /**
+     * 根据赛事id，玩法id集合获取三方盘口最后更新时间
+     * @param request
+     */
+    Response<Map<String, ThirdMarketModifytimeDTO>> getThirdMarletLastModifyTime(Request<ThirdMarketLastModifyTimeDTO> request);
 }

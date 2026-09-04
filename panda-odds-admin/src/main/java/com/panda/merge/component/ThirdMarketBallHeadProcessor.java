@@ -95,7 +95,6 @@ public class ThirdMarketBallHeadProcessor extends BaseProcessor {
             String dataSourceCode = oddsWrapperList.get(0).getDataSourceCode();
             String prefixKey = Constant.REDIS_KEY.THIRD_MARKET_HEAD + oddsWrapperList.get(0).getStandardSourceId() + "_" + dataSourceCode;
             StandardMatchInfoDetail standardMatchInfo = standardMatchInfoBasedIdMap.get(oddsWrapperList.get(0).getStandardSourceId());
-            standardMatchInfo.setMatchPeriodId(getMatchPeriod(standardMatchInfo.getId()));
             ThirdMatchInfo thirdMatchInfo = finalThirdMatchInfoAOMap.get(oddsWrapperList.get(0).getStandardSourceId());
             Long dataSourceTime = oddsWrapperList.get(0).getDataSourceTime();
             for (Map.Entry<Long, List<OddsWrapper<ThirdMarketDTO>>> entry : thirdMarketsDataMap.entrySet()) {
@@ -172,9 +171,10 @@ public class ThirdMarketBallHeadProcessor extends BaseProcessor {
                 log.info("::{}::下发三方赔率球头给AO,玩法ID:{}，缓存:{}", linkId, marketCategoryId, JSONObject.toJSONString(thirdMarketNewHeadFinal));
                 ThirdMatchInfo thirdMatchInfoHomeAwayOpposite = thirdMatchInfoService.getItem(standardMatchInfo.getId(), thirdMarketNewHeadFinal.getDataSourceCode());
                 if (null != thirdMatchInfoHomeAwayOpposite) {
-                    //主客队相反盘口、投注项相关内容处理
+                    //主客队相反盘口、投注项相关内容处理（A01/AO与主数据源一致，接入侧已处理，不再重复翻转）
                     if (ONE.equals(thirdMatchInfoHomeAwayOpposite.getHomeAwayOpposite())
-                            && CategoryOppositeConfig.FootBall.containsCategory(thirdMarketNewHeadFinal.getMarketCategoryId())) {
+                            && CategoryOppositeConfig.FootBall.containsCategory(thirdMarketNewHeadFinal.getMarketCategoryId())
+                            && !skipHomeAwayOppositeForDataSource(thirdMarketNewHeadFinal.getDataSourceCode())) {
                         {
                             thirdMarketNewHeadFinal = JSONObject.parseObject(JSONObject.toJSONString(thirdMarketNewHeadFinal), ThirdMarketDTO.class);
                             ThirdMarketCategory thirdMarketCategory = thirdMarketCategoryService.getItem(thirdMarketNewHeadFinal.getDataSourceCode(), thirdMarketNewHeadFinal.getThirdMarketCategorySourceId());

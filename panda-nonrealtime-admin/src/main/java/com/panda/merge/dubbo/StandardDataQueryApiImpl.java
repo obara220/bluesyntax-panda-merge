@@ -1,6 +1,7 @@
 package com.panda.merge.dubbo;
 
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.Page;
 import com.google.common.collect.Lists;
@@ -75,6 +76,8 @@ public class StandardDataQueryApiImpl extends BaseProcessor implements IStandard
     private StandardMatchResultService smResultService;
     @Autowired
     private ThirdSportTeamRankingService thirdSportTeamRankingService;
+    @Autowired
+    private ThirdSportTournamentService thirdSportTournamentService;
 
 
     @Override
@@ -264,8 +267,14 @@ public class StandardDataQueryApiImpl extends BaseProcessor implements IStandard
                         if(source.getEventSupport().equals(ZERO)){
                             thirdMatchInfoBO.setEventSupport(ZERO);
                         }else{
-                            //当前赛事是否支持事件
-                            thirdMatchInfoBO.setEventSupport(thirdMatchInfo.getLiveOddSupport());
+                            //如果数据源是N01或N02，将eventSupport设置为0
+                            if(DataSourceCodeEnum.N01.getCode().equals(thirdMatchInfo.getDataSourceCode())
+                                    || DataSourceCodeEnum.N02.getCode().equals(thirdMatchInfo.getDataSourceCode())){
+                                thirdMatchInfoBO.setEventSupport(ZERO);
+                            }else{
+                                //当前赛事是否支持事件
+                                thirdMatchInfoBO.setEventSupport(thirdMatchInfo.getLiveOddSupport());
+                            }
                             //优化单43014 ,事件源编码 == 三方赛事数据源编码
                             if(standardMatchInfoBO.getBusinessEvent().equals(thirdMatchInfo.getDataSourceCode())){
                                 standardMatchInfoBO.setCompetitorType(thirdMatchInfo.getCompetitorType());
@@ -664,5 +673,37 @@ public class StandardDataQueryApiImpl extends BaseProcessor implements IStandard
         response.setData(smrMessage);
 		return response;
 	}
+
+    @Override
+    public Response<PageModel<List<StandardTournamentRuleBO>>> queryTournamentRulePage(Request<PageModel<StandardTournamentRuleDTO>> request) {
+
+        long beginTime = System.currentTimeMillis();
+        Response response = Response.success();
+
+        log.info("【"+QUERY_TOURNAMENT_RULE_PAGE+"】【::"+request.getLinkId()+"::】分页查询标准联赛规则列表开始,入参：{}",JSON.toJSONString(request.getData()));
+
+        request.getData().getData().setDataSourceCode(DataSourceCodeEnum.TS.code);
+        Page<ThirdSportTournament> resPage = thirdSportTournamentService.getTournamentRulePage(request.getData());
+
+        //转换后的分页对象
+        PageModel<List<StandardTournamentRuleBO>> pageModel = new PageModel(resPage.getPageSize(),resPage.getPageNum());
+        pageModel.setTotal(resPage.getTotal());
+        List<StandardTournamentRuleBO> resList = new LinkedList<>();
+
+        for (ThirdSportTournament thirdSportTournament: resPage) {
+
+            StandardTournamentRuleBO standardTournamentRuleBO = new StandardTournamentRuleBO();
+            standardTournamentRuleBO.setTournamentId(thirdSportTournament.getReferenceId());
+            standardTournamentRuleBO.setZsTournamentRule(thirdSportTournament.getZsTournamentRule());
+
+            resList.add(standardTournamentRuleBO);
+            log.info("【"+QUERY_TOURNAMENT_RULE_PAGE+"】【::"+request.getLinkId()+"::】分页查询标准联赛规则 ：{}" , JSONUtil.toJsonStr(standardTournamentRuleBO));
+        }
+        response.setData(pageModel);
+        response.setDataSourceTime(System.currentTimeMillis() - beginTime);
+        log.info("【"+QUERY_TOURNAMENT_RULE_PAGE+"】【::"+request.getLinkId()+"::】分页查询标准联赛规则列表结束,返回结果 ：{}" ,JSON.toJSONString(response));
+        pageModel.setData(resList);
+        return response;
+    }
 
 }

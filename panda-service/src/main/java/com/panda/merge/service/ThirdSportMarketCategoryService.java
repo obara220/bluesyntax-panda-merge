@@ -43,4 +43,9 @@ public interface ThirdSportMarketCategoryService {
      */
     List<ThirdMarketCategory> queryThirdMarketCategoryList(List<Long> referenceIds, List<Long> sportIds);
 
+    /**
+     * 按赛种+数据源+标准玩法批量查三方玩法（Redis 优先，miss 回源 DB）
+     */
+    List<ThirdMarketCategory> getItemsBySportReferenceIds(String dataSourceCode, Long sportId, List<Long> referenceIds);
+
 }

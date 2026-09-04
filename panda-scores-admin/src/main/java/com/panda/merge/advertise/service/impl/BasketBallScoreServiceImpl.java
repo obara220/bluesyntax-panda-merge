@@ -891,6 +891,9 @@ public class BasketBallScoreServiceImpl implements BasketBallScoreService {
         Map<Long, BasketballScores> allScoresMap = JSON.parseObject(matchScoresInfo.getScoresJson(), new TypeReference<Map<Long, BasketballScores>>() {
         });
         BasketballScores sixPeriodScoreDb = allScoresMap.get(sixPeriodId);
+        if(sixPeriodScoreDb==null){
+            sixPeriodScoreDb = new BasketballScores(sixPeriodId);
+        }
         if (sixPeriodScore.getHome().equals(sixPeriodScoreDb.getMatchScore().getHome()) && sixPeriodScore.getAway().equals(sixPeriodScoreDb.getMatchScore().getAway())) {
             return PDScoreChangeEnum.SCORE_EQUAL.getCode();
         }

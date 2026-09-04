@@ -56,7 +56,6 @@ public class MatchEventMarketXCloseProcessor {
     public void marketCategoryApportionToPeriod(String linkId, Long sportId, Long matchId, Long marketCategoryId, Integer period, Integer matchProgressTime) {
         try {
             if (!sportId.equals(StandardSportTypeEnum.Basketball.getCode())
-                    || null == period
                     || period != 5999
                     || (!add1.contains(marketCategoryId) && !add2.contains(marketCategoryId))) {
                 return;

@@ -14,6 +14,6 @@ import com.panda.merge.model.ConfigTradeMarketLog;
  */
 public interface ConfigTradeMarketLogService {
 
-    ConfigTradeMarketLog create(String linkId, TradeMarketConfigDTO tradeMarketConfigDTO);
+    void create(String linkId, TradeMarketConfigDTO tradeMarketConfigDTO);
 
 }

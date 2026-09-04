@@ -20,6 +20,43 @@ public class VolleyballScores  extends  AbstractSportScores{
     @ScoresProperty(eventName = "发球失误次数")
     private CommonItem serveErrorCount;
 
+
+    @ScoresProperty(eventName = "发球次数", eventCode = {"current_serve_volleyball"})
+    private CommonItem serve;
+
+    // eventCode 必须与 VolleyballEventTypeEnum 保持一致 ——
+    // doCalculation / getFieldScoreByEventCode 用 type.getEventCode() 直接做字符串相等匹配，
+    // 任何前缀偏差都会让该字段永远不被累加。
+    @ScoresProperty(eventName = "发球失误", eventCode = {"service_error"})
+    private CommonItem serviceError;
+
+    @ScoresProperty(eventName = "出界", eventCode = {"out"})
+    private CommonItem out;
+
+    @ScoresProperty(eventName = "发球得分", eventCode = {"ace"})
+    private CommonItem ace;
+
+    @ScoresProperty(eventName = "扣杀", eventCode = {"kill"})
+    private CommonItem kill;
+
+    @ScoresProperty(eventName = "拦网", eventCode = {"block"})
+    private CommonItem block;
+
+    @ScoresProperty(eventName = "驱逐", eventCode = {"expulsion"})
+    private CommonItem expulsion;
+
+    @ScoresProperty(eventName = "取消资格", eventCode = {"disqualification"})
+    private CommonItem disqualification;
+
+    @ScoresProperty(eventName = "处罚", eventCode = {"penalty"})
+    private CommonItem penalty;
+
+    @ScoresProperty(eventName = "失误", eventCode = {"error"})
+    private CommonItem error;
+
+    @ScoresProperty(eventName = "先发球", eventCode = {"which_team_serves_first"})
+    private CommonItem kickoff;
+
     public VolleyballScores() {
         super.init(this);
     }

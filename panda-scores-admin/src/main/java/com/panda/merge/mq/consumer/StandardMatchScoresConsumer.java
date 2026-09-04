@@ -5,7 +5,6 @@ import com.alibaba.nacos.api.config.annotation.NacosValue;
 import com.panda.merge.advertise.dto.MatchScoreAndTimeVo;
 import com.panda.merge.advertise.service.CommonAdvertiseService;
 import com.panda.merge.common.enums.EventCodeEnum;
-import com.panda.merge.common.utils.StringPool;
 import com.panda.merge.component.UUIdUtils;
 import com.panda.merge.config.RedisService;
 import com.panda.merge.config.mq.ConsumerConfigDetail;
@@ -278,7 +277,7 @@ public class StandardMatchScoresConsumer extends AbstractSingleMessageMQConsumer
         MatchScoresInfo matchScoresInfo = response.getData().getMatchScoresInfo();
         matchEventInfoMessage.setCanceled(0);//未取消
         matchEventInfoMessage.setDataSourceCode(businessEvent);
-        matchEventInfoMessage.setSourceType(StringPool.ONE);//常规事件
+        matchEventInfoMessage.setSourceType("1");//常规事件
         matchEventInfoMessage.setEventCode(eventCode);
         matchEventInfoMessage.setEventTime(System.currentTimeMillis());
         matchEventInfoMessage.setT1(matchScoresInfo.getT1());
@@ -289,7 +288,7 @@ public class StandardMatchScoresConsumer extends AbstractSingleMessageMQConsumer
         matchEventInfoMessage.setThirdEventId("PA_Event:"+ UUIdUtils.getId());
         matchEventInfoMessage.setExtrainfo("score-auto");
         matchEventInfoMessage.setRemark("比分变更自动触发");
-        matchEventInfoMessage.setAddition5(StringPool.ONE);
+        matchEventInfoMessage.setAddition5("1");
     }
 
     /**
@@ -304,7 +303,7 @@ public class StandardMatchScoresConsumer extends AbstractSingleMessageMQConsumer
         request.setLinkId(linkId);
         MessageBuilder<Request<MatchEventInfoMessage> > builder = MessageBuilder.withPayload(request)
                 .setHeader(MessageConst.PROPERTY_KEYS, linkId);
-        //通知预售开售赛事完赛
+        //检查备用MQ赛事ID配置
         boolean spareMqFlag = getSpareMqFlag(matchId+"");
         if (pandaDataMqGatewayevent == 2 && spareMqFlag) {
             String dataSourceCode = matchEventInfoDTO.getDataSourceCode();

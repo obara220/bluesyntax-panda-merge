@@ -187,12 +187,11 @@ public class UOFScoresConsumer  extends AbstractSingleMessageMQConsumer<Request<
                                 return;
                             }
                         }
-                        //足球针对B02统计比分做处理：如果存在事件比分，则不下发统计比分
-                        if(SportTypeEnum.FOOTBALL.getValue().equals(sportId)){
-                            MatchScoresInfo liveScore = matchScoreInfoRepository.selectByExample(thirdMatchInfo.getId(),SourceTypeEnum.LIVE_DATA.getCode());
-                            //判断事件比分是否存在
-                            if(liveScore != null){
-                                log.info("linkId::{}::UOFScoresConsumer 当前赛种:{},B02数据已存在事件比分,无需下发统计比分！",request.getLinkId(),sportId);
+                        //足球、篮球针对B02统计比分做处理：如果存在事件比分，则不下发统计比分
+                        if(SportTypeEnum.FOOTBALL.getValue().equals(sportId) || SportTypeEnum.BASKETBALL.getValue().equals(sportId) ){
+                            //使用isLivedataStoped判断更准确：不仅检查LIVE_DATA比分是否存在，还检查数据源是否已切换到UOF
+                            if(!scoresService.isLivedataStoped(thirdMatchInfo.getId())){
+                                log.info("linkId::{}::UOFScoresConsumer 当前赛种:{},B02数据已存在事件比分且未切换到UOF,无需下发统计比分！",request.getLinkId(),sportId);
                                 return;
                             }
                         }
@@ -204,7 +203,8 @@ public class UOFScoresConsumer  extends AbstractSingleMessageMQConsumer<Request<
                             return;
                         }
                     }
-
+                    //主客队相反
+//                    scoresService.changePDHomeAwayScores(matchScoresInfo, thirdMatchInfo);
                     //推送三方比分数据 和 标准比分（标准比分不处理 5网，8乒，9排，10羽）
                     //3.判断 livedata 的时间是否 》2分钟 则下发
                     scoresProducer.sendUofScoreToMQ(thirdMatchInfo,matchScoresInfo,request.getLinkId());
@@ -377,7 +377,7 @@ public class UOFScoresConsumer  extends AbstractSingleMessageMQConsumer<Request<
         if(redisValue != null){
             Long time = (Long) redisValue;
             if(request.getData().getModifyTime()<time){
-                log.error("linkId::{}::UOFScoresConsumer 已消费到更迟的数据，本次不处理! {},{}",request.getLinkId(),request.getData().getModifyTime(),time);
+                log.info("linkId::{}::UOFScoresConsumer 已消费到更迟的数据，本次不处理! {},{}",request.getLinkId(),request.getData().getModifyTime(),time);
                 return false;
             }
         }
@@ -403,6 +403,8 @@ public class UOFScoresConsumer  extends AbstractSingleMessageMQConsumer<Request<
 //        }
         log.info("linkId::{}::saveStandardScores 保存标准统计比分开始...",request.getLinkId());
         try{
+//            scoresService.changeHomeAway(matchScoresInfo, thirdMatchInfo);
+
             StandardSportMarketSell standardSportMarketSell = standardSportMarketSellRepository.selectThirdMatchInfoPrimaryKey(thirdMatchInfo.getReferenceId());
             if (standardSportMarketSell == null ) {
                 log.info("linkId::{}::saveStandardScores 开售数据为空！",request.getLinkId());
@@ -460,6 +462,8 @@ public class UOFScoresConsumer  extends AbstractSingleMessageMQConsumer<Request<
                     return;
                 }
             }
+            //主客队相反
+//            scoresService.changePDHomeAwayScores(score, thirdMatchInfo);
             CommonStandardScoresDto commonScoresDto = messageBuilderUtils.buildStandardMatchScoreCommonScoresDto(score,scoreDataDto,matchScoresInfo);
 //            commonScoresDto.setPeriodId(periodId);
             scoresProducer.sendStandardMatchScores(commonScoresDto);

@@ -145,10 +145,10 @@ public class StandardMatchStatusProducer {
     /**
      * 4248 【赛程】赛事中断场景优化: 状态源赛事中断&取消映射至赛事事件中断或取消
      */
-    public void putMatchEventInfo(String linkId, StandardMatchInfo standardMatchInfo, String businessEvent, Long matchPeriodId) {
-        ThirdMatchInfo thirdMatchInfo = thirdMatchInfoService.getItem(standardMatchInfo.getId(), businessEvent);
+    public void putMatchEventInfo(String linkId, StandardMatchInfo standardMatchInfo, String dataSourceCode, Long matchPeriodId) {
+        ThirdMatchInfo thirdMatchInfo = thirdMatchInfoService.getItem(standardMatchInfo.getId(), dataSourceCode);
         if (thirdMatchInfo != null) {
-            MatchEventInfo matchEventInfo = getMatchEventInfo(linkId, standardMatchInfo, businessEvent);
+            MatchEventInfo matchEventInfo = getMatchEventInfo(linkId, standardMatchInfo, dataSourceCode);
             if (matchEventInfo != null) {
                 linkId = linkId + "_4248";
                 matchEventInfo.setEventCode(EventCodeEnum.MATCH_STATUS.code);
@@ -160,12 +160,12 @@ public class StandardMatchStatusProducer {
                 matchEventInfo.setSecondsFromStart(matchEventInfo.getSecondsFromStart() + second);
                 matchEventInfo.setEventTime(System.currentTimeMillis());
                 matchEventInfo.setThirdEventId(matchEventInfo.getThirdEventId() + "_" + matchPeriodId);
-                putMatchEventInfoMq(linkId, matchEventInfo, businessEvent);
+                putMatchEventInfoMq(linkId, matchEventInfo, dataSourceCode);
             } else {
-                log.info("linkId=【{}】putMatchEventInfo,businessEvent={},赛事阶段事件信息为空,不处理！", linkId, businessEvent);
+                log.info("linkId=【{}】putMatchEventInfo,dataSourceCode={},赛事阶段事件信息为空,不处理！", linkId, dataSourceCode);
             }
         } else {
-            log.info("linkId=【{}】putMatchEventInfo,businessEvent={},赛事信息为空,不处理！", linkId, businessEvent);
+            log.info("linkId=【{}】putMatchEventInfo,dataSourceCode={},赛事信息为空,不处理！", linkId, dataSourceCode);
         }
     }
 

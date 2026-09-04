@@ -568,7 +568,7 @@ public class TennisAdvertiseServiceImpl implements TennisAdvertiseService {
         }
         catch (Exception e)
         {
-
+            
             log.error("::{}::", linkId, e);
             return Response.failed(e.getMessage());
         }

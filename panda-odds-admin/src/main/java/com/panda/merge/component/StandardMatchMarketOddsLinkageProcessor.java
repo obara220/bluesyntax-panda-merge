@@ -170,7 +170,6 @@ public class StandardMatchMarketOddsLinkageProcessor extends BaseProcessor {
                     }
                     //如果是主投注项，判断缓存 和 当前的赔率、盘口状态是否一致，不一致通知其他副投注项触发赔率下发
                     if (1 == marketOddsLinkageConfigMessage.getType()) {
-
                         Integer active = standardMarketOddsMessage.getActive();
                         if ( null == active ) {
                             continue;

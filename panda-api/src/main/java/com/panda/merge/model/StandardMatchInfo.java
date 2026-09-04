@@ -196,6 +196,17 @@ public class StandardMatchInfo implements Serializable {
     @ApiModelProperty(value = "'PLS标准赛事ID")
     private Long plsStandardMatchId;
 
+    @ApiModelProperty(value = "事件来源类型(0:其他，1:现场（VENUE）,2电视（TV）)")
+    private Integer liveEventSource;
+
+    public Integer getLiveEventSource() {
+        return liveEventSource;
+    }
+
+    public void setLiveEventSource(Integer liveEventSource) {
+        this.liveEventSource = liveEventSource;
+    }
+
     private static final long serialVersionUID = 1L;
 
     public Long getId() {

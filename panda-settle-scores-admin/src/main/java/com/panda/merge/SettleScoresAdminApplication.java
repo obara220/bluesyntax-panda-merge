@@ -1,5 +1,6 @@
 package com.panda.merge;
 
+import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.nacos.spring.context.annotation.config.NacosPropertySource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.spring.context.annotation.EnableDubbo;
@@ -22,6 +23,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class SettleScoresAdminApplication {
 
     public static void main(String[] args) {
+        ParserConfig.getGlobalInstance().setAutoTypeSupport(false);
         SpringApplication.run(SettleScoresAdminApplication.class, args);
         System.out.println("结算服务启动完成 X= " + args);
         log.info("-----------------SettleScoresAdminApplication 726.0 success fully start!!-------");

@@ -64,7 +64,9 @@ public class CalculateOddsJob extends IJobHandler {
                 int start = i * chunkSize;
                 int end = Math.min(start + chunkSize, size);
                 List<Long> subList = new ArrayList<>(list.subList(start, end));
-                marketOddsCommon.calculateMarketOdds(subList, 1, 3);
+                if (CollectionUtil.isNotEmpty(subList)) {
+                    marketOddsCommon.calculateMarketOdds(subList, 1, 3);
+                }
             }
         }
         //获取需要计算A99赔率的滚球赛事id

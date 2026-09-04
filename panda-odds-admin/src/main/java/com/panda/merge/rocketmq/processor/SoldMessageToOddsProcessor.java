@@ -341,10 +341,12 @@ public class SoldMessageToOddsProcessor extends BaseProcessor {
                 categoryTxMap.put(k,v);
                 longStringHashMap.put(k,DataSourceCodeEnum.TX.getCode());
             }
+            // L01前缀内部码，统一归并为LS
             else if (v.startsWith("L01")){
                 flag.set(true);
                 categoryLsMap.put(k,v);
                 longStringHashMap.put(k,DataSourceCodeEnum.LS.getCode());
+            // L02前缀内部码，归并为L02
             }else if (v.startsWith("L02")){
                 flag.set(true);
                 categoryL02Map.put(k,v);
@@ -495,7 +497,9 @@ public class SoldMessageToOddsProcessor extends BaseProcessor {
                 standardMarketDataMessageMap1 = oldMarketHandler(linkId, standardMatchInfo, soldCache, categoryDataSourceMap,marketType);
             }
 
-            redisService.hSetAll(categoryRedisKey, stringHashMap, marketCacheTime(standardMatchInfo.getBeginTime()));
+            boolean result1 = redisService.hSetAll(categoryRedisKey, stringHashMap, marketCacheTime(standardMatchInfo.getBeginTime()));
+            log.info("::{}::处理赔率数据开售缓存,stringHashMap:{},result:{}",
+                    linkId, stringHashMap,result1);
             marketCategorySellService.removeCashes(standardMatchInfoId,marketType,categoryDataSourceMap.keySet());
             if (preTradeLive){
                 //早盘阶段操作滚球赛事级权重切换，操作完玩法开售缓存直接结束
@@ -595,8 +599,8 @@ public class SoldMessageToOddsProcessor extends BaseProcessor {
                     log.info("::{}:: soldMessage刷新缓存盘口信息, key={},marketId={},result={}", linkId, redisKey, marketDataMessage.getRelationMarketId(), result);
                 }
             });
-//            log.info("::{}::处理赔率数据,standardMarketDataMessageMap1：{}，standardMarketDataMessageMap2:{},marketCategoryIds:{},oldStringHashMap:{}",
-//                    linkId, standardMarketDataMessageMap1, standardMarketDataMessageMap2,marketCategoryIds,oldStringHashMap);
+            log.info("::{}::处理赔率数据,standardMarketDataMessageMap1：{}，standardMarketDataMessageMap2:{},marketCategoryIds:{},oldStringHashMap:{}",
+                    linkId, standardMarketDataMessageMap1, standardMarketDataMessageMap2,categoryDataSourceMap,soldCache);
             //处理赔率数据
             if (MapUtil.isNotEmpty(standardMarketDataMessageMap1)) {
                 marketOddsPlaceProcessor.setOddsOrderByOddsValue(linkId, standardMarketDataMessageMap1, standardMatchInfo, categoryDataSourceMap.keySet(), null, null, null, false);
@@ -628,7 +632,9 @@ public class SoldMessageToOddsProcessor extends BaseProcessor {
                         String redisKey = DigestUtil.md5Hex(Constant.REDIS_KEY.RONGHE_STANDARD_CATEGORY_MARKET + standardMatchInfo.getId() + "_" + marketDataMessage.getDataSourceCode() + "_" + marketDataMessage.getMarketCategoryId());
                         redisService.hDel(redisKey, marketDataMessage.getRelationMarketId().toString());
                         marketDataMessage.setRemark("操盘后台切换玩法数据源1，该数据源玩法关盘");
-                        marketDataMessage.oldClose();
+                        if (shouldMarkSwitchOldClose(marketDataMessage)) {
+                            marketDataMessage.oldClose();
+                        }
                     }
                     marketDataMessage.setDataSourceCode(longStringHashMap.get(marketDataMessage.getMarketCategoryId()));
                     marketDataMessage.setInternalDataSourceCode("");
@@ -650,7 +656,7 @@ public class SoldMessageToOddsProcessor extends BaseProcessor {
                 standardMarketDataMessageMap.putAll(standardMarketDataMessageMap1);
             }
             if (MapUtil.isNotEmpty(standardMarketDataMessageMap2)) {
-//                log.info("::{}::standardMarketDataMessageMap2:{}", linkId, JSONObject.toJSONString(standardMarketDataMessageMap2));
+                log.info("::{}::standardMarketDataMessageMap2:{}", linkId, JSONObject.toJSONString(standardMarketDataMessageMap2));
                 standardMarketDataMessageMap.putAll(standardMarketDataMessageMap2);
             }
             //如果开售了赛前盘并且有滚球盘口下来，需要把所有赛前盘关掉
@@ -659,13 +665,16 @@ public class SoldMessageToOddsProcessor extends BaseProcessor {
                 Map<Long, List<StandardMarketDataMessage>> standardMarketMap = standardMarketDataMessageMap.values().stream().collect(Collectors.groupingBy(StandardMarketDataMessage::getMarketCategoryId));
                 for (Map.Entry<Long, List<StandardMarketDataMessage>> entry : standardMarketMap.entrySet()) {
                     Long marketCategoryId = entry.getKey();
-                    //如果没有数据源开盘的，不走关转封,去除L01 T01
-                    List<StandardMarketDataMessage> standardMarketDataMessageStream = entry.getValue().stream().filter(s -> !s.getDataSourceCode().contains("LS") && !s.getDataSourceCode().contains("TX")).collect(Collectors.toList());
+                    // 关转封只针对外部数据源盘口，内部站点 LS/TX/L02/L01/T01 不参与
+                    List<StandardMarketDataMessage> standardMarketDataMessageStream = entry.getValue().stream()
+                            .filter(s -> !isInternalOddsSource(s.getDataSourceCode()))
+                            .collect(Collectors.toList());
                     if (!CollectionUtils.isEmpty(standardMarketDataMessageStream)) {
                         boolean anyMatch = standardMarketDataMessageStream.stream().anyMatch(f -> f.getThirdMarketSourceStatus() < Constant.SPORT_MARKET.STATUS.DEACTIVATED);
                         if (!anyMatch) {
                             standardMarketDataMessageStream.forEach(s -> s.setColseMarket(2));
                         }
+
                     }
                     //L01 T01 切换 其他数据，其他数据源存在关盘不走关转封
                     if (soldCache.containsKey(marketCategoryId + "") && categoryDataSourceMap.containsKey(marketCategoryId)) {
@@ -674,30 +683,19 @@ public class SoldMessageToOddsProcessor extends BaseProcessor {
                             entry.getValue().stream().filter(s -> s.getThirdMarketSourceStatus() >= Constant.SPORT_MARKET.STATUS.SUSPENDED).forEach(s -> s.setColseMarket(2));
                         }
                     }
-                    //新数据源是T01 L01 ,
-                    /*if (categoryDataSourceMap.containsKey(marketCategoryId)) {
-                        if (StandardSportTypeEnum.FootBall.code.equals(standardMatchInfo.getSportId()) && MarginCategoryConfig.FootBall_MAIN3484_CATEGORY.contains(marketCategoryId)) {
-                            if (categoryDataSourceMap.get(marketCategoryId).contains("L01") || categoryDataSourceMap.get(marketCategoryId).contains("T01")|| categoryDataSourceMap.get(marketCategoryId).contains("L02")) {
-                                standardMarketDataMessageStream.forEach(s -> {
-                                    s.setColseMarket(1);
-                                    if (!CollectionUtils.isEmpty(s.getMarketOddsList())) {
-                                        s.setThirdMarketSourceStatus(Constant.SPORT_MARKET.STATUS.ACTIVE);
-                                        s.setStatus(Constant.SPORT_MARKET.STATUS.ACTIVE);
-                                    }
-                                });
-                            } else if (StandardSportTypeEnum.Basketball.code.equals(standardMatchInfo.getSportId()) && MarginCategoryConfig.BASKETBALL_MAIN_CATEGORY.contains(marketCategoryId)) {
-                                if (categoryDataSourceMap.get(marketCategoryId).contains("L01") || categoryDataSourceMap.get(marketCategoryId).contains("T01")|| categoryDataSourceMap.get(marketCategoryId).contains("L02")) {
-                                    standardMarketDataMessageStream.forEach(s -> {
-                                        s.setColseMarket(1);
-                                        if (!CollectionUtils.isEmpty(s.getMarketOddsList())) {
-                                            s.setThirdMarketSourceStatus(Constant.SPORT_MARKET.STATUS.ACTIVE);
-                                            s.setStatus(Constant.SPORT_MARKET.STATUS.ACTIVE);
-                                        }
-                                    });
-                                }
-                            }
+                    // 新数据源是 L01/T01/L02：本次切换 oldClose 的外部盘走关转封；切换前已是关盘的不 reopen
+                    if (categoryDataSourceMap.containsKey(marketCategoryId)
+                            && isInternalOddsSource(categoryDataSourceMap.get(marketCategoryId))) {
+                        boolean isMainCategory =
+                                (StandardSportTypeEnum.FootBall.code.equals(standardMatchInfo.getSportId())
+                                        && MarginCategoryConfig.FootBall_MAIN3484_CATEGORY.contains(marketCategoryId))
+                                        || (StandardSportTypeEnum.Basketball.code.equals(standardMatchInfo.getSportId())
+                                        && MarginCategoryConfig.BASKETBALL_MAIN_CATEGORY.contains(marketCategoryId));
+                        if (isMainCategory) {
+                            // map1 流程 617 行：把旧盘 dataSourceCode 改成 LS/TX，不能仅按外部源过滤
+                            applyInternalSwitchCloseDisplay(linkId, entry.getValue());
                         }
-                    }*/
+                    }
                 }
             }
         }finally {
@@ -739,7 +737,7 @@ public class SoldMessageToOddsProcessor extends BaseProcessor {
      */
     private Map<String, StandardMarketDataMessage> oldMarketHandler(String linkId, StandardMatchInfo standardMatchInfo, Map<String, String> oldStringHashMap, Map<Long, String> marketCategoryIds,int marketType) {
         Map<String, String> oldData = oldStringHashMap.entrySet().stream().filter(e -> marketCategoryIds.containsKey(Long.parseLong(e.getKey())) && !marketCategoryIds.get(Long.parseLong(e.getKey())).equalsIgnoreCase(e.getValue())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-
+        Map<String, StandardMarketDataMessage> finalStandardMarketDataMessageMap = new HashMap<>();
         //        Map<String, List<Long>> oldStringListHashMap = new HashMap<>();
 //        oldData.forEach((k, v) -> {
 //            if (oldStringListHashMap.containsKey(v)) {
@@ -750,7 +748,6 @@ public class SoldMessageToOddsProcessor extends BaseProcessor {
 //                oldStringListHashMap.put(v, list);
 //            }
 //        });
-        Map<String, StandardMarketDataMessage> finalStandardMarketDataMessageMap = new HashMap<>();
 
         //以下数据库逻辑操作有并发问题，这里需要以赛事维度加redis锁
         /*String lockValue = UUIdUtils.getId() + "_" + linkId;
@@ -773,7 +770,7 @@ public class SoldMessageToOddsProcessor extends BaseProcessor {
                     return;
                 }
                 temp.values().forEach(e -> {
-                    if (isXTS) {
+                    if (isXTS && shouldMarkSwitchOldClose(e)) {
                         e.oldClose();
                     }
                     boolean oldIsInternal = isInternalOddsSource(e.getDataSourceCode());
@@ -783,7 +780,8 @@ public class SoldMessageToOddsProcessor extends BaseProcessor {
 
                     // 关键修复：从内部盘(L01/T01/L02)切到外部盘(BC/BG/SR/...)时，旧内部盘必须 oldClose，否则投注项仍可能继续使用 L01。
                     // 只有当“目标仍是内部盘”时，才允许延续旧内部盘逻辑（避免空盘/保留内部盘展示习惯）。
-                    if (!(isMainCategory && oldIsInternal && targetIsInternal)) {
+                    // 切换前已是关盘的不再 oldClose，避免覆盖自动关盘/手动关盘等历史状态，后续关转封才能正确区分。
+                    if (!(isMainCategory && oldIsInternal && targetIsInternal) && shouldMarkSwitchOldClose(e)) {
                         e.oldClose();
                     }
                     redisService.hDel(redisKey, e.getRelationMarketId().toString());
@@ -805,6 +803,53 @@ public class SoldMessageToOddsProcessor extends BaseProcessor {
         // 内部盘：LS(L01)/TX(T01)/L02 既可能是外层 code，也可能是内部站点 code 前缀
         return ds.contains("LS") || ds.contains("TX") || ds.contains("L02") || ds.startsWith("L01") || ds.startsWith("T01");
     }
+
+    /**
+     * 切换时需要标记为「旧源关盘」的盘口：当前仍为开/封状态（非历史关盘）。
+     */
+    private boolean shouldMarkSwitchOldClose(StandardMarketDataMessage market) {
+        return market.getThirdMarketSourceStatus() != null
+                && market.getThirdMarketSourceStatus() < Constant.SPORT_MARKET.STATUS.DEACTIVATED;
+    }
+
+    /**
+     * 切到内部站点时的关转封处理（作用于玩法下全部盘口，含 617 行改 dataSourceCode 后的旧盘）。
+     * - 历史关盘：colseMarket=2，保持 DEACTIVATED
+     * - 本次切换 oldClose 的旧源盘：colseMarket=1，DEACTIVATED → SUSPENDED
+     * - 新内部站点盘：不干预
+     */
+    private void applyInternalSwitchCloseDisplay(String linkId, List<StandardMarketDataMessage> categoryMarkets) {
+        categoryMarkets.forEach(market -> {
+            if (shouldKeepClosedOnInternalSwitch(market)) {
+                market.setColseMarket(2);
+                log.info("::{}::切换内部站点,历史关盘保持关盘,colseMarket=2,relationMarketId={},thirdStatus={},oldClose={}",
+                        linkId, market.getRelationMarketId(), market.getThirdMarketSourceStatus(), market.isOldClose());
+                return;
+            }
+            if (!market.isOldClose()) {
+                return;
+            }
+            market.setColseMarket(1);
+            if (!CollectionUtils.isEmpty(market.getMarketOddsList())) {
+                market.setThirdMarketSourceStatus(Constant.SPORT_MARKET.STATUS.SUSPENDED);
+                market.setStatus(Constant.SPORT_MARKET.STATUS.SUSPENDED);
+            }
+        });
+    }
+
+    private boolean shouldKeepClosedOnInternalSwitch(StandardMarketDataMessage market) {
+        if (Constant.AOTU_CLOSE_STATUS.equals(market.getAutoCloseStatus())) {
+            return true;
+        }
+        if (Integer.valueOf(1).equals(market.getEndEdStatus())) {
+            return true;
+        }
+        // 切换前已是关盘（非本次 oldMarketHandler oldClose）的不做关转封
+        boolean deactivated = Constant.SPORT_MARKET.STATUS.DEACTIVATED.equals(market.getThirdMarketSourceStatus())
+                || Constant.SPORT_MARKET.STATUS.DEACTIVATED.equals(market.getStatus());
+        return deactivated && !market.isOldClose();
+    }
+
     private boolean isXtsManager(String linkId,StandardMatchInfo standardMatchInfo,int marketType){
         boolean isXts = false;
         try{
@@ -850,7 +895,8 @@ public class SoldMessageToOddsProcessor extends BaseProcessor {
             // 主客队相反：盘口处理
             ThirdMatchInfo thirdMatchInfo = thirdMatchInfoService.getItem(standardMatchInfo.getId(), thirdSportMarket.getDataSourceCode());
             log.info("::{}::玩法开售流程，三方赛事信息 thirdMatchInfo：{}，null != thirdMatchInfo：{}，判断条件：{}", linkId,thirdMatchInfo,null != thirdMatchInfo ,(null != thirdMatchInfo && thirdMatchInfo.getSportId().equals(StandardSportTypeEnum.FootBall.code) && ONE.equals(thirdMatchInfo.getHomeAwayOpposite())));
-            if(null != thirdMatchInfo && thirdMatchInfo.getSportId().equals(StandardSportTypeEnum.FootBall.code) && ONE.equals(thirdMatchInfo.getHomeAwayOpposite())){
+            if (null != thirdMatchInfo && thirdMatchInfo.getSportId().equals(StandardSportTypeEnum.FootBall.code) && ONE.equals(thirdMatchInfo.getHomeAwayOpposite())
+                    && !thirdMatchMarketProcessor.skipHomeAwayOppositeForDataSource(thirdSportMarket.getDataSourceCode())) {
                 thirdMatchMarketProcessor.changeThirdMarketContent(linkId, thirdSportMarket);
             }
 
@@ -923,7 +969,8 @@ public class SoldMessageToOddsProcessor extends BaseProcessor {
             log.info("::{}::三方投注项数据查询, 数据源:{}, 三方盘口id:{}", linkId, thirdSportMarket.getDataSourceCode(), thirdSportMarket.getId() );
             List<ThirdSportMarketOdds> thirdSportMarketOddsList = thirdSportMarketOddsService.getItemList(thirdSportMarket.getDataSourceCode(),thirdSportMarket.getId());
             List<StandardSportMarketOdds> standardSportMarketOddsList = new ArrayList<>();
-            if(null != thirdMatchInfo && thirdMatchInfo.getSportId().equals(StandardSportTypeEnum.FootBall.code) && ONE.equals(thirdMatchInfo.getHomeAwayOpposite())){
+            if (null != thirdMatchInfo && thirdMatchInfo.getSportId().equals(StandardSportTypeEnum.FootBall.code) && ONE.equals(thirdMatchInfo.getHomeAwayOpposite())
+                    && !thirdMatchMarketProcessor.skipHomeAwayOppositeForDataSource(thirdSportMarket.getDataSourceCode())) {
                 thirdMatchMarketProcessor.changeThirdMarketOddsContent(linkId, thirdSportMarketOddsList, thirdSportMarket);
             }
             if (!CollectionUtils.isEmpty(thirdSportMarketOddsList)) {

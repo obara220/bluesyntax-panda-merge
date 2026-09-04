@@ -75,11 +75,11 @@ public class ThirdMatchJoinStandardMatchConsumer implements RocketMQListener<Mes
     @Override
     public void onMessage(MessageExt ext) {
         if (!realtimeSwitch && !realtimeEventSwitch) {
-//            if (dataCenterProducer.checkForward(ext,MATCH_OPERATE_MSG)) {
+            if (dataCenterProducer.checkForward(ext,MATCH_OPERATE_MSG)) {
                 //ThirdMatchRefreshCacheConsumer来进行转发
 //                dataCenterProducer.send(ext,MATCH_OPERATE_MSG);
                 return;
-//            }
+            }
         }
         String linkId = null;
         try {

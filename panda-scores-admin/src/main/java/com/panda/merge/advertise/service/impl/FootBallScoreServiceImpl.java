@@ -906,7 +906,7 @@ public class FootBallScoreServiceImpl implements FootBallScoreService {
 //            matchTimeInfoMapper.updateByPrimaryKey( data.getMatchTimeInfo());
             pdMatchInfoRepository.setRedisAndMatchTimeInfo(data.getMatchTimeInfo(), null);
             //推送比分
-            scoresProducer.sendToMQ(data.getThirdMatchInfo(),data.getMatchScoresInfo(),confirmEventDto.getLinkedId());
+//            scoresProducer.sendToMQ(data.getThirdMatchInfo(),data.getMatchScoresInfo(),confirmEventDto.getLinkedId());
             stopWatch.stop();
             log.info("FootBallScoreServiceImpl-changeScoresByEvent-耗时={}, thirdMatchId={}",stopWatch.getTotalTimeMillis(),confirmEventDto.getThirdMatchId());
             Map<String, String> norfinalEventCodeMap = new HashMap<>();
@@ -1325,7 +1325,7 @@ public class FootBallScoreServiceImpl implements FootBallScoreService {
          * */
         data.getMatchScoresInfo().setScoresJsonType(editEventDto.getOperatorName());
         //推送比分
-        scoresProducer.sendToMQ(data.getThirdMatchInfo(),data.getMatchScoresInfo(),editEventDto.getLinkedId());
+//        scoresProducer.sendToMQ(data.getThirdMatchInfo(),data.getMatchScoresInfo(),editEventDto.getLinkedId());
         return commonItem;
     }
 
@@ -2584,7 +2584,7 @@ public class FootBallScoreServiceImpl implements FootBallScoreService {
         return returnList;
     }
 
-    private MatchScoresEventInfo getItemByVarEventCode(Long matchPeriodId, ThirdMatchInfo thirdMatchInfo, String possibleEventCode){
+    public MatchScoresEventInfo getItemByVarEventCode(Long matchPeriodId, ThirdMatchInfo thirdMatchInfo, String possibleEventCode){
         List<String> eventCodes = VAR_CONFIRM_EVENT_CODES.stream().map(PDEventCodeEnum::getEventCode).collect(Collectors.toList());
         if (StringUtils.isNotBlank(possibleEventCode)){
             eventCodes.add(possibleEventCode);
@@ -2706,6 +2706,8 @@ public class FootBallScoreServiceImpl implements FootBallScoreService {
             String cacheKey = matchEventInfoDTO.getHomeAway() + possibleEventCode + thirdMatchInfo.getId();
             redisService.set(cacheKey, cacheKey);
         }
+
+
         result = Pair.of(resNum, matchScoresEventInfo.getThirdEventId());
         return result;
     }

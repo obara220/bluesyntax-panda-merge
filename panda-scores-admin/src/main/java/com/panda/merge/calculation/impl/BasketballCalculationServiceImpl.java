@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.panda.merge.common.enums.OperateLogTypeEnum;
+import com.panda.merge.config.RedisConfig;
 import com.panda.merge.constant.SourceTypeEnum;
 import com.panda.merge.constant.SportPeriodConstant;
 import com.panda.merge.dto.*;
@@ -26,6 +27,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static cn.hutool.json.JSONUtil.isJson;
 import static com.panda.merge.constant.SportPeriodConstant.SportPeriod.WHOLE_MATCH;
 import static java.util.stream.Collectors.toList;
 
@@ -53,7 +55,6 @@ public class BasketballCalculationServiceImpl extends AbstractCalculationService
     @Override
     public void calculationMatchScores( MatchScoresInfo matchScoresInfo, MatchEventInfo data) throws Exception {
         log.info("linkId::{}::processLivedataScores basketball  scores start...",data.getLinkId());
-
         //是否是赛事比赛阶段
         //1.根据event_code 计算 当前事件
         String scoreStr=matchScoresInfo.getScoresJson();
@@ -82,7 +83,16 @@ public class BasketballCalculationServiceImpl extends AbstractCalculationService
         }
         //缓存上一个进球事件的事件发生时间
         if("score_change".equals(data.getEventCode())|| "match_status".equals(data.getEventCode())){
-            redisService.set("MATCHEVENT:SCORE_CHANGE:"+data.getThirdMatchId(),data.getEventTime(),3600);
+            Object obj = redisService.get("MATCHEVENT:SCORE_CHANGE:"+data.getThirdMatchId());
+            if(obj!=null){
+                Long lastTime = (Long) obj;
+                //新的事件发生时间大于旧的缓存事件发生时间，则覆盖缓存
+                if(data.getEventTime()>lastTime){
+                    redisService.set("MATCHEVENT:SCORE_CHANGE:"+data.getThirdMatchId(),data.getEventTime(),3600);
+                }else{
+                    log.info("事件延迟消费或者中途开售等原因，事件发生时间缓存不处理:{}",data.getLinkId());
+                }
+            }
         }
     }
 
@@ -316,17 +326,40 @@ public class BasketballCalculationServiceImpl extends AbstractCalculationService
         BasketballScores basketballScores=new BasketballScores(data.getMatchPeriodId());
         BasketballScores wholeSores= new BasketballScores(WHOLE_MATCH);
 
-        periodBasketballScores.put(WHOLE_MATCH,wholeSores);
-        periodBasketballScores.put(data.getMatchPeriodId(),basketballScores);
-
         basketballScores.updateEvent(data,periodBasketballScores);
         basketballScores.doCalculation();
-//        //总阶段新增事件值
-//        wholeSores.doCalculation();
-//        wholeSores.updateEvent(data,periodBasketballScores);
-
+        //总阶段新增事件值
+        wholeSores.doCalculation();
+        wholeSores.updateEvent(data,periodBasketballScores);
+        //第二节中途订阅，补充第一第二节比分
+        if (data.getMatchPeriodId()==14L|| data.getMatchPeriodId()==302L){
+            BasketballScores q1PeriodScores= new BasketballScores(13L);
+            if(data.getFirstT1()==null || data.getFirstT2()==null || data.getT1()==null || data.getT2()==null){
+                log.info("::{}::,阶段:"+data.getMatchPeriodId()+" setFieldByEventCode,数据异常,存在空数据1",data.getLinkId());
+                return;
+            }
+            //补充第一节的比分
+            q1PeriodScores.getMatchScore().setHome(data.getT1() - data.getFirstT1());
+            q1PeriodScores.getMatchScore().setAway(data.getT2() - data.getFirstT2());
+            wholeSores.getMatchScore().setHome(data.getT1());
+            wholeSores.getMatchScore().setAway(data.getT2());
+            periodBasketballScores.put(13L,q1PeriodScores);
+        }else if (data.getMatchPeriodId()==2L || data.getMatchPeriodId()==31L){
+            //下半场中途订阅，补充上下半场比分
+            BasketballScores q1PeriodScores= new BasketballScores(1L);
+            if(data.getFirstT1()==null || data.getFirstT2()==null || data.getT1()==null || data.getT2()==null){
+                log.info("::{}::,阶段:"+data.getMatchPeriodId()+" setFieldByEventCode,数据异常,存在空数据2",data.getLinkId());
+                return;
+            }
+            //补充第一节的比分
+            q1PeriodScores.getMatchScore().setHome(data.getT1() - data.getFirstT1());
+            q1PeriodScores.getMatchScore().setAway(data.getT2() - data.getFirstT2());
+            periodBasketballScores.put(1L,q1PeriodScores);
+        }
+        periodBasketballScores.put(WHOLE_MATCH,wholeSores);
+        periodBasketballScores.put(data.getMatchPeriodId(),basketballScores);
         //3.更新比分模板
-        periodBasketballScores.put(data.getMatchPeriodId(),((JSONObject) JSONObject.toJSON(basketballScores)).toJavaObject(BasketballScores.class));
+//        periodBasketballScores.put(data.getMatchPeriodId(),((JSONObject) JSONObject.toJSON(basketballScores)).toJavaObject(BasketballScores.class));
         matchScoresInfo.setT1(basketballScores.getMatchScore().getHome());
         matchScoresInfo.setT2(basketballScores.getMatchScore().getAway());
         matchScoresInfo.setPeriodT1(basketballScores.getMatchScore().getHome());
@@ -348,6 +381,7 @@ public class BasketballCalculationServiceImpl extends AbstractCalculationService
         JSONObject periodBasketballScores = JSONObject.parseObject(matchScoresInfo.getScoresJson());
         Map<Long, BasketballScores> allPeriodScores= JsonMapUtils.parseBasketballMap(periodBasketballScores);
         BasketballScores wholeSores= allPeriodScores.get(WHOLE_MATCH);
+        log.info("linkId::{}::updateScores basketball updateScores 999过滤比分计算111 ...{},{}",data.getLinkId(),data.getEventCode(),data.getMatchPeriodId());
         if(data.getMatchPeriodId()==999L){
             log.info("linkId::{}::updateScores basketball updateScores 999过滤比分计算 ...{},{}",data.getLinkId(),data.getEventCode(),data.getMatchPeriodId());
             return;
@@ -415,7 +449,54 @@ public class BasketballCalculationServiceImpl extends AbstractCalculationService
         //总阶段新增事件值
         periodScores.doCalculation();
         wholeSores.doCalculation();
+        //保存事件下发的半场比分
+        Long halfPeroid = SportPeriodConstant.BasketballPeriod.getHalfPeriods(data.getMatchPeriodId());
+        if(halfPeroid != -1L){
+            BasketballScores halfScores = allPeriodScores.get(halfPeroid);
+            if(halfScores==null){
+                halfScores = new BasketballScores(halfPeroid);
+            }
+            //当前半场比分取SecondT1 SecondT2
+            halfScores.setMatchScore(new CommonItem(data.getSecondT1(),data.getSecondT2()));
+            allPeriodScores.put(halfPeroid,halfScores);
+        }
 
+        //第二节中途订阅，补充第一第二节比分
+        if (data.getMatchPeriodId()==14L || data.getMatchPeriodId()==302L){
+            if(data.getFirstT1()==null || data.getFirstT2()==null || data.getT1()==null || data.getT2()==null){
+                log.info("::{}::,阶段:"+data.getMatchPeriodId()+" setFieldByEventCode,数据异常,存在空数据1",data.getLinkId());
+                return;
+            }
+            if(allPeriodScores.get(13L)==null){
+                BasketballScores q1PeriodScores= new BasketballScores(13L);
+                //补充第一节的比分
+                q1PeriodScores.getMatchScore().setHome(data.getT1() - data.getFirstT1());
+                q1PeriodScores.getMatchScore().setAway(data.getT2() - data.getFirstT2());
+                allPeriodScores.put(13L,q1PeriodScores);
+                log.info("::{}::,篮球中途订阅补充第一节比分，{}",data.getLinkId(),q1PeriodScores);
+            }
+//            if(allPeriodScores.get(14L)==null){
+//                BasketballScores q2PeriodScores= new BasketballScores(14L);
+//                //补充第二节的比分
+//                q2PeriodScores.getMatchScore().setHome(data.getFirstT1());
+//                q2PeriodScores.getMatchScore().setAway(data.getFirstT2());
+//                allPeriodScores.put(14L,q2PeriodScores);
+//                log.info("::{}::,篮球中途订阅补充第二节比分，{}",data.getLinkId(),q2PeriodScores);
+//            }
+
+        }else if (data.getMatchPeriodId()==2L || data.getMatchPeriodId()==31L){
+            //下半场中途订阅，补充上下半场比分
+            BasketballScores q1PeriodScores= new BasketballScores(1L);
+            if(data.getFirstT1()==null || data.getFirstT2()==null || data.getT1()==null || data.getT2()==null){
+                log.info("::{}::,阶段:"+data.getMatchPeriodId()+" setFieldByEventCode,数据异常,存在空数据2",data.getLinkId());
+                return;
+            }
+            //补充第一节的比分
+            q1PeriodScores.getMatchScore().setHome(data.getT1() - data.getFirstT1());
+            q1PeriodScores.getMatchScore().setAway(data.getT2() - data.getFirstT2());
+            allPeriodScores.put(1L,q1PeriodScores);
+        }
+        log.info(":{}:updateEvent设置篮球事件比分，总分：{}",data.getLinkId(),wholeSores);
         //当前阶段新增事件值 或者设置当前事件值
         matchScoresInfo.setT1(wholeSores.getMatchScore().getHome());
         matchScoresInfo.setT2(wholeSores.getMatchScore().getAway());
@@ -460,7 +541,9 @@ public class BasketballCalculationServiceImpl extends AbstractCalculationService
             data.setMatchPeriodId(1L);
         }
         if(data.getMatchPeriodId().equals(100L)){
-            if(allPeriodScores.get(1L)!=null){
+            if(data.getMatchPeriodId().equals(21L)){
+                data.setMatchPeriodId(21L);
+            }else if(allPeriodScores.get(1L)!=null){
                 data.setMatchPeriodId(2L);
             }else {
                 data.setMatchPeriodId(16L);
@@ -544,6 +627,9 @@ public class BasketballCalculationServiceImpl extends AbstractCalculationService
      */
     @Override
     public void saveMatchStatisticsScores(MatchScoresInfo matchScoresInfo, MatchStatisticsInfoDTO data, StandardMatchInfo standardMatchInfo) {
+        if(matchScoresInfo.getMatchLength()==null){
+            matchScoresInfo.setMatchLength(0);
+        }
         if(matchScoresInfo.getMatchLength()==3){
             save3X3MatchStatistics(matchScoresInfo,data);
             return;
@@ -703,6 +789,11 @@ public class BasketballCalculationServiceImpl extends AbstractCalculationService
             log.info("{}标准赛事数据不存在，同步标准比分异常",data.getLinkId());
             return;
         }
+        if(!SportPeriodConstant.BasketballPeriod.contans(data.getMatchPeriodId(),score.getMatchLength())){
+            log.info("linkId::{}::calcStandardMatchScores basketball 赛制校验不通过...{}--{}",
+                    data.getLinkId(),data.getMatchPeriodId(),score.getMatchLength());
+            return;
+        }
         Map<Long, BasketballScores> allPeriodScores = JSON.parseObject(scoresJson, new TypeReference<Map<Long, BasketballScores>>() {
         });
         BasketballScores thirdWholeSores= allPeriodScores.get(WHOLE_MATCH);
@@ -807,7 +898,9 @@ public class BasketballCalculationServiceImpl extends AbstractCalculationService
         List<StandardScoreCenter> list = new ArrayList<>();
 
         StandardMatchInfo matchInfo = standardMatchInfoRepository.selectStandardMatchPrimaryKey(standardMatchId);
-
+        if(matchInfo.getMatchLength()==null){
+            matchInfo.setMatchLength(0);
+        }
         dto.setSportId(match.getSportId());
         dto.setStandardMatchId(standardMatchId);
         dto.setMatchManageId(match.getMatchManageId());
@@ -815,10 +908,17 @@ public class BasketballCalculationServiceImpl extends AbstractCalculationService
         dto.setRelatedDataSourceCoderList(matchInfo.getRelatedDataSourceCoderList());
         dto.setPreId(match.getId());
         dto.setMatchLength(matchInfo.getMatchLength());
+        String redisKey = "scores:min:check:switch:"+standardMatchId;
+        Object obj = redisService.get(redisKey);
+        if(obj!=null){
+            dto.setMinScoresCheck((Boolean)obj);
+        }else{
+            //默认打开
+            dto.setMinScoresCheck((Boolean)obj);
+            redisService.set(redisKey,true, RedisConfig.REDIS_DEFAULT_TIME);
+        }
         //查询标准比分
         StandardMatchScores standardMatchScores = scoresRedisHelp.getCatchStandScoreByMatchId(standardMatchId);
-//        StandardMatchScores standardMatchScores = standardMatchScoresMapper.loadByMatchId(standardMatchId);
-
         if (standardMatchScores == null) {
             return null;
         }
@@ -918,6 +1018,32 @@ public class BasketballCalculationServiceImpl extends AbstractCalculationService
                 listScore.add(scores);
             }
             centerStand.setScores(listScore);
+            if(7 == matchLength){
+                List<StandardScoresSixDetailDTO> listScoreMin= new ArrayList<>();
+                StandardScoresSixDetailDTO scores6 = new StandardScoresSixDetailDTO();
+                scores6.setQ1Home(null);
+                scores6.setQ1Away(null);
+                scores6.setQ2Home(null);
+                scores6.setQ2Away(null);
+                scores6.setQ3Home(null);
+                scores6.setQ3Away(null);
+                scores6.setQ4Home(null);
+                scores6.setQ4Away(null);
+                scores6.setPeriodId(6L);
+                listScoreMin.add(scores6);
+                StandardScoresSixDetailDTO scores12 = new StandardScoresSixDetailDTO();
+                scores12.setQ1Home(null);
+                scores12.setQ1Away(null);
+                scores12.setQ2Home(null);
+                scores12.setQ2Away(null);
+                scores12.setQ3Home(null);
+                scores12.setQ3Away(null);
+                scores12.setQ4Home(null);
+                scores12.setQ4Away(null);
+                scores12.setPeriodId(12L);
+                listScoreMin.add(scores12);
+                centerStand.setMinute6Scores(listScoreMin);
+            }
         }else{
             JSONObject periodScores = JSONObject.parseObject(scoresJson);
             Map<Long, BasketballScores> allPeriodScores = JsonMapUtils.parseBasketballMap(periodScores);
@@ -950,7 +1076,6 @@ public class BasketballCalculationServiceImpl extends AbstractCalculationService
             basketballScoreCenterPeriod = Arrays.asList(1L,2L,40L);
         }
         log.info("查询标准比分:{} ----:{}",center.getStandardMatchId(),scoresJson);
-        //标准比分中心页面内容
         JSONObject periodScores = JSONObject.parseObject(scoresJson);
         Map<Long, BasketballScores> allPeriodScores = JsonMapUtils.parseBasketballMap(periodScores);
         //比分内容
@@ -1332,11 +1457,19 @@ public class BasketballCalculationServiceImpl extends AbstractCalculationService
             return Response.failed(rtnFlag.toString());
         }
         if(7 == matchLength){
-            //编辑校验
-            Integer editFlag = checkEditMinScores(scores);
-            if(editFlag!=0){
-                log.info("篮球标准比分修改校验 standardMatchId:{},editFlag:{} ",scores.getStandardMatchId(),editFlag);
-                return Response.failed(editFlag.toString());
+            String redisKey = "scores:min:check:switch:"+scores.getStandardMatchId();
+            Object obj = redisService.get(redisKey);
+            log.info("比分编辑过滤区间比分校验：{},{}",scores.getStandardMatchId(),obj);
+            if(obj!=null && !(Boolean)obj ){
+                log.info("比分编辑过滤区间比分校验：{},{}",scores.getStandardMatchId(),obj);
+            }else{
+                log.info("比分编辑过滤区间比分校验：{},{}",scores.getStandardMatchId(),obj);
+                //编辑校验
+                Integer editFlag = checkEditMinScores(scores);
+                if(editFlag!=0){
+                    log.info("篮球标准比分修改校验 standardMatchId:{},editFlag:{} ",scores.getStandardMatchId(),editFlag);
+                    return Response.failed(editFlag.toString());
+                }
             }
         }
         //半场比分
@@ -1743,16 +1876,21 @@ public class BasketballCalculationServiceImpl extends AbstractCalculationService
 
     private void calcWholeScores(Map<Long, BasketballScores> newStandardScores,BasketballScores thirdWholeSores,Integer matchLength,Long period) {
         List<Long> basketballScoreCenterPeriod = Arrays.asList(13L, 14L,15L, 16L,40L,21L,1L,2L);
-        List<Long> calcScoresPeriod = Arrays.asList(13L, 14L,15L, 16L,40L);
+        List<Long> calcScoresPeriod = Arrays.asList(13L, 14L,15L, 16L,21L,40L);
         if(matchLength==null){
             matchLength = 0;
         }
         if(period==100L){
             basketballScoreCenterPeriod = Arrays.asList(13L,14L,15L,16L,21L,1L,2L);
-            calcScoresPeriod = Arrays.asList(13L,14L,15L,16L);
+            calcScoresPeriod = Arrays.asList(13L,14L,15L,16L,21L);
+        }
+        if(matchLength==73){
+            basketballScoreCenterPeriod = Collections.singletonList(21L);
+            calcScoresPeriod = Collections.singletonList(21L);
         }
         Integer home = 0,away=0;
         for (Long periodId : newStandardScores.keySet()) {
+            log.info("同步篮球标准比分：{}",periodId);
             //查询比分时过滤阶段 5分钟 15分钟区间
             if (!basketballScoreCenterPeriod.contains(periodId)) {
                 continue;
@@ -1780,6 +1918,7 @@ public class BasketballCalculationServiceImpl extends AbstractCalculationService
                 newStandardScores.put(100L,thirdWholeSores);
             }
             newStandardScores.get(100L).setMatchScore(new CommonItem(home,away));
+            log.info("同步篮球标准比分100：{}",newStandardScores.get(100L).getMatchScore());
         }else{
             if(newStandardScores.get(WHOLE_MATCH)==null){
                 newStandardScores.put(WHOLE_MATCH,new BasketballScores(WHOLE_MATCH));
@@ -1787,6 +1926,7 @@ public class BasketballCalculationServiceImpl extends AbstractCalculationService
                 newStandardScores.put(WHOLE_MATCH,thirdWholeSores);
             }
             newStandardScores.get(WHOLE_MATCH).setMatchScore(new CommonItem(home,away));
+            log.info("同步篮球标准比分-1：{}",newStandardScores.get(WHOLE_MATCH).getMatchScore());
         }
 
 

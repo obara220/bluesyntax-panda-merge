@@ -50,7 +50,6 @@
             <level>INFO</level>
         </filter>
         <!--定义日志输出的路径-->
-        <file>${log_dir}/panda-settle-scores-admin.log</file>
         <encoder charset="UTF-8" class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
             <providers>
                 <pattern>

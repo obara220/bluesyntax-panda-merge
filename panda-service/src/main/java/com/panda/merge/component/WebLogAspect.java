@@ -1,18 +1,11 @@
 package com.panda.merge.component;
 
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.core.util.URLUtil;
-import cn.hutool.json.JSONUtil;
-import com.panda.merge.domain.WebLog;
 import io.swagger.annotations.ApiOperation;
-import net.logstash.logback.marker.Markers;
-import org.aspectj.lang.JoinPoint;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
 import org.aspectj.lang.annotation.*;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -24,10 +17,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 统一日志处理切面
@@ -36,19 +26,10 @@ import java.util.Map;
 @Aspect
 @Component
 @Order(1)
+@Slf4j
 public class WebLogAspect {
-    private static final Logger LOGGER = LoggerFactory.getLogger(WebLogAspect.class);
-
-    @Pointcut("execution(public * com.panda.merge.controller.*.*(..))||execution(public * com.panda.merge.*.controller.*.*(..))")
+    @Pointcut("execution(public * com.panda.merge.controller.*.*(..))||execution(public * com.panda.merge.*.controller.*.*(..))||execution(public * com.panda.merge.dubbo.*.*(..))")
     public void webLog() {
-    }
-
-    @Before("webLog()")
-    public void doBefore(JoinPoint joinPoint) throws Throwable {
-    }
-
-    @AfterReturning(value = "webLog()", returning = "ret")
-    public void doAfterReturning(Object ret) throws Throwable {
     }
 
     @Around("webLog()")
@@ -56,36 +37,29 @@ public class WebLogAspect {
         long startTime = System.currentTimeMillis();
         //获取当前请求对象
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if(attributes == null) {
+            log.warn("[WebLogAspect] attributes is null!");
+            return joinPoint.proceed();
+        }
         HttpServletRequest request = attributes.getRequest();
-        //记录请求信息(通过Logstash传入Elasticsearch)
-        WebLog webLog = new WebLog();
         Object result = joinPoint.proceed();
         Signature signature = joinPoint.getSignature();
         MethodSignature methodSignature = (MethodSignature) signature;
         Method method = methodSignature.getMethod();
+        String description = "";
         if (method.isAnnotationPresent(ApiOperation.class)) {
             ApiOperation log = method.getAnnotation(ApiOperation.class);
-            webLog.setDescription(log.value());
+            description = log.value();
         }
+        String className = joinPoint.getTarget().getClass().getSimpleName();
+        String methodName = methodSignature.getName();
+        String remoteAddr = request.getRemoteAddr()+":"+request.getRemotePort();
+        String localAddr = request.getLocalAddr()+":"+request.getLocalPort();
+        Object parameter = getParameter(method, joinPoint.getArgs());
         long endTime = System.currentTimeMillis();
-        String urlStr = request.getRequestURL().toString();
-        webLog.setBasePath(StrUtil.removeSuffix(urlStr, URLUtil.url(urlStr).getPath()));
-        webLog.setIp(request.getRemoteUser());
-        webLog.setMethod(request.getMethod());
-        webLog.setParameter(getParameter(method, joinPoint.getArgs()));
-        webLog.setResult(result);
-        webLog.setSpendTime((int) (endTime - startTime));
-        webLog.setStartTime(startTime);
-        webLog.setUri(request.getRequestURI());
-        webLog.setUrl(request.getRequestURL().toString());
-        Map<String, Object> logMap = new HashMap<>();
-        logMap.put("url", webLog.getUrl());
-        logMap.put("method", webLog.getMethod());
-        logMap.put("parameter", webLog.getParameter());
-        logMap.put("spendTime", webLog.getSpendTime());
-        logMap.put("description", webLog.getDescription());
-//        LOGGER.info("{}", JSONUtil.parse(webLog));
-        LOGGER.info(Markers.appendEntries(logMap), JSONUtil.parse(webLog).toString());
+        String costTime = (endTime - startTime) + "ms";
+        log.info("[WebLogAspect::{}::{}] remoteIp: {} serverIp:{} costTime:{} userName:{} description:{} startTime:{} endTime:{} parameter:{}",
+                className, methodName, remoteAddr, localAddr, costTime, request.getRemoteUser(), description, startTime, endTime, parameter);
         return result;
     }
 
