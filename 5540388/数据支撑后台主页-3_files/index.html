@@ -1,0 +1,1384 @@
+<!DOCTYPE html>
+<!-- saved from url=(0119)http://panda-send-manager.dbsportxxx14bl5.com/panda/factMarket/index?matchId=5540388&marketCategoryId=39&size=30&page=3 -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+        <title>数据支撑后台</title>
+    
+    
+
+    
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="数据支撑后台管理系统">
+    <meta name="keywords" content="数据支撑, 数据支撑后台管理系统, SpringBoot, Jpa, Thymeleaf, Shiro">
+
+    <link rel="shortcut icon" href="http://panda-send-manager.dbsportxxx14bl5.com/mo-favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="./font-awesome.min.css" media="all">
+    <link rel="stylesheet" href="./layui.css" media="all">
+    <link rel="stylesheet" href="./main.css" media="all">
+    
+
+    
+    <script>
+        //定义函数 $ 根据元素id获得页面元素,提高效率
+        function $(id){
+            return document.getElementById(id);
+        }
+    </script>
+    
+        <script src="./jquery-2.2.4.js.download" charset="utf-8"></script>
+    
+<link id="layuicss-layer" rel="stylesheet" href="./layer.css" media="all"></head>
+<body class="timo-layout-page">
+<div class="layui-card">
+    <div class="layui-card-header timo-card-header">
+        <span><i class="fa fa-bars"></i>推送业务盘口赔率</span>
+        
+    </div>
+    <div class="layui-card-body">
+        <div class="layui-row timo-card-screen">
+            <div class="pull-left layui-form-pane timo-search-box">
+                <div class="layui-inline">
+                    <label class="layui-form-label">标准赛事ID</label>
+                    <div class="layui-input-block">
+                        <input type="number" name="matchId" value="5540388" placeholder="请输入标准赛事ID" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">标准玩法ID</label>
+                    <div class="layui-input-block">
+                        <input type="number" name="marketCategoryId" value="39" placeholder="请输入标准玩法ID" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">统一标准盘口ID</label>
+                    <div class="layui-input-block">
+                        <input type="number" name="marketId" value="" placeholder="请输入统一标准盘口ID" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">三方盘口源ID</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="thirdMarketSourceId" value="" placeholder="请输入三方盘口源ID" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                <label class="layui-form-label">数据源</label>
+                <div class="layui-input-block">
+                    <input type="text" name="dataSourceCode" value="" placeholder="请输入三方数据源" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">盘口位置id</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="placeNumId" value="" placeholder="请输入盘口位置id" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">LINKID</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="linkId" value="" placeholder="请输入LINKID" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">风控状态</label>
+                    <div class="layui-input-block timo-search-status">
+                        <select class="timo-search-select" name="riskState"><option value="">全部</option><option value="0">数据源</option><option value="1">分时节点</option><option value="2">跳分</option><option value="3">跳水</option><option value="4">封盘/开盘</option><option value="-1">其他</option></select>
+                    </div>
+                </div>
+
+
+                <div class="layui-inline">
+                    <button class="layui-btn timo-search-btn">
+                        <i class="fa fa-search"></i>
+                    </button>
+                    <button class="layui-btn layui-btn-primary" onclick="reset({&quot;matchId&quot;:[&quot;5540388&quot;],&quot;marketCategoryId&quot;:[&quot;39&quot;],&quot;size&quot;:[&quot;30&quot;],&quot;page&quot;:[&quot;3&quot;]})">重置</button>
+                </div>
+            </div>
+        </div>
+        <div class="timo-table-wrap">
+            <table class="layui-table timo-table">
+                <thead>
+                <tr>
+                    <th data-field="marketOddsList">盘口投注项</th>
+                    <th data-field="matchId">标准赛事ID</th>
+                    <th data-field="marketCategoryId">标准玩法ID</th>
+                    <th data-field="modifyTime">上游下发时间</th>
+                    <th data-field="marketType">盘口类型</th>
+                    <th data-field="marketId">统一盘口ID</th>
+                    <th data-field="thirdMarketSourceId">三方盘口源ID</th>
+                    <th data-field="placeNumId">盘口位置Id</th>
+                    <th data-field="marketHeadGap">盘口差</th>
+                    <th data-field="status">盘口状态</th>
+<!--                    <th data-field="endEdStatus">操盘是否收盘</th>-->
+                    <th data-field="thirdMarketSourceStatus"> 数据源盘口状态</th>
+<!--                    <th data-field="placeNumStatus"> 盘口位置状态</th>-->
+<!--                    <th data-field="paStatus">PA状态理由</th>-->
+<!--                    <th data-field="paStatusReason"> PA状态</th>-->
+                    <th data-field="tradeType">操盘方式</th>
+                    <th data-field="scopeId">玩法所属时段</th>
+                    <th data-field="thirdMarketSourceId">替换风控盘口id</th>
+                    <th data-field="linkId">linkId</th>
+                    <th data-field="id">盘口ID</th>
+                    <th data-field="oddsName">盘口名称</th>
+                    <th data-field="placeNum">盘口位置</th>
+                    <th data-field="internalDataSourceCode">内部数据源</th>
+                    <th data-field="createTime">入库时间</th>
+                    <th data-field="riskState">风控状态</th>
+                    <th data-field="addition1">附加字段1</th>
+                    <th data-field="addition2">附加字段2</th>
+                    <th data-field="addition3">附加字段3</th>
+                    <th data-field="addition4">附加字段4</th>
+                    <th data-field="addition5">附加字段5</th>
+                    <th data-field="dataSourceCode">数据源</th>
+                    <th data-field="marketSource">构建标识</th>
+                    <th data-field="extraInfo">额外信息</th>
+                    <th data-field="remark">备注</th>
+
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/panda/factMarket/index?matchId=5540388&amp;marketCategoryId=39&amp;size=30&amp;page=3#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/143054312011082312/470dc42b203e49b7a076ef56cf1d15d4_task_margain_trade_PANDA_replenish_A_SPECIAL">投注项列表</a>
+                    </td>
+                    <td>5540388</td>
+                    <td>39</td>
+                    <td>2026-09-04 16:18:01.296</td>
+                    <td>赛前盘</td>
+                    <td>143054312011082312</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>5540388_39_39_3</td>
+                    <td>0</td>
+                    <td>封盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>suspended</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动加强操盘</td>
+                    <td>3</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>470dc42b203e49b7a076ef56cf1d15d4_task_margain_trade_PANDA_replenish_A_SPECIAL</td>
+                    <td>2095788459921715217</td>
+                    <td>盘口 (incl. overtime)</td>
+                    <td>3</td>
+                    <td></td>
+                    <td>2026-09-04 16:18:01.296</td>
+                    <td>其他</td>
+                    <td>1.5</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>-1.5</td>
+
+                    <td>PA</td>
+                    <td>0</td>
+                    <td></td>
+                    <td></td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/panda/factMarket/index?matchId=5540388&amp;marketCategoryId=39&amp;size=30&amp;page=3#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/144556420563257221/d20b0b14364d4f50bf03b7e41a82f294_task_margain_trade_PANDA_replenish_A_SPECIAL">投注项列表</a>
+                    </td>
+                    <td>5540388</td>
+                    <td>39</td>
+                    <td>2026-09-04 16:18:01.275</td>
+                    <td>赛前盘</td>
+                    <td>144556420563257221</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>5540388_39_39_2</td>
+                    <td>0</td>
+                    <td>封盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>suspended</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动加强操盘</td>
+                    <td>3</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>d20b0b14364d4f50bf03b7e41a82f294_task_margain_trade_PANDA_replenish_A_SPECIAL</td>
+                    <td>2095788459716194305</td>
+                    <td>盘口 (incl. overtime)</td>
+                    <td>2</td>
+                    <td></td>
+                    <td>2026-09-04 16:18:01.275</td>
+                    <td>其他</td>
+                    <td>-2.5</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>-1.5</td>
+
+                    <td>PA</td>
+                    <td>0</td>
+                    <td></td>
+                    <td></td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/panda/factMarket/index?matchId=5540388&amp;marketCategoryId=39&amp;size=30&amp;page=3#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/144305097204333511/d20b0b14364d4f50bf03b7e41a82f294_task_margain_trade_PANDA_replenish_A_SPECIAL">投注项列表</a>
+                    </td>
+                    <td>5540388</td>
+                    <td>39</td>
+                    <td>2026-09-04 16:18:01.275</td>
+                    <td>赛前盘</td>
+                    <td>144305097204333511</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>5540388_39_39_1</td>
+                    <td></td>
+                    <td>封盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>suspended</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动操盘</td>
+                    <td>3</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>d20b0b14364d4f50bf03b7e41a82f294_task_margain_trade_PANDA_replenish_A_SPECIAL</td>
+                    <td>2095788459691028482</td>
+                    <td>盘口 (incl. overtime)</td>
+                    <td>1</td>
+                    <td></td>
+                    <td>2026-09-04 16:18:01.275</td>
+                    <td>其他</td>
+                    <td>-1.5</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+
+                    <td>SR</td>
+                    <td>0</td>
+                    <td></td>
+                    <td></td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/panda/factMarket/index?matchId=5540388&amp;marketCategoryId=39&amp;size=30&amp;page=3#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/143054312011082312/d20b0b14364d4f50bf03b7e41a82f294_task_margain_trade_PANDA_replenish_A_SPECIAL">投注项列表</a>
+                    </td>
+                    <td>5540388</td>
+                    <td>39</td>
+                    <td>2026-09-04 16:18:01.275</td>
+                    <td>赛前盘</td>
+                    <td>143054312011082312</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>5540388_39_39_3</td>
+                    <td>0</td>
+                    <td>封盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>suspended</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动加强操盘</td>
+                    <td>3</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>d20b0b14364d4f50bf03b7e41a82f294_task_margain_trade_PANDA_replenish_A_SPECIAL</td>
+                    <td>2095788459795886082</td>
+                    <td>盘口 (incl. overtime)</td>
+                    <td>3</td>
+                    <td></td>
+                    <td>2026-09-04 16:18:01.275</td>
+                    <td>其他</td>
+                    <td>1.5</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>-1.5</td>
+
+                    <td>PA</td>
+                    <td>0</td>
+                    <td></td>
+                    <td></td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/panda/factMarket/index?matchId=5540388&amp;marketCategoryId=39&amp;size=30&amp;page=3#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/144556420563257221/efe59ba21fea478584b6bfc400dc2b32_task_margain_trade_PANDA_replenish_A_SPECIAL">投注项列表</a>
+                    </td>
+                    <td>5540388</td>
+                    <td>39</td>
+                    <td>2026-09-04 16:16:08.339</td>
+                    <td>赛前盘</td>
+                    <td>144556420563257221</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>5540388_39_39_2</td>
+                    <td>0</td>
+                    <td>封盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>suspended</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动加强操盘</td>
+                    <td>3</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>efe59ba21fea478584b6bfc400dc2b32_task_margain_trade_PANDA_replenish_A_SPECIAL</td>
+                    <td>2095787986175078402</td>
+                    <td>盘口 (incl. overtime)</td>
+                    <td>2</td>
+                    <td></td>
+                    <td>2026-09-04 16:16:08.339</td>
+                    <td>其他</td>
+                    <td>-2.5</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>-1.5</td>
+
+                    <td>PA</td>
+                    <td>0</td>
+                    <td></td>
+                    <td></td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/panda/factMarket/index?matchId=5540388&amp;marketCategoryId=39&amp;size=30&amp;page=3#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/144305097204333511/efe59ba21fea478584b6bfc400dc2b32_task_margain_trade_PANDA_replenish_A_SPECIAL">投注项列表</a>
+                    </td>
+                    <td>5540388</td>
+                    <td>39</td>
+                    <td>2026-09-04 16:16:08.339</td>
+                    <td>赛前盘</td>
+                    <td>144305097204333511</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>5540388_39_39_1</td>
+                    <td></td>
+                    <td>封盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>suspended</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动操盘</td>
+                    <td>3</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>efe59ba21fea478584b6bfc400dc2b32_task_margain_trade_PANDA_replenish_A_SPECIAL</td>
+                    <td>2095787986145718274</td>
+                    <td>盘口 (incl. overtime)</td>
+                    <td>1</td>
+                    <td></td>
+                    <td>2026-09-04 16:16:08.339</td>
+                    <td>其他</td>
+                    <td>-1.5</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+
+                    <td>SR</td>
+                    <td>0</td>
+                    <td></td>
+                    <td></td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/panda/factMarket/index?matchId=5540388&amp;marketCategoryId=39&amp;size=30&amp;page=3#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/143054312011082312/efe59ba21fea478584b6bfc400dc2b32_task_margain_trade_PANDA_replenish_A_SPECIAL">投注项列表</a>
+                    </td>
+                    <td>5540388</td>
+                    <td>39</td>
+                    <td>2026-09-04 16:16:08.339</td>
+                    <td>赛前盘</td>
+                    <td>143054312011082312</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>5540388_39_39_3</td>
+                    <td>0</td>
+                    <td>封盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>suspended</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动加强操盘</td>
+                    <td>3</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>efe59ba21fea478584b6bfc400dc2b32_task_margain_trade_PANDA_replenish_A_SPECIAL</td>
+                    <td>2095787986196049922</td>
+                    <td>盘口 (incl. overtime)</td>
+                    <td>3</td>
+                    <td></td>
+                    <td>2026-09-04 16:16:08.339</td>
+                    <td>其他</td>
+                    <td>1.5</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>-1.5</td>
+
+                    <td>PA</td>
+                    <td>0</td>
+                    <td></td>
+                    <td></td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/panda/factMarket/index?matchId=5540388&amp;marketCategoryId=39&amp;size=30&amp;page=3#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/144556420563257221/1a54556416054f7b93aacf69b4405d44_task_margain_trade_PANDA_replenish_A_SPECIAL">投注项列表</a>
+                    </td>
+                    <td>5540388</td>
+                    <td>39</td>
+                    <td>2026-09-04 16:16:08.333</td>
+                    <td>赛前盘</td>
+                    <td>144556420563257221</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>5540388_39_39_2</td>
+                    <td>0</td>
+                    <td>封盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>suspended</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动加强操盘</td>
+                    <td>3</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>1a54556416054f7b93aacf69b4405d44_task_margain_trade_PANDA_replenish_A_SPECIAL</td>
+                    <td>2095787986071785473</td>
+                    <td>盘口 (incl. overtime)</td>
+                    <td>2</td>
+                    <td></td>
+                    <td>2026-09-04 16:16:08.333</td>
+                    <td>其他</td>
+                    <td>-2.5</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>-1.5</td>
+
+                    <td>PA</td>
+                    <td>0</td>
+                    <td></td>
+                    <td></td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/panda/factMarket/index?matchId=5540388&amp;marketCategoryId=39&amp;size=30&amp;page=3#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/143054312011082312/1a54556416054f7b93aacf69b4405d44_task_margain_trade_PANDA_replenish_A_SPECIAL">投注项列表</a>
+                    </td>
+                    <td>5540388</td>
+                    <td>39</td>
+                    <td>2026-09-04 16:16:08.333</td>
+                    <td>赛前盘</td>
+                    <td>143054312011082312</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>5540388_39_39_3</td>
+                    <td>0</td>
+                    <td>封盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>suspended</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动加强操盘</td>
+                    <td>3</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>1a54556416054f7b93aacf69b4405d44_task_margain_trade_PANDA_replenish_A_SPECIAL</td>
+                    <td>2095787986101145602</td>
+                    <td>盘口 (incl. overtime)</td>
+                    <td>3</td>
+                    <td></td>
+                    <td>2026-09-04 16:16:08.333</td>
+                    <td>其他</td>
+                    <td>1.5</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>-1.5</td>
+
+                    <td>PA</td>
+                    <td>0</td>
+                    <td></td>
+                    <td></td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/panda/factMarket/index?matchId=5540388&amp;marketCategoryId=39&amp;size=30&amp;page=3#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/144305097204333511/1a54556416054f7b93aacf69b4405d44_task_margain_trade_PANDA_replenish_A_SPECIAL">投注项列表</a>
+                    </td>
+                    <td>5540388</td>
+                    <td>39</td>
+                    <td>2026-09-04 16:16:08.333</td>
+                    <td>赛前盘</td>
+                    <td>144305097204333511</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>5540388_39_39_1</td>
+                    <td></td>
+                    <td>封盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>suspended</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动操盘</td>
+                    <td>3</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>1a54556416054f7b93aacf69b4405d44_task_margain_trade_PANDA_replenish_A_SPECIAL</td>
+                    <td>2095787986038231042</td>
+                    <td>盘口 (incl. overtime)</td>
+                    <td>1</td>
+                    <td></td>
+                    <td>2026-09-04 16:16:08.333</td>
+                    <td>其他</td>
+                    <td>-1.5</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+
+                    <td>SR</td>
+                    <td>0</td>
+                    <td></td>
+                    <td></td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/panda/factMarket/index?matchId=5540388&amp;marketCategoryId=39&amp;size=30&amp;page=3#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/144556420563257221/852f9b96e7f8440e93fb56722098ea54_task_margain_trade_PANDA_replenish_A_SPECIAL">投注项列表</a>
+                    </td>
+                    <td>5540388</td>
+                    <td>39</td>
+                    <td>2026-09-04 16:16:08.327</td>
+                    <td>赛前盘</td>
+                    <td>144556420563257221</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>5540388_39_39_2</td>
+                    <td>0</td>
+                    <td>封盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>suspended</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动加强操盘</td>
+                    <td>3</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>852f9b96e7f8440e93fb56722098ea54_task_margain_trade_PANDA_replenish_A_SPECIAL</td>
+                    <td>2095787986066026497</td>
+                    <td>盘口 (incl. overtime)</td>
+                    <td>2</td>
+                    <td></td>
+                    <td>2026-09-04 16:16:08.327</td>
+                    <td>其他</td>
+                    <td>-2.5</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>-1.5</td>
+
+                    <td>PA</td>
+                    <td>0</td>
+                    <td></td>
+                    <td></td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/panda/factMarket/index?matchId=5540388&amp;marketCategoryId=39&amp;size=30&amp;page=3#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/144305097204333511/852f9b96e7f8440e93fb56722098ea54_task_margain_trade_PANDA_replenish_A_SPECIAL">投注项列表</a>
+                    </td>
+                    <td>5540388</td>
+                    <td>39</td>
+                    <td>2026-09-04 16:16:08.327</td>
+                    <td>赛前盘</td>
+                    <td>144305097204333511</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>5540388_39_39_1</td>
+                    <td></td>
+                    <td>封盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>suspended</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动操盘</td>
+                    <td>3</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>852f9b96e7f8440e93fb56722098ea54_task_margain_trade_PANDA_replenish_A_SPECIAL</td>
+                    <td>2095787986040860674</td>
+                    <td>盘口 (incl. overtime)</td>
+                    <td>1</td>
+                    <td></td>
+                    <td>2026-09-04 16:16:08.327</td>
+                    <td>其他</td>
+                    <td>-1.5</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+
+                    <td>SR</td>
+                    <td>0</td>
+                    <td></td>
+                    <td></td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/panda/factMarket/index?matchId=5540388&amp;marketCategoryId=39&amp;size=30&amp;page=3#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/143054312011082312/852f9b96e7f8440e93fb56722098ea54_task_margain_trade_PANDA_replenish_A_SPECIAL">投注项列表</a>
+                    </td>
+                    <td>5540388</td>
+                    <td>39</td>
+                    <td>2026-09-04 16:16:08.327</td>
+                    <td>赛前盘</td>
+                    <td>143054312011082312</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>5540388_39_39_3</td>
+                    <td>0</td>
+                    <td>封盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>suspended</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动加强操盘</td>
+                    <td>3</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>852f9b96e7f8440e93fb56722098ea54_task_margain_trade_PANDA_replenish_A_SPECIAL</td>
+                    <td>2095787986091192322</td>
+                    <td>盘口 (incl. overtime)</td>
+                    <td>3</td>
+                    <td></td>
+                    <td>2026-09-04 16:16:08.327</td>
+                    <td>其他</td>
+                    <td>1.5</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>-1.5</td>
+
+                    <td>PA</td>
+                    <td>0</td>
+                    <td></td>
+                    <td></td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/panda/factMarket/index?matchId=5540388&amp;marketCategoryId=39&amp;size=30&amp;page=3#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/143054312011082312/91bf42cc386d456a85f215e39d3edfee_trade_PANDA_replenish_A_SPECIAL">投注项列表</a>
+                    </td>
+                    <td>5540388</td>
+                    <td>39</td>
+                    <td>2026-09-04 16:14:18.583</td>
+                    <td>赛前盘</td>
+                    <td>143054312011082312</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>5540388_39_39_3</td>
+                    <td>0</td>
+                    <td>封盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>suspended</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动加强操盘</td>
+                    <td>3</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>91bf42cc386d456a85f215e39d3edfee_trade_PANDA_replenish_A_SPECIAL</td>
+                    <td>2095787525678247937</td>
+                    <td>盘口 (incl. overtime)</td>
+                    <td>3</td>
+                    <td></td>
+                    <td>2026-09-04 16:14:18.583</td>
+                    <td>其他</td>
+                    <td>1.5</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>-1.5</td>
+
+                    <td>PA</td>
+                    <td>0</td>
+                    <td></td>
+                    <td></td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/panda/factMarket/index?matchId=5540388&amp;marketCategoryId=39&amp;size=30&amp;page=3#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/144556420563257221/91bf42cc386d456a85f215e39d3edfee_trade_PANDA_replenish_A_SPECIAL">投注项列表</a>
+                    </td>
+                    <td>5540388</td>
+                    <td>39</td>
+                    <td>2026-09-04 16:14:18.583</td>
+                    <td>赛前盘</td>
+                    <td>144556420563257221</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>5540388_39_39_2</td>
+                    <td>0</td>
+                    <td>封盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>suspended</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动加强操盘</td>
+                    <td>3</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>91bf42cc386d456a85f215e39d3edfee_trade_PANDA_replenish_A_SPECIAL</td>
+                    <td>2095787525653082114</td>
+                    <td>盘口 (incl. overtime)</td>
+                    <td>2</td>
+                    <td></td>
+                    <td>2026-09-04 16:14:18.583</td>
+                    <td>其他</td>
+                    <td>-2.5</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>-1.5</td>
+
+                    <td>PA</td>
+                    <td>0</td>
+                    <td></td>
+                    <td></td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/panda/factMarket/index?matchId=5540388&amp;marketCategoryId=39&amp;size=30&amp;page=3#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/144305097204333511/91bf42cc386d456a85f215e39d3edfee_trade_PANDA_replenish_A_SPECIAL">投注项列表</a>
+                    </td>
+                    <td>5540388</td>
+                    <td>39</td>
+                    <td>2026-09-04 16:14:18.583</td>
+                    <td>赛前盘</td>
+                    <td>144305097204333511</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>5540388_39_39_1</td>
+                    <td>0</td>
+                    <td>开盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>active</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动操盘</td>
+                    <td>3</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>91bf42cc386d456a85f215e39d3edfee_trade_PANDA_replenish_A_SPECIAL</td>
+                    <td>2095787525632110594</td>
+                    <td>盘口 (incl. overtime)</td>
+                    <td>1</td>
+                    <td></td>
+                    <td>2026-09-04 16:14:18.583</td>
+                    <td>其他</td>
+                    <td>-1.5</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>-1.5</td>
+
+                    <td>PA</td>
+                    <td>0</td>
+                    <td></td>
+                    <td></td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/panda/factMarket/index?matchId=5540388&amp;marketCategoryId=39&amp;size=30&amp;page=3#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/143054312011082312/5907204f2adc44fda8a3d39a2dbf9e9f_trade_close_odds">投注项列表</a>
+                    </td>
+                    <td>5540388</td>
+                    <td>39</td>
+                    <td>2026-09-04 16:14:18.489</td>
+                    <td>赛前盘</td>
+                    <td>143054312011082312</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>5540388_39_39_1</td>
+                    <td></td>
+                    <td>关盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>deactivated</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>手动操盘</td>
+                    <td>3</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>5907204f2adc44fda8a3d39a2dbf9e9f_trade_close_odds</td>
+                    <td>2095787525367869441</td>
+                    <td>盘口 (incl. overtime)</td>
+                    <td>1</td>
+                    <td></td>
+                    <td>2026-09-04 16:14:18.489</td>
+                    <td>其他</td>
+                    <td>1.5</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+
+                    <td>PA</td>
+                    <td>0</td>
+                    <td></td>
+                    <td>操盘切换M模式构建盘口</td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/panda/factMarket/index?matchId=5540388&amp;marketCategoryId=39&amp;size=30&amp;page=3#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/144305097204333511/5907204f2adc44fda8a3d39a2dbf9e9f_trade_close_odds">投注项列表</a>
+                    </td>
+                    <td>5540388</td>
+                    <td>39</td>
+                    <td>2026-09-04 16:14:18.489</td>
+                    <td>赛前盘</td>
+                    <td>144305097204333511</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>5540388_39_39_2</td>
+                    <td></td>
+                    <td>关盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>deactivated</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>手动操盘</td>
+                    <td>3</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>5907204f2adc44fda8a3d39a2dbf9e9f_trade_close_odds</td>
+                    <td>2095787525376258049</td>
+                    <td>盘口 (incl. overtime)</td>
+                    <td>2</td>
+                    <td></td>
+                    <td>2026-09-04 16:14:18.489</td>
+                    <td>其他</td>
+                    <td>-1.5</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+
+                    <td>PA</td>
+                    <td>0</td>
+                    <td></td>
+                    <td>操盘切换M模式构建盘口</td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/panda/factMarket/index?matchId=5540388&amp;marketCategoryId=39&amp;size=30&amp;page=3#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/144556420563257221/5907204f2adc44fda8a3d39a2dbf9e9f_trade_close_odds">投注项列表</a>
+                    </td>
+                    <td>5540388</td>
+                    <td>39</td>
+                    <td>2026-09-04 16:14:18.489</td>
+                    <td>赛前盘</td>
+                    <td>144556420563257221</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>5540388_39_39_3</td>
+                    <td></td>
+                    <td>关盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>deactivated</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>手动操盘</td>
+                    <td>3</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>5907204f2adc44fda8a3d39a2dbf9e9f_trade_close_odds</td>
+                    <td>2095787525380452353</td>
+                    <td>盘口 (incl. overtime)</td>
+                    <td>3</td>
+                    <td></td>
+                    <td>2026-09-04 16:14:18.489</td>
+                    <td>其他</td>
+                    <td>-2.5</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+
+                    <td>PA</td>
+                    <td>0</td>
+                    <td></td>
+                    <td>操盘切换M模式构建盘口</td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/panda/factMarket/index?matchId=5540388&amp;marketCategoryId=39&amp;size=30&amp;page=3#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/143054312011082312/a77c504b5b894cf3ad4792a0ca301107_trade_odds">投注项列表</a>
+                    </td>
+                    <td>5540388</td>
+                    <td>39</td>
+                    <td>2026-09-04 16:13:58.924</td>
+                    <td>赛前盘</td>
+                    <td>143054312011082312</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>5540388_39_39_3</td>
+                    <td></td>
+                    <td>封盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>active</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>手动操盘</td>
+                    <td>3</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>a77c504b5b894cf3ad4792a0ca301107_trade_odds</td>
+                    <td>2095787443226619906</td>
+                    <td>盘口 (incl. overtime)</td>
+                    <td>3</td>
+                    <td></td>
+                    <td>2026-09-04 16:13:58.924</td>
+                    <td>其他</td>
+                    <td>1.5</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+
+                    <td>PA</td>
+                    <td>0</td>
+                    <td></td>
+                    <td>操盘切换M模式构建盘口</td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/panda/factMarket/index?matchId=5540388&amp;marketCategoryId=39&amp;size=30&amp;page=3#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/144305097204333511/a77c504b5b894cf3ad4792a0ca301107_trade_odds">投注项列表</a>
+                    </td>
+                    <td>5540388</td>
+                    <td>39</td>
+                    <td>2026-09-04 16:13:58.924</td>
+                    <td>赛前盘</td>
+                    <td>144305097204333511</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>5540388_39_39_1</td>
+                    <td></td>
+                    <td>封盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>active</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>手动操盘</td>
+                    <td>3</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>a77c504b5b894cf3ad4792a0ca301107_trade_odds</td>
+                    <td>2095787443180482562</td>
+                    <td>盘口 (incl. overtime)</td>
+                    <td>1</td>
+                    <td></td>
+                    <td>2026-09-04 16:13:58.924</td>
+                    <td>其他</td>
+                    <td>-1.5</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+
+                    <td>PA</td>
+                    <td>0</td>
+                    <td></td>
+                    <td>操盘切换M模式构建盘口</td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/panda/factMarket/index?matchId=5540388&amp;marketCategoryId=39&amp;size=30&amp;page=3#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/144556420563257221/a77c504b5b894cf3ad4792a0ca301107_trade_odds">投注项列表</a>
+                    </td>
+                    <td>5540388</td>
+                    <td>39</td>
+                    <td>2026-09-04 16:13:58.924</td>
+                    <td>赛前盘</td>
+                    <td>144556420563257221</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>5540388_39_39_2</td>
+                    <td></td>
+                    <td>封盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>active</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>手动操盘</td>
+                    <td>3</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>a77c504b5b894cf3ad4792a0ca301107_trade_odds</td>
+                    <td>2095787443205648386</td>
+                    <td>盘口 (incl. overtime)</td>
+                    <td>2</td>
+                    <td></td>
+                    <td>2026-09-04 16:13:58.924</td>
+                    <td>其他</td>
+                    <td>-2.5</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+
+                    <td>PA</td>
+                    <td>0</td>
+                    <td></td>
+                    <td>操盘切换M模式构建盘口</td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/panda/factMarket/index?matchId=5540388&amp;marketCategoryId=39&amp;size=30&amp;page=3#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/144305097204333511/b696f5321f75491c929f8a6a2ce26f7f_trade_place_PANDA_replenish_A_SPECIAL">投注项列表</a>
+                    </td>
+                    <td>5540388</td>
+                    <td>39</td>
+                    <td>2026-09-04 16:13:55.583</td>
+                    <td>赛前盘</td>
+                    <td>144305097204333511</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>5540388_39_39_1</td>
+                    <td></td>
+                    <td>开盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>active</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动操盘</td>
+                    <td>3</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>b696f5321f75491c929f8a6a2ce26f7f_trade_place_PANDA_replenish_A_SPECIAL</td>
+                    <td>2095787429184090113</td>
+                    <td>盘口 (incl. overtime)</td>
+                    <td>1</td>
+                    <td></td>
+                    <td>2026-09-04 16:13:55.583</td>
+                    <td>其他</td>
+                    <td>-1.5</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+
+                    <td>SR</td>
+                    <td>0</td>
+                    <td></td>
+                    <td></td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/panda/factMarket/index?matchId=5540388&amp;marketCategoryId=39&amp;size=30&amp;page=3#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/144556420563257221/b696f5321f75491c929f8a6a2ce26f7f_trade_place_PANDA_replenish_A_SPECIAL">投注项列表</a>
+                    </td>
+                    <td>5540388</td>
+                    <td>39</td>
+                    <td>2026-09-04 16:13:55.583</td>
+                    <td>赛前盘</td>
+                    <td>144556420563257221</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>5540388_39_39_2</td>
+                    <td>0</td>
+                    <td>开盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>active</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动加强操盘</td>
+                    <td>3</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>b696f5321f75491c929f8a6a2ce26f7f_trade_place_PANDA_replenish_A_SPECIAL</td>
+                    <td>2095787429205061633</td>
+                    <td>盘口 (incl. overtime)</td>
+                    <td>2</td>
+                    <td></td>
+                    <td>2026-09-04 16:13:55.583</td>
+                    <td>其他</td>
+                    <td>-2.5</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>-1.5</td>
+
+                    <td>PA</td>
+                    <td>0</td>
+                    <td></td>
+                    <td></td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/panda/factMarket/index?matchId=5540388&amp;marketCategoryId=39&amp;size=30&amp;page=3#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/143054312011082312/b696f5321f75491c929f8a6a2ce26f7f_trade_place_PANDA_replenish_A_SPECIAL">投注项列表</a>
+                    </td>
+                    <td>5540388</td>
+                    <td>39</td>
+                    <td>2026-09-04 16:13:55.583</td>
+                    <td>赛前盘</td>
+                    <td>143054312011082312</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>5540388_39_39_3</td>
+                    <td>0</td>
+                    <td>开盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>active</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动加强操盘</td>
+                    <td>3</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>b696f5321f75491c929f8a6a2ce26f7f_trade_place_PANDA_replenish_A_SPECIAL</td>
+                    <td>2095787429226033153</td>
+                    <td>盘口 (incl. overtime)</td>
+                    <td>3</td>
+                    <td></td>
+                    <td>2026-09-04 16:13:55.583</td>
+                    <td>其他</td>
+                    <td>1.5</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>-1.5</td>
+
+                    <td>PA</td>
+                    <td>0</td>
+                    <td></td>
+                    <td></td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/panda/factMarket/index?matchId=5540388&amp;marketCategoryId=39&amp;size=30&amp;page=3#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/144556420563257221/37f94e77e82b4b29bcf109e3fa3faa90_trade_place_PANDA_replenish_A_SPECIAL">投注项列表</a>
+                    </td>
+                    <td>5540388</td>
+                    <td>39</td>
+                    <td>2026-09-04 16:13:52.439</td>
+                    <td>赛前盘</td>
+                    <td>144556420563257221</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>5540388_39_39_2</td>
+                    <td>0</td>
+                    <td>开盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>active</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动加强操盘</td>
+                    <td>3</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>37f94e77e82b4b29bcf109e3fa3faa90_trade_place_PANDA_replenish_A_SPECIAL</td>
+                    <td>2095787416114638849</td>
+                    <td>盘口 (incl. overtime)</td>
+                    <td>2</td>
+                    <td></td>
+                    <td>2026-09-04 16:13:52.439</td>
+                    <td>其他</td>
+                    <td>-2.5</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>-1.5</td>
+
+                    <td>PA</td>
+                    <td>0</td>
+                    <td></td>
+                    <td></td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/panda/factMarket/index?matchId=5540388&amp;marketCategoryId=39&amp;size=30&amp;page=3#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/143054312011082312/37f94e77e82b4b29bcf109e3fa3faa90_trade_place_PANDA_replenish_A_SPECIAL">投注项列表</a>
+                    </td>
+                    <td>5540388</td>
+                    <td>39</td>
+                    <td>2026-09-04 16:13:52.439</td>
+                    <td>赛前盘</td>
+                    <td>143054312011082312</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>5540388_39_39_3</td>
+                    <td>0</td>
+                    <td>开盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>active</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动加强操盘</td>
+                    <td>3</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>37f94e77e82b4b29bcf109e3fa3faa90_trade_place_PANDA_replenish_A_SPECIAL</td>
+                    <td>2095787416135610369</td>
+                    <td>盘口 (incl. overtime)</td>
+                    <td>3</td>
+                    <td></td>
+                    <td>2026-09-04 16:13:52.439</td>
+                    <td>其他</td>
+                    <td>1.5</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>-1.5</td>
+
+                    <td>PA</td>
+                    <td>0</td>
+                    <td></td>
+                    <td></td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/panda/factMarket/index?matchId=5540388&amp;marketCategoryId=39&amp;size=30&amp;page=3#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/144305097204333511/37f94e77e82b4b29bcf109e3fa3faa90_trade_place_PANDA_replenish_A_SPECIAL">投注项列表</a>
+                    </td>
+                    <td>5540388</td>
+                    <td>39</td>
+                    <td>2026-09-04 16:13:52.439</td>
+                    <td>赛前盘</td>
+                    <td>144305097204333511</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>5540388_39_39_1</td>
+                    <td></td>
+                    <td>封盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>suspended</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动操盘</td>
+                    <td>3</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>37f94e77e82b4b29bcf109e3fa3faa90_trade_place_PANDA_replenish_A_SPECIAL</td>
+                    <td>2095787416089473025</td>
+                    <td>盘口 (incl. overtime)</td>
+                    <td>1</td>
+                    <td></td>
+                    <td>2026-09-04 16:13:52.439</td>
+                    <td>其他</td>
+                    <td>-1.5</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+
+                    <td>SR</td>
+                    <td>0</td>
+                    <td></td>
+                    <td></td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/panda/factMarket/index?matchId=5540388&amp;marketCategoryId=39&amp;size=30&amp;page=3#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/144305097204333511/b1be5858c04d4e6bb43fb99c3dd15936_trade_place_PANDA_replenish_A_SPECIAL">投注项列表</a>
+                    </td>
+                    <td>5540388</td>
+                    <td>39</td>
+                    <td>2026-09-04 16:13:51.052</td>
+                    <td>赛前盘</td>
+                    <td>144305097204333511</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>5540388_39_39_1</td>
+                    <td></td>
+                    <td>封盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>suspended</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动操盘</td>
+                    <td>3</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>b1be5858c04d4e6bb43fb99c3dd15936_trade_place_PANDA_replenish_A_SPECIAL</td>
+                    <td>2095787410213253121</td>
+                    <td>盘口 (incl. overtime)</td>
+                    <td>1</td>
+                    <td></td>
+                    <td>2026-09-04 16:13:51.052</td>
+                    <td>其他</td>
+                    <td>-1.5</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+
+                    <td>SR</td>
+                    <td>0</td>
+                    <td></td>
+                    <td></td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/panda/factMarket/index?matchId=5540388&amp;marketCategoryId=39&amp;size=30&amp;page=3#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/144556420563257221/b1be5858c04d4e6bb43fb99c3dd15936_trade_place_PANDA_replenish_A_SPECIAL">投注项列表</a>
+                    </td>
+                    <td>5540388</td>
+                    <td>39</td>
+                    <td>2026-09-04 16:13:51.052</td>
+                    <td>赛前盘</td>
+                    <td>144556420563257221</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>5540388_39_39_2</td>
+                    <td>0</td>
+                    <td>开盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>active</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动加强操盘</td>
+                    <td>3</td>
+                    <td>1758876758883_223_-1.5</td>
+                    <td>b1be5858c04d4e6bb43fb99c3dd15936_trade_place_PANDA_replenish_A_SPECIAL</td>
+                    <td>2095787410234224642</td>
+                    <td>盘口 (incl. overtime)</td>
+                    <td>2</td>
+                    <td></td>
+                    <td>2026-09-04 16:13:51.052</td>
+                    <td>其他</td>
+                    <td>-2.5</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>-1.5</td>
+
+                    <td>PA</td>
+                    <td>0</td>
+                    <td></td>
+                    <td></td>
+
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        
+    <div class="layui-row">
+        <div class="layui-col-sm4">
+            <div class="page-info">
+                <span>显示 61/90 条，共 136 条记录</span>
+                <select class="timo-select page-number">
+                    <option value="10">10 条/页</option>
+                    <option value="20">20 条/页</option>
+                    <option value="30" selected="selected">30 条/页</option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-col-sm7" style="float: right;">
+            <ul class="pagination list-page">
+                <li class="page-item"><a class="page-link" href="http://panda-send-manager.dbsportxxx14bl5.com/panda/factMarket/index?matchId=5540388&amp;marketCategoryId=39&amp;size=30&amp;page=2">上一页</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="http://panda-send-manager.dbsportxxx14bl5.com/panda/factMarket/index?matchId=5540388&amp;marketCategoryId=39&amp;size=30&amp;page=1">1</a>
+                    
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="http://panda-send-manager.dbsportxxx14bl5.com/panda/factMarket/index?matchId=5540388&amp;marketCategoryId=39&amp;size=30&amp;page=2">2</a>
+                    
+                </li>
+                <li class="page-item active">
+                    <a class="page-link" href="http://panda-send-manager.dbsportxxx14bl5.com/panda/factMarket/index?matchId=5540388&amp;marketCategoryId=39&amp;size=30&amp;page=3">3</a>
+                    
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="http://panda-send-manager.dbsportxxx14bl5.com/panda/factMarket/index?matchId=5540388&amp;marketCategoryId=39&amp;size=30&amp;page=4">4</a>
+                    
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="http://panda-send-manager.dbsportxxx14bl5.com/panda/factMarket/index?matchId=5540388&amp;marketCategoryId=39&amp;size=30&amp;page=5">5</a>
+                    
+                </li>
+                <li class="page-item"><a class="page-link" href="http://panda-send-manager.dbsportxxx14bl5.com/panda/factMarket/index?matchId=5540388&amp;marketCategoryId=39&amp;size=30&amp;page=4">下一页</a>
+                </li>
+               <li class="page-item">
+                    <span class="page-link noHover">
+                        跳到第
+                    </span>
+               </li>
+                <li class="page-item">
+                    <input id="pageParamHrefSkip" type="hidden" value="/panda/factMarket/index?matchId=5540388&amp;marketCategoryId=39&amp;size=30&amp;">
+                    <input class="page-link" style="text-align: center; width: 50px" id="pageNumberSkip" type="number" min="1" value="3">
+                </li>
+                <li class="page-item">
+                    <span class="page-link noHover">页</span>
+                </li>
+                <li class="page-item">
+                    <button type="button" class="page-link page-number-skip">确定</button>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    </div>
+</div>
+<script>
+        //定义函数 $ 根据元素id获得页面元素,提高效率
+        function $(id){
+            return document.getElementById(id);
+        }
+    </script><script src="./jquery-2.2.4.js.download" charset="utf-8"></script>
+        <script src="./layui.js.download" charset="utf-8"></script>
+        <script src="./main.js.download" charset="utf-8"></script>
+    
+
+</body></html>

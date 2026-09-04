@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<!-- saved from url=(0067)http://panda-send-manager.dbsportxxx14bl5.com/sr/rhMatchMarketIndex -->
+<html xmlns:mo="https://gitee.com/aun/Timo" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+        <title>数据支撑后台</title>
+    
+    
+
+    
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="数据支撑后台管理系统">
+    <meta name="keywords" content="数据支撑, 数据支撑后台管理系统, SpringBoot, Jpa, Thymeleaf, Shiro">
+
+    <link rel="shortcut icon" href="http://panda-send-manager.dbsportxxx14bl5.com/mo-favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="./font-awesome.min.css" media="all">
+    <link rel="stylesheet" href="./layui.css" media="all">
+    <link rel="stylesheet" href="./main.css" media="all">
+    
+
+    
+    <script>
+        //定义函数 $ 根据元素id获得页面元素,提高效率
+        function $(id){
+            return document.getElementById(id);
+        }
+    </script>
+    
+        <script src="./jquery-2.2.4.js.download" charset="utf-8"></script>
+    
+<link id="layuicss-layer" rel="stylesheet" href="./layer.css" media="all"></head>
+<body class="timo-layout-page">
+<div class="layui-card">
+    <div class="layui-card-header timo-card-header">
+        <span><i class="fa fa-bars"></i> S01赔率列表</span>
+        <i class="layui-icon layui-icon-refresh refresh-btn"></i>
+    </div>
+    <div class="layui-card-body">
+        <div class="layui-row timo-card-screen">
+            <div class="pull-left layui-form-pane timo-search-box">
+                <div class="layui-inline">
+                    <label class="layui-form-label">赛种</label>
+                    <div class="layui-input-block timo-search-status">
+                        <select class="timo-search-select" name="sportId"><option value="">全部</option><option value="3">棒球</option><option value="5">网球</option><option value="20">乒乓球</option><option value="31">羽毛球</option><option value="14">14-联合橄榄球</option><option value="11">11-手球</option><option value="13">13-沙滩排球</option></select>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">赛事ID</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="thirdMatchSourceId" value="" placeholder="请输入赛事ID" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">链路ID</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="linkId" value="" placeholder="请输入链路ID" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <div class="layui-form">
+                        <label class="layui-form-label">玩法名称</label>
+                        <div class="layui-input-block timo-search-status">
+                            <select class="timo-search-select" name="thirdMarketDTO.thirdMarketCategorySourceId" lay-search=""><option value="">全部</option><option value="1"> 1-全场独赢</option><option value="18">18-全场大小</option><option value="14">14-全场让球胜平负</option><option value="16">16-全场让球</option><option value="11">11-平局退款</option><option value="10">10-双重机会</option><option value="45">45-全场比分</option><option value="23">23-{主队}准确进球数</option><option value="24">24-{客队}准确进球数</option><option value="19">19-{主队}进球大小</option><option value="20">20-{客队}进球大小</option><option value="29">29-两队都进球</option><option value="37">37-独赢 &amp; 进球大小</option><option value="21">21-准确进球数</option><option value="26">26-进球单/双</option><option value="52">52-最多进球的半场</option><option value="60">60-半场独赢</option><option value="68">68-半场大小</option><option value="66">66-半场让球</option><option value="81">81-上半场比分</option><option value="72">72-上半场{主队}准确进球数</option><option value="73">73-上半场{客队}准确进球数</option><option value="71">71-上半场准确进球数</option><option value="75">75-上半场两队都进球</option><option value="83">83-下半场独赢</option><option value="90">90-下半场大小</option><option value="7">7-剩余时间获胜</option><option value="8">8-第{X}个进球</option><option value="61">61-上半场剩余时间获胜</option><option value="62">62-上半场第{X}个进球</option><option value="100">100-第{X}个进球何时发生？</option><option value="102">102-15分钟进球-赛果({a}-{b})</option><option value="104">104-15分钟进球-大小({a}-{b})</option><option value="38">38-首个进球球员</option><option value="40">40-任意时间进球球员</option><option value="219">219-全场独赢</option><option value="225">225-总分</option><option value="223">223-让分</option><option value="229">229-总分单/双</option><option value="220">220-是否进行加时赛</option><option value="74">74-上半场进球单/双</option><option value="64">64-上半场平局退款</option><option value="235_1">235_1-第1节赛果</option><option value="236_1">236_1-第1节总分</option><option value="303_1">303_1-第1节让分</option><option value="304_1">304_1-第1节总分单/双</option><option value="302_1">302_1-第1节独赢</option><option value="301_1">301_1-第1节净胜分</option><option value="235_2">235_2-第2节赛果</option><option value="236_2">236_2-第2节总分</option><option value="303_2">303_2-第2节让分</option><option value="304_2">304_2-第2节总分单/双</option><option value="302_2">302_2-第2节独赢</option><option value="301_2">301_2-第2节净胜分</option><option value="235_3">235_3-第3节赛果</option><option value="236_3">236_3-第3节总分</option><option value="303_3">303_3-第3节让分</option><option value="304_3">304_3-第3节总分单/双</option><option value="302_3">302_3-第3节独赢</option><option value="301_3">301_3-第3节净胜分</option><option value="235_4">235_4-第4节赛果</option><option value="236_4">236_4-第4节总分</option><option value="303_4">303_4-第4节让分</option><option value="304_4">304_4-第4节总分单/双</option><option value="302_4">302_4-第4节独赢</option><option value="301_4">301_4-第4节净胜分</option><option value="25">25-总进球数区间</option><option value="65">65-上半场让球赛果</option><option value="63">63-上半场双重机会</option><option value="87">87-下半场让球赛果</option><option value="85">85-下半场双重机会</option><option value="93">93-下半场准确进球数</option><option value="98">98-下半场比分</option><option value="94">94-下半场进球单/双</option><option value="95">95-下半场两队都进球</option><option value="12">12-{主队}获胜退款</option><option value="27">27-{主队}进球单/双</option><option value="32">32-{客队}零失球</option><option value="34">34-{客队}零失球获胜</option><option value="31">31-{主队}零失球</option><option value="33">33-{主队}零失球获胜</option><option value="48">48-{主队}上/下半场全胜</option><option value="50">50-{主队}任意半场获胜</option><option value="53">53-{主队}最高得分半场</option><option value="56">56-{主队}上/下半场均进球</option><option value="69">69-上半场{主队}进球大小</option><option value="91">91-下半场{主队}进球大小</option><option value="96">96-下半场{主队}零失球</option><option value="76">76-上半场{主队}零失球</option><option value="13">13-{客队}获胜退款</option><option value="28">28-{客队}进球单/双</option><option value="49">49-{客队}上/下半场全胜</option><option value="51">51-{客队}任意半场获胜</option><option value="54">54-{客队}最高得分半场</option><option value="57">57-{客队}上/下半场均进球</option><option value="70">70-上半场{客队}进球大小</option><option value="92">92-下半场{客队}进球大小</option><option value="97">97-下半场{客队}零失球</option><option value="77">77-上半场{客队}零失球</option><option value="35">35-赛果 &amp; 两队都进球</option><option value="36">36-进球大小 &amp; 两队都进球</option><option value="46">46-半/全场比分</option><option value="47">47-半/全场</option><option value="78">78-上半场赛果 &amp; 上半场两队都进球</option><option value="543">543-下半场赛果 &amp; 下半场两队都进球</option><option value="546">546-双重机会 &amp; 两队都进球</option><option value="55">55-上/下半场两队都进球</option><option value="58">58-上/下半场进球数均大于{X.5}</option><option value="59">59-上/下半场进球数均小于{X.5}</option><option value="162">162-哪个球队获得角球多？</option><option value="164">164-最后一个角球</option><option value="165">165-角球让球盘</option><option value="166">166-角球大小盘</option><option value="167">167-{主队}角球大小盘</option><option value="168">168-{客队}角球大小盘</option><option value="169">169-角球总数区间</option><option value="172">172-角球单/双</option><option value="173">173-上半场哪个球队获得角球多？</option><option value="174">174-上半场第{X}个角球</option><option value="176">176-上半场角球让球盘</option><option value="177">177-上半场角球大小盘</option><option value="178">178-上半场{主队}角球大小盘</option><option value="179">179-上半场{客队}角球大小盘</option><option value="601">601-谁先获得{X}个角球</option><option value="113">113-加时赛-赛果</option><option value="116">116-加时赛-大小</option><option value="117">117-加时赛-让球</option><option value="119">119-加时赛-上半场赛果</option><option value="120">120-加时赛-上半场让球</option><option value="122">122-是否进行点球大战</option><option value="123">123-点球大战-获胜者</option><option value="124">124-点球大战-第{X}个点球是否射进</option><option value="127">127-点球大战-大小盘</option><option value="2">2-晋级球队</option><option value="3">3-冠军</option><option value="5">5-获胜方式</option><option value="146">146-比赛中出现红牌</option><option value="147">147-{主队}获得红牌</option><option value="148">148-{客队}获得红牌</option><option value="15">15-净胜分(不含加时)</option><option value="86">86-下半场平局退款</option><option value="88">88-下半场让球盘</option><option value="6">6-谁先开球</option><option value="756">756-第{X}节{主队}总分</option><option value="757">757-第{X}节{客队}总分</option><option value="1057">1057-第{X}节首先获得{Y}分 三项</option><option value="892">892-第{X}个进球队员</option><option value="9">9-最后进球队伍</option><option value="39">39-最后进球队员</option><option value="898">898-进2+球的队员</option><option value="899">899-进3+球的队员</option><option value="186">186-独赢</option><option value="188">188-让盘</option><option value="187">187-让局</option><option value="190">190-{主队}总局数</option><option value="191">191-{客队}总局数</option><option value="195">195-出现抢七局</option><option value="196">196-准确盘数</option><option value="198">198-总局数单/双</option><option value="201">201-双重赛果(第1盘/全场获胜)</option><option value="202">202-第{X}盘获胜</option><option value="203">203-第{X}盘让局</option><option value="204">204-第{X}盘总局数</option><option value="205">205-第{X}盘总局数单/双</option><option value="207">207-第{X}盘正确比分</option><option value="209">209-第{X}盘第{Y}局和第{Y}+1局谁获胜多</option><option value="210">210-第{X}盘第{Y}局获胜</option><option value="314">314-总盘数</option><option value="1055">1055-获胜者 &amp; 总局数</option><option value="237">237-让分</option><option value="238">238-总分</option><option value="241">241-准确局数</option><option value="245">245-第{X}局获胜</option><option value="246">246-第{X}局让分</option><option value="247">247-第{X}局总分</option><option value="248">248-第{X}局单/双</option><option value="520">520-第{X}局第{Y}分</option><option value="492">492-比赛进入决胜局</option><option value="493">493-让局</option><option value="494">494-总局数</option><option value="495">495-单双局</option><option value="499">499-第{X}局获胜</option><option value="500">500-第{X}局让分</option><option value="501">501-第{X}局总分</option><option value="502">502-第{X}局总分单/双</option><option value="503">503-第{X}局首先到达{Y}分</option><option value="504">504-第{X}局单杆得分最高的选手</option><option value="505">505-第{X}局单杆最高分</option><option value="506">506-第{X}局单杆破百</option><option value="507">507-第{X}局选手1单杆破百</option><option value="508">508-第{X}局选手2单杆破百</option><option value="512">512-第{X}局会不会有犯规</option><option value="513">513-第{X}局第{Y}个进球的选手</option><option value="515">515-第{X}局打进最后一球的选手</option><option value="516">516-第{X}局最后得分</option><option value="227">227-{主队}总分</option><option value="228">228-{客队}总分</option><option value="290_6">290_6-净胜分 三项</option><option value="230">230-首先获得{X}分</option><option value="189">189-总局数</option><option value="250">250-第{X}局首先获得{Y}分 </option><option value="199">199-全场比分</option><option value="192">192-{主队选手}赢得一盘 </option><option value="193">193-{客队选手}赢得一盘 </option><option value="194">194-任何一盘未失一局获胜</option><option value="206">206-第{X}盘是否出现抢七局 </option><option value="290_11">290_11-净胜分 6项</option><option value="849">849-净胜分 7项</option><option value="290_26">290_26-净胜分 12项</option><option value="296">296-最高得分的小节</option><option value="291">291-谁先获得第{X}分(含加时)</option><option value="305">305-第{X}节首先获得{Y}分</option><option value="292">292-独赢&amp;总分</option><option value="297">297-准确总分大小</option><option value="298">298-总分区间</option><option value="470">470-上半场净胜分</option><option value="768">768-球员得分</option><option value="774">774-球员三分球</option><option value="896">896-第{X}个进球方式</option><option value="30">30-谁会进球</option><option value="137">137-第{X}张罚牌</option><option value="163">163-第{X}个角球</option><option value="170">170-{主队}角球总数区间</option><option value="171">171-{客队}角球总数区间</option><option value="182">182-上半场角球总数区间</option><option value="183">183-上半场角球单/双</option><option value="602">602-上半场谁先获得{X}个角球</option><option value="565">565-15分钟角球-赛果({a}-{b})</option><option value="567">567-15分钟角球-让球({a}-{b})</option><option value="568">568-15分钟角球-大小({a}-{b})</option><option value="112">112-加时赛是否进球</option><option value="115">115-加时赛-第{X}个进球</option><option value="118">118-加时赛-正确比分</option><option value="125">125-点球大战-第{X}个进球</option><option value="126">126-点球大战-净胜分</option><option value="130">130-点球大战-准确进球数</option><option value="131">131-点球大战-单/双</option><option value="135">135-点球大战-正确比分</option><option value="251">251-独赢</option><option value="256">256-让球</option><option value="258">258-总分</option><option value="260">260-主队得分大小</option><option value="261">261-客队得分大小</option><option value="264">264-得分单双</option><option value="268">268-是否加时</option><option value="275">275-前5局让球</option><option value="276">276-前5局大小</option><option value="277">277-前5局主队得分大小</option><option value="278">278-前5局客队得分大小</option><option value="309">309-第{X}局让分</option><option value="310">310-第{X}局大小</option><option value="311">311-第{X}局单双</option><option value="313">313-第{X}局谁先获得{Y}分</option><option value="414">414-{主队}进球大小(含加时点球大战)</option><option value="415">415-{客队}进球大小(含加时点球大战)</option><option value="406">406-独赢</option><option value="431">431-正确比分</option><option value="443">443-第{X}节胜平负</option><option value="446">446-第{X}节大小</option><option value="447">447-第{X}节{主队}的大小</option><option value="448">448-第{X}节{客队}的大小</option><option value="449">449-第{X}节准确进球数</option><option value="452">452-某{X}节两队都进球</option><option value="456">456-第{X}节正确比分</option><option value="460">460-第{X}节让球</option><option value="534_1">534_1-冠军</option><option value="534_2">534_2-垫底</option><option value="536_1">536_1-前二</option><option value="536_2">536_2-前四</option><option value="536_3">536_3-前六</option><option value="536_4">536_4-升级</option><option value="536_5">536_5-降级</option><option value="536_6">536_6-排名上半区</option><option value="536_7">536_7-排名下半区</option><option value="534_4">534_4-进球最多的球队</option><option value="534_5">534_5-进球最少的球队</option><option value="534_6">534_6-最佳射手</option><option value="534_3">534_3-最有价值球员</option><option value="536_8">536_8-决赛对阵球队</option><option value="535_1">535_1-下一任首相</option><option value="535_2">535_2-下一任总统</option><option value="535_3">535_3-获胜党派</option><option value="921">921-球员得分</option><option value="922">922-球员助攻</option><option value="923">923-球员篮板</option><option value="924">924-球员三分球</option><option value="274">274-前5局胜平负</option><option value="284">284-{a}-{b}局大小</option><option value="287">287-第{X}局胜平负</option><option value="288">288-第{X}局大小</option><option value="743">743-{a}-{b}局胜平负</option><option value="744">744-{a}-{b}局让球</option><option value="745">745-{a}-{b}局单双</option><option value="746">746-第{X}局让球</option><option value="747">747-第{X}局{主队}大小</option><option value="748">748-第{X}局{客队}大小</option><option value="1123">1123-第{X}局独赢</option><option value="1040">1040-安打总数</option><option value="1041">1041-{主队}安打总数</option><option value="1042">1042-{客队}安打总数</option><option value="1043">1043-第{X}局安打总数</option><option value="1044">1044-第{X}局{主队}安打总数</option><option value="1045">1045-第{X}局{客队}安打总数</option><option value="1046">1046-前5局安打总数</option><option value="1047">1047-前5局{主队}安打总数</option><option value="1048">1048-前5局{客队}安打总数</option><option value="410">410-让球(含加时点球大战)</option><option value="412">412-大小(含加时点球大战)</option><option value="432">432-大小(含加时点球大战)</option><option value="450">450-第{X}节{主队}准确进球数</option><option value="451">451-第{X}节{客队}准确进球数</option><option value="931">931-达阵总数</option><option value="234">234-最多进球小节</option><option value="139">139-罚牌大小</option><option value="152">152-上半场罚牌大小</option><option value="136">136-罚牌独赢</option><option value="149">149-上半场罚牌独赢</option><option value="140">140-{主队}罚牌大小</option><option value="141">141-{客队}罚牌大小</option><option value="153">153-上半场{主队}罚牌大小</option><option value="154">154-上半场{客队}罚牌大小</option><option value="142">142-准确罚牌分数</option><option value="155">155-上半场准确罚牌分数</option><option value="143">143-{主队}准确罚牌分数</option><option value="144">144-{客队}准确罚牌分数</option><option value="156">156-上半场{主队}准确罚牌分数</option><option value="157">157-上半场{客队}准确罚牌分数</option><option value="199_4">199_4-全场比分（冰球）</option><option value="21_4">21_4-准确进球数(冰球)</option><option value="1283">1283-罚牌让分</option></select><div class="layui-form-select"><div class="layui-select-title"><input type="text" placeholder="全部" value="" class="layui-input"><i class="layui-edge"></i></div><dl class="layui-anim layui-anim-upbit"><dd lay-value="" class="layui-select-tips">全部</dd><dd lay-value="1" class=""> 1-全场独赢</dd><dd lay-value="18" class="">18-全场大小</dd><dd lay-value="14" class="">14-全场让球胜平负</dd><dd lay-value="16" class="">16-全场让球</dd><dd lay-value="11" class="">11-平局退款</dd><dd lay-value="10" class="">10-双重机会</dd><dd lay-value="45" class="">45-全场比分</dd><dd lay-value="23" class="">23-{主队}准确进球数</dd><dd lay-value="24" class="">24-{客队}准确进球数</dd><dd lay-value="19" class="">19-{主队}进球大小</dd><dd lay-value="20" class="">20-{客队}进球大小</dd><dd lay-value="29" class="">29-两队都进球</dd><dd lay-value="37" class="">37-独赢 &amp; 进球大小</dd><dd lay-value="21" class="">21-准确进球数</dd><dd lay-value="26" class="">26-进球单/双</dd><dd lay-value="52" class="">52-最多进球的半场</dd><dd lay-value="60" class="">60-半场独赢</dd><dd lay-value="68" class="">68-半场大小</dd><dd lay-value="66" class="">66-半场让球</dd><dd lay-value="81" class="">81-上半场比分</dd><dd lay-value="72" class="">72-上半场{主队}准确进球数</dd><dd lay-value="73" class="">73-上半场{客队}准确进球数</dd><dd lay-value="71" class="">71-上半场准确进球数</dd><dd lay-value="75" class="">75-上半场两队都进球</dd><dd lay-value="83" class="">83-下半场独赢</dd><dd lay-value="90" class="">90-下半场大小</dd><dd lay-value="7" class="">7-剩余时间获胜</dd><dd lay-value="8" class="">8-第{X}个进球</dd><dd lay-value="61" class="">61-上半场剩余时间获胜</dd><dd lay-value="62" class="">62-上半场第{X}个进球</dd><dd lay-value="100" class="">100-第{X}个进球何时发生？</dd><dd lay-value="102" class="">102-15分钟进球-赛果({a}-{b})</dd><dd lay-value="104" class="">104-15分钟进球-大小({a}-{b})</dd><dd lay-value="38" class="">38-首个进球球员</dd><dd lay-value="40" class="">40-任意时间进球球员</dd><dd lay-value="219" class="">219-全场独赢</dd><dd lay-value="225" class="">225-总分</dd><dd lay-value="223" class="">223-让分</dd><dd lay-value="229" class="">229-总分单/双</dd><dd lay-value="220" class="">220-是否进行加时赛</dd><dd lay-value="74" class="">74-上半场进球单/双</dd><dd lay-value="64" class="">64-上半场平局退款</dd><dd lay-value="235_1" class="">235_1-第1节赛果</dd><dd lay-value="236_1" class="">236_1-第1节总分</dd><dd lay-value="303_1" class="">303_1-第1节让分</dd><dd lay-value="304_1" class="">304_1-第1节总分单/双</dd><dd lay-value="302_1" class="">302_1-第1节独赢</dd><dd lay-value="301_1" class="">301_1-第1节净胜分</dd><dd lay-value="235_2" class="">235_2-第2节赛果</dd><dd lay-value="236_2" class="">236_2-第2节总分</dd><dd lay-value="303_2" class="">303_2-第2节让分</dd><dd lay-value="304_2" class="">304_2-第2节总分单/双</dd><dd lay-value="302_2" class="">302_2-第2节独赢</dd><dd lay-value="301_2" class="">301_2-第2节净胜分</dd><dd lay-value="235_3" class="">235_3-第3节赛果</dd><dd lay-value="236_3" class="">236_3-第3节总分</dd><dd lay-value="303_3" class="">303_3-第3节让分</dd><dd lay-value="304_3" class="">304_3-第3节总分单/双</dd><dd lay-value="302_3" class="">302_3-第3节独赢</dd><dd lay-value="301_3" class="">301_3-第3节净胜分</dd><dd lay-value="235_4" class="">235_4-第4节赛果</dd><dd lay-value="236_4" class="">236_4-第4节总分</dd><dd lay-value="303_4" class="">303_4-第4节让分</dd><dd lay-value="304_4" class="">304_4-第4节总分单/双</dd><dd lay-value="302_4" class="">302_4-第4节独赢</dd><dd lay-value="301_4" class="">301_4-第4节净胜分</dd><dd lay-value="25" class="">25-总进球数区间</dd><dd lay-value="65" class="">65-上半场让球赛果</dd><dd lay-value="63" class="">63-上半场双重机会</dd><dd lay-value="87" class="">87-下半场让球赛果</dd><dd lay-value="85" class="">85-下半场双重机会</dd><dd lay-value="93" class="">93-下半场准确进球数</dd><dd lay-value="98" class="">98-下半场比分</dd><dd lay-value="94" class="">94-下半场进球单/双</dd><dd lay-value="95" class="">95-下半场两队都进球</dd><dd lay-value="12" class="">12-{主队}获胜退款</dd><dd lay-value="27" class="">27-{主队}进球单/双</dd><dd lay-value="32" class="">32-{客队}零失球</dd><dd lay-value="34" class="">34-{客队}零失球获胜</dd><dd lay-value="31" class="">31-{主队}零失球</dd><dd lay-value="33" class="">33-{主队}零失球获胜</dd><dd lay-value="48" class="">48-{主队}上/下半场全胜</dd><dd lay-value="50" class="">50-{主队}任意半场获胜</dd><dd lay-value="53" class="">53-{主队}最高得分半场</dd><dd lay-value="56" class="">56-{主队}上/下半场均进球</dd><dd lay-value="69" class="">69-上半场{主队}进球大小</dd><dd lay-value="91" class="">91-下半场{主队}进球大小</dd><dd lay-value="96" class="">96-下半场{主队}零失球</dd><dd lay-value="76" class="">76-上半场{主队}零失球</dd><dd lay-value="13" class="">13-{客队}获胜退款</dd><dd lay-value="28" class="">28-{客队}进球单/双</dd><dd lay-value="49" class="">49-{客队}上/下半场全胜</dd><dd lay-value="51" class="">51-{客队}任意半场获胜</dd><dd lay-value="54" class="">54-{客队}最高得分半场</dd><dd lay-value="57" class="">57-{客队}上/下半场均进球</dd><dd lay-value="70" class="">70-上半场{客队}进球大小</dd><dd lay-value="92" class="">92-下半场{客队}进球大小</dd><dd lay-value="97" class="">97-下半场{客队}零失球</dd><dd lay-value="77" class="">77-上半场{客队}零失球</dd><dd lay-value="35" class="">35-赛果 &amp; 两队都进球</dd><dd lay-value="36" class="">36-进球大小 &amp; 两队都进球</dd><dd lay-value="46" class="">46-半/全场比分</dd><dd lay-value="47" class="">47-半/全场</dd><dd lay-value="78" class="">78-上半场赛果 &amp; 上半场两队都进球</dd><dd lay-value="543" class="">543-下半场赛果 &amp; 下半场两队都进球</dd><dd lay-value="546" class="">546-双重机会 &amp; 两队都进球</dd><dd lay-value="55" class="">55-上/下半场两队都进球</dd><dd lay-value="58" class="">58-上/下半场进球数均大于{X.5}</dd><dd lay-value="59" class="">59-上/下半场进球数均小于{X.5}</dd><dd lay-value="162" class="">162-哪个球队获得角球多？</dd><dd lay-value="164" class="">164-最后一个角球</dd><dd lay-value="165" class="">165-角球让球盘</dd><dd lay-value="166" class="">166-角球大小盘</dd><dd lay-value="167" class="">167-{主队}角球大小盘</dd><dd lay-value="168" class="">168-{客队}角球大小盘</dd><dd lay-value="169" class="">169-角球总数区间</dd><dd lay-value="172" class="">172-角球单/双</dd><dd lay-value="173" class="">173-上半场哪个球队获得角球多？</dd><dd lay-value="174" class="">174-上半场第{X}个角球</dd><dd lay-value="176" class="">176-上半场角球让球盘</dd><dd lay-value="177" class="">177-上半场角球大小盘</dd><dd lay-value="178" class="">178-上半场{主队}角球大小盘</dd><dd lay-value="179" class="">179-上半场{客队}角球大小盘</dd><dd lay-value="601" class="">601-谁先获得{X}个角球</dd><dd lay-value="113" class="">113-加时赛-赛果</dd><dd lay-value="116" class="">116-加时赛-大小</dd><dd lay-value="117" class="">117-加时赛-让球</dd><dd lay-value="119" class="">119-加时赛-上半场赛果</dd><dd lay-value="120" class="">120-加时赛-上半场让球</dd><dd lay-value="122" class="">122-是否进行点球大战</dd><dd lay-value="123" class="">123-点球大战-获胜者</dd><dd lay-value="124" class="">124-点球大战-第{X}个点球是否射进</dd><dd lay-value="127" class="">127-点球大战-大小盘</dd><dd lay-value="2" class="">2-晋级球队</dd><dd lay-value="3" class="">3-冠军</dd><dd lay-value="5" class="">5-获胜方式</dd><dd lay-value="146" class="">146-比赛中出现红牌</dd><dd lay-value="147" class="">147-{主队}获得红牌</dd><dd lay-value="148" class="">148-{客队}获得红牌</dd><dd lay-value="15" class="">15-净胜分(不含加时)</dd><dd lay-value="86" class="">86-下半场平局退款</dd><dd lay-value="88" class="">88-下半场让球盘</dd><dd lay-value="6" class="">6-谁先开球</dd><dd lay-value="756" class="">756-第{X}节{主队}总分</dd><dd lay-value="757" class="">757-第{X}节{客队}总分</dd><dd lay-value="1057" class="">1057-第{X}节首先获得{Y}分 三项</dd><dd lay-value="892" class="">892-第{X}个进球队员</dd><dd lay-value="9" class="">9-最后进球队伍</dd><dd lay-value="39" class="">39-最后进球队员</dd><dd lay-value="898" class="">898-进2+球的队员</dd><dd lay-value="899" class="">899-进3+球的队员</dd><dd lay-value="186" class="">186-独赢</dd><dd lay-value="188" class="">188-让盘</dd><dd lay-value="187" class="">187-让局</dd><dd lay-value="190" class="">190-{主队}总局数</dd><dd lay-value="191" class="">191-{客队}总局数</dd><dd lay-value="195" class="">195-出现抢七局</dd><dd lay-value="196" class="">196-准确盘数</dd><dd lay-value="198" class="">198-总局数单/双</dd><dd lay-value="201" class="">201-双重赛果(第1盘/全场获胜)</dd><dd lay-value="202" class="">202-第{X}盘获胜</dd><dd lay-value="203" class="">203-第{X}盘让局</dd><dd lay-value="204" class="">204-第{X}盘总局数</dd><dd lay-value="205" class="">205-第{X}盘总局数单/双</dd><dd lay-value="207" class="">207-第{X}盘正确比分</dd><dd lay-value="209" class="">209-第{X}盘第{Y}局和第{Y}+1局谁获胜多</dd><dd lay-value="210" class="">210-第{X}盘第{Y}局获胜</dd><dd lay-value="314" class="">314-总盘数</dd><dd lay-value="1055" class="">1055-获胜者 &amp; 总局数</dd><dd lay-value="237" class="">237-让分</dd><dd lay-value="238" class="">238-总分</dd><dd lay-value="241" class="">241-准确局数</dd><dd lay-value="245" class="">245-第{X}局获胜</dd><dd lay-value="246" class="">246-第{X}局让分</dd><dd lay-value="247" class="">247-第{X}局总分</dd><dd lay-value="248" class="">248-第{X}局单/双</dd><dd lay-value="520" class="">520-第{X}局第{Y}分</dd><dd lay-value="492" class="">492-比赛进入决胜局</dd><dd lay-value="493" class="">493-让局</dd><dd lay-value="494" class="">494-总局数</dd><dd lay-value="495" class="">495-单双局</dd><dd lay-value="499" class="">499-第{X}局获胜</dd><dd lay-value="500" class="">500-第{X}局让分</dd><dd lay-value="501" class="">501-第{X}局总分</dd><dd lay-value="502" class="">502-第{X}局总分单/双</dd><dd lay-value="503" class="">503-第{X}局首先到达{Y}分</dd><dd lay-value="504" class="">504-第{X}局单杆得分最高的选手</dd><dd lay-value="505" class="">505-第{X}局单杆最高分</dd><dd lay-value="506" class="">506-第{X}局单杆破百</dd><dd lay-value="507" class="">507-第{X}局选手1单杆破百</dd><dd lay-value="508" class="">508-第{X}局选手2单杆破百</dd><dd lay-value="512" class="">512-第{X}局会不会有犯规</dd><dd lay-value="513" class="">513-第{X}局第{Y}个进球的选手</dd><dd lay-value="515" class="">515-第{X}局打进最后一球的选手</dd><dd lay-value="516" class="">516-第{X}局最后得分</dd><dd lay-value="227" class="">227-{主队}总分</dd><dd lay-value="228" class="">228-{客队}总分</dd><dd lay-value="290_6" class="">290_6-净胜分 三项</dd><dd lay-value="230" class="">230-首先获得{X}分</dd><dd lay-value="189" class="">189-总局数</dd><dd lay-value="250" class="">250-第{X}局首先获得{Y}分 </dd><dd lay-value="199" class="">199-全场比分</dd><dd lay-value="192" class="">192-{主队选手}赢得一盘 </dd><dd lay-value="193" class="">193-{客队选手}赢得一盘 </dd><dd lay-value="194" class="">194-任何一盘未失一局获胜</dd><dd lay-value="206" class="">206-第{X}盘是否出现抢七局 </dd><dd lay-value="290_11" class="">290_11-净胜分 6项</dd><dd lay-value="849" class="">849-净胜分 7项</dd><dd lay-value="290_26" class="">290_26-净胜分 12项</dd><dd lay-value="296" class="">296-最高得分的小节</dd><dd lay-value="291" class="">291-谁先获得第{X}分(含加时)</dd><dd lay-value="305" class="">305-第{X}节首先获得{Y}分</dd><dd lay-value="292" class="">292-独赢&amp;总分</dd><dd lay-value="297" class="">297-准确总分大小</dd><dd lay-value="298" class="">298-总分区间</dd><dd lay-value="470" class="">470-上半场净胜分</dd><dd lay-value="768" class="">768-球员得分</dd><dd lay-value="774" class="">774-球员三分球</dd><dd lay-value="896" class="">896-第{X}个进球方式</dd><dd lay-value="30" class="">30-谁会进球</dd><dd lay-value="137" class="">137-第{X}张罚牌</dd><dd lay-value="163" class="">163-第{X}个角球</dd><dd lay-value="170" class="">170-{主队}角球总数区间</dd><dd lay-value="171" class="">171-{客队}角球总数区间</dd><dd lay-value="182" class="">182-上半场角球总数区间</dd><dd lay-value="183" class="">183-上半场角球单/双</dd><dd lay-value="602" class="">602-上半场谁先获得{X}个角球</dd><dd lay-value="565" class="">565-15分钟角球-赛果({a}-{b})</dd><dd lay-value="567" class="">567-15分钟角球-让球({a}-{b})</dd><dd lay-value="568" class="">568-15分钟角球-大小({a}-{b})</dd><dd lay-value="112" class="">112-加时赛是否进球</dd><dd lay-value="115" class="">115-加时赛-第{X}个进球</dd><dd lay-value="118" class="">118-加时赛-正确比分</dd><dd lay-value="125" class="">125-点球大战-第{X}个进球</dd><dd lay-value="126" class="">126-点球大战-净胜分</dd><dd lay-value="130" class="">130-点球大战-准确进球数</dd><dd lay-value="131" class="">131-点球大战-单/双</dd><dd lay-value="135" class="">135-点球大战-正确比分</dd><dd lay-value="251" class="">251-独赢</dd><dd lay-value="256" class="">256-让球</dd><dd lay-value="258" class="">258-总分</dd><dd lay-value="260" class="">260-主队得分大小</dd><dd lay-value="261" class="">261-客队得分大小</dd><dd lay-value="264" class="">264-得分单双</dd><dd lay-value="268" class="">268-是否加时</dd><dd lay-value="275" class="">275-前5局让球</dd><dd lay-value="276" class="">276-前5局大小</dd><dd lay-value="277" class="">277-前5局主队得分大小</dd><dd lay-value="278" class="">278-前5局客队得分大小</dd><dd lay-value="309" class="">309-第{X}局让分</dd><dd lay-value="310" class="">310-第{X}局大小</dd><dd lay-value="311" class="">311-第{X}局单双</dd><dd lay-value="313" class="">313-第{X}局谁先获得{Y}分</dd><dd lay-value="414" class="">414-{主队}进球大小(含加时点球大战)</dd><dd lay-value="415" class="">415-{客队}进球大小(含加时点球大战)</dd><dd lay-value="406" class="">406-独赢</dd><dd lay-value="431" class="">431-正确比分</dd><dd lay-value="443" class="">443-第{X}节胜平负</dd><dd lay-value="446" class="">446-第{X}节大小</dd><dd lay-value="447" class="">447-第{X}节{主队}的大小</dd><dd lay-value="448" class="">448-第{X}节{客队}的大小</dd><dd lay-value="449" class="">449-第{X}节准确进球数</dd><dd lay-value="452" class="">452-某{X}节两队都进球</dd><dd lay-value="456" class="">456-第{X}节正确比分</dd><dd lay-value="460" class="">460-第{X}节让球</dd><dd lay-value="534_1" class="">534_1-冠军</dd><dd lay-value="534_2" class="">534_2-垫底</dd><dd lay-value="536_1" class="">536_1-前二</dd><dd lay-value="536_2" class="">536_2-前四</dd><dd lay-value="536_3" class="">536_3-前六</dd><dd lay-value="536_4" class="">536_4-升级</dd><dd lay-value="536_5" class="">536_5-降级</dd><dd lay-value="536_6" class="">536_6-排名上半区</dd><dd lay-value="536_7" class="">536_7-排名下半区</dd><dd lay-value="534_4" class="">534_4-进球最多的球队</dd><dd lay-value="534_5" class="">534_5-进球最少的球队</dd><dd lay-value="534_6" class="">534_6-最佳射手</dd><dd lay-value="534_3" class="">534_3-最有价值球员</dd><dd lay-value="536_8" class="">536_8-决赛对阵球队</dd><dd lay-value="535_1" class="">535_1-下一任首相</dd><dd lay-value="535_2" class="">535_2-下一任总统</dd><dd lay-value="535_3" class="">535_3-获胜党派</dd><dd lay-value="921" class="">921-球员得分</dd><dd lay-value="922" class="">922-球员助攻</dd><dd lay-value="923" class="">923-球员篮板</dd><dd lay-value="924" class="">924-球员三分球</dd><dd lay-value="274" class="">274-前5局胜平负</dd><dd lay-value="284" class="">284-{a}-{b}局大小</dd><dd lay-value="287" class="">287-第{X}局胜平负</dd><dd lay-value="288" class="">288-第{X}局大小</dd><dd lay-value="743" class="">743-{a}-{b}局胜平负</dd><dd lay-value="744" class="">744-{a}-{b}局让球</dd><dd lay-value="745" class="">745-{a}-{b}局单双</dd><dd lay-value="746" class="">746-第{X}局让球</dd><dd lay-value="747" class="">747-第{X}局{主队}大小</dd><dd lay-value="748" class="">748-第{X}局{客队}大小</dd><dd lay-value="1123" class="">1123-第{X}局独赢</dd><dd lay-value="1040" class="">1040-安打总数</dd><dd lay-value="1041" class="">1041-{主队}安打总数</dd><dd lay-value="1042" class="">1042-{客队}安打总数</dd><dd lay-value="1043" class="">1043-第{X}局安打总数</dd><dd lay-value="1044" class="">1044-第{X}局{主队}安打总数</dd><dd lay-value="1045" class="">1045-第{X}局{客队}安打总数</dd><dd lay-value="1046" class="">1046-前5局安打总数</dd><dd lay-value="1047" class="">1047-前5局{主队}安打总数</dd><dd lay-value="1048" class="">1048-前5局{客队}安打总数</dd><dd lay-value="410" class="">410-让球(含加时点球大战)</dd><dd lay-value="412" class="">412-大小(含加时点球大战)</dd><dd lay-value="432" class="">432-大小(含加时点球大战)</dd><dd lay-value="450" class="">450-第{X}节{主队}准确进球数</dd><dd lay-value="451" class="">451-第{X}节{客队}准确进球数</dd><dd lay-value="931" class="">931-达阵总数</dd><dd lay-value="234" class="">234-最多进球小节</dd><dd lay-value="139" class="">139-罚牌大小</dd><dd lay-value="152" class="">152-上半场罚牌大小</dd><dd lay-value="136" class="">136-罚牌独赢</dd><dd lay-value="149" class="">149-上半场罚牌独赢</dd><dd lay-value="140" class="">140-{主队}罚牌大小</dd><dd lay-value="141" class="">141-{客队}罚牌大小</dd><dd lay-value="153" class="">153-上半场{主队}罚牌大小</dd><dd lay-value="154" class="">154-上半场{客队}罚牌大小</dd><dd lay-value="142" class="">142-准确罚牌分数</dd><dd lay-value="155" class="">155-上半场准确罚牌分数</dd><dd lay-value="143" class="">143-{主队}准确罚牌分数</dd><dd lay-value="144" class="">144-{客队}准确罚牌分数</dd><dd lay-value="156" class="">156-上半场{主队}准确罚牌分数</dd><dd lay-value="157" class="">157-上半场{客队}准确罚牌分数</dd><dd lay-value="199_4" class="">199_4-全场比分（冰球）</dd><dd lay-value="21_4" class="">21_4-准确进球数(冰球)</dd><dd lay-value="1283" class="">1283-罚牌让分</dd></dl></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">盘口ID</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="thirdMarketDTO.thirdMarketSourceId" value="" placeholder="请输入盘口ID" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-inline"><label class="layui-form-label">盘口类型</label>
+                    <div class="layui-input-block timo-search-status">
+                        <select class="timo-search-select" name="thirdMarketDTO.marketType"><option value="">全部</option><option value="0">滚球盘</option><option value="1">赛前盘</option><option value="2">冠军盘</option></select>
+                    </div>
+                </div>
+
+
+                <div class="layui-inline">
+                    <button class="layui-btn timo-search-btn">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="timo-table-wrap">
+            <table class="layui-table timo-table">
+                <thead>
+                <tr>
+                    <th data-field="linkId">链路ID</th>
+                    <th data-field="modifyTime">创建时间</th>
+                    <th data-field="sportId">运动种类</th>
+                    <th data-field="thirdMatchSourceId">赛事ID</th>
+                    <th data-field="thirdMarketCategorySourceId">玩法ID</th>
+                    <th data-field="thirdMarketCategorySourceId">玩法名称</th>
+                    <th data-field="thirdMarketSourceId">盘口ID</th>
+                    <th data-field="marketType">盘口类型</th>
+                    <th data-field="status">盘口状态</th>
+                    <!--<th  data-field="oddsTypeName">玩法名称</th>-->
+                    <th data-field="oddsValue">盘口值</th>
+                    <th data-field="oddsName">盘口名称</th>
+                    <th data-field="addition1">addition1</th>
+                    <th data-field="addition2">addition2</th>
+                    <th data-field="addition3">addition3</th>
+                    <th data-field="addition4">addition4</th>
+                    <th data-field="addition5">addition5</th>
+                    <th data-field="marketOddsList">盘口投注项</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>SR_0af43b0e20251206113816850fba4fb5</td>
+                    <td>2025-12-06 11:38:16</td>
+                    <td>乒乓球</td>
+                    <td>66404770</td>
+                    <td>SR:238</td>
+<!--                    <td th:text="${item.thirdMarketDTO.thirdMarketCategorySourceId.replaceAll('SR:','')}">玩法名称</td>-->
+                    <td>238-总分</td>
+                    <td>66404770_238_77.5</td>
+                    <td>滚球盘</td>
+                    <td>active</td>
+                    <!--<td th:text="${item.thirdMarketDTO.oddsTypeName}">玩法名称</td>-->
+                    <td></td>
+                    <td>总分</td>
+                    <td>77.5</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/sr/rhMatchMarketIndex#" data-url="/sr/rhMatchMarketIndex/marketOddsList/6933a5280165722391fe2cec">投注项列表</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>SR_0af43b0e20251206113816850fba4fb5</td>
+                    <td>2025-12-06 11:38:16</td>
+                    <td>乒乓球</td>
+                    <td>66404770</td>
+                    <td>SR:237</td>
+<!--                    <td th:text="${item.thirdMarketDTO.thirdMarketCategorySourceId.replaceAll('SR:','')}">玩法名称</td>-->
+                    <td>237-让分</td>
+                    <td>66404770_237_-2.5</td>
+                    <td>滚球盘</td>
+                    <td>deactivated</td>
+                    <!--<td th:text="${item.thirdMarketDTO.oddsTypeName}">玩法名称</td>-->
+                    <td></td>
+                    <td>让分</td>
+                    <td>-2.5</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/sr/rhMatchMarketIndex#" data-url="/sr/rhMatchMarketIndex/marketOddsList/6933a5280165722391fe2ced">投注项列表</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>SR_0af43b0e20251206113816850fba4fb5</td>
+                    <td>2025-12-06 11:38:16</td>
+                    <td>乒乓球</td>
+                    <td>66404770</td>
+                    <td>SR:247</td>
+<!--                    <td th:text="${item.thirdMarketDTO.thirdMarketCategorySourceId.replaceAll('SR:','')}">玩法名称</td>-->
+                    <td>247-第{X}局总分</td>
+                    <td>66404770_247_16.5_2_</td>
+                    <td>滚球盘</td>
+                    <td>active</td>
+                    <!--<td th:text="${item.thirdMarketDTO.oddsTypeName}">玩法名称</td>-->
+                    <td></td>
+                    <td>第2 局 - 总分</td>
+                    <td>16.5</td>
+                    <td>2</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/sr/rhMatchMarketIndex#" data-url="/sr/rhMatchMarketIndex/marketOddsList/6933a5280165722391fe2ceb">投注项列表</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>SR_0af43b0e20251206113816850fba4fb5</td>
+                    <td>2025-12-06 11:38:16</td>
+                    <td>乒乓球</td>
+                    <td>66404770</td>
+                    <td>SR:186</td>
+<!--                    <td th:text="${item.thirdMarketDTO.thirdMarketCategorySourceId.replaceAll('SR:','')}">玩法名称</td>-->
+                    <td>186-独赢</td>
+                    <td>66404770_186_</td>
+                    <td>滚球盘</td>
+                    <td>active</td>
+                    <!--<td th:text="${item.thirdMarketDTO.oddsTypeName}">玩法名称</td>-->
+                    <td></td>
+                    <td>获胜</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/sr/rhMatchMarketIndex#" data-url="/sr/rhMatchMarketIndex/marketOddsList/6933a5280165722391fe2ce9">投注项列表</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>SR_0af43b0e20251206113816850fba4fb5</td>
+                    <td>2025-12-06 11:38:16</td>
+                    <td>乒乓球</td>
+                    <td>66404770</td>
+                    <td>SR:237</td>
+<!--                    <td th:text="${item.thirdMarketDTO.thirdMarketCategorySourceId.replaceAll('SR:','')}">玩法名称</td>-->
+                    <td>237-让分</td>
+                    <td>66404770_237_-3.5</td>
+                    <td>滚球盘</td>
+                    <td>deactivated</td>
+                    <!--<td th:text="${item.thirdMarketDTO.oddsTypeName}">玩法名称</td>-->
+                    <td></td>
+                    <td>让分</td>
+                    <td>-3.5</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/sr/rhMatchMarketIndex#" data-url="/sr/rhMatchMarketIndex/marketOddsList/6933a5280165722391fe2ce8">投注项列表</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>SR_0af43b0e20251206113816850fba4fb5</td>
+                    <td>2025-12-06 11:38:16</td>
+                    <td>乒乓球</td>
+                    <td>66404770</td>
+                    <td>SR:246</td>
+<!--                    <td th:text="${item.thirdMarketDTO.thirdMarketCategorySourceId.replaceAll('SR:','')}">玩法名称</td>-->
+                    <td>246-第{X}局让分</td>
+                    <td>66404770_246_4.5_2_</td>
+                    <td>滚球盘</td>
+                    <td>active</td>
+                    <!--<td th:text="${item.thirdMarketDTO.oddsTypeName}">玩法名称</td>-->
+                    <td></td>
+                    <td>第2 局 - 让分</td>
+                    <td>4.5</td>
+                    <td>2</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/sr/rhMatchMarketIndex#" data-url="/sr/rhMatchMarketIndex/marketOddsList/6933a5280165722391fe2cea">投注项列表</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>SR_0af43b0e20251206113816850fba4fb5</td>
+                    <td>2025-12-06 11:38:16</td>
+                    <td>乒乓球</td>
+                    <td>66404770</td>
+                    <td>SR:238</td>
+<!--                    <td th:text="${item.thirdMarketDTO.thirdMarketCategorySourceId.replaceAll('SR:','')}">玩法名称</td>-->
+                    <td>238-总分</td>
+                    <td>66404770_238_78.5</td>
+                    <td>滚球盘</td>
+                    <td>deactivated</td>
+                    <!--<td th:text="${item.thirdMarketDTO.oddsTypeName}">玩法名称</td>-->
+                    <td></td>
+                    <td>总分</td>
+                    <td>78.5</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/sr/rhMatchMarketIndex#" data-url="/sr/rhMatchMarketIndex/marketOddsList/6933a5280165722391fe2ce7">投注项列表</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>SR_0af43b0e20251206113816850fba4fb5</td>
+                    <td>2025-12-06 11:38:16</td>
+                    <td>乒乓球</td>
+                    <td>66404770</td>
+                    <td>SR:247</td>
+<!--                    <td th:text="${item.thirdMarketDTO.thirdMarketCategorySourceId.replaceAll('SR:','')}">玩法名称</td>-->
+                    <td>247-第{X}局总分</td>
+                    <td>66404770_247_19.5_2_</td>
+                    <td>滚球盘</td>
+                    <td>active</td>
+                    <!--<td th:text="${item.thirdMarketDTO.oddsTypeName}">玩法名称</td>-->
+                    <td></td>
+                    <td>第2 局 - 总分</td>
+                    <td>19.5</td>
+                    <td>2</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/sr/rhMatchMarketIndex#" data-url="/sr/rhMatchMarketIndex/marketOddsList/6933a5280165722391fe2ce6">投注项列表</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>SR_0af43b0e20251206113816850fba4fb5</td>
+                    <td>2025-12-06 11:38:16</td>
+                    <td>乒乓球</td>
+                    <td>66404770</td>
+                    <td>SR:187</td>
+<!--                    <td th:text="${item.thirdMarketDTO.thirdMarketCategorySourceId.replaceAll('SR:','')}">玩法名称</td>-->
+                    <td>187-让局</td>
+                    <td>66404770_187_1.5</td>
+                    <td>滚球盘</td>
+                    <td>deactivated</td>
+                    <!--<td th:text="${item.thirdMarketDTO.oddsTypeName}">玩法名称</td>-->
+                    <td></td>
+                    <td>局盘口</td>
+                    <td>1.5</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/sr/rhMatchMarketIndex#" data-url="/sr/rhMatchMarketIndex/marketOddsList/6933a5280165722391fe2ce5">投注项列表</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>SR_0af43b0e20251206113816850fba4fb5</td>
+                    <td>2025-12-06 11:38:16</td>
+                    <td>乒乓球</td>
+                    <td>66404770</td>
+                    <td>SR:250</td>
+<!--                    <td th:text="${item.thirdMarketDTO.thirdMarketCategorySourceId.replaceAll('SR:','')}">玩法名称</td>-->
+                    <td>250-第{X}局首先获得{Y}分 </td>
+                    <td>66404770_250_2_5_</td>
+                    <td>滚球盘</td>
+                    <td>active</td>
+                    <!--<td th:text="${item.thirdMarketDTO.oddsTypeName}">玩法名称</td>-->
+                    <td></td>
+                    <td>第2 局 -  5 分</td>
+                    <td>2</td>
+                    <td>5</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/sr/rhMatchMarketIndex#" data-url="/sr/rhMatchMarketIndex/marketOddsList/6933a5280165722391fe2ce4">投注项列表</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        
+    <div class="layui-row">
+        <div class="layui-col-sm4">
+            <div class="page-info">
+                <span>显示 1/10 条，共 90720115 条记录</span>
+                <select class="timo-select page-number">
+                    <option value="10" selected="selected">10 条/页</option>
+                    <option value="20">20 条/页</option>
+                    <option value="30">30 条/页</option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-col-sm7" style="float: right;">
+            <ul class="pagination list-page">
+                
+                <li class="page-item active">
+                    <a class="page-link" href="http://panda-send-manager.dbsportxxx14bl5.com/sr/rhMatchMarketIndex?page=1">1</a>
+                    
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="http://panda-send-manager.dbsportxxx14bl5.com/sr/rhMatchMarketIndex?page=2">2</a>
+                    
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="http://panda-send-manager.dbsportxxx14bl5.com/sr/rhMatchMarketIndex?page=3">3</a>
+                    
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="http://panda-send-manager.dbsportxxx14bl5.com/sr/rhMatchMarketIndex?page=4">4</a>
+                    
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="http://panda-send-manager.dbsportxxx14bl5.com/sr/rhMatchMarketIndex?page=5">5</a>
+                    
+                </li>
+                <li class="page-item">
+                    
+                    <a class="page-link breviary">…</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="http://panda-send-manager.dbsportxxx14bl5.com/sr/rhMatchMarketIndex?page=9072012">9072012</a>
+                    
+                </li>
+                <li class="page-item"><a class="page-link" href="http://panda-send-manager.dbsportxxx14bl5.com/sr/rhMatchMarketIndex?page=2">下一页</a>
+                </li>
+               <li class="page-item">
+                    <span class="page-link noHover">
+                        跳到第
+                    </span>
+               </li>
+                <li class="page-item">
+                    <input id="pageParamHrefSkip" type="hidden" value="/sr/rhMatchMarketIndex?">
+                    <input class="page-link" style="text-align: center; width: 50px" id="pageNumberSkip" type="number" min="1" value="1">
+                </li>
+                <li class="page-item">
+                    <span class="page-link noHover">页</span>
+                </li>
+                <li class="page-item">
+                    <button type="button" class="page-link page-number-skip">确定</button>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    </div>
+</div>
+<script>
+        //定义函数 $ 根据元素id获得页面元素,提高效率
+        function $(id){
+            return document.getElementById(id);
+        }
+    </script><script src="./jquery-2.2.4.js.download" charset="utf-8"></script>
+        <script src="./layui.js.download" charset="utf-8"></script>
+        <script src="./main.js.download" charset="utf-8"></script>
+    
+
+
+</body></html>
