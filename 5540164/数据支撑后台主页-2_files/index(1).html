@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<!-- saved from url=(0171)http://panda-send-manager.dbsportxxx14bl5.com/panda/factMarket/index?matchId=5540164&marketCategoryId=2&linkId=%20AO_0af435a220260904112750781788882b_timer_1_PANDA&size=10 -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+        <title>数据支撑后台</title>
+    
+    
+
+    
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="数据支撑后台管理系统">
+    <meta name="keywords" content="数据支撑, 数据支撑后台管理系统, SpringBoot, Jpa, Thymeleaf, Shiro">
+
+    <link rel="shortcut icon" href="http://panda-send-manager.dbsportxxx14bl5.com/mo-favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="./font-awesome.min.css" media="all">
+    <link rel="stylesheet" href="./layui.css" media="all">
+    <link rel="stylesheet" href="./main.css" media="all">
+    
+
+    
+    <script>
+        //定义函数 $ 根据元素id获得页面元素,提高效率
+        function $(id){
+            return document.getElementById(id);
+        }
+    </script>
+    
+        <script src="./jquery-2.2.4.js.download" charset="utf-8"></script>
+    
+<link id="layuicss-layer" rel="stylesheet" href="./layer.css" media="all"></head>
+<body class="timo-layout-page">
+<div class="layui-card">
+    <div class="layui-card-header timo-card-header">
+        <span><i class="fa fa-bars"></i>推送业务盘口赔率</span>
+        
+    </div>
+    <div class="layui-card-body">
+        <div class="layui-row timo-card-screen">
+            <div class="pull-left layui-form-pane timo-search-box">
+                <div class="layui-inline">
+                    <label class="layui-form-label">标准赛事ID</label>
+                    <div class="layui-input-block">
+                        <input type="number" name="matchId" value="5540164" placeholder="请输入标准赛事ID" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">标准玩法ID</label>
+                    <div class="layui-input-block">
+                        <input type="number" name="marketCategoryId" value="2" placeholder="请输入标准玩法ID" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">统一标准盘口ID</label>
+                    <div class="layui-input-block">
+                        <input type="number" name="marketId" value="" placeholder="请输入统一标准盘口ID" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">三方盘口源ID</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="thirdMarketSourceId" value="" placeholder="请输入三方盘口源ID" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                <label class="layui-form-label">数据源</label>
+                <div class="layui-input-block">
+                    <input type="text" name="dataSourceCode" value="" placeholder="请输入三方数据源" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">盘口位置id</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="placeNumId" value="" placeholder="请输入盘口位置id" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">LINKID</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="linkId" value="AO_0af435a220260904112750781788882b_timer_1_PANDA" placeholder="请输入LINKID" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">风控状态</label>
+                    <div class="layui-input-block timo-search-status">
+                        <select class="timo-search-select" name="riskState"><option value="">全部</option><option value="0">数据源</option><option value="1">分时节点</option><option value="2">跳分</option><option value="3">跳水</option><option value="4">封盘/开盘</option><option value="-1">其他</option></select>
+                    </div>
+                </div>
+
+
+                <div class="layui-inline">
+                    <button class="layui-btn timo-search-btn">
+                        <i class="fa fa-search"></i>
+                    </button>
+                    <button class="layui-btn layui-btn-primary" onclick="reset({&quot;matchId&quot;:[&quot;5540164&quot;],&quot;marketCategoryId&quot;:[&quot;2&quot;],&quot;linkId&quot;:[&quot; AO_0af435a220260904112750781788882b_timer_1_PANDA&quot;],&quot;size&quot;:[&quot;10&quot;]})">重置</button>
+                </div>
+            </div>
+        </div>
+        <div class="timo-table-wrap">
+            <table class="layui-table timo-table">
+                <thead>
+                <tr>
+                    <th data-field="marketOddsList">盘口投注项</th>
+                    <th data-field="matchId">标准赛事ID</th>
+                    <th data-field="marketCategoryId">标准玩法ID</th>
+                    <th data-field="modifyTime">上游下发时间</th>
+                    <th data-field="marketType">盘口类型</th>
+                    <th data-field="marketId">统一盘口ID</th>
+                    <th data-field="thirdMarketSourceId">三方盘口源ID</th>
+                    <th data-field="placeNumId">盘口位置Id</th>
+                    <th data-field="marketHeadGap">盘口差</th>
+                    <th data-field="status">盘口状态</th>
+<!--                    <th data-field="endEdStatus">操盘是否收盘</th>-->
+                    <th data-field="thirdMarketSourceStatus"> 数据源盘口状态</th>
+<!--                    <th data-field="placeNumStatus"> 盘口位置状态</th>-->
+<!--                    <th data-field="paStatus">PA状态理由</th>-->
+<!--                    <th data-field="paStatusReason"> PA状态</th>-->
+                    <th data-field="tradeType">操盘方式</th>
+                    <th data-field="scopeId">玩法所属时段</th>
+                    <th data-field="thirdMarketSourceId">替换风控盘口id</th>
+                    <th data-field="linkId">linkId</th>
+                    <th data-field="id">盘口ID</th>
+                    <th data-field="oddsName">盘口名称</th>
+                    <th data-field="placeNum">盘口位置</th>
+                    <th data-field="internalDataSourceCode">内部数据源</th>
+                    <th data-field="createTime">入库时间</th>
+                    <th data-field="riskState">风控状态</th>
+                    <th data-field="addition1">附加字段1</th>
+                    <th data-field="addition2">附加字段2</th>
+                    <th data-field="addition3">附加字段3</th>
+                    <th data-field="addition4">附加字段4</th>
+                    <th data-field="addition5">附加字段5</th>
+                    <th data-field="dataSourceCode">数据源</th>
+                    <th data-field="marketSource">构建标识</th>
+                    <th data-field="extraInfo">额外信息</th>
+                    <th data-field="remark">备注</th>
+
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/panda/factMarket/index?matchId=5540164&amp;marketCategoryId=2&amp;linkId=%20AO_0af435a220260904112750781788882b_timer_1_PANDA&amp;size=10#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/144300384041240831/AO_0af435a220260904112750781788882b_timer_1_PANDA">投注项列表</a>
+                    </td>
+                    <td>5540164</td>
+                    <td>2</td>
+                    <td>2026-09-04 11:27:50.782</td>
+                    <td>滚球盘</td>
+                    <td>144300384041240831</td>
+                    <td>763794008039047170_10005_2</td>
+                    <td>5540164_2_2_7</td>
+                    <td></td>
+                    <td>关盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>deactivated</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动操盘</td>
+                    <td>3</td>
+                    <td>763794008039047170_10005_2</td>
+                    <td>AO_0af435a220260904112750781788882b_timer_1_PANDA</td>
+                    <td>2095715437426692097</td>
+                    <td>FT - Over/Under</td>
+                    <td>7</td>
+                    <td></td>
+                    <td>2026-09-04 11:27:50.855</td>
+                    <td>数据源</td>
+                    <td>2</td>
+                    <td></td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td></td>
+
+                    <td>AO</td>
+                    <td>0</td>
+                    <td></td>
+                    <td></td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/panda/factMarket/index?matchId=5540164&amp;marketCategoryId=2&amp;linkId=%20AO_0af435a220260904112750781788882b_timer_1_PANDA&amp;size=10#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/140416170352838212/AO_0af435a220260904112750781788882b_timer_1_PANDA">投注项列表</a>
+                    </td>
+                    <td>5540164</td>
+                    <td>2</td>
+                    <td>2026-09-04 11:27:50.782</td>
+                    <td>滚球盘</td>
+                    <td>140416170352838212</td>
+                    <td>763794008039047170_10005_1</td>
+                    <td>5540164_2_2_3</td>
+                    <td></td>
+                    <td>关盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>deactivated</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动操盘</td>
+                    <td>3</td>
+                    <td>763794008039047170_10005_1</td>
+                    <td>AO_0af435a220260904112750781788882b_timer_1_PANDA</td>
+                    <td>2095715437305057281</td>
+                    <td>FT - Over/Under</td>
+                    <td>3</td>
+                    <td></td>
+                    <td>2026-09-04 11:27:50.855</td>
+                    <td>数据源</td>
+                    <td>1</td>
+                    <td></td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td></td>
+
+                    <td>AO</td>
+                    <td>0</td>
+                    <td></td>
+                    <td></td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/panda/factMarket/index?matchId=5540164&amp;marketCategoryId=2&amp;linkId=%20AO_0af435a220260904112750781788882b_timer_1_PANDA&amp;size=10#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/140324142370350888/AO_0af435a220260904112750781788882b_timer_1_PANDA">投注项列表</a>
+                    </td>
+                    <td>5540164</td>
+                    <td>2</td>
+                    <td>2026-09-04 11:27:50.782</td>
+                    <td>滚球盘</td>
+                    <td>140324142370350888</td>
+                    <td>763794008039047170_10005_1.25</td>
+                    <td>5540164_2_2_4</td>
+                    <td></td>
+                    <td>关盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>deactivated</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动操盘</td>
+                    <td>3</td>
+                    <td>763794008039047170_10005_1.25</td>
+                    <td>AO_0af435a220260904112750781788882b_timer_1_PANDA</td>
+                    <td>2095715437321834497</td>
+                    <td>FT - Over/Under</td>
+                    <td>4</td>
+                    <td></td>
+                    <td>2026-09-04 11:27:50.855</td>
+                    <td>数据源</td>
+                    <td>1.25</td>
+                    <td></td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td></td>
+
+                    <td>AO</td>
+                    <td>0</td>
+                    <td></td>
+                    <td></td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/panda/factMarket/index?matchId=5540164&amp;marketCategoryId=2&amp;linkId=%20AO_0af435a220260904112750781788882b_timer_1_PANDA&amp;size=10#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/148511552402593232/AO_0af435a220260904112750781788882b_timer_1_PANDA">投注项列表</a>
+                    </td>
+                    <td>5540164</td>
+                    <td>2</td>
+                    <td>2026-09-04 11:27:50.782</td>
+                    <td>滚球盘</td>
+                    <td>148511552402593232</td>
+                    <td>763794008039047170_10005_1.75</td>
+                    <td>5540164_2_2_6</td>
+                    <td></td>
+                    <td>关盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>deactivated</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动操盘</td>
+                    <td>3</td>
+                    <td>763794008039047170_10005_1.75</td>
+                    <td>AO_0af435a220260904112750781788882b_timer_1_PANDA</td>
+                    <td>2095715437405720577</td>
+                    <td>FT - Over/Under</td>
+                    <td>6</td>
+                    <td></td>
+                    <td>2026-09-04 11:27:50.855</td>
+                    <td>数据源</td>
+                    <td>1.75</td>
+                    <td></td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td></td>
+
+                    <td>AO</td>
+                    <td>0</td>
+                    <td></td>
+                    <td></td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/panda/factMarket/index?matchId=5540164&amp;marketCategoryId=2&amp;linkId=%20AO_0af435a220260904112750781788882b_timer_1_PANDA&amp;size=10#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/142116944103531315/AO_0af435a220260904112750781788882b_timer_1_PANDA">投注项列表</a>
+                    </td>
+                    <td>5540164</td>
+                    <td>2</td>
+                    <td>2026-09-04 11:27:50.782</td>
+                    <td>滚球盘</td>
+                    <td>142116944103531315</td>
+                    <td>763794008039047170_10005_0.75</td>
+                    <td>5540164_2_2_2</td>
+                    <td></td>
+                    <td>关盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>deactivated</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动操盘</td>
+                    <td>3</td>
+                    <td>763794008039047170_10005_0.75</td>
+                    <td>AO_0af435a220260904112750781788882b_timer_1_PANDA</td>
+                    <td>2095715437208588290</td>
+                    <td>FT - Over/Under</td>
+                    <td>2</td>
+                    <td></td>
+                    <td>2026-09-04 11:27:50.855</td>
+                    <td>数据源</td>
+                    <td>0.75</td>
+                    <td></td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td></td>
+
+                    <td>AO</td>
+                    <td>0</td>
+                    <td></td>
+                    <td></td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/panda/factMarket/index?matchId=5540164&amp;marketCategoryId=2&amp;linkId=%20AO_0af435a220260904112750781788882b_timer_1_PANDA&amp;size=10#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/140901214514852764/AO_0af435a220260904112750781788882b_timer_1_PANDA">投注项列表</a>
+                    </td>
+                    <td>5540164</td>
+                    <td>2</td>
+                    <td>2026-09-04 11:27:50.782</td>
+                    <td>滚球盘</td>
+                    <td>140901214514852764</td>
+                    <td>763794008039047170_10005_0.5</td>
+                    <td>5540164_2_2_1</td>
+                    <td></td>
+                    <td>开盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>active</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动操盘</td>
+                    <td>3</td>
+                    <td>763794008039047170_10005_0.5</td>
+                    <td>AO_0af435a220260904112750781788882b_timer_1_PANDA</td>
+                    <td>2095715437145673730</td>
+                    <td>FT - Over/Under</td>
+                    <td>1</td>
+                    <td></td>
+                    <td>2026-09-04 11:27:50.855</td>
+                    <td>数据源</td>
+                    <td>0.5</td>
+                    <td></td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td></td>
+
+                    <td>AO</td>
+                    <td>0</td>
+                    <td></td>
+                    <td></td>
+
+                </tr>
+                <tr>
+                    <td> <a class="open-popup" data-title="盘口投注项" data-size="1000,300" href="http://panda-send-manager.dbsportxxx14bl5.com/panda/factMarket/index?matchId=5540164&amp;marketCategoryId=2&amp;linkId=%20AO_0af435a220260904112750781788882b_timer_1_PANDA&amp;size=10#" data-url="/panda/factMarket/baseMarketOddsList/marketOddsList/143504257727220103/AO_0af435a220260904112750781788882b_timer_1_PANDA">投注项列表</a>
+                    </td>
+                    <td>5540164</td>
+                    <td>2</td>
+                    <td>2026-09-04 11:27:50.782</td>
+                    <td>滚球盘</td>
+                    <td>143504257727220103</td>
+                    <td>763794008039047170_10005_1.5</td>
+                    <td>5540164_2_2_5</td>
+                    <td></td>
+                    <td>关盘</td>
+<!--                    <td th:text="${#dicts.keyValue('END_ED_STATUS', item.endEdStatus)}"></td>-->
+                    <td>deactivated</td>
+<!--                    <td th:text="${item.placeNumStatus}"></td>-->
+<!--                    <td th:text="${item.paStatus}"></td>-->
+<!--                    <td th:text="${item.paStatusReason}"></td>-->
+                    <td>自动操盘</td>
+                    <td>3</td>
+                    <td>763794008039047170_10005_1.5</td>
+                    <td>AO_0af435a220260904112750781788882b_timer_1_PANDA</td>
+                    <td>2095715437347000322</td>
+                    <td>FT - Over/Under</td>
+                    <td>5</td>
+                    <td></td>
+                    <td>2026-09-04 11:27:50.855</td>
+                    <td>数据源</td>
+                    <td>1.5</td>
+                    <td></td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td></td>
+
+                    <td>AO</td>
+                    <td>0</td>
+                    <td></td>
+                    <td></td>
+
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        
+    
+
+    </div>
+</div>
+<script>
+        //定义函数 $ 根据元素id获得页面元素,提高效率
+        function $(id){
+            return document.getElementById(id);
+        }
+    </script><script src="./jquery-2.2.4.js.download" charset="utf-8"></script>
+        <script src="./layui.js.download" charset="utf-8"></script>
+        <script src="./main.js.download" charset="utf-8"></script>
+    
+
+</body></html>
