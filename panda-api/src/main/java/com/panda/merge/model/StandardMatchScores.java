@@ -1,6 +1,5 @@
 package com.panda.merge.model;
 
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -53,7 +52,7 @@ public class StandardMatchScores implements Serializable {
     private String dataSourceAccoSwitch;
 
     /**
-     * 比分展示状态 1展示，0不展示
+     * 比分展示状态 0展示，1不展示
      */
     private Integer showStatus;
 
@@ -71,9 +70,4 @@ public class StandardMatchScores implements Serializable {
      * 下发结算次数
      */
     private Integer sendSettleCount;
-
-    /**
-     * 赛制(目前主要针对篮球)
-     */
-    private Integer matchLength;
 }

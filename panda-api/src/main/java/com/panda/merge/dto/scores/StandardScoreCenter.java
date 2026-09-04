@@ -60,5 +60,4 @@ public class StandardScoreCenter implements Serializable{
     //中断时间
     private Long interruptTime;
 
-
 }

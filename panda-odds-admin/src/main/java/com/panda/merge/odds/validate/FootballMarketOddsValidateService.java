@@ -17,12 +17,12 @@ import org.springframework.stereotype.Service;
 public class FootballMarketOddsValidateService {
 
     /**
-     * 校验足球 35 148 150 球员玩法 去激活无进球球员投注项
+     * 校验足球 35 150 球员玩法 去激活无进球球员投注项
      * @param oddsMessage
      * @param categoryId
      */
     public void validatePlayerOdds(StandardMarketOddsMessage oddsMessage, Long categoryId) {
-        if (categoryId != 35L && categoryId != 148L && categoryId != 150L) {
+        if (categoryId != 35L && categoryId != 150L) {
             return;
         }
         String oddsType = oddsMessage.getOddsType();

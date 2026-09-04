@@ -30,7 +30,6 @@ import com.panda.merge.dto.message.StandardMarketOddsDataMessage;
 import com.panda.merge.dto.message.ThirdSportMarketMessage;
 import com.panda.merge.exception.ExceptionHelper;
 import com.panda.merge.model.*;
-import com.panda.merge.odds.ThirdMarket108048CacheService;
 import com.panda.merge.odds.ThirdMarketMonitor;
 import com.panda.merge.rocketmq.common.MyCalculationMarketProcessor;
 import com.panda.merge.rocketmq.common.ThirdMarketBallHeadProcessor;
@@ -95,9 +94,6 @@ public class ThirdAllBatchMarketProcessor extends BaseProcessor {
 
     @Resource
     private RateLimiterHandler rateLimiterHandler;
-
-    @Autowired
-    private ThirdMarket108048CacheService thirdMarket108048CacheService;
 
     @ExceptionHelper
     public void execute(@Valid List<Request<ThirdMatchMarketDTO>> requests) {
@@ -192,8 +188,6 @@ public class ThirdAllBatchMarketProcessor extends BaseProcessor {
             if (null == standardMatchInfo) {
                 continue;
             }
-            ThirdMatchInfo thirdMatchInfo = thirdMatchInfoBasedIdMap.get(thirdAndThirdMatchIdMap.get(thirdMatchSourceId));
-            String baseDataSourceCode = resolveBaseDataSourceCode(dataSourceCode);
             //赛事ID,玩法:数据源 集合
             Map<Long, Set<String>> autoOpenCategoryMap = new ConcurrentHashMap<>();
             Map<String, List<ThirdMarketDTO>> thirdMarketDTOMap = thirdMatchMarketDTOValue.getMarketList().stream().collect(Collectors.groupingBy(ThirdMarketDTO::getThirdMarketCategorySourceId));
@@ -208,20 +202,12 @@ public class ThirdAllBatchMarketProcessor extends BaseProcessor {
                 log.info("::{}::百家赔:接收数据源赔率开始,开始处理盘口数据:{}", linkId, thirdCategorySourceId);
                 List<ThirdMarketDTO> value = entry.getValue();
                 log.info("::{}::百家赔:接收数据源赔率开始,玩法id:{} ,异步处理数据开始", linkId, thirdCategorySourceId);
-                thirdMarket108048CacheService.cacheFromMarkets(
-                        standardMatchId, thirdMarketCategory.getReferenceId(), dataSourceCode, value);
 
                 for (ThirdMarketDTO thirdMarketDTO : value) {
-                    ThirdMarketCategory categoryForOpposite = thirdMarketCategoryService.getItem(baseDataSourceCode, thirdCategorySourceId);
-                    if (categoryForOpposite == null) {
-                        categoryForOpposite = thirdMarketCategory;
-                    }
-                    Long marketCategoryId = applyHomeAwayOppositeForThirdMarket(linkId, dataSourceCode, standardMatchInfo,
-                            thirdMatchInfo, categoryForOpposite, thirdMarketDTO);
-                    thirdMarketDTO.setMarketCategoryId(marketCategoryId);
+                    thirdMarketDTO.setMarketCategoryId(thirdMarketCategory.getReferenceId());
                     ThirdSportMarketMessage thirdSportMarketMessage = copyThirdMarketDTO(thirdMarketDTO);
                     List<ThirdSportMarketOdds> thirdSportMarketOddsList = new ArrayList<>();
-                    thirdSportMarketMessage.setMarketCategoryId(marketCategoryId);
+                    thirdSportMarketMessage.setMarketCategoryId(thirdMarketCategory.getReferenceId());
                     thirdSportMarketMessage.setDataSourceCode(dataSourceCode);
                     thirdSportMarketMessage.setThirdMarketSourceStatus(thirdMarketDTO.getStatus());
                     thirdSportMarketMessage.setStatus(thirdMarketDTO.getStatus());
@@ -246,7 +232,7 @@ public class ThirdAllBatchMarketProcessor extends BaseProcessor {
                         oddsWrapper.setDataSourceCode(dataSourceCode);
                         oddsWrapper.setDataSourceTime(modifyTime);
                         oddsWrapper.setStandardSourceId(standardMatchId);
-                        oddsWrapper.setMarketCategoryId(marketCategoryId);
+                        oddsWrapper.setMarketCategoryId(thirdMarketCategory.getReferenceId());
                         oddsWrapper.setThirdMatchSourceId(thirdAndThirdMatchIdMap.get(thirdMatchSourceId) + "");
                         oddsWrapper.setMarketType(thirdMarketDTO.getMarketType());
                         oddsWrapper.setSportId(thirdMatchMarketDTOEntry.getValue().getSportId());
@@ -489,7 +475,7 @@ public class ThirdAllBatchMarketProcessor extends BaseProcessor {
                     myCalculationMarketProcessor.calculationMarketProcessor(linkId, standardMatchInfo, entry.getKey(), standardMarketsValid);
                 }
             }
-            standardMarketDataMessages.forEach(standardMarketDataMessage -> standardMarketDataMessage.setCategoryType("MY"));
+            //standardMarketDataMessages.forEach(standardMarketDataMessage -> standardMarketDataMessage.setCategoryType("MY"));
             standardMarketMessageList.addAll(standardMarketDataMessages);
         }
     }
@@ -532,10 +518,12 @@ public class ThirdAllBatchMarketProcessor extends BaseProcessor {
                     if (standardMarketDataMessage.getThirdMarketSourceStatus() >= Constant.SPORT_MARKET.STATUS.DEACTIVATED) {
                         continue;
                     }
+                    //获取盘口投注项
+                    List<StandardMarketOddsDataMessage> marketOddsList = standardMarketDataMessage.getMarketOddsList();
                     //852需求 查询独赢配置获取多项盘概率差,只对足球处理
                     Map<String, ConfigMarketMarginGap> marginGapMap = new HashMap<>();
                     Long marketCategoryId = standardMarketDataMessage.getMarketCategoryId();
-                    if ((standardMatchInfo.getSportId() == 1 || standardMatchInfo.getSportId() == 2 || MarginCategoryConfig.COMPLEX_SPORTIDS.contains(standardMatchInfo.getSportId())) && MarginCategoryConfig.THREE_CATEGORY.contains(marketCategoryId)) {
+                    if (!CollectionUtils.isEmpty(marketOddsList) && marketOddsList.size() > 3) {
                         log.info("::{}::查询独赢配置获取多项盘概率差,赛事ID:{},统一盘口ID:{},玩法ID:{},坑位ID:{}", linkId, standardMatchInfo.getId(), standardMarketDataMessage.getRelationMarketId(), marketCategoryId, standardMarketDataMessage.getPlaceNum());
                         if (standardMarketDataMessage.getPlaceNum() != null) {
                             List<ConfigMarketMarginGap> itemList = configMarketMarginGapService.getItemList(standardMatchInfo.getId(), marketCategoryId, standardMarketDataMessage.getChildMarketCategoryId(), standardMarketDataMessage.getPlaceNum());
@@ -544,8 +532,6 @@ public class ThirdAllBatchMarketProcessor extends BaseProcessor {
                             }
                         }
                     }
-                    //获取盘口投注项
-                    List<StandardMarketOddsDataMessage> marketOddsList = standardMarketDataMessage.getMarketOddsList();
                     Integer minOddsValue = 0;
                     Integer maxOddsValue = 0;
                     //循环遍历盘口投注项
@@ -991,7 +977,7 @@ public class ThirdAllBatchMarketProcessor extends BaseProcessor {
             log.info("::{}::开始set投注项id getMarketOddsIdredis完成:{}", linkId, keys);
         }
         String key = Constant.REDIS_KEY.RONGHE_AO_MARKET_ORIGINAL_ODDS + standardMatchInfo.getId();
-        Map<String, Integer> oddsMap = redisService.hGetAll(key);
+        Map<String,Integer> oddsMap = redisService.hGetAllBasedBucket(key, ConstantSystem.BUCKET_QUANTITY_EIGHT);
         if (oddsMap == null) {
             oddsMap = new HashMap<String, Integer>();
         }
@@ -1198,7 +1184,6 @@ public class ThirdAllBatchMarketProcessor extends BaseProcessor {
         thirdSportMarketMessage.setOfferLineId(thirdMarketDTO.getOfferLineId());
         thirdSportMarketMessage.setModifyTime(thirdMarketDTO.getModifyTime());
         thirdSportMarketMessage.setOddsName(thirdMarketDTO.getOddsName());
-        thirdSportMarketMessage.setRemark(thirdMarketDTO.getRemark());
         MergeFunctionUtils.setNumberOfWinners( thirdSportMarketMessage, thirdMarketDTO.getNumberOfWinners());
         return thirdSportMarketMessage;
     }

@@ -61,7 +61,7 @@ public class CleanMatchSettle extends IJobHandler {
         Integer matchNum = 5;
         String methodName = "deleteSettleCheckInfoAndMatch";
         try {
-            //log.info("【" + methodName + " 清理赛事相关数据】 开始,入参：{}", param);
+            log.info("【" + methodName + " 清理赛事相关数据】 开始,入参：{}", param);
             XxlJobLogger.log("【" + methodName + "清理赛事相关数据】 开始,入参：{}", param);
             if (StringUtils.isNotBlank(param)) {
                 JSONObject jsonObj = JSON.parseObject(param);
@@ -75,7 +75,7 @@ public class CleanMatchSettle extends IJobHandler {
                 }
                 //dayNum天前的时间戳
                 Long dayDateTime = System.currentTimeMillis() - dayNum * 24 * 60 * 60 * 1000L;
-                //log.info("【" + methodName + " 清理赛事相关数据】 业务处理开始,入参：{},dayDateTime:{}", jsonObj, dayDateTime);
+                log.info("【" + methodName + " 清理赛事相关数据】 业务处理开始,入参：{},dayDateTime:{}", jsonObj, dayDateTime);
                 XxlJobLogger.log("【" + methodName + " 清理赛事相关数据】 业务处理开始,入参：{},dayDateTime:{}", jsonObj, dayDateTime);
                 deleteSettleCheckInfoAndMatch(dayDateTime,matchNum);
             }
@@ -83,7 +83,7 @@ public class CleanMatchSettle extends IJobHandler {
             log.error("【" + methodName + " 清理赛事相关数据】 异常,Exception:", e);
             XxlJobLogger.log("【" + methodName + " 清理赛事相关数据】 异常,Exception:" + e.getMessage());
         }
-        //log.info("【" + methodName + " 清理赛事相关数据】 结束");
+        log.info("【" + methodName + " 清理赛事相关数据】 结束");
         XxlJobLogger.log("【" + methodName + " 清理赛事相关数据】 结束");
         return ReturnT.SUCCESS;
 
@@ -93,7 +93,7 @@ public class CleanMatchSettle extends IJobHandler {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         String linkId = StringUtils.join(dayDateTime, "_clean_match_settle_");
-        //log.info("::" + linkId + "::,deleteSettleCheckInfoAndMatch,定时清理结算历史信息开始，dayDateTime：{}，matchNum：{}", dayDateTime, matchNum);
+        log.info("::" + linkId + "::,deleteSettleCheckInfoAndMatch,定时清理结算历史信息开始，dayDateTime：{}，matchNum：{}", dayDateTime, matchNum);
         try {
             Long standardMatchId = 0l;
             //先查标准赛事中 开赛时间>8天 并且已完赛
@@ -114,68 +114,68 @@ public class CleanMatchSettle extends IJobHandler {
 
             }
             if (standardMatchId.equals(0l)){
-                //log.info("::" + linkId + "::,deleteSettleCheckInfoAndMatch,没有需要删除的结算赛事");
+                log.info("::" + linkId + "::,deleteSettleCheckInfoAndMatch,没有需要删除的结算赛事");
                 XxlJobLogger.log("::" + linkId + "::,deleteSettleCheckInfoAndMatch,没有需要删除的结算赛事");
                 return;
             }
-            //log.info("::" + linkId + "::,deleteSettleCheckInfoAndMatch,定时清理结算信息表历史信息条数,标准赛事id：{}", standardMatchId);
+            log.info("::" + linkId + "::,deleteSettleCheckInfoAndMatch,定时清理结算信息表历史信息条数,标准赛事id：{}", standardMatchId);
             XxlJobLogger.log("::" + linkId + "::,deleteSettleCheckInfoAndMatch,定时清理结算信息表历史信息条数,标准赛事id:"+ standardMatchId);
             try {
                 MatchSettleCheckInfoExample checkInfoExample=new MatchSettleCheckInfoExample();
                 checkInfoExample.createCriteria().andStandardMatchIdEqualTo(standardMatchId);
                 int checkNum = matchSettleCheckInfoMapper.deleteByExample(checkInfoExample);
-                //log.info("::" + linkId + "::,deleteSettleCheckInfoAndMatch,定时清理MatchSettleCheckInfo标准赛事id: {},条数：{}", standardMatchId,checkNum);
+                log.info("::" + linkId + "::,deleteSettleCheckInfoAndMatch,定时清理MatchSettleCheckInfo标准赛事id: {},条数：{}", standardMatchId,checkNum);
 
                 MatchSettleGoalStatusExample goalStatusExample=new MatchSettleGoalStatusExample();
                 goalStatusExample.createCriteria().andStandardMatchIdEqualTo(standardMatchId);
                 int goalNum = matchSettleGoalStatusMapper.deleteByExample(goalStatusExample);
-                //log.info("::" + linkId + "::,deleteSettleCheckInfoAndMatch,定时清理MatchSettleGoalStatus标准赛事id: {},条数：{}", standardMatchId,goalNum);
+                log.info("::" + linkId + "::,deleteSettleCheckInfoAndMatch,定时清理MatchSettleGoalStatus标准赛事id: {},条数：{}", standardMatchId,goalNum);
 
                 MatchSettleThirdScoreExample settleThirdScoreExample=new MatchSettleThirdScoreExample();
                 settleThirdScoreExample.createCriteria().andStandardMatchIdEqualTo(standardMatchId);
                 int thirdScoreNum = matchSettleThirdScoreMapper.deleteByExample(settleThirdScoreExample);
-                //log.info("::" + linkId + "::,deleteSettleCheckInfoAndMatch,定时清理MatchSettleThirdScore标准赛事id: {},条数：{}", standardMatchId,thirdScoreNum);
+                log.info("::" + linkId + "::,deleteSettleCheckInfoAndMatch,定时清理MatchSettleThirdScore标准赛事id: {},条数：{}", standardMatchId,thirdScoreNum);
 
                 MatchSettleThirdEventExample thirdEventExample=new MatchSettleThirdEventExample();
                 thirdEventExample.createCriteria().andStandardMatchIdEqualTo(standardMatchId);
                 int thirdEventNum = matchSettleThirdEventMapper.deleteByExample(thirdEventExample);
-                //log.info("::" + linkId + "::,deleteSettleCheckInfoAndMatch,定时清理MatchSettleThirdEvent标准赛事id: {},条数：{}", standardMatchId,thirdEventNum);
+                log.info("::" + linkId + "::,deleteSettleCheckInfoAndMatch,定时清理MatchSettleThirdEvent标准赛事id: {},条数：{}", standardMatchId,thirdEventNum);
 
                 MatchSettleEventExample settleEventExample=new MatchSettleEventExample();
                 settleEventExample.createCriteria().andStandardMatchIdEqualTo(standardMatchId);
                 int eventNum = matchSettleEventMapper.deleteByExample(settleEventExample);
-                //log.info("::" + linkId + "::,deleteSettleCheckInfoAndMatch,定时清理MatchSettleEvent标准赛事id: {},条数：{}", standardMatchId,eventNum);
+                log.info("::" + linkId + "::,deleteSettleCheckInfoAndMatch,定时清理MatchSettleEvent标准赛事id: {},条数：{}", standardMatchId,eventNum);
 
                 MatchSettleScoreExample settleScoreExample=new MatchSettleScoreExample();
                 settleScoreExample.createCriteria().andStandardMatchIdEqualTo(standardMatchId);
                 int scoreNum = matchSettleScoreMapper.deleteByExample(settleScoreExample);
-                //log.info("::" + linkId + "::,deleteSettleCheckInfoAndMatch,定时清理MatchSettleScore标准赛事id: {},条数：{}", standardMatchId,scoreNum);
+                log.info("::" + linkId + "::,deleteSettleCheckInfoAndMatch,定时清理MatchSettleScore标准赛事id: {},条数：{}", standardMatchId,scoreNum);
 
                 MatchSettleAbnormalExample abnormalExample=new MatchSettleAbnormalExample();
                 abnormalExample.createCriteria().andStandardMatchIdEqualTo(standardMatchId);
                 int abnormal =  matchSettleAbnormalMapper.deleteByExample(abnormalExample);
-                //log.info("::" + linkId + "::,deleteSettleCheckInfoAndMatch,定时清理MatchSettleAbnormal标准赛事id: {},条数：{}", standardMatchId,abnormal);
+                log.info("::" + linkId + "::,deleteSettleCheckInfoAndMatch,定时清理MatchSettleAbnormal标准赛事id: {},条数：{}", standardMatchId,abnormal);
 
                 MatchDelaySettleInfoExample delaySettleInfoExample = new MatchDelaySettleInfoExample();
                 delaySettleInfoExample.createCriteria().andStandardMatchIdEqualTo(standardMatchId);
                 int delay = matchDelaySettleInfoMapper.deleteByExample(delaySettleInfoExample);
-                //log.info("::" + linkId + "::,deleteSettleCheckInfoAndMatch,定时清理MatchDelaySettleInfo标准赛事id: {},条数：{}", standardMatchId,delay);
+                log.info("::" + linkId + "::,deleteSettleCheckInfoAndMatch,定时清理MatchDelaySettleInfo标准赛事id: {},条数：{}", standardMatchId,delay);
 
                 MatchSettleInfoExample InfoExample = new MatchSettleInfoExample();
                 InfoExample.createCriteria().andStandardMatchIdEqualTo(standardMatchId);
                 matchSettleInfoMapper.deleteByExample(InfoExample);
 
-                //log.info("::" + linkId + "::,deleteSettleCheckInfoAndMatch,定时清理MatchSettleInfo标准赛事id: {}", standardMatchId);
+                log.info("::" + linkId + "::,deleteSettleCheckInfoAndMatch,定时清理MatchSettleInfo标准赛事id: {}", standardMatchId);
 
             } catch (Exception e) {
                 log.error("::" + linkId + "::deleteSettleCheckInfoAndMatch,根据标准赛事ID删除结算相关历史数据异常 ,Exception:", e);
             }
 
         } catch (Exception e) {
-            //log.info("::" + linkId + "::,deleteSettleCheckInfoAndMatch,定时根据标准赛事ID清理结算历史数据执行异常，Exception:", e);
+            log.info("::" + linkId + "::,deleteSettleCheckInfoAndMatch,定时根据标准赛事ID清理结算历史数据执行异常，Exception:", e);
         }
         stopWatch.stop();
-        //log.info("::" + linkId + "::,deleteSettleCheckInfoAndMatch,定时根据标准赛事ID清理历史数据执行用时{}毫秒", stopWatch.getTotalTimeMillis());
+        log.info("::" + linkId + "::,deleteSettleCheckInfoAndMatch,定时根据标准赛事ID清理历史数据执行用时{}毫秒", stopWatch.getTotalTimeMillis());
         XxlJobLogger.log("::" + linkId + "::,deleteSettleCheckInfoAndMatch,定时根据标准赛事ID清理历史数据执行用时{}毫秒", stopWatch.getTotalTimeMillis());
     }
 }

@@ -5,7 +5,6 @@ import com.panda.merge.common.enums.StandardSportTypeEnum;
 import com.panda.merge.common.utils.ListUtils;
 import com.panda.merge.dto.message.StandardMarketMessage;
 import com.panda.merge.dto.message.StandardMarketOddsMessage;
-import com.panda.merge.dto.odds.MergeMarketStatusEnum;
 import com.panda.merge.model.StandardMatchInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -14,7 +13,6 @@ import org.springframework.util.CollectionUtils;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -35,12 +33,6 @@ public class StandardMarketPASort {
             Map<Long, List<StandardMarketMessage>> standardMarketMessagesMap = standardMarketMessages.stream().filter(s -> CARKETCATEGORY_ID.contains(s.getChildMarketCategoryId())).collect(Collectors.groupingBy(StandardMarketMessage::getChildMarketCategoryId));
             for (Map.Entry<Long, List<StandardMarketMessage>> entry : standardMarketMessagesMap.entrySet()) {
                 List<StandardMarketMessage> standardMarketMessage = entry.getValue();
-                if (standardMarketMessage.stream().anyMatch(m ->
-                        Objects.equals(MergeMarketStatusEnum.CLOSE_DISPLAY.code, m.getMergeMarketStatus()))) {
-                    log.info("::{}::关转封批次跳过PA排序,标准赛事id:{},子玩法:{}",
-                            linkId, standardMatchInfo.getId(), entry.getKey());
-                    continue;
-                }
                 //取盘口中有投注项的有效数据
                 List<StandardMarketMessage> standardMarketsValid = standardMarketMessage.stream().filter(e -> !CollectionUtils.isEmpty(e.getMarketOddsList()) && e.getThirdMarketSourceStatus() < Constant.SPORT_MARKET.STATUS.DEACTIVATED).collect(Collectors.toList());
                 //计算出投注项赔率差

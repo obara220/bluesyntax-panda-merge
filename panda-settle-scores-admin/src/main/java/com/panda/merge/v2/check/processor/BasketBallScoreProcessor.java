@@ -1,7 +1,6 @@
 package com.panda.merge.v2.check.processor;
 
 
-import cn.hutool.json.JSONUtil;
 import com.panda.merge.config.RedisService;
 import com.panda.merge.dto.*;
 import com.panda.merge.dto.settle.AutoSettleDataSourceDto;
@@ -148,12 +147,7 @@ public class BasketBallScoreProcessor {
                 Map<String, BasketballScores> basketballScoresMap = JsonMapUtils.transferBasketballMap(allPeriodScores);
                 List<MatchSettleScore> resultlist = new ArrayList<>();
                 //2.根据结算阶段比分循环匹配过滤器
-
                 basketballScoreFilter.filter(basketballScoresMap, request.getData(), beforeList, resultlist);
-                if (com.baomidou.mybatisplus.core.toolkit.CollectionUtils.isEmpty(resultlist)){
-                    log.info("linkId::{}::根据结算阶段比分循环匹配过滤器,basketBallScoresMap:{},request_getData:{},beforeList:{},resultList:{}",
-                            request.getData(), JSONUtil.toJsonStr(basketballScoresMap), request.getData(), JSONUtil.toJsonStr(beforeList), JSONUtil.toJsonStr(resultlist));
-                }
                 //3.将结算的阶段比分的过滤器处理比分编辑
                 //4.三方比分入库和更新
                 saveMatchSettleThirdScores(resultlist, request.getData());
@@ -181,11 +175,14 @@ public class BasketBallScoreProcessor {
         try {
             log.info("linkId::{}::saveMatchSettleThirdScores开始处理",data.getLinkedId());
             if(list.size()==0){
+                log.info("linkId::{}::saveMatchSettleThirdScores inside", data.getLinkedId());
                 return;
             }
             //灰色区间处理
             CheckIsGreyDto checkIsGreyDto =null;
+            log.info("linkId::{}::saveMatchSettleThirdScores outside", data.getLinkedId());
             if(data.getMatchEventInfo()!=null){
+                log.info("linkId::{}::saveMatchSettleThirdScores inside", data.getLinkedId());
                 checkIsGreyDto= matchScoresTransSettleService.checkIsGreyEvent(data.getMatchEventInfo());
                 checkIsGreyDto.setStandardMatchId(data.getStandardMatchId());
                 if(checkIsGreyDto.getIsGrey()!=null && checkIsGreyDto.getIsGrey()!=0){
@@ -194,6 +191,7 @@ public class BasketBallScoreProcessor {
                     matchScoresTransSettleService.updateGrayMatchSettleScore(checkIsGreyDto,data.getMatchEventInfo().getHomeAway());
                 }
             }
+            log.info("linkId::{}::saveMatchSettleThirdScores after", data.getLinkedId());
             if(checkIsGreyDto!=null){
                 checkIsGreyDto.setMatchEventInfo(data.getMatchEventInfo());
             }
@@ -201,14 +199,13 @@ public class BasketBallScoreProcessor {
             List<String> scoresSettleNums=list.stream().map(it->it.getSettleNum()).collect(Collectors.toList());
             List<MatchSettleThirdScore> oldScoresList =matchSettleThirdScoreV2Repository.getByMatchIdAndAndDataSourceCodeSettleNum(null,data.getThirdMatchId(),data.getDataSourceCode(),scoresSettleNums);
             log.info("linkId::{}::结算比分映射,查询到老的比分有:{}",data.getLinkedId(),oldScoresList.size());
-            //有报错 mapkey冲突
-//        Map<String,MatchSettleThirdScore>  oldScoresMap=oldScoresList.stream().collect(Collectors.toMap(MatchSettleThirdScore::getSettleNum,it->it));
             Map<String,MatchSettleThirdScore>  oldScoresMap=new HashMap<>();
             for (MatchSettleThirdScore matchSettleThirdScore : oldScoresList) {
                 if(oldScoresMap.get(matchSettleThirdScore.getSettleNum())==null){
                     oldScoresMap.put(matchSettleThirdScore.getSettleNum(),matchSettleThirdScore);
                 }
             }
+
             log.info("linkId::{}::结算比分映射,查询到老的转化后map有:{}",data.getLinkedId(),oldScoresMap.size());
             for (MatchSettleScore matchSettleScore : list) {
                 //1.查询当前阶段比分
@@ -237,6 +234,7 @@ public class BasketBallScoreProcessor {
                     oldScore.setModifyTime(System.currentTimeMillis());
                     oldScore.setDataSourceCode(data.getDataSourceCode());
                     matchSettleThirdScoreV2Repository.updateById(oldScore);
+                    log.info("linkId::{}::updateMatchSettleThirdScore:{}",data.getLinkedId(),oldScore);
                 }
                 if(oldScore.getT1() == 0 && oldScore.getT2() == 0 && allPhaseSettleNums.contains(oldScore.getSettleNum())) {
                     continue;

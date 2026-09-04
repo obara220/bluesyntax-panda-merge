@@ -7,7 +7,6 @@ import com.panda.merge.dto.MatchEventInfoDTO;
 import com.panda.merge.dto.Response;
 import com.panda.merge.dto.scores.MatchScoresBetterDto;
 import com.panda.merge.model.*;
-import com.panda.merge.mq.message.CommonStandardScoresDto;
 
 /**
  * 比分中心服务
@@ -121,7 +120,4 @@ public interface IScoresService {
      * @param roundType       赛制
      */
     void initMatchTimeInfoByMatchScoresInfo(MatchScoresInfo matchScoresInfo, Integer roundType);
-
-    void changePDHomeAwayScores(StandardMatchScores score, ThirdMatchInfo thirdMatchInfo);
-    void changePDHomeAwayScores(MatchScoresInfo score, ThirdMatchInfo thirdMatchInfo);
 }

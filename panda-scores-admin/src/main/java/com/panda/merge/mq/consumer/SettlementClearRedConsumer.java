@@ -113,7 +113,7 @@ public class SettlementClearRedConsumer extends AbstractSingleMessageMQConsumer<
                 //加入一键取消类型
                 if (item.getOperatePageCode().equals(OperateLogTypeEnum.SCORES_CANCEL_WITH_ONE_CLICK.getCode())){
                     matchScoresCenterLog.setOperateParaName(OperateLogTypeEnum.SCORES_CANCEL_WITH_ONE_CLICK.getName() );
-                    matchScoresCenterLog.setOperateType(OperateLogTypeEnum.SCORES_CANCEL_WITH_ONE_CLICK.getName() );
+                    matchScoresCenterLog.setOperateType(OperateLogTypeEnum.SCORES_CANCEL_WITH_ONE_CLICK.getCode()+"");
                     matchScoresCenterLog.setOperateRearText("取消");
                     matchScoresCenterLog.setOperateForwText("-");
                 }

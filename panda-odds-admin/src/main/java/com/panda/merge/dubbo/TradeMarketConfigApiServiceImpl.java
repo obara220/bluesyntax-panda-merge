@@ -25,25 +25,20 @@ import com.panda.merge.dto.message.StandardCategoryAutoCloseMessage;
 import com.panda.merge.dto.message.StandardMarketDataMessage;
 import com.panda.merge.dto.odds.*;
 import com.panda.merge.model.*;
-import com.panda.merge.odds.ThirdMarket108048Helper;
 import com.panda.merge.odds.XtsMonitor;
 import com.panda.merge.odds.service.DataSourceAutoSwitchService;
 import com.panda.merge.odds.service.DataSourceSwitchService;
 import com.panda.merge.odds.service.PlayRiskManagerService;
 import com.panda.merge.odds.utils.AutoMapSplitterUtils;
-import com.panda.merge.odds.utils.DataSourceUtils;
 import com.panda.merge.rocketmq.processor.*;
 import com.panda.merge.rocketmq.producer.*;
 import com.panda.merge.service.*;
 import com.panda.merge.validator.ValidatorUtils;
-import com.panda.sport.manager.api.IMarketCategorySellApi;
-import com.panda.sport.manager.api.dto.ChangeBusinessEventSaleDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.BeanUtils;
@@ -58,13 +53,11 @@ import org.springframework.util.StopWatch;
 import javax.annotation.Resource;
 import javax.validation.Validator;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.panda.merge.common.enums.Constant.REDIS_KEY.RONGHE_XTS_MATCH_AUTO_SWITCH;
 
-//import com.panda.sports.auth.rpc.IAuthRequiredPermission;
 
 /**
  * <Description> <br>
@@ -249,12 +242,9 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
     @Autowired
     private StandardOutrightMarketService standardOutrightMarketService;
 
-    @DubboReference
-    private IMarketCategorySellApi iMarketCategorySellApi;
-
     @Override
     public Response putTradeMarketConfig(Request<TradeMarketConfigDTO> request) {
-        //validateLinkId("putTradeMarketConfig", request);
+        validateLinkId("putTradeMarketConfig", request);
         log.info("::{}::putTradeMarketConfig入参: {}", request.getLinkId(), JSON.toJSONString(request));
         TradeMarketConfigDTO tradeMarketConfigDTO = request.getData();
         //保存configTradeMarketLog，该表只记录，不会作为业务使用
@@ -342,26 +332,6 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
             try {
                 //如果是赛事级别关盘，需要把所有盘口关闭
                 if (Constant.TRADE_MARKET_CONFIG.MARKET_STATUS.DEACTIVATED.equals(tradeMarketConfigDTO.getMarketStatus())) {
-                    if (thirdMatchInfo.getDataSourceCode().equals(DataSourceCodeEnum.OD.code)) {
-                        // 本次修改的标准赛事
-                        StandardMatchInfo upStandardMatchInfo = new StandardMatchInfo();
-                        upStandardMatchInfo.setId(standardMatchInfo.getId());
-                        // 修改标准赛事的操盘赛事状态
-                        upStandardMatchInfo.setOperateMatchStatus(tradeMarketConfigDTO.getMarketStatus());
-                        // 修改标准赛事
-                        standardMatchInfo = standardMatchInfoService.updateByPrimaryKeySelective(upStandardMatchInfo);
-
-                        standardMarketOddsProducer.standardMarketOddsStateSend(request.getLinkId(), standardMatchInfo, request.getDataSourceTime());
-                        // 下发赛事级别关盘给风控
-                        dataMerchantBaffleProducer.changeMatchStatusSendRiskMQ(request.getLinkId(), standardMatchInfo.getId(),
-                                Constant.TRADE_MARKET_CONFIG.MARKET_STATUS.DEACTIVATED);
-                        // 下发赛事状态给到业务
-                        standardMarketOddsProducer.standardMarketOddsAsyncSend(request.getLinkId(), standardMatchInfo,
-                                null, request.getDataSourceTime(), false);
-                        log.info("::{}::OD数据源,标准赛事id：{},赛事级别关盘，赛事下架", request.getLinkId(), standardMatchInfo.getId());
-                        return Response.success();
-                    }
-
                     //获取标准盘口里面的玩法ID
                     List<StandardSportMarket> standardSportMarkets = standardSportMarketService.getItemByMatchIdAndDataSourceCode(thirdMatchInfo.getReferenceId(), tradeMarketConfigDTO.getAddition1(), Arrays.asList(marketType));
                     //盘口没有开出去，没必要走下面流程
@@ -513,7 +483,7 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                                     standardMarketDataMessage.getThirdMarketSourceStatus());
                         }
                     }
-                    if (isOutRight) {
+                    if(isOutRight){
                         marketCategoryIdSet = marketIdSet;
                         // 操盘记录
                         closeAllMarketByMatch(request.getLinkId(), standardMatchInfo.getId());
@@ -523,11 +493,11 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                             marketCategoryIdSet, stringStandardMarketDataMessageMap, request.getDataSourceTime(),
                             standardSportMarketSell, new HashMap<>());
                 }
-                testMatchTradeMarketConfig(request, standardMatchInfo.getId(), marketType);
+                testMatchTradeMarketConfig(request,standardMatchInfo.getId(),marketType);
                 //提前结算收到赛事级别状态
                 if (thirdMatchInfo.getDataSourceCode().equals(DataSourceCodeEnum.SR.code)) {
                     thirdMarketPreResultProcessor.liveCloseCashOutStatus(request.getLinkId() + "_MATCH_STATUS",
-                            standardMatchInfo.getId(), request.getDataSourceTime(), tradeMarketConfigDTO.getAddition3(), true);
+                            standardMatchInfo.getId(), request.getDataSourceTime(), tradeMarketConfigDTO.getAddition3(),true);
                 }
             } finally {
                 redisService.unLock(redisLocKey, lockValue);
@@ -554,10 +524,9 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                     oldStandardMatchInfo.getId());
             return Response.failed("赛事未开售赔率不下发");
         }
-        // 获取缓存中的所有盘口（赛事级开关/操盘操作：不应依赖 oddsLive，只要缓存存在就应取到并下发；否则会出现“开关一开赔率消失”）
-        Map<String, StandardMarketDataMessage> stringStandardMarketDataMessageMap =
-                getStringStandardMarketDataMessageMapForTradeOperation(new HashSet<>(), request.getLinkId(), oldStandardMatchInfo, standardSportMarketSell);
-        if (null != tradeMarketConfigDTO.getTradeType()
+        //获取缓存中的所有盘口（赛前数据商和滚球数据商）
+        Map<String, StandardMarketDataMessage> stringStandardMarketDataMessageMap = getStringStandardMarketDataMessageMap(new HashSet<>(),request.getLinkId(), oldStandardMatchInfo, standardSportMarketSell);
+        if(null != tradeMarketConfigDTO.getTradeType()
                 && (tradeMarketConfigDTO.getTradeType().equals(Constant.TRADE_MARKET_CONFIG.TRADE_TYPE.AUTO) || tradeMarketConfigDTO.getTradeType().equals(Constant.TRADE_MARKET_CONFIG.TRADE_TYPE.AUTO_PLUS))
                 && Constant.TRADE_MARKET_CONFIG.LEVEL.MARKET_CATEGORY.equals(tradeMarketConfigDTO.getLevel())) {
             //含有新增的玩法，提示失败
@@ -568,6 +537,7 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                 return Response.changeTradeFailed("包含新增玩法，切换操盘方式失败", marketgoryList);
             }
         }
+
         processTradeSystemThreadPool.execute(new Runnable() {
             @Override
             public void run() {
@@ -582,117 +552,13 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
         return Response.success();
     }
 
-    /**
-     * 赛事级/操盘后台操作读取缓存：
-     * 不依赖 isOddsLive（赛前/滚球切换标识），避免“标识异常存在时只取到一侧缓存”导致下发空赔率。
-     */
-    private Map<String, StandardMarketDataMessage> getStringStandardMarketDataMessageMapForTradeOperation(Set<Long> marketCategoryIds,
-                                                                                                          String linkId,
-                                                                                                          StandardMatchInfo standardMatchInfo,
-                                                                                                          StandardSportMarketSell standardSportMarketSell) {
-        Map<String, StandardMarketDataMessage> result = new HashMap<>();
-        // 赛前
-        {
-            List<String> preKeys = new ArrayList<>();
-            String categoryRedisKey = Constant.REDIS_KEY.RONGHE_MARKET_CATEGORY_SELL + standardMatchInfo.getId() + "_" + 1;
-            Map<String, String> categoryDsMap = redisService.hGetAll(categoryRedisKey);
-            if (MapUtil.isNotEmpty(categoryDsMap)) {
-                for (Map.Entry<String, String> e : categoryDsMap.entrySet()) {
-                    Long categoryId = Long.valueOf(e.getKey());
-                    if (!CollectionUtils.isEmpty(marketCategoryIds) && !marketCategoryIds.contains(categoryId)) {
-                        continue;
-                    }
-                    String ds = normalizeMarketCategorySellDataSourceCode(e.getValue());
-                    String dataSourceCode = supportA99(linkId,standardMatchInfo.getId(),1,categoryId)?"A99":ds;
-                    preKeys.add(DigestUtil.md5Hex(Constant.REDIS_KEY.RONGHE_STANDARD_CATEGORY_MARKET + standardMatchInfo.getId() + "_" + dataSourceCode + "_" + categoryId));
-                }
-            } else {
-                // 缓存缺失时，不按赛事级 providerCode 过滤（可能存在玩法级切源/混合数据源），直接取该盘型下全部玩法开售数据源
-                List<MarketCategorySell> marketCategorySell = marketCategorySellService.getItem(standardMatchInfo.getId(), "1");
-                if (!CollectionUtils.isEmpty(marketCategorySell)) {
-                    for (MarketCategorySell m : marketCategorySell) {
-                        Long categoryId = m.getMarketCategoryId();
-                        if (!CollectionUtils.isEmpty(marketCategoryIds) && !marketCategoryIds.contains(categoryId)) {
-                            continue;
-                        }
-                        String ds = normalizeMarketCategorySellDataSourceCode(m.getDataSourceCode());
-                        preKeys.add(DigestUtil.md5Hex(Constant.REDIS_KEY.RONGHE_STANDARD_CATEGORY_MARKET + standardMatchInfo.getId() + "_" + ds + "_" + categoryId));
-                    }
-                }
-            }
-            Map<String, StandardMarketDataMessage> preMap = redisService.syncOddsMultiGetAll(preKeys);
-            if (MapUtils.isNotEmpty(preMap)) {
-                // 容错：不要依赖缓存里的 marketType 字段做过滤（历史/异常数据可能为空或不一致），只要缓存存在就拿来下发
-                result.putAll(preMap.entrySet().stream()
-                        .filter(x -> x.getValue() != null)
-                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
-            }
-        }
-        // 滚球
-        {
-            List<String> liveKeys = new ArrayList<>();
-            String categoryRedisKey = Constant.REDIS_KEY.RONGHE_MARKET_CATEGORY_SELL + standardMatchInfo.getId() + "_" + 0;
-            Map<String, String> categoryDsMap = redisService.hGetAll(categoryRedisKey);
-            if (MapUtil.isNotEmpty(categoryDsMap)) {
-                for (Map.Entry<String, String> e : categoryDsMap.entrySet()) {
-                    Long categoryId = Long.valueOf(e.getKey());
-                    if (!CollectionUtils.isEmpty(marketCategoryIds) && !marketCategoryIds.contains(categoryId)) {
-                        continue;
-                    }
-                    String ds = normalizeMarketCategorySellDataSourceCode(e.getValue());
-                    String dataSourceCode = supportA99(linkId,standardMatchInfo.getId(),0,categoryId)?"A99":ds;
-                    liveKeys.add(DigestUtil.md5Hex(Constant.REDIS_KEY.RONGHE_STANDARD_CATEGORY_MARKET + standardMatchInfo.getId() + "_" + dataSourceCode + "_" + categoryId));
-                }
-            } else {
-                // 缓存缺失时，不按赛事级 providerCode 过滤，直接取该盘型下全部玩法开售数据源
-                List<MarketCategorySell> marketCategorySell = marketCategorySellService.getItem(standardMatchInfo.getId(), "0");
-                if (!CollectionUtils.isEmpty(marketCategorySell)) {
-                    for (MarketCategorySell m : marketCategorySell) {
-                        Long categoryId = m.getMarketCategoryId();
-                        if (!CollectionUtils.isEmpty(marketCategoryIds) && !marketCategoryIds.contains(categoryId)) {
-                            continue;
-                        }
-                        String ds = normalizeMarketCategorySellDataSourceCode(m.getDataSourceCode());
-                        liveKeys.add(DigestUtil.md5Hex(Constant.REDIS_KEY.RONGHE_STANDARD_CATEGORY_MARKET + standardMatchInfo.getId() + "_" + ds + "_" + categoryId));
-                    }
-                }
-            }
-            Map<String, StandardMarketDataMessage> liveMap = redisService.syncOddsMultiGetAll(liveKeys);
-            if (MapUtils.isNotEmpty(liveMap)) {
-                // 容错：不要依赖缓存里的 marketType 字段做过滤（历史/异常数据可能为空或不一致），只要缓存存在就拿来下发
-                result.putAll(liveMap.entrySet().stream()
-                        .filter(x -> x.getValue() != null)
-                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
-            }
-        }
-        log.info("::{}:: tradeOperation getMarketData cacheSize={}", linkId, result.size());
-        return result;
-    }
-
-    /**
-     * MarketCategorySell.dataSourceCode 可能包含内部站点前缀（如 T01/L01/L02），此处统一归一到缓存使用的数据源编码。
-     */
-    private String normalizeMarketCategorySellDataSourceCode(String code) {
-        if (StringUtils.isBlank(code)) {
-            return code;
-        }
-        if (code.startsWith("T01")) {
-            return DataSourceCodeEnum.TX.getCode();
-        }
-        if (code.startsWith("L01")) {
-            return DataSourceCodeEnum.LS.getCode();
-        }
-        if (code.startsWith("L02")) {
-            return DataSourceCodeEnum.L02.getCode();
-        }
-        return code;
-    }
-
-    private void testMatchTradeMarketConfig(Request<TradeMarketConfigDTO> request, Long matchId, Integer[] marketType) {
-        String linkId = request.getLinkId() + "_new_match";
+    private void testMatchTradeMarketConfig(Request<TradeMarketConfigDTO> request,Long matchId,Integer[] marketType)
+    {
+        String linkId = request.getLinkId()+"_new_match";
         TradeMarketConfigDTO tradeMarketConfigDTO = request.getData();
         StandardRelationNewStandard standardRelationNewStandard = standardRelationNewStandardService.getItem(matchId);
-        if (standardRelationNewStandard == null) {
+        if (standardRelationNewStandard == null)
+        {
             return;
         }
         //判断赛事类型
@@ -700,7 +566,8 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
 
         StandardMatchInfo standardMatchInfo = thirdMatchMarketProcessor.getStandardMatchInfo(isOutRight,
                 standardRelationNewStandard.getNewStandardId());
-        if (standardMatchInfo == null) {
+        if (standardMatchInfo == null)
+        {
             return;
         }
 
@@ -719,14 +586,14 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
         }
 
         //对测试联赛加锁
-        String lockValue = UUIdUtils.getId() + "_" + linkId + "_new_match";
+        String lockValue = UUIdUtils.getId()+"_"+linkId+"_new_match";
         boolean isLock = false;
-        try {
+        try{
             String redisLocKey = Constant.REDIS_KEY.RONGHE_LOCK + standardRelationNewStandard.getNewStandardId();
             isLock = true;
-            log.info("::{}::测试联赛，putTradeMarketConfig,redisLocKey:{},准备获取分布式锁,lockValue:{}", linkId, redisLocKey, lockValue);
+            log.info("::{}::测试联赛，putTradeMarketConfig,redisLocKey:{},准备获取分布式锁,lockValue:{}", linkId,redisLocKey, lockValue);
             redisService.tryLock(redisLocKey, lockValue, 5, 3);
-            log.info("::{}::测试联赛，putTradeMarketConfig,redisLocKey:{},获取到分布式锁,lockValue:{}", linkId, redisLocKey, lockValue);
+            log.info("::{}::测试联赛，putTradeMarketConfig,redisLocKey:{},获取到分布式锁,lockValue:{}", linkId,redisLocKey, lockValue);
 
             //获取当前数据源所有盘口缓存
             String marketKey =
@@ -748,7 +615,7 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                         stringStandardMarketDataMessageMap.values()) {
                     //关盘只关封盘状态跟活跃状态的盘口,构建盘口不关闭
                     if (standardMarketDataMessage.getThirdMarketSourceStatus() < Constant.TRADE_MARKET_CONFIG.MARKET_STATUS.DEACTIVATED) {
-                        if (standardMarketDataMessage.getMarketSource() == 1) {
+                        if(standardMarketDataMessage.getMarketSource() == 1){
                             log.info("::{}::测试联赛，构建盘口不关闭,标准赛事ID:{},三方盘口ID:{}",
                                     linkId, standardMatchInfo.getId(), standardMarketDataMessage.getThirdMarketSourceId());
                             continue;
@@ -773,7 +640,7 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                         marketCacheTime(standardMatchInfo.getBeginTime()));
                 log.info("::{}::测试联赛， putTradeMarketConfig刷新缓存信息为关盘, key={},marketIdList={},result={}",
                         linkId, marketKey, marketIdList, result);
-                if (isOutRight) {
+                if(isOutRight){
                     marketCategoryIdSet = marketIdSet;
                 }
                 //盘口下发
@@ -786,7 +653,7 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
             //如果是赛事级别封盘，需要把所有开盘中的盘口封盘
             if (Constant.TRADE_MARKET_CONFIG.MARKET_STATUS.SUSPENDED.equals(tradeMarketConfigDTO.getMarketStatus())) {
                 //TX下发赛事级别封盘，不走流程，直接通知风控赛事级别封盘
-                if (DataSourceCodeEnum.TX.code.equals(tradeMarketConfigDTO.getAddition1())) {
+                if(DataSourceCodeEnum.TX.code.equals(tradeMarketConfigDTO.getAddition1())){
                     sendRscMatchStatus(request, tradeMarketConfigDTO, standardMatchInfo);
                     return;
                 }
@@ -828,7 +695,7 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                         marketCacheTime(standardMatchInfo.getBeginTime()));
                 log.info("::{}::测试联赛， putTradeMarketConfig刷新缓存信息为封盘，key={}, marketIdList={},result={}",
                         linkId, marketKey, marketIdList, result);
-                if (isOutRight) {
+                if(isOutRight){
                     marketCategoryIdSet = marketIdSet;
                 }
                 //盘口推送
@@ -837,18 +704,18 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                         standardSportMarketSell, new HashMap<>());
             }
 
-        } finally {
-            if (isLock) {
+        }finally {
+            if (isLock)
+            {
                 String redisLocKey = Constant.REDIS_KEY.RONGHE_LOCK + standardRelationNewStandard.getNewStandardId();
-                redisService.unLock(redisLocKey, lockValue);
-                log.info("::{}::测试联赛，接收数据源赔率开始,redisLocKey:{},释放分布式锁,lockValue:{}", linkId, redisLocKey, lockValue);
+                redisService.unLock(redisLocKey,lockValue);
+                log.info("::{}::测试联赛，接收数据源赔率开始,redisLocKey:{},释放分布式锁,lockValue:{}", linkId,redisLocKey, lockValue);
             }
         }
     }
 
     /**
      * 通知风控赛事级别状态
-     *
      * @param request
      * @param tradeMarketConfigDTO
      * @param standardMatchInfo
@@ -870,7 +737,7 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                 if (Constant.TRADE_MARKET_CONFIG.MARKET_STATUS.DEACTIVATED.equals(tradeMarketConfigDTO.getMarketStatus())) {
                     if (isChangeTx) {
                         changeCategoryMap.forEach((k, v) -> {
-                            if (v.equals(DataSourceCodeEnum.TX.code)) {
+                            if(v.equals(DataSourceCodeEnum.TX.code)){
                                 clearDiffList.add(Long.valueOf(k));
                             }
                         });
@@ -889,7 +756,7 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                 if (Constant.TRADE_MARKET_CONFIG.MARKET_STATUS.DEACTIVATED.equals(tradeMarketConfigDTO.getMarketStatus())) {
                     if (isChangeTx) {
                         changeCategoryMap.forEach((k, v) -> {
-                            if (v.equals(DataSourceCodeEnum.LS.code)) {
+                            if(v.equals(DataSourceCodeEnum.LS.code)){
                                 clearDiffList.add(Long.valueOf(k));
                             }
                         });
@@ -898,7 +765,7 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
             }
         }
         //通知风控清除玩法水差
-        if (!CollectionUtils.isEmpty(clearDiffList)) {
+        if(!CollectionUtils.isEmpty(clearDiffList)){
             log.info("::{}::标准赛事ID:{},TX/LS切换通知风控清除玩法水差:{}", request.getLinkId(), standardMatchInfo.getId(), clearDiffList);
             delDiffByMatchIdAndCategoryList(request.getLinkId(), standardMatchInfo.getId(), clearDiffList, standardMatchInfo.getSportId().intValue());
             standardClearCategoryDiffProducer.sendStandardClearCategoryDiffRisk(request.getLinkId(), standardMatchInfo, clearDiffList);
@@ -916,7 +783,7 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
     public void processTradeSystem(Request<TradeMarketConfigDTO> request, TradeMarketConfigDTO tradeMarketConfigDTO,
                                    StandardMatchInfo oldStandardMatchInfo,
                                    StandardSportMarketSell standardSportMarketSell, Map<String,
-                    StandardMarketDataMessage> stringStandardMarketDataMessageMap) {
+            StandardMarketDataMessage> stringStandardMarketDataMessageMap) {
         if (Constant.TRADE_MARKET_CONFIG.SOURCE_SYSTEM.TRADER_SYSEM.equals(tradeMarketConfigDTO.getSourceSystem())) {
             log.info("::{}::putTradeMarketConfig ,标准赛事id：{},获取缓存数据总数：{}", request.getLinkId(),
                     oldStandardMatchInfo.getId(), stringStandardMarketDataMessageMap.size());
@@ -1013,7 +880,7 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                 Map<Long, Integer> tradeTypeMap = new HashMap<>();
                 for (String categoryId : categoryIds) {
                     //根据风控要求，在切换操盘方式的时候，需要融合内部组装玩法级封盘操作
-                    createTradeMarketPlaceConfig(request.getLinkId() + "_" + categoryId, oldStandardMatchInfo.getId(), Long.parseLong(categoryId), request.getOperaterId());
+                    createTradeMarketPlaceConfig(request.getLinkId()+"_"+categoryId,oldStandardMatchInfo.getId(),Long.parseLong(categoryId),request.getOperaterId());
 
                     ConfigTradeType itemCategory =
                             configTradeTypeService.getItemCategory(tradeMarketConfigDTO.getTargetId(), categoryId);
@@ -1028,85 +895,19 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                     marketCategoryIdSet.add(Long.valueOf(categoryId));
                     tradeTypeMap.put(Long.parseLong(categoryId), tradeMarketConfigDTO.getTradeType());
                 }
-
-                // 关键修复：玩法切换导致“强制封盘”时，只下发【数据商当前仍为ACTIVE】的盘口。
-                // 否则历史/残留的ACTIVE盘口（数据商已不再提供）也会被封盘下发，导致操盘列表统计盘口数量错误。
-                boolean forceSuspend =
-                        tradeMarketConfigDTO.getTradeType().equals(Constant.TRADE_MARKET_CONFIG.TRADE_TYPE.MANUAL)
-                                || tradeMarketConfigDTO.getTradeType().equals(Constant.TRADE_MARKET_CONFIG.TRADE_TYPE.AUTO_PLUS)
-                                || tradeMarketConfigDTO.getTradeType().equals(Constant.TRADE_MARKET_CONFIG.TRADE_TYPE.L_MODEL)
-                                || tradeMarketConfigDTO.getTradeType().equals(Constant.TRADE_MARKET_CONFIG.TRADE_TYPE.L_NEW);
-                if (forceSuspend && !CollectionUtils.isEmpty(marketCategoryIdSet) && MapUtils.isNotEmpty(stringStandardMarketDataMessageMap)) {
-                    boolean isOutRight = StringUtils.equals("1", tradeMarketConfigDTO.getMatchType());
-                    // key = dataSourceCode_marketType
-                    Map<String, Set<String>> activeThirdMarketSourceIds = new HashMap<>();
-                    // 仅按本次涉及的玩法，从缓存中找出需要校验的数据源+盘类型组合
-                    Set<Long> finalMarketCategoryIdSet = marketCategoryIdSet;
-                    Set<String> dsTypeKeySet = stringStandardMarketDataMessageMap.values().stream()
-                            .filter(m -> m != null
-                                    && finalMarketCategoryIdSet.contains(m.getMarketCategoryId())
-                                    && m.getMarketType() != null
-                                    && !org.springframework.util.StringUtils.isEmpty(m.getDataSourceCode()))
-                            .map(m -> m.getDataSourceCode() + "_" + m.getMarketType())
-                            .collect(Collectors.toSet());
-                    for (String dsTypeKey : dsTypeKeySet) {
-                        String[] parts = dsTypeKey.split("_");
-                        if (parts.length != 2) {
-                            continue;
-                        }
-                        String dataSourceCode = parts[0];
-                        Integer marketType = Integer.valueOf(parts[1]);
-                        ThirdMatchInfo thirdMatchInfo = thirdMatchMarketProcessor.getThirdMatchInfoByMatchId(isOutRight, oldStandardMatchInfo.getId(), dataSourceCode);
-                        if (thirdMatchInfo == null) {
-                            log.info("::{}::玩法切换强制封盘-无法获取三方赛事，matchId={},dataSourceCode={}", request.getLinkId(), oldStandardMatchInfo.getId(), dataSourceCode);
-                            continue;
-                        }
-                        List<ThirdSportMarket> thirdSportMarkets =
-                                thirdSportMarketService.getItemList(thirdMatchInfo.getId(), dataSourceCode, marketType, new ArrayList<>(marketCategoryIdSet));
-                        if (CollectionUtils.isEmpty(thirdSportMarkets)) {
-                            activeThirdMarketSourceIds.put(dsTypeKey, Collections.emptySet());
-                            continue;
-                        }
-                        Set<String> activeSet = thirdSportMarkets.stream()
-                                .filter(m -> m != null
-                                        && m.getThirdMarketSourceStatus() != null
-                                        && m.getThirdMarketSourceStatus().equals(Constant.TRADE_MARKET_CONFIG.MARKET_STATUS.ACTIVE)
-                                        && !org.springframework.util.StringUtils.isEmpty(m.getThirdMarketSourceId()))
-                                .map(ThirdSportMarket::getThirdMarketSourceId)
-                                .collect(Collectors.toSet());
-                        activeThirdMarketSourceIds.put(dsTypeKey, activeSet);
-                    }
-
-                    // 对本次涉及玩法：剔除“数据商当前非ACTIVE”的盘口，避免被下发到操盘导致数量异常
-                    Iterator<Map.Entry<String, StandardMarketDataMessage>> it = stringStandardMarketDataMessageMap.entrySet().iterator();
-                    while (it.hasNext()) {
-                        Map.Entry<String, StandardMarketDataMessage> e = it.next();
-                        StandardMarketDataMessage m = e.getValue();
-                        if (m == null || !marketCategoryIdSet.contains(m.getMarketCategoryId())) {
-                            continue;
-                        }
-                        String dsTypeKey = m.getDataSourceCode() + "_" + m.getMarketType();
-                        Set<String> activeSet = activeThirdMarketSourceIds.get(dsTypeKey);
-                        // activeSet==null 表示无法校验（缺少三方赛事信息等），此时不做剔除，避免误删；但若能校验且不在active集合，则剔除
-                        if (activeSet != null && (org.springframework.util.StringUtils.isEmpty(m.getThirdMarketSourceId()) || !activeSet.contains(m.getThirdMarketSourceId()))) {
-                            it.remove();
-                            continue;
-                        }
-                        // 能校验且为ACTIVE盘口时，执行强制封盘
-                        if (Constant.SPORT_MARKET.STATUS.ACTIVE.equals(m.getThirdMarketSourceStatus())) {
-                            m.setStatus(Constant.SPORT_MARKET.STATUS.SUSPENDED);
+                //根据手自动切换类型处理数据
+                stringStandardMarketDataMessageMap.values().forEach(standardMarketDataMessage -> {
+                    //----------------如果是切为手动或者A+，下发强制封盘-------------
+                    if ((tradeMarketConfigDTO.getTradeType().equals(Constant.TRADE_MARKET_CONFIG.TRADE_TYPE.MANUAL)
+                            || tradeMarketConfigDTO.getTradeType().equals(Constant.TRADE_MARKET_CONFIG.TRADE_TYPE.AUTO_PLUS)
+                            || tradeMarketConfigDTO.getTradeType().equals(Constant.TRADE_MARKET_CONFIG.TRADE_TYPE.L_MODEL)
+                            || tradeMarketConfigDTO.getTradeType().equals(Constant.TRADE_MARKET_CONFIG.TRADE_TYPE.L_NEW))
+                            && marketCategoryIdSet.contains(standardMarketDataMessage.getMarketCategoryId())) {
+                        if (Constant.SPORT_MARKET.STATUS.ACTIVE.equals(standardMarketDataMessage.getThirdMarketSourceStatus())) {
+                            standardMarketDataMessage.setStatus(Constant.SPORT_MARKET.STATUS.SUSPENDED);
                         }
                     }
-
-                    // 重新计算本次仍有盘口可下发的玩法集合
-                    Set<Long> finalMarketCategoryIdSet1 = marketCategoryIdSet;
-                    Set<Long> sendCategorySet = stringStandardMarketDataMessageMap.values().stream()
-                            .filter(m -> m != null && finalMarketCategoryIdSet1.contains(m.getMarketCategoryId()))
-                            .map(StandardMarketDataMessage::getMarketCategoryId)
-                            .collect(Collectors.toSet());
-                    marketCategoryIdSet = sendCategorySet;
-                }
-
+                });
                 //---------------处理盘口计算和排序-----------------
                 thirdMatchMarketProcessor.processOddsByAll(request.getLinkId(),request.getOddsSource(), request.getOperaterId(),oldStandardMatchInfo,
                         marketCategoryIdSet, stringStandardMarketDataMessageMap, request.getDataSourceTime(),
@@ -1138,14 +939,14 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
 
     /**
      * 融合自己创建玩法级封盘
-     *
      * @param linkId
      * @param standardMatchInfoId
      * @param standardCategoryId
      * @param operaterId
      */
-    public void createTradeMarketPlaceConfig(String linkId, Long standardMatchInfoId, Long standardCategoryId, Long operaterId) {
-        log.info("::{}::createTradeMarketPlaceConfig入参 :standardMatchInfoId={},standardCategoryId={},处理开始", linkId, standardMatchInfoId, standardCategoryId);
+    public void createTradeMarketPlaceConfig(String linkId,Long standardMatchInfoId,Long standardCategoryId,Long operaterId)
+    {
+        log.info("::{}::createTradeMarketPlaceConfig入参 :standardMatchInfoId={},standardCategoryId={},处理开始", linkId, standardMatchInfoId,standardCategoryId);
         //收集需要保存的数据，批量保存
         List<ConfigMarketCategoryPlace> categoryPlaceList = new ArrayList<>();
         //收集需要删除盘口位置玩法
@@ -1167,11 +968,16 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
             categoryPlace.setModifyTime(TimeUtils.millsSecondsEast8ZoneGmt());
             categoryPlaceList.add(categoryPlace);
         }
+
+        //批量删除盘口位置
+        /*if (!CollectionUtils.isEmpty(delMarketCategoryIdSet)) {
+            configMarketCategoryPlaceService.delBatch(standardMatchInfoId, delMarketCategoryIdSet, linkId);
+        }*/
         //批量插入盘口位置
         if (!CollectionUtils.isEmpty(categoryPlaceList)) {
-            configMarketCategoryPlaceService.cacheConfigMarketPlace(categoryPlaceList, linkId, standardMatchInfoId);
+            configMarketCategoryPlaceService.cacheConfigMarketPlace(categoryPlaceList, linkId,standardMatchInfoId);
         }
-        log.info("::{}::createTradeMarketPlaceConfig入参 :standardMatchInfoId={},standardCategoryId={},处理结束", linkId, standardMatchInfoId, standardCategoryId);
+        log.info("::{}::createTradeMarketPlaceConfig入参 :standardMatchInfoId={},standardCategoryId={},处理结束", linkId, standardMatchInfoId,standardCategoryId);
     }
 
     @Override
@@ -1180,7 +986,7 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
         swRedis.start("盘口查询");
         //判断赛事类型
         String linkId = request.getLinkId();
-        //validateLinkId("putTradeMarketPlaceConfig", request);
+        validateLinkId("putTradeMarketPlaceConfig", request);
         log.info("::{}::putTradeMarketPlaceConfig入参 ={}", linkId, JSON.toJSONString(request));
         TradeMarketPlaceConfigDTO marketPlaceConfigDTO = request.getData();
         Long standardMatchInfoId = marketPlaceConfigDTO.getStandardMatchInfoId();
@@ -1207,15 +1013,22 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
         sw.start("盘口位置入库处理");
         //收集需要保存的数据，批量保存
         List<ConfigMarketCategoryPlace> categoryPlaceList = new ArrayList<>();
+        //收集需要修改的数据，批量修改
+        List<ConfigMarketCategoryPlace> categoryPlaceUpdateList = new ArrayList<>();
         //收集本次有改变的玩法
         Set<Long> marketCategoryIdSet = new HashSet();
+        //收集需要删除盘口位置玩法
+        Set<Long> delMarketCategoryIdSet = new HashSet();
         Long operaterId = request.getOperaterId();
         //循环处理配置数据
         marketPlaceConfigDTO.getMarketPlaceDtlDTOList().forEach(marketPlaceDtlDTO -> {
-            if (null == marketPlaceDtlDTO.getChildStandardCategoryId()) {
+            if (null == marketPlaceDtlDTO.getChildStandardCategoryId())
+            {
                 marketPlaceDtlDTO.setChildStandardCategoryId(marketPlaceDtlDTO.getStandardCategoryId());
             }
             if (marketPlaceDtlDTO.getPlaceNum() == -1) {
+                //先删除玩法已经存在的盘口位置状态
+                //delMarketCategoryIdSet.add(marketPlaceDtlDTO.getStandardCategoryId());
                 //缓存盘口位置
                 for (int i = 1; i < 11; i++) {
                     ConfigMarketCategoryPlace categoryPlace = new ConfigMarketCategoryPlace();
@@ -1232,14 +1045,34 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                     categoryPlaceList.add(categoryPlace);
                 }
             } else {
+                //查找盘口位置是否存在，不存在新增，存在更新
+                /*ConfigMarketCategoryPlace item = null;
+                if (!Objects.isNull(marketPlaceDtlDTO.getPlaceNum())) {
+                    item = configMarketCategoryPlaceService.getItem(standardMatchInfoId,
+                            marketPlaceDtlDTO.getStandardCategoryId(),marketPlaceDtlDTO.getChildStandardCategoryId(), marketPlaceDtlDTO.getPlaceNum());
+                }
+                if (item == null) {
+                    ConfigMarketCategoryPlace categoryPlace = new ConfigMarketCategoryPlace();
+                    BeanUtils.copyProperties(marketPlaceDtlDTO, categoryPlace);
+                    categoryPlace.setId(UUIdUtils.getId());
+                    categoryPlace.setLinkId(linkId);
+                    categoryPlace.setStandardMatchInfoId(standardMatchInfoId);
+                    categoryPlace.setOperaterId(operaterId);
+                    categoryPlace.setCreateTime(TimeUtils.millsSecondsEast8ZoneGmt());
+                    categoryPlace.setModifyTime(TimeUtils.millsSecondsEast8ZoneGmt());
+                    categoryPlaceList.add(categoryPlace);
+                } else {
+                    item.setLinkId(linkId);
+                    item.setPlaceNumStatus(marketPlaceDtlDTO.getPlaceNumStatus());
+                    item.setOperaterId(operaterId);
+                    item.setModifyTime(TimeUtils.millsSecondsEast8ZoneGmt());
+                    categoryPlaceUpdateList.add(item);
+                }*/
                 ConfigMarketCategoryPlace categoryPlace = new ConfigMarketCategoryPlace();
+                BeanUtils.copyProperties(marketPlaceDtlDTO, categoryPlace);
                 categoryPlace.setId(UUIdUtils.getId());
                 categoryPlace.setLinkId(linkId);
                 categoryPlace.setStandardMatchInfoId(standardMatchInfoId);
-                categoryPlace.setPlaceNum(marketPlaceDtlDTO.getPlaceNum());
-                categoryPlace.setStandardCategoryId(marketPlaceDtlDTO.getStandardCategoryId());
-                categoryPlace.setChildStandardCategoryId(marketPlaceDtlDTO.getChildStandardCategoryId());
-                categoryPlace.setPlaceNumStatus(marketPlaceDtlDTO.getPlaceNumStatus());
                 categoryPlace.setOperaterId(operaterId);
                 categoryPlace.setCreateTime(TimeUtils.millsSecondsEast8ZoneGmt());
                 categoryPlace.setModifyTime(TimeUtils.millsSecondsEast8ZoneGmt());
@@ -1247,8 +1080,20 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
             }
             marketCategoryIdSet.add(marketPlaceDtlDTO.getStandardCategoryId());
         });
+        //批量删除盘口位置
+        /*if (!CollectionUtils.isEmpty(delMarketCategoryIdSet)) {
+            configMarketCategoryPlaceService.delBatch(standardMatchInfoId, delMarketCategoryIdSet, linkId);
+        }
+        //批量插入盘口位置
         if (!CollectionUtils.isEmpty(categoryPlaceList)) {
-            configMarketCategoryPlaceService.cacheConfigMarketPlace(categoryPlaceList, linkId, standardMatchInfoId);
+            configMarketCategoryPlaceService.insertList(categoryPlaceList, linkId);
+        }
+        //批量修改盘口位置
+        if (!CollectionUtils.isEmpty(categoryPlaceUpdateList)) {
+            configMarketCategoryPlaceService.updateList(categoryPlaceUpdateList, linkId);
+        }*/
+        if (!CollectionUtils.isEmpty(categoryPlaceList)) {
+            configMarketCategoryPlaceService.cacheConfigMarketPlace(categoryPlaceList, linkId,standardMatchInfoId);
         }
         log.info("::{}::盘口位置及状态处理完成", linkId);
         sw.stop();
@@ -1288,7 +1133,7 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
         sw.start("盘口位置、最大最小值、margin、水差入库处理");
         //判断赛事类型
         String linkId = request.getLinkId();
-        //validateLinkId("putTradeMarketUiConfig", request);
+        validateLinkId("putTradeMarketUiConfig", request);
         log.info("::{}::putTradeMarketUiConfig入参 ={}", linkId, JSON.toJSONString(request));
         TradeMarketUiConfigDTO marketPlaceConfigDTO = request.getData();
         Long operaterId = request.getOperaterId();
@@ -1323,7 +1168,7 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                     marketConfig.setChildStandardCategoryId(marketPlaceConfigDTO.getChildStandardCategoryId());
                 }
                 ConfigMarketTradeItem item = configMarketTradeItemService.getItem(standardMatchInfoId,
-                        marketConfig.getMarketCategoryId(), marketPlaceConfigDTO.getChildStandardCategoryId(), marketPlaceConfigDTO.getPlaceNum());
+                        marketConfig.getMarketCategoryId(),marketPlaceConfigDTO.getChildStandardCategoryId(), marketPlaceConfigDTO.getPlaceNum());
                 if (item == null) {
                     configMarketTradeItemService.create(request.getLinkId(), marketConfig, standardMatchInfoId,
                             marketPlaceConfigDTO.getPlaceNum(), operaterId);
@@ -1349,11 +1194,11 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                     marketMarginDtlDTO.setPlaceNum(marketPlaceConfigDTO.getPlaceNum());
                 }
                 //收集日志
-                marketCategoryMarginLogService.create(request.getLinkId(),
-                        marketPlaceConfigDTO.getStandardMatchInfoId(), marketPlaceConfigDTO.getStandardCategoryId(),
-                        marketPlaceConfigDTO.getChildStandardCategoryId(),
-                        marketPlaceConfigDTO.getMarketType(),
-                        marketPlaceConfigDTO.getPlaceNum(), marketMarginDtlDTO, operaterId);
+//                marketCategoryMarginLogService.create(request.getLinkId(),
+//                        marketPlaceConfigDTO.getStandardMatchInfoId(), marketPlaceConfigDTO.getStandardCategoryId(),
+//                        marketPlaceConfigDTO.getChildStandardCategoryId(),
+//                        marketPlaceConfigDTO.getMarketType(),
+//                        marketPlaceConfigDTO.getPlaceNum(), marketMarginDtlDTO, operaterId);
                 //二项盘的设置
                 ConfigMarketCategoryMargin itemTwo = configMarketCategoryMarginService.getItemTwo(linkId,
                         standardMatchInfoId, marketPlaceConfigDTO.getStandardCategoryId(), marketPlaceConfigDTO.getChildStandardCategoryId(),
@@ -1399,13 +1244,16 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
         List<MarketPlaceDtlDTO> marketPlaceDtlDTOList = marketPlaceConfigDTO.getMarketPlaceDtlDTOList();
         if (!CollectionUtils.isEmpty(marketPlaceDtlDTOList)) {
             marketPlaceDtlDTOList.forEach(marketPlaceDtlDTO -> {
-                if (null == marketPlaceDtlDTO.getChildStandardCategoryId()) {
+                if (null == marketPlaceDtlDTO.getChildStandardCategoryId())
+                {
                     marketPlaceDtlDTO.setChildStandardCategoryId(marketPlaceDtlDTO.getStandardCategoryId());
                 }
                 if (ObjectUtils.isEmpty(marketPlaceDtlDTO.getChildStandardCategoryId())) {
                     marketPlaceDtlDTO.setChildStandardCategoryId(marketPlaceConfigDTO.getChildStandardCategoryId());
                 }
                 if (marketPlaceDtlDTO.getPlaceNum() == -1) {
+                    //先删除玩法已经存在的盘口位置状态
+                    //configMarketCategoryPlaceService.delete(standardMatchInfoId,marketPlaceDtlDTO.getStandardCategoryId());
                     //缓存盘口位置
                     for (int i = 1; i < 11; i++) {
                         ConfigMarketCategoryPlace categoryPlace = new ConfigMarketCategoryPlace();
@@ -1422,6 +1270,30 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                         categoryPlaceList.add(categoryPlace);
                     }
                 } else {
+                    //查找盘口位置是否存在，不存在新增，存在更新
+                    /*ConfigMarketCategoryPlace item = null;
+                    if (!Objects.isNull(marketPlaceDtlDTO.getPlaceNum())) {
+                        item = configMarketCategoryPlaceService.getItem(standardMatchInfoId,
+                                marketPlaceDtlDTO.getStandardCategoryId(),marketPlaceDtlDTO.getChildStandardCategoryId(), marketPlaceDtlDTO.getPlaceNum());
+                    }
+                    if (item == null) {
+                        ConfigMarketCategoryPlace categoryPlace = new ConfigMarketCategoryPlace();
+                        BeanUtils.copyProperties(marketPlaceDtlDTO, categoryPlace);
+                        categoryPlace.setId(UUIdUtils.getId());
+                        categoryPlace.setLinkId(linkId);
+                        categoryPlace.setStandardMatchInfoId(standardMatchInfoId);
+                        categoryPlace.setChildStandardCategoryId(marketPlaceDtlDTO.getChildStandardCategoryId());
+                        categoryPlace.setCreateTime(TimeUtils.millsSecondsEast8ZoneGmt());
+                        categoryPlace.setModifyTime(TimeUtils.millsSecondsEast8ZoneGmt());
+                        categoryPlace.setOperaterId(operaterId);
+                        categoryPlaceList.add(categoryPlace);
+                    } else {
+                        item.setLinkId(linkId);
+                        item.setPlaceNumStatus(marketPlaceDtlDTO.getPlaceNumStatus());
+                        item.setModifyTime(TimeUtils.millsSecondsEast8ZoneGmt());
+                        item.setOperaterId(operaterId);
+                        categoryPlaceUpdateList.add(item);
+                    }*/
                     ConfigMarketCategoryPlace categoryPlace = new ConfigMarketCategoryPlace();
                     BeanUtils.copyProperties(marketPlaceDtlDTO, categoryPlace);
                     categoryPlace.setId(UUIdUtils.getId());
@@ -1434,8 +1306,16 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                     categoryPlaceList.add(categoryPlace);
                 }
             });
+            //批量插入盘口位置
+            /*if (!CollectionUtils.isEmpty(categoryPlaceList)) {
+                configMarketCategoryPlaceService.insertList(categoryPlaceList, linkId);
+            }
+            //批量修改盘口位置
+            if (!CollectionUtils.isEmpty(categoryPlaceUpdateList)) {
+                configMarketCategoryPlaceService.updateList(categoryPlaceUpdateList, linkId);
+            }*/
             if (!CollectionUtils.isEmpty(categoryPlaceList)) {
-                configMarketCategoryPlaceService.cacheConfigMarketPlace(categoryPlaceList, linkId, standardMatchInfoId);
+                configMarketCategoryPlaceService.cacheConfigMarketPlace(categoryPlaceList, linkId,standardMatchInfoId);
             }
         }
         //--------处理盘口水差配置------------
@@ -1451,7 +1331,7 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                 //收集日志
                 configMarketAutoDiffTradeLogService.create(request.getLinkId(), diffConfig, standardMatchInfoId,
                         operaterId);
-                ConfigMarketAutoDiffTrade item = configMarketAutoDiffTradeService.getItem(linkId, standardMatchInfoId,
+                ConfigMarketAutoDiffTrade item = configMarketAutoDiffTradeService.getItem(linkId,standardMatchInfoId,
                         diffConfig.getMarketId(), diffConfig.getOddType());
                 if (item == null) {
                     configMarketAutoDiffTradeService.create(request.getLinkId(), diffConfig, standardMatchInfoId,
@@ -1481,7 +1361,7 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                         placeNumDiffConfig.setChildStandardCategoryId(marketPlaceConfigDTO.getChildStandardCategoryId());
                     }
                     ConfigPlacenumAutoDiffTrade item = configPlaceNumAutoDiffTradeService.getItem(request.getLinkId()
-                            , marketPlaceConfigDTO.getStandardMatchInfoId(), placeNumDiffConfig.getMarketCategoryId(), marketPlaceConfigDTO.getChildStandardCategoryId(),
+                            , marketPlaceConfigDTO.getStandardMatchInfoId(), placeNumDiffConfig.getMarketCategoryId(),marketPlaceConfigDTO.getChildStandardCategoryId(),
                             placeNumDiffConfig.getPlaceNum());
                     if (item == null) {
                         configPlaceNumAutoDiffTradeService.create(request.getLinkId(), placeNumDiffConfig,
@@ -1524,7 +1404,7 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                 categoryDiffConfig.setChildStandardCategoryId(marketPlaceConfigDTO.getChildStandardCategoryId());
             }
             ConfigCategoryAutoDiffTrade item = configCategoryAutoDiffTradeService.getItem(request.getLinkId(),
-                    marketPlaceConfigDTO.getStandardMatchInfoId(), categoryDiffConfig.getMarketCategoryId(), categoryDiffConfig.getChildStandardCategoryId());
+                    marketPlaceConfigDTO.getStandardMatchInfoId(), categoryDiffConfig.getMarketCategoryId(),categoryDiffConfig.getChildStandardCategoryId());
             if (item == null) {
                 configCategoryAutoDiffTradeService.create(request.getLinkId(), categoryDiffConfig,
                         marketPlaceConfigDTO.getStandardMatchInfoId(), operaterId);
@@ -1546,7 +1426,7 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                 ConfigMarketMarginGap marketMargin = new ConfigMarketMarginGap();
                 ConfigMarketMarginGapLog log = new ConfigMarketMarginGapLog();
                 //查询配置
-                ConfigMarketMarginGap configMarketMarginGap = configMarketMarginGapService.getItem(standardMatchInfoId, marketPlaceConfigDTO.getStandardCategoryId(), marketPlaceConfigDTO.getChildStandardCategoryId(), itemDto.getOddsType(), marketPlaceConfigDTO.getPlaceNum());
+                ConfigMarketMarginGap configMarketMarginGap = configMarketMarginGapService.getItem(standardMatchInfoId, marketPlaceConfigDTO.getStandardCategoryId(),marketPlaceConfigDTO.getChildStandardCategoryId(), itemDto.getOddsType(), marketPlaceConfigDTO.getPlaceNum());
                 if (null == configMarketMarginGap) {
                     marketMargin.setMatchId(marketPlaceConfigDTO.getStandardMatchInfoId());
                     marketMargin.setMarketCategoryId(marketPlaceConfigDTO.getStandardCategoryId());
@@ -1568,15 +1448,22 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                     marketMargin.setOperaterId(operaterId);
                     marketMargin.setPlaceNum(marketPlaceConfigDTO.getPlaceNum());
                     marketMargin.setLinkId(linkId);
+                    //修改风控给null，不修改之前配置
+                    if (null == itemDto.getProbability()){
+                        marketMargin.setProbability(configMarketMarginGap.getProbability());
+                    }
+                    if (null == itemDto.getDiffValue()){
+                        marketMargin.setDiffValue(configMarketMarginGap.getDiffValue());
+                    }
                     updateList.add(marketMargin);
                 }
                 BeanUtils.copyProperties(marketMargin, log);
                 log.setId(IdWorker.getId());
                 logList.add(log);
             }
-            if (!CollectionUtils.isEmpty(logList)) {
-                //configMarketMarginGapLogService.createList(logList);
-            }
+//            if (!CollectionUtils.isEmpty(logList)) {
+//                configMarketMarginGapLogService.createList(logList);
+//            }
             if (!CollectionUtils.isEmpty(createList)) {
                 configMarketMarginGapService.insertList(linkId, standardMatchInfoId, createList);
             }
@@ -1589,39 +1476,39 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                 configMarketMarginGapService.updateByCategory(linkId, standardMatchInfoId, marketPlaceConfigDTO.getStandardCategoryId(), margin);
             }
         }
-//        //提前结算配置
-//        ConfigCashOutTradeItemDTO cashOutTradeItemDTO = marketPlaceConfigDTO.getConfigCashOutTradeItemDTO();
-//        if (cashOutTradeItemDTO != null) {
-//            log.info("打印cashOutTradeItemDTO模版:"+JSON.toJSONString(cashOutTradeItemDTO));
-//            //根据赛事级别状态来判断 赛事 还是 玩法级别 1：赛事、2：玩法
-//            Integer matchPreStatus = cashOutTradeItemDTO.getMatchPreStatus();
-//            //判断是赛事级操作 还是玩法级操作
-//            Boolean isMatch = matchPreStatus == null ? Boolean.FALSE : Boolean.TRUE;
-//            ConfigCashOutTradeItem item = null;
-//            if (isMatch) {
-//                log.info("{}::赛事级玩法提前结算开关变更,准备下发数据", cashOutTradeItemDTO.getMatchId());
-//                //赛事级操作
-//                cashOutTradeItemDTO.setLeve(1);
-//                item = configCashOutTradeItemService.getItem(cashOutTradeItemDTO.getMatchId(), cashOutTradeItemDTO.getMarketType(), 1);
-//                //cashOutTradeItemDTO对比item,下发旧的赛事级提前结算
-//                thirdMarketPreResultProcessor.changeAndSendConfigCashOutTradeItem(linkId,standardMatchInfo,cashOutTradeItemDTO,item);
-//            }else {
-//                //玩法级操作
-//                cashOutTradeItemDTO.setLeve(2);
-//                if(null == cashOutTradeItemDTO.getMarketCategoryId()){
-//                    return Response.failed("提前结算玩法不能为空");
-//                }
-//                item = configCashOutTradeItemService.getItem(cashOutTradeItemDTO.getMatchId(), cashOutTradeItemDTO.getMarketType(), cashOutTradeItemDTO.getMarketCategoryId());
-//            }
-//            if (item == null) {
-//                configCashOutTradeItemService.create(cashOutTradeItemDTO);
-//            } else {
-//                configCashOutTradeItemService.update(item, cashOutTradeItemDTO);
-//            }
-//            if(isMatch){
-//                thirdMarketPreResultProcessor.sendThirdPreMarket(linkId, standardMatchInfo, null, request.getDataSourceTime());
-//            }
-//        }
+        //提前结算配置
+        /*ConfigCashOutTradeItemDTO cashOutTradeItemDTO = marketPlaceConfigDTO.getConfigCashOutTradeItemDTO();
+        if (cashOutTradeItemDTO != null) {
+            log.info("打印cashOutTradeItemDTO模版:"+JSON.toJSONString(cashOutTradeItemDTO));
+            //根据赛事级别状态来判断 赛事 还是 玩法级别 1：赛事、2：玩法
+            Integer matchPreStatus = cashOutTradeItemDTO.getMatchPreStatus();
+            //判断是赛事级操作 还是玩法级操作
+            Boolean isMatch = matchPreStatus == null ? Boolean.FALSE : Boolean.TRUE;
+            ConfigCashOutTradeItem item = null;
+            if (isMatch) {
+                log.info("{}::赛事级玩法提前结算开关变更,准备下发数据", cashOutTradeItemDTO.getMatchId());
+                //赛事级操作
+                cashOutTradeItemDTO.setLeve(1);
+                item = configCashOutTradeItemService.getItem(cashOutTradeItemDTO.getMatchId(), cashOutTradeItemDTO.getMarketType(), 1);
+                //cashOutTradeItemDTO对比item,下发旧的赛事级提前结算
+                thirdMarketPreResultProcessor.changeAndSendConfigCashOutTradeItem(linkId,standardMatchInfo,cashOutTradeItemDTO,item);
+            }else {
+                //玩法级操作
+                cashOutTradeItemDTO.setLeve(2);
+                if(null == cashOutTradeItemDTO.getMarketCategoryId()){
+                    return Response.failed("提前结算玩法不能为空");
+                }
+                item = configCashOutTradeItemService.getItem(cashOutTradeItemDTO.getMatchId(), cashOutTradeItemDTO.getMarketType(), cashOutTradeItemDTO.getMarketCategoryId());
+            }
+            if (item == null) {
+                configCashOutTradeItemService.create(cashOutTradeItemDTO);
+            } else {
+                configCashOutTradeItemService.update(item, cashOutTradeItemDTO);
+            }
+            if(isMatch){
+                thirdMarketPreResultProcessor.sendThirdPreMarket(linkId, standardMatchInfo, null, request.getDataSourceTime());
+            }
+        }*/
         sw.stop();
         log.info("::{}::盘口位置、最大最小值、margin、水差入库处理总耗时{}ms," + sw.prettyPrint(), linkId, sw.getTotalTimeMillis());
         if (marketPlaceConfigDTO.getStandardCategoryId() == null) {
@@ -1685,7 +1572,7 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
 
     @Override
     public Response putTradeMarketAutoDiffConfig(Request<TradeMarketAutoDiffConfigDTO> request) {
-        //validateLinkId("putTradeMarketAutoDiffConfig", request);
+        validateLinkId("putTradeMarketAutoDiffConfig", request);
         log.info("::{}:: putTradeMarketAutoDiffConfig入参, req={}", request.getLinkId(), JSON.toJSONString(request));
         TradeMarketAutoDiffConfigDTO tradeMarketAutoDiffConfigDTO = request.getData();
         Long operaterId = request.getOperaterId();
@@ -1715,7 +1602,7 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                 //收集日志
                 configMarketAutoDiffTradeLogService.create(request.getLinkId(), diffConfig,
                         tradeMarketAutoDiffConfigDTO.getMatchId(), operaterId);
-                ConfigMarketAutoDiffTrade item = configMarketAutoDiffTradeService.getItem(request.getLinkId(), standardMatchInfo.getId(),
+                ConfigMarketAutoDiffTrade item = configMarketAutoDiffTradeService.getItem(request.getLinkId(),standardMatchInfo.getId(),
                         diffConfig.getMarketId(), diffConfig.getOddType());
                 if (item == null) {
                     configMarketAutoDiffTradeService.create(request.getLinkId(), diffConfig,
@@ -1738,7 +1625,7 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                         standardSportMarketSell);
         //下发盘口水差配置给AO
         List<TradeMarketDiffAndMarginConfigDTO> sendAo = aoMarketDiffAndMarginConfig(request.getLinkId(), standardMatchInfo, stringStandardMarketDataMessageMap, null, diffConfigList, null);
-        if (!CollectionUtils.isEmpty(sendAo)) {
+        if(!CollectionUtils.isEmpty(sendAo)){
             aoMatchDiffAndMarginProducer.sendConfig(request.getLinkId(), sendAo);
         }
         //下发当前最新赔率
@@ -1749,7 +1636,7 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
 
     @Override
     public Response putTradePlaceNumAutoDiffConfig(Request<TradePlaceNumAutoDiffConfigDTO> request) {
-        //validateLinkId("putTradePlaceNumAutoDiffConfig", request);
+        validateLinkId("putTradePlaceNumAutoDiffConfig", request);
         log.info("::{}:: putTradePlaceNumAutoDiffConfig入参, req={}", request.getLinkId(), JSON.toJSONString(request));
         TradePlaceNumAutoDiffConfigDTO tradePlaceNumAutoDiffConfigDTO = request.getData();
         Long operaterId = request.getOperaterId();
@@ -1780,7 +1667,7 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                 diffConfig.setChildStandardCategoryId(diffConfig.getMarketCategoryId());
             }
             ConfigPlacenumAutoDiffTrade item = configPlaceNumAutoDiffTradeService.getItem(request.getLinkId(),
-                    tradePlaceNumAutoDiffConfigDTO.getMatchId(), diffConfig.getMarketCategoryId(), diffConfig.getChildStandardCategoryId(),
+                    tradePlaceNumAutoDiffConfigDTO.getMatchId(), diffConfig.getMarketCategoryId(),diffConfig.getChildStandardCategoryId(),
                     diffConfig.getPlaceNum());
             if (item == null) {
                 configPlaceNumAutoDiffTradeService.create(request.getLinkId(), diffConfig,
@@ -1796,7 +1683,7 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
             //如果玩法水差为空，则设置玩法水差的主盘下盘投注项
             ConfigCategoryAutoDiffTrade categoryAutoDiffTrade =
                     configCategoryAutoDiffTradeService.getItem(request.getLinkId(),
-                            tradePlaceNumAutoDiffConfigDTO.getMatchId(), diffConfig.getMarketCategoryId(), diffConfig.getChildStandardCategoryId());
+                            tradePlaceNumAutoDiffConfigDTO.getMatchId(), diffConfig.getMarketCategoryId(),diffConfig.getChildStandardCategoryId());
             if (null == categoryAutoDiffTrade) {
                 TradeCategoryAutoDiffConfigItemDTO tradeCategoryAutoDiffConfigItemDTO =
                         new TradeCategoryAutoDiffConfigItemDTO();
@@ -1819,7 +1706,7 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
 
     @Override
     public Response putTradeMarketDisplayConfig(Request<TradeMarketDisplayConfigDTO> request) {
-        //validateLinkId("putTradeMarketDisplayConfig", request);
+        validateLinkId("putTradeMarketDisplayConfig", request);
         log.info("::{}::putTradeMarketDisplayConfig ={}", request.getLinkId(), JSON.toJSONString(request));
         TradeMarketDisplayConfigDTO displayConfigDTO = request.getData();
         ConfigMarketDisplayTrade configMarketDisplayTrade =
@@ -1845,7 +1732,7 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Response updateRiskManagerCode(Request<RiskManagerCodeDTO> request) {
-        //validateLinkId("updateRiskManagerCode", request);
+        validateLinkId("updateRiskManagerCode", request);
         //是否需要切换数据源标识，当对应滚球或赛前的数据商不为sr时，需要切换数据源
         boolean isChangeSoldMessage = false;
         log.info("::{}::操盘平台修改操盘平台：{}", request.getLinkId(), JSON.toJSONString(request));
@@ -1853,11 +1740,12 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
         Long operaterId = request.getOperaterId();
         if (StringUtils.isBlank(updateRiskManagerCodeDTO.getRiskManagerCode())) {
             log.info("::{}:: updateRiskManagerCode 操盘平台不能为空 ", request.getLinkId());
-            return Response.failed("操盘平台不能为空");
+            return  Response.failed("操盘平台不能为空");
         }
-        if (operaterId == null) {
+        if(operaterId == null){
             return Response.failed("当前操作用户id不能为空");
         }
+
         //查询标准赛事是否存在
         StandardMatchInfo oldStandardMatchInfo = standardMatchInfoService.getItem(updateRiskManagerCodeDTO.getMatchId());
         if (oldStandardMatchInfo == null) {
@@ -1865,6 +1753,7 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                     updateRiskManagerCodeDTO.getMatchId());
             return Response.failed("标准赛事未找到");
         }
+
         Integer marketType = updateRiskManagerCodeDTO.getType().equals(SellTypeEnums.PRE.name()) ? 1 : 0;
         //xts 切换标识
         redisService.set(RONGHE_XTS_MATCH_AUTO_SWITCH + updateRiskManagerCodeDTO.getMatchId() + "_" + marketType, updateRiskManagerCodeDTO.getXtsMatchAutoSwitch(), marketCacheTime(oldStandardMatchInfo.getBeginTime()));
@@ -2090,31 +1979,23 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                 standardSportMarketSell.setPreRiskManagerCode(targetRiskManagerCode);
                 standardSportMarketSell.setPreMatchDataProviderCode(expectedDataSource);
                 if (!standardSportMarketSell.getLiveTraderStatus().equals(PreTraderStatusEnum.Setted.name())) {
-                    String businessEventSource = resolveBusinessEventSource(expectedDataSource,
-                            standardSportMarketSell.getBusinessEvent(), request.getLinkId());
-                    if (businessEventSource != null) {
-                        standardSportMarketSell.setBusinessEvent(businessEventSource);
-                    }
+                    standardSportMarketSell.setBusinessEvent(expectedDataSource);
                     standardSportMarketSell.setMatchStatusSourceCode(expectedDataSource);
                 }
             } else {
                 standardSportMarketSell.setLiveRiskManagerCode(targetRiskManagerCode);
                 standardSportMarketSell.setLiveMatchDataProviderCode(expectedDataSource);
-                String businessEventSource = resolveBusinessEventSource(expectedDataSource,
-                        standardSportMarketSell.getBusinessEvent(), request.getLinkId());
-                if (businessEventSource != null) {
-                    List<ThirdMatchInfo> thirdMatchInfolist = thirdMatchInfoService.getItems(oldStandardMatchInfo.getId());
-                    thirdMatchInfolist
-                            .stream()
-                            .filter(thirdMatchInfo -> thirdMatchInfo.getDataSourceCode().equalsIgnoreCase(businessEventSource))
-                            .findFirst()
-                            .ifPresent(thirdMatchInfo -> {
-                                String matchPeriod = thirdMatchInfo.getMatchPeriod();
-                                if (StringUtils.isNumeric(matchPeriod) && Integer.parseInt(matchPeriod) != 0) {
-                                    standardSportMarketSell.setBusinessEvent(businessEventSource);
-                                }
-                            });
-                }
+                List<ThirdMatchInfo> thirdMatchInfolist = thirdMatchInfoService.getItems(oldStandardMatchInfo.getId());
+                thirdMatchInfolist
+                        .stream()
+                        .filter(thirdMatchInfo -> thirdMatchInfo.getDataSourceCode().equalsIgnoreCase(expectedDataSource))
+                        .findFirst()
+                        .ifPresent(thirdMatchInfo -> {
+                            String matchPeriod = thirdMatchInfo.getMatchPeriod();
+                            if (StringUtils.isNumeric(matchPeriod) && Integer.parseInt(matchPeriod) != 0) {
+                                standardSportMarketSell.setBusinessEvent(expectedDataSource);
+                            }
+                        });
                 standardSportMarketSell.setMatchStatusSourceCode(expectedDataSource);
             }
             standardSportMarketSellService.update(standardSportMarketSell);
@@ -2157,17 +2038,15 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
 
         if (RiskManagerCodeEnums.PA.name().equalsIgnoreCase(updateRiskManagerCodeDTO.getRiskManagerCode())) {
             log.info("::{}::操盘平台修改PA操盘：{}", request.getLinkId(), JSON.toJSONString(request));
-            return updateRiskManagerCode2PA(request, updateRiskManagerCodeDTO);
+            return updateRiskManagerCode2PA(request,updateRiskManagerCodeDTO);
         }
-        AtomicBoolean needChangeBusiness = new AtomicBoolean(false);
         boolean isGTS = RiskManagerCodeEnums.GTS.name().equalsIgnoreCase(updateRiskManagerCodeDTO.getRiskManagerCode());
         boolean isMTS = RiskManagerCodeEnums.MTS.name().equalsIgnoreCase(updateRiskManagerCodeDTO.getRiskManagerCode());
         boolean isCTS = RiskManagerCodeEnums.CTS.name().equalsIgnoreCase(updateRiskManagerCodeDTO.getRiskManagerCode());
-        boolean isBTS = RiskManagerCodeEnums.BTS.name().equalsIgnoreCase(updateRiskManagerCodeDTO.getRiskManagerCode());
         boolean isF2TS = RiskManagerCodeEnums.F2TS.name().equalsIgnoreCase(updateRiskManagerCodeDTO.getRiskManagerCode());
         log.info("::{}::操盘平台修改MTS/GTS/CTS操盘：{}", request.getLinkId(), JSON.toJSONString(request));
 
-        StopWatch stopWatch = new StopWatch("操盘平台修改MTS/GTS操盘耗时：" + UUIdUtils.getId());
+        StopWatch stopWatch = new StopWatch("操盘平台修改MTS/GTS操盘耗时："+UUIdUtils.getId());
         stopWatch.start("查询三方赛事");
         //查询该赛事下所有关联的三方赛事信息
         List<ThirdMatchInfo> thirdMatchInfos = thirdMatchInfoService.getItems(oldStandardMatchInfo.getId());
@@ -2189,12 +2068,6 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                     updateRiskManagerCodeDTO.getMatchId());
             return Response.failed("CTS操盘只支持BG数据源");
         }
-        if (isBTS && (thirdMatchInfos.stream().filter(e -> e.getDataSourceCode().equalsIgnoreCase(DataSourceCodeEnum.BE.code)).collect(Collectors.toList()).size() != 1)) {
-            stopWatch.stop();
-            log.info("::{}::updateRiskManagerCode,第三方BE赛事未找到，标准赛事id:{}", request.getLinkId(),
-                    updateRiskManagerCodeDTO.getMatchId());
-            return Response.failed("BTS操盘只支持BE数据源");
-        }
         if (isF2TS && (thirdMatchInfos.stream().filter(e -> e.getDataSourceCode().equalsIgnoreCase(DataSourceCodeEnum.F01.code)).collect(Collectors.toList()).size() != 1)) {
             stopWatch.stop();
             log.info("::{}::updateRiskManagerCode,第三方F01赛事未找到，标准赛事id:{}", request.getLinkId(),
@@ -2212,7 +2085,8 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
             return Response.failed("赛事未开售");
         }
         String oldDataSourceCode = null;
-        if (isMTS) {
+        if (isMTS)
+        {
             if ((updateRiskManagerCodeDTO.getType().equals(SellTypeEnums.PRE.name()) && !standardSportMarketSell.getPreMatchDataProviderCode().equalsIgnoreCase(DataSourceCodeEnum.SR.code))
                     || (updateRiskManagerCodeDTO.getType().equals(SellTypeEnums.LIVE.name()) && !standardSportMarketSell.getLiveMatchDataProviderCode().equalsIgnoreCase(DataSourceCodeEnum.SR.code))) {
                 oldDataSourceCode = updateRiskManagerCodeDTO.getType().equals(SellTypeEnums.PRE.name()) ?
@@ -2221,7 +2095,8 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                 isChangeSoldMessage = true;
             }
         }
-        if (isGTS) {
+        if (isGTS)
+        {
             if ((updateRiskManagerCodeDTO.getType().equals(SellTypeEnums.PRE.name()) && !standardSportMarketSell.getPreMatchDataProviderCode().equalsIgnoreCase(DataSourceCodeEnum.BG.code))
                     || (updateRiskManagerCodeDTO.getType().equals(SellTypeEnums.LIVE.name()) && !standardSportMarketSell.getLiveMatchDataProviderCode().equalsIgnoreCase(DataSourceCodeEnum.BG.code))) {
                 oldDataSourceCode = updateRiskManagerCodeDTO.getType().equals(SellTypeEnums.PRE.name()) ?
@@ -2230,7 +2105,8 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                 isChangeSoldMessage = true;
             }
         }
-        if (isCTS) {
+        if (isCTS)
+        {
             if ((updateRiskManagerCodeDTO.getType().equals(SellTypeEnums.PRE.name()) && !standardSportMarketSell.getPreMatchDataProviderCode().equalsIgnoreCase(DataSourceCodeEnum.BC.code))
                     || (updateRiskManagerCodeDTO.getType().equals(SellTypeEnums.LIVE.name()) && !standardSportMarketSell.getLiveMatchDataProviderCode().equalsIgnoreCase(DataSourceCodeEnum.BC.code))) {
                 oldDataSourceCode = updateRiskManagerCodeDTO.getType().equals(SellTypeEnums.PRE.name()) ?
@@ -2239,7 +2115,8 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                 isChangeSoldMessage = true;
             }
         }
-        if (isF2TS) {
+        if (isF2TS)
+        {
             if ((updateRiskManagerCodeDTO.getType().equals(SellTypeEnums.PRE.name()) && !standardSportMarketSell.getPreMatchDataProviderCode().equalsIgnoreCase(DataSourceCodeEnum.F01.code))
                     || (updateRiskManagerCodeDTO.getType().equals(SellTypeEnums.LIVE.name()) && !standardSportMarketSell.getLiveMatchDataProviderCode().equalsIgnoreCase(DataSourceCodeEnum.F01.code))) {
                 oldDataSourceCode = updateRiskManagerCodeDTO.getType().equals(SellTypeEnums.PRE.name()) ?
@@ -2270,7 +2147,8 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
             return Response.failed("该赛事没有设置玩法开售数据");
         }
         stopWatch.stop();
-        String tempDataSourceCode = isMTS ? DataSourceCodeEnum.SR.code : isGTS ? DataSourceCodeEnum.BG.code : isCTS ? DataSourceCodeEnum.BC.code : DataSourceCodeEnum.F01.code;
+
+        String tempDataSourceCode = isMTS?DataSourceCodeEnum.SR.code:isGTS?DataSourceCodeEnum.BG.code:isCTS?DataSourceCodeEnum.BC.code:DataSourceCodeEnum.F01.code;
         stopWatch.start("修改赛事开售表");
         String oldRiskManageCode = null;//updateRiskManagerCodeDTO.getRiskManagerCode().equals(RiskManagerCodeEnums.MTS.name()) ? RiskManagerCodeEnums.PA.name() : RiskManagerCodeEnums.MTS.name();
         Boolean isSell = Boolean.TRUE;
@@ -2282,12 +2160,7 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
             standardSportMarketSell.setPreRiskManagerCode(updateRiskManagerCodeDTO.getRiskManagerCode());
             standardSportMarketSell.setPreMatchDataProviderCode(tempDataSourceCode);
             if (!standardSportMarketSell.getLiveTraderStatus().equals(PreTraderStatusEnum.Setted.name())) {
-                String businessEventSource = resolveBusinessEventSource(tempDataSourceCode,
-                        standardSportMarketSell.getBusinessEvent(), request.getLinkId());
-                if (businessEventSource != null) {
-                    standardSportMarketSell.setBusinessEvent(businessEventSource);
-                    needChangeBusiness.set(true);
-                }
+                standardSportMarketSell.setBusinessEvent(tempDataSourceCode);
                 standardSportMarketSell.setMatchStatusSourceCode(tempDataSourceCode);
             }
         } else {
@@ -2297,22 +2170,17 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
             oldRiskManageCode = standardSportMarketSell.getLiveRiskManagerCode();
             standardSportMarketSell.setLiveRiskManagerCode(updateRiskManagerCodeDTO.getRiskManagerCode());
             standardSportMarketSell.setLiveMatchDataProviderCode(tempDataSourceCode);
-            String businessEventSource = resolveBusinessEventSource(tempDataSourceCode,
-                    standardSportMarketSell.getBusinessEvent(), request.getLinkId());
-            if (businessEventSource != null) {
-                thirdMatchInfos
-                        .stream()
-                        .filter(thirdMatchInfo -> thirdMatchInfo.getDataSourceCode().equalsIgnoreCase(businessEventSource))
-                        .findFirst()
-                        .ifPresent(thirdMatchInfo -> {
+            thirdMatchInfos
+                    .stream()
+                    .filter(thirdMatchInfo -> thirdMatchInfo.getDataSourceCode().equalsIgnoreCase(tempDataSourceCode))
+                    .findFirst()
+                    .ifPresent(thirdMatchInfo -> {
 
-                            String matchPeriod = thirdMatchInfo.getMatchPeriod();
-                            if (StringUtils.isNumeric(matchPeriod) && Integer.parseInt(matchPeriod) != 0) {
-                                standardSportMarketSell.setBusinessEvent(businessEventSource);
-                                needChangeBusiness.set(true);
-                            }
-                        });
-            }
+                        String matchPeriod = thirdMatchInfo.getMatchPeriod();
+                        if (StringUtils.isNumeric(matchPeriod) && Integer.parseInt(matchPeriod) != 0) {
+                            standardSportMarketSell.setBusinessEvent(tempDataSourceCode);
+                        }
+                    });
             standardSportMarketSell.setMatchStatusSourceCode(tempDataSourceCode);
         }
         standardSportMarketSellService.update(standardSportMarketSell);
@@ -2349,22 +2217,22 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
 
         //修改权重表
         stopWatch.start("修改权重表");
-        if (isMTS) {
+        if (isMTS){
             matchDataSourceWeight.setSrWeight(1);
             matchDataSourceWeight.setBgWeight(0);
             matchDataSourceWeight.setBcWeight(0);
             matchDataSourceWeight.setF01Weight(0);
-        } else if (isGTS) {
+        }else if (isGTS){
             matchDataSourceWeight.setSrWeight(0);
             matchDataSourceWeight.setBgWeight(1);
             matchDataSourceWeight.setBcWeight(0);
             matchDataSourceWeight.setF01Weight(0);
-        } else if (isF2TS) {
+        }else if(isF2TS){
             matchDataSourceWeight.setSrWeight(0);
             matchDataSourceWeight.setBgWeight(0);
             matchDataSourceWeight.setBcWeight(0);
             matchDataSourceWeight.setF01Weight(1);
-        } else {
+        }else {
             matchDataSourceWeight.setSrWeight(0);
             matchDataSourceWeight.setBgWeight(0);
             matchDataSourceWeight.setBcWeight(1);
@@ -2376,7 +2244,6 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
         matchDataSourceWeight.setKoWeight(0);
         matchDataSourceWeight.setLsWeight(0);
         matchDataSourceWeight.setTxWeight(0);
-        matchDataSourceWeight.setOdWeight(0);
         matchDataSourceWeight.setPiWeight(0);
         matchDataSourceWeight.setRbWeight(0);
 
@@ -2410,7 +2277,6 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
             marketCategorySell.setKoWeight(0);
             marketCategorySell.setLsWeight(0);
             marketCategorySell.setTxWeight(0);
-            marketCategorySell.setOdWeight(0);
             marketCategorySell.setPiWeight(0);
             marketCategorySell.setRbWeight(0);
 
@@ -2442,13 +2308,14 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                 marketCategorySell.setRbWeight(1);
             }
             marketCategorySell.setSellStatus(SaleMatchSellStausEnum.Sold.name());
+            marketCategorySell.setDataSourceCode(tempDataSourceCode);
             marketCategorySell.setLinkId(request.getLinkId());
             marketCategoryIdSet.add(marketCategorySell.getMarketCategoryId());
             marketCategoryIdMap.put(marketCategorySell.getMarketCategoryId(), marketCategorySell.getDataSourceCode());
         });
         Map<String, List<Long>> playDataSource =
                 marketCategorySells.stream().collect(Collectors.groupingBy(MarketCategorySell::getDataSourceCode, Collectors.mapping(MarketCategorySell::getMarketCategoryId, Collectors.toList())));
-        marketCategorySellService.batchUpdateById(standardSportMarketSell.getMatchInfoId(), marketType, marketCategorySells);
+        marketCategorySellService.batchUpdateById(standardSportMarketSell.getMatchInfoId(),marketType,marketCategorySells);
         stopWatch.stop();
 
         //1.mts切pa，2.切滚球，3.切换清水差
@@ -2487,54 +2354,22 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
 
         log.info("::{}::操盘平台修改MTS操盘耗时{}ms," + stopWatch.prettyPrint(), request.getLinkId(), stopWatch.getTotalTimeMillis());
         //玩法数据源下发风控
-        marketCategorySellProducer.sendStandardMarketCategorySell(standardSportMarketSell.getMatchInfoId(), updateRiskManagerCodeDTO.getType().equals(SellTypeEnums.PRE.name()) ? 1 :
-                0, playDataSource);
+        marketCategorySellProducer.sendStandardMarketCategorySell(standardSportMarketSell.getMatchInfoId(),updateRiskManagerCodeDTO.getType().equals(SellTypeEnums.PRE.name()) ? 1 :
+                0,playDataSource);
 
         //下发赛事变更信息
         Long standardMatchId = oldStandardMatchInfo.getId();
-        String standardMMatchId = oldStandardMatchInfo.getMatchManageId();
         processTradeSystemThreadPool.execute(new Runnable() {
             @Override
             public void run() {
                 try {
-                    modifyMatchInfoProducer.pushModifyMatchInfoMessage(request.getLinkId(), standardMatchId, "操盘方式变更", operaterId);
-                    if (needChangeBusiness.get()){
-                        try{
-                            ChangeBusinessEventSaleDTO changeBusinessEventSaleDTO = new ChangeBusinessEventSaleDTO();
-                            changeBusinessEventSaleDTO.setId(Long.valueOf(standardMMatchId));
-                            changeBusinessEventSaleDTO.setDataType(standardSportMarketSell.getBusinessEvent());
-                            changeBusinessEventSaleDTO.setSportId(standardSportMarketSell.getSportId());
-                            changeBusinessEventSaleDTO.setUserId(request.getOperaterId()+"");
-                            Request<ChangeBusinessEventSaleDTO> request1 = new Request();
-                            request1.setData(changeBusinessEventSaleDTO);
-                            request1.setLinkId(request.getLinkId()+"_changeBusinessEvent");
-                            iMarketCategorySellApi.changeBusinessEvent(request1);
-                        }catch (Exception e){
-
-                        }
-                    }
+                    modifyMatchInfoProducer.pushModifyMatchInfoMessage(request.getLinkId(), standardMatchId, "操盘方式变更", operaterId );
                 } catch (Exception e) {
                     log.error("{}::pushModifyMatchInfoMessage ERROR:", request.getLinkId(), e);
                 }
             }
         });
-
-
         return Response.success();
-    }
-
-    /**
-     * N01/N02 不允许作为商业事件源；若目标为这两者则返回 null，调用方维持原 businessEvent 不变。
-     */
-    private String resolveBusinessEventSource(String targetDataSource, String currentBusinessEvent, String linkId) {
-        if (StringUtils.isBlank(targetDataSource)) {
-            return null;
-        }
-        if (DataSourceUtils.isN01OrN02DataSource(targetDataSource)) {
-            log.info("::{}::目标事件源 {} 为 N01/N02，维持原事件源 {}", linkId, targetDataSource, currentBusinessEvent);
-            return null;
-        }
-        return targetDataSource;
     }
 
     public void addCountLog(StopWatch stopWatch,Long operaterId,RiskManagerCodeDTO updateRiskManagerCodeDTO,String oldRiskManageCode, String newRiskManageCode,String linkId,StandardSportMarketSell standardSportMarketSell,Integer marketType){
@@ -2563,11 +2398,10 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
 
     /**
      * MTS切换到PA操盘
-     *
      * @param request
      * @return
      */
-    private Response updateRiskManagerCode2PA(Request<RiskManagerCodeDTO> request, RiskManagerCodeDTO updateRiskManagerCodeDTO) {
+    private Response updateRiskManagerCode2PA(Request<RiskManagerCodeDTO> request,RiskManagerCodeDTO updateRiskManagerCodeDTO) {
         Long operaterId = request.getOperaterId();
         Integer marketType = updateRiskManagerCodeDTO.getType().equals(SellTypeEnums.PRE.name()) ? 1 : 0;
         //查询标准赛事是否存在
@@ -2625,17 +2459,12 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
             oldRiskManager = standardSportMarketSell.getLiveRiskManagerCode();
             standardSportMarketSell.setLiveRiskManagerCode(updateRiskManagerCodeDTO.getRiskManagerCode());
         }
-        Map<String, String> dataSourceCodeMap = new HashMap<>();
-        dataSourceCodeMap.put("MTS", DataSourceCodeEnum.SR.code);
-        dataSourceCodeMap.put("GTS", DataSourceCodeEnum.BG.code);
-        dataSourceCodeMap.put("CTS", DataSourceCodeEnum.BC.code);
-        dataSourceCodeMap.put("BTS", DataSourceCodeEnum.BE.code);
-        dataSourceCodeMap.put("F2TS", DataSourceCodeEnum.F01.code);
-        boolean isGTS = RiskManagerCodeEnums.GTS.name().equalsIgnoreCase(oldRiskManager);
-        boolean isMTS = RiskManagerCodeEnums.MTS.name().equalsIgnoreCase(oldRiskManager);
-        boolean isCTS = RiskManagerCodeEnums.CTS.name().equalsIgnoreCase(oldRiskManager);
-        boolean isBTS = RiskManagerCodeEnums.BTS.name().equalsIgnoreCase(oldRiskManager);
-//        String tempDataSourceCode = isMTS?DataSourceCodeEnum.SR.code:isGTS?DataSourceCodeEnum.BG.code:DataSourceCodeEnum.BC.code;
+        Map<String,String> dataSourceCodeMap = new HashMap<>();
+        dataSourceCodeMap.put("MTS",DataSourceCodeEnum.SR.code);
+        dataSourceCodeMap.put("GTS",DataSourceCodeEnum.BG.code);
+        dataSourceCodeMap.put("CTS",DataSourceCodeEnum.BC.code);
+        dataSourceCodeMap.put("BTS",DataSourceCodeEnum.BE.code);
+        dataSourceCodeMap.put("F2TS",DataSourceCodeEnum.F01.code);
         String tempDataSourceCode = dataSourceCodeMap.get(oldRiskManager);
         standardSportMarketSellService.update(standardSportMarketSell);
         stopWatch.stop();
@@ -2693,10 +2522,13 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
         marketCategorySellsMTS.forEach(marketCategorySell -> {
             marketCategorySell.setLinkId(request.getLinkId());
             if (updateRiskManagerCodeDTO.getCategoryIds() != null &&
-                    !updateRiskManagerCodeDTO.getCategoryIds().contains(marketCategorySell.getMarketCategoryId())) {
+                    !updateRiskManagerCodeDTO.getCategoryIds().contains(marketCategorySell.getMarketCategoryId()))
+            {
                 closeCategoryIds.add(marketCategorySell.getMarketCategoryId());
                 marketCategorySell.setSellStatus(SaleMatchSellStausEnum.Unsold.name());
-            } else {
+            }
+            else
+            {
                 marketCategorySell.setSellStatus(SaleMatchSellStausEnum.Sold.name());
             }
             marketCategorySell.setDataSourceCode(tempDataSourceCode);
@@ -2705,22 +2537,26 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
             marketCategoryIdMap.put(marketCategorySell.getMarketCategoryId(), tempDataSourceCode);
         });
         //Map<String, List<Long>> playDataSource = marketCategorySellsMTS.stream().collect(Collectors.groupingBy(MarketCategorySell::getDataSourceCode, Collectors.mapping(MarketCategorySell::getMarketCategoryId, Collectors.toList())));
-        if (!CollectionUtils.isEmpty(updateRiskManagerCodeDTO.getCategoryIds())) {
-            marketCategorySellService.batchUpdateById(standardSportMarketSell.getMatchInfoId(), marketType, marketCategorySellsMTS);
+        if (!CollectionUtils.isEmpty(updateRiskManagerCodeDTO.getCategoryIds()))
+        {
+            marketCategorySellService.batchUpdate(standardSportMarketSell.getMatchInfoId(), marketType, marketCategorySellsMTS);
         }
         stopWatch.stop();
 
         stopWatch.start("玩法开售流程");
         //下发赔率，关闭多余的玩法
         //获取缓存中的所有盘口（赛前数据商和滚球数据商）
-        Map<String, StandardMarketDataMessage> stringStandardMarketDataMessageMap = getStringStandardMarketDataMessageMap(marketCategoryIdSet, request.getLinkId(), oldStandardMatchInfo, standardSportMarketSell);
-        if (MapUtils.isNotEmpty(stringStandardMarketDataMessageMap)) {
+
+        Map<String, StandardMarketDataMessage> stringStandardMarketDataMessageMap = getStringStandardMarketDataMessageMap(marketCategoryIdSet,request.getLinkId(), oldStandardMatchInfo, standardSportMarketSell);
+        if (MapUtils.isNotEmpty(stringStandardMarketDataMessageMap))
+        {
             StandardMatchInfo finalOldStandardMatchInfo = oldStandardMatchInfo;
-            stringStandardMarketDataMessageMap.forEach((k, v) -> {
-                if (closeCategoryIds.contains(v.getMarketCategoryId())) {
+            stringStandardMarketDataMessageMap.forEach((k, v)->{
+                if (closeCategoryIds.contains(v.getMarketCategoryId()))
+                {
                     v.setThirdMarketSourceStatus(Constant.SPORT_MARKET.STATUS.DEACTIVATED);
-                    String redisDelKey = DigestUtil.md5Hex(Constant.REDIS_KEY.RONGHE_STANDARD_CATEGORY_MARKET + finalOldStandardMatchInfo.getId() + "_" + v.getDataSourceCode() + "_" + v.getMarketCategoryId());
-                    redisService.hDel(redisDelKey, v.getRelationMarketId().toString());
+                    String redisDelKey = DigestUtil.md5Hex(Constant.REDIS_KEY.RONGHE_STANDARD_CATEGORY_MARKET + finalOldStandardMatchInfo.getId() + "_" + v.getDataSourceCode()+"_"+v.getMarketCategoryId());
+                    redisService.hDel(redisDelKey,v.getRelationMarketId().toString());
                 }
             });
         }
@@ -2731,10 +2567,10 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
         stopWatch.stop();
 
         Map<Long, String> categoryids = new HashMap<Long, String>();
-        updateRiskManagerCodeDTO.getCategoryIds().forEach(e -> {
+        updateRiskManagerCodeDTO.getCategoryIds().forEach(e->{
             categoryids.put(e, tempDataSourceCode);
         });
-        soldMessageToOddsProcessor.soldHandler(request.getLinkId(), oldStandardMatchInfo, standardSportMarketSell, categoryids, marketType, true, false);
+        soldMessageToOddsProcessor.soldHandler(request.getLinkId(),oldStandardMatchInfo,standardSportMarketSell,categoryids,marketType,true,false);
 
         log.info("::{}::操盘平台修改PA操盘耗时{}ms," + stopWatch.prettyPrint(), request.getLinkId(), stopWatch.getTotalTimeMillis());
 
@@ -2744,7 +2580,7 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
             @Override
             public void run() {
                 try {
-                    modifyMatchInfoProducer.pushModifyMatchInfoMessage(request.getLinkId(), standardMatchId, "操盘方式变更", operaterId);
+                    modifyMatchInfoProducer.pushModifyMatchInfoMessage(request.getLinkId(), standardMatchId, "操盘方式变更", operaterId );
                 } catch (Exception e) {
                     log.error("{}::pushModifyMatchInfoMessage ERROR:", request.getLinkId(), e);
                 }
@@ -2756,7 +2592,7 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
 
     @Override
     public Response putTradeMarketMarginConfig(Request<TradeMarketMarginConfigDTO> request) {
-        //validateLinkId("putTradeMarketMarginConfig", request);
+        validateLinkId("putTradeMarketMarginConfig", request);
         log.info("::{}::盘口配置margin入参: {}", request.getLinkId(), JSON.toJSONString(request));
         StopWatch sw = new StopWatch(UUID.randomUUID().toString() + ":putTradeMarketMarginConfig");
         sw.start("putTradeMarketMarginConfig [获取赛事信息]计算耗时");
@@ -2790,12 +2626,12 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                 marketMarginDtlDTO.setChildStandardCategoryId(tradeMarketMarginConfigDTO.getStandardCategoryId());
             }
             //收集日志
-            marketCategoryMarginLogService.create(request.getLinkId(),
-                    tradeMarketMarginConfigDTO.getStandardMatchInfoId(),
-                    tradeMarketMarginConfigDTO.getStandardCategoryId(),
-                    marketMarginDtlDTO.getChildStandardCategoryId(),
-                    tradeMarketMarginConfigDTO.getMarketType(),
-                    tradeMarketMarginConfigDTO.getPlaceNum(), marketMarginDtlDTO, operaterId);
+//            marketCategoryMarginLogService.create(request.getLinkId(),
+//                    tradeMarketMarginConfigDTO.getStandardMatchInfoId(),
+//                    tradeMarketMarginConfigDTO.getStandardCategoryId(),
+//                    marketMarginDtlDTO.getChildStandardCategoryId(),
+//                    tradeMarketMarginConfigDTO.getMarketType(),
+//                    tradeMarketMarginConfigDTO.getPlaceNum(), marketMarginDtlDTO, operaterId);
             //二项盘的设置
             ConfigMarketCategoryMargin itemTwo = configMarketCategoryMarginService.getItemTwo(request.getLinkId()
                     , tradeMarketMarginConfigDTO.getStandardMatchInfoId(),
@@ -2867,7 +2703,7 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
 
     @Override
     public Response putTradeMarketMarginConfigList(Request<List<TradeMarketMarginConfigDTO>> request) {
-        //validateLinkId("putTradeMarketMarginConfigList", request);
+        validateLinkId("putTradeMarketMarginConfigList", request);
         log.info("::{}::盘口配置margin入参: {}", request.getLinkId(), JSON.toJSONString(request));
         List<TradeMarketMarginConfigDTO> tradeMarketMarginConfigDTOList = request.getData();
         Long operaterId = request.getOperaterId();
@@ -2951,7 +2787,7 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                     JSON.toJSONString(marketCategorys));
             return Response.failed("玩法集合为空，赔率不下发");
         }
-        Map<Long, Integer> tradeTypeMap = configTradeTypeService.getItemByMatchAndCategorys(standardMatchInfo.getId().toString(), marketCategorys);
+        Map<Long, Integer> tradeTypeMap = configTradeTypeService.getItemByMatchAndCategorys(standardMatchInfo.getId().toString(),marketCategorys);
         //筛选出需要下发的玩法
         Set<Long> marketCategoryValid = new HashSet<>();
         for (Long marketCategory : marketCategorys) {
@@ -2968,112 +2804,13 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                         standardSportMarketSell);
         //下发marginList配置给AO
         List<TradeMarketDiffAndMarginConfigDTO> sendAo = aoMarketDiffAndMarginConfig(request.getLinkId(), standardMatchInfo, stringStandardMarketDataMessageMap, null, null, tradeMarketMarginConfigDTOList);
-        if (!CollectionUtils.isEmpty(sendAo)) {
+        if(!CollectionUtils.isEmpty(sendAo)){
             aoMatchDiffAndMarginProducer.sendConfig(request.getLinkId(), sendAo);
         }
         //异步处理
         thirdMatchMarketProcessor.processOddsByAll(request.getLinkId(),request.getOddsSource(),request.getOperaterId(), standardMatchInfo, marketCategoryValid,
                 stringStandardMarketDataMessageMap, request.getDataSourceTime(), standardSportMarketSell, new HashMap<>());
         return Response.success();
-    }
-    /**
-     * 获取缓存中的所有盘口，赛前数据商和滚球数据商
-     * 自动关盘，需要关所有数据源下此玩法数据
-     * @param linkId
-     * @param standardMatchInfo
-     * @param standardSportMarketSell
-     * @return
-     */
-    public Map<String, StandardMarketDataMessage> getStringStandardMarketDataMessageMapAutoClose(Set<Long> marketCategoryIds,
-                                                                                                 String linkId,
-                                                                                                 StandardMatchInfo standardMatchInfo, StandardSportMarketSell standardSportMarketSell) {
-        List<ThirdMatchInfo> thirdMatchInfoList = thirdMatchInfoService.getItems(standardMatchInfo.getId());
-        Set<String> dataSourceCodes = thirdMatchInfoList.stream().map(e->e.getDataSourceCode()).collect(Collectors.toSet());
-        int oddsLive = isOddsLive(standardMatchInfo.getId());
-        //赛前数据源
-        String preProviderCode = standardSportMarketSell.getPreMatchDataProviderCode();
-        //滚球数据源
-        String liveProviderCode = standardSportMarketSell.getLiveMatchDataProviderCode();
-        log.info("::{}:: 标准赛事id：{},赛前服务商={},滚球服务商={} ,oddsLive:{} ", linkId, standardMatchInfo.getId(), preProviderCode,
-                liveProviderCode, oddsLive);
-        Map<String, StandardMarketDataMessage> stringStandardMarketDataMessageMap = new HashMap<>();
-        if (StringUtils.isNotBlank(preProviderCode) && 1 == oddsLive) {
-            List<String> preKeys = new ArrayList<>();
-            String categoryRedisKey = Constant.REDIS_KEY.RONGHE_MARKET_CATEGORY_SELL + standardMatchInfo.getId() + "_" + 1;
-            Map<String, String> stringHashMap = redisService.hGetAll(categoryRedisKey);
-            if (MapUtil.isNotEmpty(stringHashMap)) {
-                for (Map.Entry<String, String> dataSourceCodeEntry : stringHashMap.entrySet()) {
-                    Long marketCategoryId = Long.valueOf(dataSourceCodeEntry.getKey());
-                    if (!CollectionUtils.isEmpty(marketCategoryIds) && !marketCategoryIds.contains(marketCategoryId)) {
-                        continue;
-                    }
-                    String dataSourceCode = dataSourceCodeEntry.getValue();
-                    String tempRedisKey = DigestUtil.md5Hex(Constant.REDIS_KEY.RONGHE_STANDARD_CATEGORY_MARKET + standardMatchInfo.getId() + "_" + dataSourceCode + "_" + marketCategoryId);
-                    preKeys.add(tempRedisKey);
-                }
-            } else {
-                //获取玩法开售表，赛前玩法数据源
-                List<MarketCategorySell> marketCategorySell = marketCategorySellService.getItemByDataSourceCodeAndMarketType(standardMatchInfo.getId(), preProviderCode, "1");
-                if (CollectionUtils.isEmpty(marketCategorySell)) {
-                    return stringStandardMarketDataMessageMap;
-                }
-                Set<Long> marketCategorySellIdSet = marketCategorySell.stream().map(MarketCategorySell::getMarketCategoryId).collect(Collectors.toSet());
-                for (Long marketCategorySellId : marketCategorySellIdSet) {
-                    //获取缓存中所有赛前盘口
-                    String redisKey = DigestUtil.md5Hex(Constant.REDIS_KEY.RONGHE_STANDARD_CATEGORY_MARKET + standardMatchInfo.getId() + "_" + preProviderCode + "_" + marketCategorySellId);
-                    preKeys.add(redisKey);
-                }
-            }
-            Map<String, StandardMarketDataMessage> standardMarketMessageMap = redisService.syncOddsMultiGetAll(preKeys);
-            if (MapUtils.isNotEmpty(standardMarketMessageMap)) {
-                log.info("::{}:: sendMatchMarketData 赛前redisKey={}，赛前盘缓存总数据：{} ", linkId, preKeys, standardMarketMessageMap.size());
-                Map<String, StandardMarketDataMessage> preMap = standardMarketMessageMap.entrySet().stream().filter(e -> e.getValue().getMarketType() != null && e.getValue().getMarketType().equals(1)).collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
-                stringStandardMarketDataMessageMap.putAll(preMap);
-            }
-        }
-        if (StringUtils.isNotBlank(liveProviderCode) && 0 == oddsLive) {
-            List<String> liveKeys = new ArrayList<>();
-            String categoryRedisKey = Constant.REDIS_KEY.RONGHE_MARKET_CATEGORY_SELL + standardMatchInfo.getId() + "_" + 0;
-            Map<String, String> stringHashMap = redisService.hGetAll(categoryRedisKey);
-            if (MapUtil.isNotEmpty(stringHashMap)) {
-                for (Map.Entry<String, String> dataSourceCodeEntry : stringHashMap.entrySet()) {
-                    Long marketCategoryId = Long.valueOf(dataSourceCodeEntry.getKey());
-                    if (!CollectionUtils.isEmpty(marketCategoryIds) && !marketCategoryIds.contains(marketCategoryId)) {
-                        continue;
-                    }
-                    for (String dataSourceCode : dataSourceCodes){
-                        String tempRedisKey = DigestUtil.md5Hex(Constant.REDIS_KEY.RONGHE_STANDARD_CATEGORY_MARKET + standardMatchInfo.getId() + "_" + dataSourceCode + "_" + marketCategoryId);
-                        liveKeys.add(tempRedisKey);
-                    }
-                    String dataSourceCode = dataSourceCodeEntry.getValue();
-                    String tempRedisKey = DigestUtil.md5Hex(Constant.REDIS_KEY.RONGHE_STANDARD_CATEGORY_MARKET + standardMatchInfo.getId() + "_" + dataSourceCode + "_" + marketCategoryId);
-                    liveKeys.add(tempRedisKey);
-                }
-            } else {
-                //获取玩法开售表，滚球玩法数据源
-                List<MarketCategorySell> marketCategorySell = marketCategorySellService.getItemByDataSourceCodeAndMarketType(standardMatchInfo.getId(), liveProviderCode, "0");
-                if (CollectionUtils.isEmpty(marketCategorySell)) {
-                    return stringStandardMarketDataMessageMap;
-                }
-                Set<Long> marketCategorySellIdSet = marketCategorySell.stream().map(MarketCategorySell::getMarketCategoryId).collect(Collectors.toSet());
-                for (Long marketCategorySellId : marketCategorySellIdSet) {
-                    if (!CollectionUtils.isEmpty(marketCategoryIds) && !marketCategoryIds.contains(marketCategorySellId)) {
-                        continue;
-                    }
-                    //获取缓存中所有赛前盘口
-                    String redisKey = DigestUtil.md5Hex(Constant.REDIS_KEY.RONGHE_STANDARD_CATEGORY_MARKET + standardMatchInfo.getId() + "_" + liveProviderCode + "_" + marketCategorySellId);
-                    liveKeys.add(redisKey);
-                }
-            }
-            Map<String, StandardMarketDataMessage> standardMarketMessageMap = redisService.syncOddsMultiGetAll(liveKeys);
-            if (MapUtils.isNotEmpty(standardMarketMessageMap)) {
-                log.info("::{}:: sendMatchMarketData 滚球redisKey={}，滚球盘缓存总数据：{} ", linkId, liveKeys, standardMarketMessageMap.size());
-                Map<String, StandardMarketDataMessage> liveMap = standardMarketMessageMap.entrySet().stream().filter(e -> e.getValue().getMarketType() != null && e.getValue().getMarketType().equals(0)).collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
-                stringStandardMarketDataMessageMap.putAll(liveMap);
-            }
-        }
-        log.info("::{}:: 标准赛事id：{},从缓存获取数据总数：{} ", linkId, standardMatchInfo.getId(), stringStandardMarketDataMessageMap.size());
-        return stringStandardMarketDataMessageMap;
     }
 
     /**
@@ -3092,8 +2829,8 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
         String preProviderCode = standardSportMarketSell.getPreMatchDataProviderCode();
         //滚球数据源
         String liveProviderCode = standardSportMarketSell.getLiveMatchDataProviderCode();
-        log.info("::{}:: 标准赛事id：{},赛前服务商={},滚球服务商={} ,oddsLive:{} ", linkId, standardMatchInfo.getId(), preProviderCode,
-                liveProviderCode, oddsLive);
+        log.info("::{}:: 标准赛事id：{},赛前服务商={},滚球服务商={} ", linkId, standardMatchInfo.getId(), preProviderCode,
+                liveProviderCode);
         Map<String, StandardMarketDataMessage> stringStandardMarketDataMessageMap = new HashMap<>();
         if (StringUtils.isNotBlank(preProviderCode) && 1 == oddsLive) {
             List<String> preKeys = new ArrayList<>();
@@ -3123,8 +2860,8 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                 }
             }
             Map<String, StandardMarketDataMessage> standardMarketMessageMap = redisService.syncOddsMultiGetAll(preKeys);
-            if (MapUtils.isNotEmpty(standardMarketMessageMap)) {
-                log.info("::{}:: sendMatchMarketData 赛前redisKey={}，赛前盘缓存总数据：{} ", linkId, preKeys, standardMarketMessageMap.size());
+            if(MapUtils.isNotEmpty(standardMarketMessageMap)){
+                log.info("::{}:: sendMatchMarketData 赛前redisKey={}，赛前盘缓存总数据：{} ", linkId, preKeys,standardMarketMessageMap.size());
                 Map<String, StandardMarketDataMessage> preMap = standardMarketMessageMap.entrySet().stream().filter(e -> e.getValue().getMarketType() != null && e.getValue().getMarketType().equals(1)).collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
                 stringStandardMarketDataMessageMap.putAll(preMap);
             }
@@ -3160,8 +2897,8 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                 }
             }
             Map<String, StandardMarketDataMessage> standardMarketMessageMap = redisService.syncOddsMultiGetAll(liveKeys);
-            if (MapUtils.isNotEmpty(standardMarketMessageMap)) {
-                log.info("::{}:: sendMatchMarketData 滚球redisKey={}，滚球盘缓存总数据：{} ", linkId, liveKeys, standardMarketMessageMap.size());
+            if(MapUtils.isNotEmpty(standardMarketMessageMap)){
+                log.info("::{}:: sendMatchMarketData 滚球redisKey={}，滚球盘缓存总数据：{} ", linkId, liveKeys,standardMarketMessageMap.size());
                 Map<String, StandardMarketDataMessage> liveMap = standardMarketMessageMap.entrySet().stream().filter(e -> e.getValue().getMarketType() != null && e.getValue().getMarketType().equals(0)).collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
                 stringStandardMarketDataMessageMap.putAll(liveMap);
             }
@@ -3172,37 +2909,39 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
 
     @Autowired
     private ConfigMatchStatusService configMatchStatusService;
-
     @Override
     public Response putMarketTwoStatusConfig(Request<MarketTwoStatusConfigDTO> request) {
-        log.info("::{}::putMarketTwoStatusConfig 入参:{}", request.getLinkId(), JSONUtil.toJsonStr(request));
+        log.info("::{}::putMarketTwoStatusConfig 入参:{}",request.getLinkId(),JSONUtil.toJsonStr(request));
         String linkId = request.getLinkId();
         MarketTwoStatusConfigDTO marketTwoStatusConfigDTO = request.getData();
         Long standardMatchId = marketTwoStatusConfigDTO.getStandardMatchId();
         Integer marketType = marketTwoStatusConfigDTO.getMarketType();
-        if (marketType == null) {
-            log.info("::{}::putMarketTwoStatusConfig,marketType参数为空，不做逻辑处理，标准赛事id:{}，赛事类别:{}", linkId, standardMatchId, marketType);
-            return Response.failed("marketType参数为空，不做逻辑处理，标准赛事id：" + standardMatchId);
+        if (marketType == null)
+        {
+            log.info("::{}::putMarketTwoStatusConfig,marketType参数为空，不做逻辑处理，标准赛事id:{}，赛事类别:{}", linkId, standardMatchId,marketType);
+            return Response.failed("marketType参数为空，不做逻辑处理，标准赛事id："+standardMatchId);
         }
         //查询标准赛事是否存在
         StandardMatchInfo standardMatchInfo = standardMatchInfoService.getItem(standardMatchId);
         if (standardMatchInfo == null) {
             log.info("::{}::putMarketTwoStatusConfig,对应的标准赛事未找到，标准赛事id:{}", linkId, standardMatchId);
-            return Response.failed("标准赛事未找到，标准赛事id：" + standardMatchId);
+            return Response.failed("标准赛事未找到，标准赛事id："+standardMatchId);
         }
-        if (!standardMatchInfo.getSportId().equals(StandardSportTypeEnum.FootBall.code)) {
+        if (!standardMatchInfo.getSportId().equals(StandardSportTypeEnum.FootBall.code))
+        {
             log.info("::{}::putMarketTwoStatusConfig,只支持足球，标准赛事id:{}", linkId, standardMatchId);
-            return Response.failed("只支持足球，标准赛事id：" + standardMatchId);
+            return Response.failed("只支持足球，标准赛事id："+standardMatchId);
         }
         //查询赛事的开售信息
         StandardSportMarketSell standardSportMarketSell = standardSportMarketSellService.getItem(standardMatchId);
         //赛事未开售，赔率不下发
         if (standardSportMarketSell == null) {
             log.info("::{}::putMarketTwoStatusConfig ,赛事未开售，标准赛事id：{}", linkId, standardMatchId);
-            return Response.failed("赛事未开售，标准赛事id：" + standardMatchId);
+            return Response.failed("赛事未开售，标准赛事id："+standardMatchId);
         }
-        ConfigMatchStatus configMatchStatus = configMatchStatusService.getItem(linkId, standardMatchId, marketType);
-        if (configMatchStatus == null) {
+        ConfigMatchStatus configMatchStatus = configMatchStatusService.getItem(linkId,standardMatchId,marketType);
+        if (configMatchStatus == null)
+        {
             ConfigMatchStatus configMatchStatus1 = new ConfigMatchStatus();
             configMatchStatus1.setId(UUIdUtils.getId());
             configMatchStatus1.setCreateTime(TimeUtils.millsSecondsEast8ZoneGmt());
@@ -3212,14 +2951,16 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
             configMatchStatus1.setStandardMatchInfoId(standardMatchId);
             configMatchStatus1.setStatus(marketTwoStatusConfigDTO.getStatus());
             configMatchStatus1.setMarketType(marketTwoStatusConfigDTO.getMarketType());
-            configMatchStatusService.create(linkId, configMatchStatus1);
-        } else {
+            configMatchStatusService.create(linkId,configMatchStatus1);
+        }
+        else
+        {
             configMatchStatus.setStatus(marketTwoStatusConfigDTO.getStatus());
             configMatchStatus.setOperaterId(request.getOperaterId());
             configMatchStatus.setModifyTime(TimeUtils.millsSecondsEast8ZoneGmt());
             configMatchStatus.setLinkId(linkId);
             configMatchStatus.setMarketType(marketTwoStatusConfigDTO.getMarketType());
-            configMatchStatusService.update(linkId, configMatchStatus);
+            configMatchStatusService.update(linkId,configMatchStatus);
         }
         return Response.success();
     }
@@ -3240,11 +2981,6 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
             log.info("::{}::autoCloseMarket ,赛事未开售赔率不下发，标准赛事id：{}", linkId, standardMatchId);
             return;
         }
-        if (DataSourceUtils.isN01OrN02DataSource(standardSportMarketSell.getBusinessEvent())) {
-            log.info("::{}::autoCloseMarket skip, 事件源为 N01/N02 不触发自动关盘, matchId={}, businessEvent={}",
-                    linkId, standardMatchId, standardSportMarketSell.getBusinessEvent());
-            return;
-        }
         //未设置滚球数据服务商不下发
         String liveProviderCode = standardSportMarketSell.getLiveMatchDataProviderCode();
         if (StringUtils.isBlank(liveProviderCode)) {
@@ -3252,7 +2988,7 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
             return;
         }
         //获取所有多数据源盘口赔率（包含赛前）
-        Map<String, StandardMarketDataMessage> stringStandardMarketDataMessageMap = getStringStandardMarketDataMessageMapAutoClose(marketCategoryIds, linkId, standardMatchInfo, standardSportMarketSell);
+        Map<String, StandardMarketDataMessage> stringStandardMarketDataMessageMap = getStringStandardMarketDataMessageMap(marketCategoryIds, linkId, standardMatchInfo, standardSportMarketSell);
         //判断是否是足球，足球需要收盘，需求1042
         boolean isFootBall = standardMatchInfo.getSportId().equals(StandardSportTypeEnum.FootBall.code);
         //只取滚球数据
@@ -3279,11 +3015,9 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                 standardMarketDataMessage.setThirdMarketSourceStatus(Constant.TRADE_MARKET_CONFIG.MARKET_STATUS.DEACTIVATED);
                 standardMarketDataMessage.setLinkId(linkId);
                 standardMarketDataMessage.setRemark("玩法自动关盘");
-                log.info("::{}:autoCloseMarket，玩法自动关盘准备缓存赔率信息，relationMarketId={}",
-                        linkId, standardMarketDataMessage.getRelationMarketId().toString());
+                log.info("::{}:autoCloseMarket，玩法自动关盘准备缓存赔率信息，key={}，relationMarketId={}, standardMarketDataMessage={}",
+                        linkId, redisKey, standardMarketDataMessage.getRelationMarketId().toString(), standardMarketDataMessage);
                 boolean flag = redisService.hSet(redisKey, standardMarketDataMessage.getRelationMarketId().toString(), standardMarketDataMessage, marketCacheTime(standardMatchInfo.getBeginTime()));
-                // 发送操盘日志给风控
-                commonAsyncService.sendDeactivatedBySystemLogToRisk(linkId,standardMatchInfo, convertLog(standardMarketDataMessage));
                 if (!flag) {
                     log.error("::{}::autoCloseMarket，标准赛事id:{},relationMarketId={},刷入缓存失败,赔率处理异常",
                             linkId, standardMatchInfo.getId(), standardMarketDataMessage.getRelationMarketId());
@@ -3319,145 +3053,8 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
     }
 
     @Override
-    public void autoOpenMarket(String linkId, Long standardMatchId, Set<Long> marketCategoryIds, Long dataSourceTime) {
-        log.info("::{}::autoOpenMarket标准赛事id:{},开盘玩法:{}", linkId, standardMatchId, marketCategoryIds);
-        if (marketCategoryIds.isEmpty()){
-            return;
-        }
-        //查询标准赛事是否存在
-        StandardMatchInfo standardMatchInfo = standardMatchInfoService.getItem(standardMatchId);
-        if (standardMatchInfo == null) {
-            log.info("::{}::autoOpenMarket,对应的标准赛事未找到，标准赛事id:{}", linkId, standardMatchId);
-            return;
-        }
-        //查询赛事的开售信息
-        StandardSportMarketSell standardSportMarketSell = standardSportMarketSellService.getItem(standardMatchId);
-        //赛事未开售，赔率不下发
-        if (standardSportMarketSell == null) {
-            log.info("::{}::autoOpenMarket ,赛事未开售赔率不下发，标准赛事id：{}", linkId, standardMatchId);
-            return;
-        }
-        //未设置滚球数据服务商不下发
-        String liveProviderCode = standardSportMarketSell.getLiveMatchDataProviderCode();
-        if (StringUtils.isBlank(liveProviderCode)) {
-            log.info("::{}::autoOpenMarket ,赛事的开售未设置滚球操盘,标准赛事id：{}", linkId, standardMatchId);
-            return;
-        }
-        //获取所有多数据源盘口赔率（包含赛前）
-        Map<String, StandardMarketDataMessage> stringStandardMarketDataMessageMap = getStringStandardMarketDataMessageMapAutoClose(marketCategoryIds, linkId, standardMatchInfo, standardSportMarketSell);
-        //只取滚球数据
-        Map<String, StandardMarketDataMessage> standardMarketLiveDataMessageMap = stringStandardMarketDataMessageMap.entrySet().stream().filter(e -> e.getValue().getMarketType() != null && e.getValue().getMarketType().equals(0)).collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
-        //盘口推送
-        thirdMatchMarketProcessor.processOddsByAll(linkId,-1, null,standardMatchInfo, marketCategoryIds, standardMarketLiveDataMessageMap, dataSourceTime, standardSportMarketSell, new HashMap<>());
-    }
-
-    @Override
-    public void autoCloseChildMarketCategory(String linkId, Long standardMatchId, Pair<Set<Long>, Map<String,JSONObject>> map, Long dataSourceTime) {
-        if (null == map || map.getLeft().size() == 0) {
-            return;
-        }
-        log.info("::{}::autoCloseChildMarketCategory:{},未过滤关盘玩法:{}", linkId, standardMatchId, map);
-        //查询标准赛事是否存在
-        StandardMatchInfo standardMatchInfo = standardMatchInfoService.getItem(standardMatchId);
-        if (standardMatchInfo == null) {
-            log.info("::{}::autoCloseChildMarketCategory,对应的标准赛事未找到，标准赛事id:{}", linkId, standardMatchId);
-            return;
-        }
-        //查询赛事的开售信息
-        StandardSportMarketSell standardSportMarketSell = standardSportMarketSellService.getItem(standardMatchId);
-        //赛事未开售，赔率不下发
-        if (standardSportMarketSell == null) {
-            log.info("::{}::autoCloseChildMarketCategory ,赛事未开售赔率不下发，标准赛事id：{}", linkId, standardMatchId);
-            return;
-        }
-        if (DataSourceUtils.isN01OrN02DataSource(standardSportMarketSell.getBusinessEvent())) {
-            log.info("::{}::autoCloseChildMarketCategory skip, 事件源为 N01/N02 不触发自动关盘, matchId={}, businessEvent={}",
-                    linkId, standardMatchId, standardSportMarketSell.getBusinessEvent());
-            return;
-        }
-        //未设置滚球数据服务商不下发
-        String liveProviderCode = standardSportMarketSell.getLiveMatchDataProviderCode();
-        if (StringUtils.isBlank(liveProviderCode)) {
-            log.info("::{}::autoCloseChildMarketCategory ,赛事的开售未设置滚球操盘,标准赛事id：{}", linkId, standardMatchId);
-            return;
-        }
-        // Map<子玩法,玩法>
-        Map<Long,Long> childMarketCategoryIdsMap = new HashMap<>();
-        // Map<子玩法,关盘玩法子玩法信息>
-        Map<Long,JSONObject> childMarketCategoryObjMap = new HashMap<>();
-        //获取所有多数据源盘口赔率（包含赛前）
-        Map<String, StandardMarketDataMessage> stringStandardMarketDataMessageMap = getStringStandardMarketDataMessageMap(map.getLeft(), linkId, standardMatchInfo, standardSportMarketSell);
-        //只取滚球数据
-        Map<String, StandardMarketDataMessage> standardMarketLiveDataMessageMap = stringStandardMarketDataMessageMap.entrySet().stream().filter(e -> e.getValue().getMarketType() != null && e.getValue().getMarketType().equals(0)).collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
-        for (StandardMarketDataMessage standardMarketDataMessage : standardMarketLiveDataMessageMap.values()) {
-            String redisKey = DigestUtil.md5Hex(Constant.REDIS_KEY.RONGHE_STANDARD_CATEGORY_MARKET + standardMatchInfo.getId() + "_" + standardMarketDataMessage.getDataSourceCode() + "_" + standardMarketDataMessage.getMarketCategoryId());
-            //只修改有改变的玩法 状态改为关盘
-            Long marketCategoryId = standardMarketDataMessage.getMarketCategoryId();
-            if (map.getLeft().contains(marketCategoryId)) {
-                JSONObject object = map.getRight().get(marketCategoryId+"");
-                String addition1 = standardMarketDataMessage.getAddition1();
-                String addition2 = standardMarketDataMessage.getAddition2();
-                String target = object.getString("target");
-                String xValue = object.getString("x");
-                boolean isTrue = true;
-                if (target.equals("add1") && xValue.equals(addition1)){
-                }else if (target.equals("add2")&& xValue.equals(addition2)){
-                }else {
-                    isTrue = false;
-                }
-                if (isTrue){
-                    childMarketCategoryIdsMap.put(standardMarketDataMessage.getChildMarketCategoryId(), standardMarketDataMessage.getMarketCategoryId());
-                    childMarketCategoryObjMap.put(standardMarketDataMessage.getChildMarketCategoryId(), object);
-                    standardMarketDataMessage.setAutoCloseStatus(Constant.AOTU_CLOSE_STATUS);
-                    standardMarketDataMessage.setStatus(Constant.TRADE_MARKET_CONFIG.MARKET_STATUS.DEACTIVATED);
-                    //这里是唯一改变数据源状态的地方
-                    standardMarketDataMessage.setThirdMarketSourceStatus(Constant.TRADE_MARKET_CONFIG.MARKET_STATUS.DEACTIVATED);
-                    standardMarketDataMessage.setLinkId(linkId);
-                    standardMarketDataMessage.setRemark("子玩法自动关盘");
-                    log.info("::{}:autoCloseChildMarketCategory，子玩法:{},自动关盘准备缓存赔率信息，relationMarketId={}",
-                            linkId, standardMarketDataMessage.getChildMarketCategoryId(), standardMarketDataMessage.getRelationMarketId().toString());
-                    boolean flag = redisService.hSet(redisKey, standardMarketDataMessage.getRelationMarketId().toString(), standardMarketDataMessage, marketCacheTime(standardMatchInfo.getBeginTime()));
-                    if (!flag) {
-                        log.error("::{}::autoCloseChildMarketCategory，标准赛事id:{},relationMarketId={},刷入缓存失败,赔率处理异常",
-                                linkId, standardMatchInfo.getId(), standardMarketDataMessage.getRelationMarketId());
-                    }
-                    // 发送操盘日志给风控
-                    commonAsyncService.sendDeactivatedBySystemLogToRisk(linkId,standardMatchInfo, convertLog(standardMarketDataMessage));
-                }
-            }
-        }
-        //--------------------------玩法级关盘、玩法已经自动关盘，不下发--------------------------
-        String autoCloseRedisKey = DigestUtil.md5Hex(Constant.REDIS_KEY.RONGHE_STANDARD_CATEGORY_AUTO_CLOSE + standardMatchInfo.getId());
-        Map<String, String> autoCloseMap = redisService.hGetAll(autoCloseRedisKey);
-        //最终关盘玩法
-        Set<Long> finalMarketCategoryIdSet = new HashSet();
-        //最终关盘玩法子玩法
-        List<JSONObject> finalChildMarketCategoryObjSet = new ArrayList<>();
-        childMarketCategoryIdsMap.keySet().forEach(childCategoryId -> {
-            // 已下发玩法、不再下发
-            if (autoCloseMap != null && !autoCloseMap.containsKey(childCategoryId.toString())) {
-                finalMarketCategoryIdSet.add(childMarketCategoryIdsMap.get(childCategoryId));
-                finalChildMarketCategoryObjSet.add(childMarketCategoryObjMap.get(childCategoryId));
-                redisService.hSet(autoCloseRedisKey, String.valueOf(childCategoryId), TimeUtils.millsSecondsEast8ZoneGmt(), RedisConfig.REDIS_WEEK_TIME);
-            }
-        });
-        if (CollectionUtils.isEmpty(finalMarketCategoryIdSet)) {
-            log.info("::{}::autoCloseChildMarketCategory标准赛事id:{},最终关盘子玩法为空", linkId, standardMatchId);
-            return;
-        }
-        log.info("::{}::autoCloseChildMarketCategory标准赛事id:{},最终关盘子玩法:{}-{},", linkId, standardMatchId, finalMarketCategoryIdSet,finalChildMarketCategoryObjSet);
-        //将自动关闭的玩法推送给操盘（操盘A+和M模式需要用）
-        StandardCategoryAutoCloseMessage standardCategoryAutoCloseMessage = new StandardCategoryAutoCloseMessage();
-        standardCategoryAutoCloseMessage.setStandardMatchId(standardMatchInfo.getId());
-        standardCategoryAutoCloseMessage.setStandardCategoryJsonList(finalChildMarketCategoryObjSet);
-        standardCategoryAutoCloseProducer.sendStandardChildCategoryAutoClose(linkId, standardCategoryAutoCloseMessage);
-        //盘口推送
-        thirdMatchMarketProcessor.processOddsByAll(linkId,-1,null, standardMatchInfo, finalMarketCategoryIdSet, standardMarketLiveDataMessageMap, dataSourceTime, standardSportMarketSell, new HashMap<>());
-    }
-
-    @Override
     public Response putTradeMarketHeadGapConfig(Request<TradeMarketHeadGapConfigDTO> request) {
-        //validateLinkId("putTradeMarketHeadGapConfig", request);
+        validateLinkId("putTradeMarketHeadGapConfig", request);
         log.info("::{}::putTradeMarketHeadGapConfig入参: {}", request.getLinkId(), JSON.toJSONString(request));
         TradeMarketHeadGapConfigDTO tradeMarketHeadGapConfigDTO = request.getData();
         Long operaterId = request.getOperaterId();
@@ -3485,7 +3082,7 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
         configMarketHeadGapLogService.create(request.getLinkId(), operaterId, tradeMarketHeadGapConfigDTO);
         ConfigMarketCategoryHead item = configMarketHeadGapService.getItemCache(request.getLinkId(),
                 tradeMarketHeadGapConfigDTO.getStandardMatchInfoId(),
-                tradeMarketHeadGapConfigDTO.getStandardCategoryId(), tradeMarketHeadGapConfigDTO.getChildStandardCategoryId());
+                tradeMarketHeadGapConfigDTO.getStandardCategoryId(),tradeMarketHeadGapConfigDTO.getChildStandardCategoryId());
         if (item == null) {
             ConfigMarketCategoryHead configMarketCategoryHead = new ConfigMarketCategoryHead();
             configMarketCategoryHead.setId(UUIdUtils.getId());
@@ -3660,7 +3257,7 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
         }
         String redisKey = DigestUtil.md5Hex(Constant.REDIS_KEY.RONGHE_STANDARD_CATEGORY_AUTO_CLOSE + standardMatchId);
         Object o = redisService.hGet(redisKey, String.valueOf(marketCategoryId));
-        if (Objects.isNull(o)) {
+        if (Objects.isNull(o)){
             return Response.failed(String.format("::linkId=%s::标准赛事id:%d,该玩法缓存中不存在:%d", linkId, standardMatchId,
                     marketCategoryId));
         }
@@ -3673,35 +3270,6 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
     }
 
     @Override
-    public Response clearCacheMarketCategoryIdByPeriod(Long standardMatchId, Integer period) {
-        String linkId = IdWorker.getId() + "_clear_category_period";
-        log.info("::{}::手动清除已经自动关盘缓存玩法,标准赛事ID:{},标准玩法ID:{}", linkId, standardMatchId, period);
-        //查询标准赛事是否存在
-        StandardMatchInfo standardMatchInfo = standardMatchInfoService.getItem(standardMatchId);
-        if (standardMatchInfo == null) {
-            log.info("::{}::clearAutoCloseCategory,对应的标准赛事未找到，标准赛事id:{}", linkId, standardMatchId);
-            return Response.failed(String.format("::linkId=%s::对应的标准赛事未找到，标准赛事id:%d", linkId, standardMatchId));
-        }
-        List<MarketCategorySell> marketCategorySells = marketCategorySellService.getItem(standardMatchId, "0");
-        if (CollectionUtils.isEmpty(marketCategorySells)) {
-            log.info("::{}::clearAutoCloseCategory,滚球开售玩法不存在，标准赛事id:{}", linkId, standardMatchId);
-            return Response.failed(String.format("::linkId=%s::滚球开售玩法不存在，标准赛事id:%d", linkId, standardMatchId));
-        }
-        Set<String> marketCategoryIds = marketCategorySells.stream()
-                .filter(sell -> null != sell.getAutoCloseMarket() && period.equals(sell.getAutoCloseMarket()))
-                .map(s -> s.getMarketCategoryId().toString()).
-                collect(Collectors.toSet());
-        if (CollectionUtils.isEmpty(marketCategoryIds)) {
-            log.info("::{}::clearAutoCloseCategory,阶段对应的玩法不存在，标准赛事id:{}", linkId, standardMatchId);
-            return Response.failed(String.format("::linkId=%s::阶段对应的玩法不存在，标准赛事id:%d", linkId, standardMatchId));
-        }
-        String redisKey = DigestUtil.md5Hex(Constant.REDIS_KEY.RONGHE_STANDARD_CATEGORY_AUTO_CLOSE + standardMatchId);
-        redisService.hDel(redisKey, marketCategoryIds.toArray());
-        return Response.success(String.format("::linkId=%s::缓存清理成功,标准赛事id:%d,标准玩法:%s", linkId,
-                standardMatchId, String.join(",", marketCategoryIds)));
-    }
-
-    @Override
     public Response checkChangeMTS(Request<TradeCloseOpeartorDTO> request) {
         log.info("::{}::checkChangeMTS入参: {}", request.getLinkId(), JSON.toJSONString(request));
         TradeCloseOpeartorDTO tradeCloseOpeartorDTO = request.getData();
@@ -3710,14 +3278,13 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
         if (null == thirdMatchInfo) {
             log.info("::{}::checkChangeMTS入参，查询三方赛事为空,赛事id={}", request.getLinkId(),
                     tradeCloseOpeartorDTO.getMatchId());
-            return Response.failed("该赛事未与'" + tradeCloseOpeartorDTO.getDataSourceCode() + "'数据源关联，不支持切换");
+            return Response.failed("该赛事未与'"+tradeCloseOpeartorDTO.getDataSourceCode()+"'数据源关联，不支持切换");
         }
         if (thirdMatchInfo.getLiveOddSupport().equals(0)) {
-            return Response.failed("该'" + tradeCloseOpeartorDTO.getDataSourceCode() + "'三方赛事不支持滚球，不允许切换");
+            return Response.failed("该'"+tradeCloseOpeartorDTO.getDataSourceCode()+"'三方赛事不支持滚球，不允许切换");
         }
         return Response.success();
     }
-
     @Override
     public Response checkChangeGTS(Request<TradeCloseOpeartorDTO> request) {
         log.info("::{}::checkChangeGTS入参: {}", request.getLinkId(), JSON.toJSONString(request));
@@ -3731,9 +3298,6 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
         }
         if (thirdMatchInfo.getLiveOddSupport().equals(0)) {
             return Response.failed("该BG三方赛事不支持滚球，不允许切换GTS");
-        }
-        if (thirdMatchInfo.getBooked().equals(0)) {
-            return Response.failed("该BG三方赛事没有预定，不允许切换MTS");
         }
         return Response.success();
     }
@@ -3754,7 +3318,6 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
         }
         return Response.success();
     }
-
     @Override
     public Response checkChangeCTS(Request<TradeCloseOpeartorDTO> request) {
         log.info("::{}::checkChangeCTS入参: {}", request.getLinkId(), JSON.toJSONString(request));
@@ -3846,18 +3409,20 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
     }
 
     @Override
-    public Response editCategoryClearCache(Long marketCategoryId, Long sportId, Integer status) {
+    public Response editCategoryClearCache(Long marketCategoryId, Long sportId,Integer status) {
         String linkId = IdWorker.getId() + "_c_clear";
-        log.info("::{}::editCategoryClearCache,marketCategoryId:{}，sportId:{},status:{}", linkId, marketCategoryId, sportId, status);
-        if (sportId != null && sportId.longValue() != 0) {
+        log.info("::{}::editCategoryClearCache,marketCategoryId:{}，sportId:{},status:{}", linkId, marketCategoryId,sportId,status);
+        if(sportId != null && sportId.longValue() != 0){
             //清除玩法赛种表缓存
             String key = RedisConfig.REDIS_KEY_DATABASE + "::StandardSportMarketCategory:" + marketCategoryId + "-" + sportId;
             Boolean del = redisService.del(key);
             log.info("::{}::editCategoryClearCache, key:{},result:{}", linkId, key, del);
         }
         //判断标准玩法状态&&判断AO玩法状态
-        if (null == sportId) {
-            if ((null == status || status.equals(Constant.SPORT_MARKET_CATEGORY.STATUS.EFFICIENT))) {
+        if (null == sportId)
+        {
+            if((null == status || status.equals(Constant.SPORT_MARKET_CATEGORY.STATUS.EFFICIENT)))
+            {
                 List<StandardSportMarketCategory> standardSportMarketCategorys = standardSportMarketCategoryService.selectByCategoryId(marketCategoryId);
                 if (!CollectionUtils.isEmpty(standardSportMarketCategorys)) {
                     for (StandardSportMarketCategory s : standardSportMarketCategorys) {
@@ -3869,22 +3434,25 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                 }
                 return Response.success(linkId + "玩法缓存清理成功,标准玩法id:" + marketCategoryId + "sportId:" + sportId);
             }
-        } else {
+        }
+        else
+        {
             StandardSportMarketCategory standardSportMarketCategory = standardSportMarketCategoryService.getItem(marketCategoryId, sportId);
-            if ((null == status || status.equals(Constant.SPORT_MARKET_CATEGORY.STATUS.EFFICIENT))
-                    && (null == standardSportMarketCategory || null == standardSportMarketCategory.getAoStatus() || standardSportMarketCategory.getAoStatus().equals(Constant.SPORT_MARKET_CATEGORY.STATUS.EFFICIENT))) {
+            log.info("::{}::editCategoryClearCache,marketCategoryId:{}，sportId:{},status:{},aoStatus:{}", linkId, marketCategoryId,sportId,status,standardSportMarketCategory.getAoStatus());
+            if (status.equals(Constant.SPORT_MARKET_CATEGORY.STATUS.EFFICIENT)
+                    &&standardSportMarketCategory.getAoStatus().equals(Constant.SPORT_MARKET_CATEGORY.STATUS.EFFICIENT))
+            {
                 return Response.success(linkId + "玩法缓存清理成功,标准玩法id:" + marketCategoryId + "sportId:" + sportId);
             }
-            log.info("::{}::editCategoryClearCache,marketCategoryId:{}，sportId:{},status:{},aoStatus:{}", linkId, marketCategoryId, sportId, status, standardSportMarketCategory.getAoStatus());
         }
         //操作各个未结束赛事的玩法盘口进行关盘操作
         processTradeSystemThreadPool.execute(new Runnable() {
             @Override
             public void run() {
                 try {
-                    if (sportId != null) {
-                        changeCategoryMarketStatus(marketCategoryId, sportId, linkId, status);
-                    } else {
+                    if(sportId != null) {
+                        changeCategoryMarketStatus(marketCategoryId, sportId, linkId,status);
+                    }else {
                         changeCategoryMarketStatus(marketCategoryId, linkId, status);
                     }
 
@@ -3898,65 +3466,64 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
 
     /**
      * 玩法关闭 后 执行关盘
-     *
      * @param marketCategoryId
      * @param sportId
      * @param linkId
      */
-    private void changeCategoryMarketStatus(Long marketCategoryId, Long sportId, String linkId, Integer status) {
-        log.info("::{}::changeCategoryMarketStatus, 操作各个未结束赛事的玩法盘口进行关盘操作 sportId:{},marketCategoryId:{},status:{}", linkId, sportId, marketCategoryId, status);
+    private void changeCategoryMarketStatus(Long marketCategoryId, Long sportId, String linkId,Integer status) {
+        log.info("::{}::changeCategoryMarketStatus, 操作各个未结束赛事的玩法盘口进行关盘操作 sportId:{},marketCategoryId:{},status:{}", linkId, sportId, marketCategoryId,status);
         StandardSportMarketCategory standardSportMarketCategory = standardSportMarketCategoryService.getItem(marketCategoryId, sportId);
-        processMatchMarket(marketCategoryId, sportId, linkId, standardSportMarketCategory, status);
+        processMatchMarket(marketCategoryId, sportId, linkId, standardSportMarketCategory,status);
     }
 
     /**
      * 玩法关闭 后 执行关盘
-     *
      * @param marketCategoryId
      * @param linkId
      */
-    private void changeCategoryMarketStatus(Long marketCategoryId, String linkId, Integer status) {
+    private void changeCategoryMarketStatus(Long marketCategoryId, String linkId,Integer status) {
         log.info("::{}::changeCategoryMarketStatus, 操作各个未结束赛事的玩法盘口进行关盘操作(多赛种) sportId:{},marketCategoryId:{}", linkId, marketCategoryId);
         List<StandardSportMarketCategory> standardSportMarketCategorys = standardSportMarketCategoryService.selectByCategoryId(marketCategoryId);
-        for (StandardSportMarketCategory s : standardSportMarketCategorys) {
-            processMatchMarket(marketCategoryId, s.getSportId(), linkId, s, status);
+        for(StandardSportMarketCategory s:standardSportMarketCategorys) {
+            processMatchMarket(marketCategoryId,s.getSportId(),linkId, s, status);
             //清除玩法赛种表缓存
             String key = RedisConfig.REDIS_KEY_DATABASE + "::StandardSportMarketCategory:" + marketCategoryId + "-" + s.getSportId();
             Boolean del = redisService.del(key);
             log.info("::{}::全部editCategoryClearCache, key:{},result:{}", linkId, key, del);
         }
     }
-
     /**
      * 关闭玩法后处理盘口数据
-     *
      * @param marketCategoryId
      * @param sportId
      * @param linkId
      * @param standardSportMarketCategory
      */
-    private void processMatchMarket(Long marketCategoryId, Long sportId, String linkId, StandardSportMarketCategory standardSportMarketCategory, Integer status) {
-        if (standardSportMarketCategory == null) {
+    private void processMatchMarket(Long marketCategoryId,Long sportId, String linkId,StandardSportMarketCategory standardSportMarketCategory,Integer status) {
+        if(standardSportMarketCategory == null) {
             log.info("::{}::changeCategoryMarketStatus, 指定赛种下没有绑定玩法 sportId:{},marketCategoryId:{}", linkId, sportId, marketCategoryId);
             return;
         }
-        if (Constant.SPORT_MARKET_CATEGORY.STATUS.INVALID.equals(status)) {
-            List<StandardMatchInfo> tandardMatchInfos = standardMatchInfoService.selectActiveByMarketCategoryIdAndSportId(marketCategoryId, standardSportMarketCategory.getSportId());
-            if (!CollectionUtils.isEmpty(tandardMatchInfos)) {
+        if(Constant.SPORT_MARKET_CATEGORY.STATUS.INVALID.equals(status)) {
+            List<StandardMatchInfo> tandardMatchInfos=standardMatchInfoService.selectActiveByMarketCategoryIdAndSportId(marketCategoryId, standardSportMarketCategory.getSportId());
+            if(!CollectionUtils.isEmpty(tandardMatchInfos)) {
                 log.info("::{}::changeCategoryMarketStatus, 指定赛种下玩法有效，执行玩法下盘口关盘逻辑 sportId:{},marketCategoryId:{}", linkId, standardSportMarketCategory.getSportId(), marketCategoryId);
                 thirdMatchMarketProcessor.processByRedis(linkId, tandardMatchInfos, marketCategoryId);
-            } else {
+            }else {
                 log.info("::{}::changeCategoryMarketStatus, 指定赛种玩法没有赛事 sportId:{},marketCategoryId:{}", linkId, standardSportMarketCategory.getSportId(), marketCategoryId);
             }
-        } else if (Constant.SPORT_MARKET_CATEGORY.STATUS.INVALID.equals(standardSportMarketCategory.getAoStatus())) {
-            List<StandardMatchInfo> tandardMatchInfos = standardMatchInfoService.selectActiveByMarketCategoryIdAndSportId(marketCategoryId, standardSportMarketCategory.getSportId());
-            if (!CollectionUtils.isEmpty(tandardMatchInfos)) {
+        }
+        else if(Constant.SPORT_MARKET_CATEGORY.STATUS.INVALID.equals(standardSportMarketCategory.getAoStatus()))
+        {
+            List<StandardMatchInfo> tandardMatchInfos=standardMatchInfoService.selectActiveByMarketCategoryIdAndSportId(marketCategoryId, standardSportMarketCategory.getSportId());
+            if(!CollectionUtils.isEmpty(tandardMatchInfos)) {
                 log.info("::{}::changeCategoryMarketStatus-AO, 指定赛种下玩法有效，执行玩法下盘口关盘逻辑 sportId:{},marketCategoryId:{}", linkId, standardSportMarketCategory.getSportId(), marketCategoryId);
                 thirdMatchMarketProcessor.processAoByRedis(linkId, tandardMatchInfos, marketCategoryId);
-            } else {
+            }else {
                 log.info("::{}::changeCategoryMarketStatus-AO, 指定赛种玩法没有赛事 sportId:{},marketCategoryId:{}", linkId, standardSportMarketCategory.getSportId(), marketCategoryId);
             }
-        } else {
+        }
+        else {
             log.info("::{}::changeCategoryMarketStatus, 指定赛种下玩法有效，执行玩法下盘口开盘逻辑(忽略) sportId:{},marketCategoryId:{}", linkId, standardSportMarketCategory.getSportId(), marketCategoryId);
         }
     }
@@ -3966,7 +3533,7 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
         String linkId = updateMarketCategoryDataSourceCodeRequest.getLinkId();
         log.info("::{}::风控修改玩法数据源：{}", linkId, JSON.toJSONString(updateMarketCategoryDataSourceCodeRequest));
         Long operaterId = updateMarketCategoryDataSourceCodeRequest.getOperaterId();
-        if (operaterId == null) {
+        if(operaterId == null){
             return Response.failed("当前操作用户id不能为空");
         }
         List<UpdateMarketCategoryDataSourceCodeDTO> marketCategoryDataSourceCodeList =
@@ -3976,6 +3543,7 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
         }
 
         Long standardMarchId = marketCategoryDataSourceCodeList.get(0).getMatchId();
+        String dataSourceWeight = marketCategoryDataSourceCodeList.get(0).getDataSourceCode();
         StandardSportMarketSell standardSportMarketSell = standardSportMarketSellService.getItem(standardMarchId);
         if (standardSportMarketSell == null) {
             return Response.failed("找不到玩法开售信息");
@@ -3999,12 +3567,12 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
         }
 
         dataSourceSwitchService.switchDataSource(updateMarketCategoryDataSourceCodeRequest,
-                marketCategoryDataSourceCodeList,
-                standardSportMarketSell,
-                standardMarketCategorySellMap,
-                marketType,
-                categoryList,
-                standardMatchInfo);
+                                                 marketCategoryDataSourceCodeList,
+                                                 standardSportMarketSell,
+                                                 standardMarketCategorySellMap,
+                                                 marketType,
+                                                 categoryList,
+                                                 standardMatchInfo);
         return Response.success();
     }
 
@@ -4026,6 +3594,9 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
         log.info("::{}::oldMarketHandler,redisLocKey:{},获取到分布式锁,lockValue:{}", linkId,
                 redisLocKey, lockValue);
         try {
+//            if (Constant.NOT_ODDS_LIVE.equals(standardMatchInfo.getOddsLive())) {
+//                return Response.failed(String.format("::linkId=%s::赛事未接受到滚球标识，标准赛事id:%d", linkId, standardMatchId));
+//            }
             //查询赛事的开售信息
             StandardSportMarketSell standardSportMarketSell = standardSportMarketSellService.getItem(standardMatchInfo.getId());
             if (standardSportMarketSell == null) {
@@ -4035,18 +3606,17 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
 
             //删除是否构建盘口标识
             String key = Constant.REDIS_KEY.RONGHE_STANDARD_PER_MARKET + standardMatchInfo.getId();
+            redisService.del(key);
             //删除构建盘口缓存
             String redisConvertKey = DigestUtil.md5Hex(Constant.REDIS_KEY.RONGHE_STANDARD_CONVERT_MARKET + standardMatchInfo.getId());
+            redisService.del(redisConvertKey);
             //step:1 下发滚球数据为关盘
             //获取所有多数据源盘口赔率（包含赛前）
             Map<String, StandardMarketDataMessage> stringStandardMarketDataMessageMap = getStringStandardMarketDataMessageMap(new HashSet<>(), linkId, standardMatchInfo, standardSportMarketSell);
             //只取滚球数据
             Map<String, StandardMarketDataMessage> standardMarketLiveDataMessageMap = stringStandardMarketDataMessageMap.entrySet().stream().filter(e -> e.getValue().getMarketType() != null && e.getValue().getMarketType().equals(0)).collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
-            List<String> dels = new ArrayList<>();
-            dels.add(key);
-            dels.add(redisConvertKey);
-            dels.add(switchLiveRedisKey);
-            redisService.del(dels);
+
+            redisService.del(switchLiveRedisKey);
             //step:2 通知风控业务修改滚球标识
             switchStatusProducer.standardMatchSwitchStatus(linkId, standardMatchInfo.getId(), Constant.NOT_ODDS_LIVE, standardMatchInfo.getDataSourceCode(), standardMatchInfo.getSportId(), true,0);
             Set<Long> marketCategoryIds = new HashSet<>();
@@ -4098,21 +3668,18 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
             }
             //修改开赛时间，需要刷早盘玩法开售缓存，以及标准赔率缓存过期时间
             String categoryRedisKey = Constant.REDIS_KEY.RONGHE_MARKET_CATEGORY_SELL + standardMatchInfo.getId() + "_" + 1;
-            redisService.expire(categoryRedisKey,marketCacheTime(beginTime));
-            //修改缓存开赛时间
-            String matchBeginStr = Constant.REDIS_KEY.RONGHE_THIRD_PER_MARKET;
-            String updatedKey = redisService.genNewHashKey(matchBeginStr, standardMatchInfo.getId().toString(), ConstantSystem.BUCKET_QUANTITY_SIXTY_FOUR);
-            redisService.hSet(updatedKey, standardMatchInfo.getId().toString(), beginTime,Integer.MAX_VALUE);
+            redisService.expire(categoryRedisKey,marketCacheTime(standardMatchInfo.getBeginTime()));
+
 
             String switchLiveRedisKey = Constant.REDIS_KEY.RONGHE_STANDARD_MARKET_SWITCH_STATUS + standardMatchInfo.getId();
             //bug:74932
             Long nowTime = Calendar.getInstance().getTimeInMillis();
             // 88540
-            //大于一小时会回退
+            // 大于一小时会回退
             //小于一小时不回退
             int oddsLive = thirdMatchMarketProcessor.isOddsLive(standardMatchInfo.getId());
             if (standardMatchInfo.getSportId().equals(StandardSportTypeEnum.FootBall.getCode())){
-                if (oddsLive == 1 || beginTime < (oldBeginTime +60*60*1000L)  || beginTime < nowTime) {
+                if (oddsLive == 1 || beginTime < (oldBeginTime +60*60*1000L)) {
                     log.info("::{}::upMatchBeginTimesOddsLiveStatus参数:oddsLive={}, beginTime={}赛事已开盘，不需要切换滚球标识,matchId:{}", linkId,thirdMatchMarketProcessor.isOddsLive(standardMatchInfo.getId()),beginTime,standardMatchInfo.getId());
                     return Response.success(true, String.format("::linkId=%s::切换成功，标准赛事id:%d", linkId, standardMatchId));
                 }
@@ -4123,23 +3690,21 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                 }
             }
 
-
             //删除是否构建盘口标识
             String key = Constant.REDIS_KEY.RONGHE_STANDARD_PER_MARKET + standardMatchInfo.getId();
+            redisService.del(key);
             //删除构建盘口缓存
             String redisConvertKey = DigestUtil.md5Hex(Constant.REDIS_KEY.RONGHE_STANDARD_CONVERT_MARKET + standardMatchInfo.getId());
+            redisService.del(redisConvertKey);
             //step:1 下发滚球数据为关盘
             //获取所有多数据源盘口赔率（包含赛前）
             Map<String, StandardMarketDataMessage> stringStandardMarketDataMessageMap = getStringStandardMarketDataMessageMap(new HashSet<>(), linkId, standardMatchInfo, standardSportMarketSell);
             //只取滚球数据
             Map<String, StandardMarketDataMessage> standardMarketLiveDataMessageMap = stringStandardMarketDataMessageMap.entrySet().stream().filter(e -> e.getValue().getMarketType() != null && e.getValue().getMarketType().equals(0)).collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
-            List<String> dels = new ArrayList<>();
-            dels.add(key);
-            dels.add(redisConvertKey);
-            dels.add(switchLiveRedisKey);
-            redisService.del(dels);
+
+            redisService.del(switchLiveRedisKey);
             //step:2 通知风控业务修改滚球标识
-            switchStatusProducer.standardMatchSwitchStatus(linkId, standardMatchInfo.getId(), Constant.NOT_ODDS_LIVE, standardMatchInfo.getDataSourceCode(), standardMatchInfo.getSportId(), true, 0);
+            switchStatusProducer.standardMatchSwitchStatus(linkId, standardMatchInfo.getId(), Constant.NOT_ODDS_LIVE, standardMatchInfo.getDataSourceCode(), standardMatchInfo.getSportId(), true,0);
             Set<Long> marketCategoryIds = new HashSet<>();
             for (StandardMarketDataMessage standardMarketDataMessage : standardMarketLiveDataMessageMap.values()) {
                 marketCategoryIds.add(standardMarketDataMessage.getMarketCategoryId());
@@ -4167,7 +3732,7 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
 
     @Override
     public Response putTradeMarketMarginGapConfig(Request<TradeMarketMarginGapConfigDTO> request) {
-        //validateLinkId("putTradeMarketMarginGapConfig", request);
+        validateLinkId("putTradeMarketMarginGapConfig", request);
         String linkId = request.getLinkId();
         log.info("::{}::putTradeMarketMarginGapConfig入参: {}", linkId, JSON.toJSONString(request));
         TradeMarketMarginGapConfigDTO tradeMarketHeadGapConfigDTO = request.getData();
@@ -4195,7 +3760,7 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
             ConfigMarketMarginGap marketMargin = new ConfigMarketMarginGap();
             ConfigMarketMarginGapLog log = new ConfigMarketMarginGapLog();
             //查询配置
-            ConfigMarketMarginGap configMarketMarginGap = configMarketMarginGapService.getItem(standardMatchInfoId, standardCategoryId, tradeMarketHeadGapConfigDTO.getChildStandardCategoryId(), itemDto.getOddsType(), tradeMarketHeadGapConfigDTO.getPlaceNum());
+            ConfigMarketMarginGap configMarketMarginGap = configMarketMarginGapService.getItem(standardMatchInfoId, standardCategoryId,tradeMarketHeadGapConfigDTO.getChildStandardCategoryId(), itemDto.getOddsType(), tradeMarketHeadGapConfigDTO.getPlaceNum());
             if (null == configMarketMarginGap) {
                 marketMargin.setMatchId(tradeMarketHeadGapConfigDTO.getStandardMatchInfoId());
                 marketMargin.setMarketCategoryId(tradeMarketHeadGapConfigDTO.getStandardCategoryId());
@@ -4217,22 +3782,15 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                 marketMargin.setOperaterId(operaterId);
                 marketMargin.setPlaceNum(tradeMarketHeadGapConfigDTO.getPlaceNum());
                 marketMargin.setLinkId(linkId);
-                //修改风控给null，不修改之前配置
-                if (null == itemDto.getProbability()){
-                    marketMargin.setProbability(configMarketMarginGap.getProbability());
-                }
-                if (null == itemDto.getDiffValue()){
-                    marketMargin.setDiffValue(configMarketMarginGap.getDiffValue());
-                }
                 updateList.add(marketMargin);
             }
             BeanUtils.copyProperties(marketMargin, log);
             log.setId(IdWorker.getId());
             logList.add(log);
         }
-        if (!CollectionUtils.isEmpty(logList)) {
-            configMarketMarginGapLogService.createList(logList);
-        }
+//        if (!CollectionUtils.isEmpty(logList)) {
+//            configMarketMarginGapLogService.createList(logList);
+//        }
         if (!CollectionUtils.isEmpty(createList)) {
             configMarketMarginGapService.insertList(linkId, standardMatchInfoId, createList);
         }
@@ -4251,12 +3809,13 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
     }
 
     @Override
-    public Map<Long, List<Long>> getCategoryByMatchId(List<Long> matchIds) {
-        Map<Long, List<Long>> result = new HashMap<>();
+    public Map<Long,List<Long>> getCategoryByMatchId(List<Long> matchIds) {
+        Map<Long,List<Long>> result = new HashMap<>() ;
         matchIds.forEach(matchId -> {
             String redisKey = Constant.REDIS_KEY.RONGHE_ORDER_STANDARD_MARKET + matchId;
             Map<String, Object> categories = redisService.hGetAll(redisKey);
-            if (MapUtils.isNotEmpty(categories)) {
+            if (MapUtils.isNotEmpty(categories))
+            {
                 Set<Long> keys = categories.keySet().stream().map(Long::parseLong).collect(Collectors.toSet());
                 result.put(matchId, new ArrayList<>(keys));
             }
@@ -4283,7 +3842,6 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
         return Response.success();
     }
 
-
     @Override
     public Response putCategoryStatusConfig(Request<PlaySetStatusConfigDTO> request) {
         String linkId = request.getLinkId();
@@ -4299,27 +3857,28 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
         if (standardSportMarketSell == null) {
             return Response.failed(String.format("::linkId=%s::赛事未开售，标准赛事id:%d", linkId, standardMatchInfo.getId()));
         }
-        Map<String, Integer> categoryStatusMap = new HashMap<>();
-        if (!CollectionUtils.isEmpty(playSetStatusConfigDTO.getPlayIds())) {
-            playSetStatusConfigDTO.getPlayIds().forEach(e -> {
-                categoryStatusMap.put(String.valueOf(e), playSetStatusConfigDTO.getStatus());
+        Map<String,Integer> categoryStatusMap = new HashMap<>();
+        if (!CollectionUtils.isEmpty(playSetStatusConfigDTO.getPlayIds()))
+        {
+            playSetStatusConfigDTO.getPlayIds().forEach(e->{
+                categoryStatusMap.put(String.valueOf(e),playSetStatusConfigDTO.getStatus());
             });
-            String redisKey = DigestUtil.md5Hex(Constant.REDIS_KEY.RONGHE_STANDARD_CATEGORY_SET_STATUS + standardMatchInfo.getId());
+            String redisKey = DigestUtil.md5Hex(Constant.REDIS_KEY.RONGHE_STANDARD_CATEGORY_SET_STATUS+standardMatchInfo.getId());
             //每次请求都需要删除上一次玩法集玩法 ，以最新的为准
-            String categoryKeyOld = Constant.REDIS_KEY.RONGHE_STANDARD_CATEGORY_SETCODE_CACHE + standardMatchInfo.getId() + "_" + playSetStatusConfigDTO.getPlaySetCode();
+            String categoryKeyOld = Constant.REDIS_KEY.RONGHE_STANDARD_CATEGORY_SETCODE_CACHE + standardMatchInfo.getId()+"_"+playSetStatusConfigDTO.getPlaySetCode();
             Object obj = redisService.get(categoryKeyOld);
-            log.info("::{}::每次请求都需要删除上一次玩法集:{},玩法:{}", linkId, categoryKeyOld, obj);
+            log.info("::{}::每次请求都需要删除上一次玩法集:{},玩法:{}",linkId,categoryKeyOld,obj);
             if (obj != null) {
                 List<Long> categoryListOld = (List<Long>) obj;
                 redisService.hDel(redisKey, categoryListOld.toArray());
             }
             //缓存最新玩法集玩法
-            redisService.set(categoryKeyOld, playSetStatusConfigDTO.getPlayIds(), marketCacheTime(standardMatchInfo.getBeginTime()));
-            log.info("::{}::每次请求都需要删除上一次玩法集:{},玩法:{},缓存后", linkId, categoryKeyOld, redisService.get(categoryKeyOld));
-            log.info("::{}::缓存最新玩法状态:{},玩法:{},缓存前", linkId, redisKey, redisService.hGetAll(redisKey));
+            redisService.set(categoryKeyOld,playSetStatusConfigDTO.getPlayIds(),marketCacheTime(standardMatchInfo.getBeginTime()));
+            log.info("::{}::每次请求都需要删除上一次玩法集:{},玩法:{},缓存后",linkId,categoryKeyOld,redisService.get(categoryKeyOld));
+            log.info("::{}::缓存最新玩法状态:{},玩法:{},缓存前",linkId,redisKey,redisService.hGetAll(redisKey));
             //缓存最新玩法
-            redisService.hSetAll(redisKey, categoryStatusMap, marketCacheTime(standardMatchInfo.getBeginTime()));
-            log.info("::{}::缓存最新玩法状态:{},玩法:{},缓存后", linkId, redisKey, redisService.hGetAll(redisKey));
+            redisService.hSetAll(redisKey,categoryStatusMap, marketCacheTime(standardMatchInfo.getBeginTime()));
+            log.info("::{}::缓存最新玩法状态:{},玩法:{},缓存后",linkId,redisKey,redisService.hGetAll(redisKey));
             //玩法级状态下发风控
             standardCategorySetStatusMessageProducer.sendStandardCategorySetStatus(linkId, standardMatchInfo);
             //模式判断
@@ -4357,7 +3916,7 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
 
     @Override
     public Response putTradeTypeConfig(Request<UpdateTradeTypeDTO> request) {
-        log.info("::{}::putTradeTypeConfig 入参：{}", request.getLinkId(), JSON.toJSONString(request));
+        log.info("::{}::putTradeTypeConfig 入参：{}", request.getLinkId(),JSON.toJSONString(request));
         UpdateTradeTypeDTO updateTradeTypeDTO = request.getData();
         Long standardMatchInfoId = updateTradeTypeDTO.getMatchId();
         Long operaterId = request.getOperaterId();
@@ -4387,10 +3946,12 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
 
         Set<Long> marketCategoryIdSet = new HashSet<>();
         List<ConfigMarketCategoryPlace> categoryPlaceList = new ArrayList<>();
-        if (!CollectionUtils.isEmpty(marketPlaceDtlDTOS)) {
+        if (!CollectionUtils.isEmpty(marketPlaceDtlDTOS))
+        {
             //循环处理配置数据
             marketPlaceDtlDTOS.forEach(marketPlaceDtlDTO -> {
-                if (marketPlaceDtlDTO.getChildStandardCategoryId() == null) {
+                if (marketPlaceDtlDTO.getChildStandardCategoryId() == null)
+                {
                     marketPlaceDtlDTO.setChildStandardCategoryId(marketPlaceDtlDTO.getStandardCategoryId());
                 }
                 if (marketPlaceDtlDTO.getPlaceNum() == -1) {
@@ -4425,9 +3986,10 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
         }
 
         if (!CollectionUtils.isEmpty(categoryPlaceList)) {
-            configMarketCategoryPlaceService.cacheConfigMarketPlace(categoryPlaceList, linkId, standardMatchInfoId);
+            configMarketCategoryPlaceService.cacheConfigMarketPlace(categoryPlaceList, linkId,standardMatchInfoId);
         }
-        if (!CollectionUtils.isEmpty(playIds)) {
+        if (!CollectionUtils.isEmpty(playIds))
+        {
             //缓存子玩法支持切换模式的id
             String childMarketCategoryIdKey = Constant.REDIS_KEY.RONGHE_CHILD_MARKET_CATEGORY_ID + standardMatchInfoId;
             if (!CollectionUtils.isEmpty(childCategoryIds)) {
@@ -4509,17 +4071,16 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
 
     /**
      * 1852 进球事件触发强转过的盘口 进行关盘处理
-     *
      * @param linkId
      * @param standardMatchId
      * @param dataSourceTime
      */
     public void autoCloseOldMarket(String linkId, Long standardMatchId, Long dataSourceTime) {
-        String lockValue = UUIdUtils.getId() + "_" + linkId;
+        String lockValue = UUIdUtils.getId()+"_"+linkId;
         String redisLocKey = Constant.REDIS_KEY.RONGHE_LOCK + standardMatchId;
-        log.info("::{}:: 进球事件触发强转过的盘口,redisLocKey:{},准备获取分布式锁,lockValue:{}", linkId, redisLocKey, lockValue);
+        log.info("::{}:: 进球事件触发强转过的盘口,redisLocKey:{},准备获取分布式锁,lockValue:{}", linkId,redisLocKey, lockValue);
         boolean isLock = redisService.tryLock(redisLocKey, lockValue, 1, 1);
-        log.info("::{}:: 进球事件触发强转过的盘口,redisLocKey:{},获取到分布式锁,lockValue:{}", linkId, redisLocKey, lockValue);
+        log.info("::{}:: 进球事件触发强转过的盘口,redisLocKey:{},获取到分布式锁,lockValue:{}", linkId,redisLocKey, lockValue);
         try {
             log.info("::{}::autoCloseOldMarket标准赛事id:{}", linkId, standardMatchId);
             //查询标准赛事是否存在
@@ -4528,7 +4089,7 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                 log.info("::{}::autoCloseOldMarket,对应的标准赛事未找到，标准赛事id:{}", linkId, standardMatchId);
                 return;
             }
-            if (!MarginCategoryConfig.NO_CLOS_SPORT.contains(standardMatchInfo.getSportId())) {
+            if(!MarginCategoryConfig.NO_CLOS_SPORT.contains(standardMatchInfo.getSportId())) {
                 log.info("::{}::autoCloseOldMarket,对应的标准赛事的赛种不匹配，标准赛事id:{}", linkId, standardMatchId);
                 return;
             }
@@ -4546,21 +4107,21 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                 return;
             }
             //获取需要关闭的盘口
-            String closeKey = Constant.REDIS_KEY.RONGHE_MATCH_MARKET_ODDS_UPDATETIME + standardMatchInfo.getId();
-            Map<String, Long> closeMarket = redisService.hGetAll(closeKey);
+            String closeKey = Constant.REDIS_KEY.RONGHE_MATCH_MARKET_ODDS_UPDATETIME+standardMatchInfo.getId();
+            Map<String,Long> closeMarket = redisService.hGetAll(closeKey);
             log.info("::{}::autoCloseOldMarket ,标准赛事id:{},进球事件需要处理的盘口:{},", linkId, standardMatchId, closeMarket);
             //获取所有多数据源盘口赔率（包含赛前）
             Map<String, StandardMarketDataMessage> stringStandardMarketDataMessageMap = getStringStandardMarketDataMessageMap(new HashSet<>(), linkId, standardMatchInfo, standardSportMarketSell);
             //只取滚球数据
             Map<String, StandardMarketDataMessage> standardMarketLiveDataMessageMap = stringStandardMarketDataMessageMap.values().stream()
                     .filter(e -> e.getMarketType() != null && e.getMarketType().equals(0) &&
-                            (closeMarket.containsKey(e.getMarketCategoryId() + "_" + e.getRelationMarketId() + "_" + e.getDataSourceCode() + "_" + Constant.SPORT_MARKET.STATUS.DEACTIVATED) ||
-                                    closeMarket.containsKey(e.getMarketCategoryId() + "_" + e.getRelationMarketId() + "_" + e.getDataSourceCode() + "_" + Constant.SPORT_MARKET.STATUS.SUSPENDED)))
-                    .collect(Collectors.toMap(e -> e.getRelationMarketId().toString(), e -> e, (oldValue, newValue) -> newValue));
+                            (closeMarket.containsKey(e.getMarketCategoryId()+"_"+e.getRelationMarketId()+"_"+e.getDataSourceCode()+"_"+Constant.SPORT_MARKET.STATUS.DEACTIVATED) ||
+                                    closeMarket.containsKey(e.getMarketCategoryId()+"_"+e.getRelationMarketId()+"_"+e.getDataSourceCode()+"_"+Constant.SPORT_MARKET.STATUS.SUSPENDED)))
+                    .collect(Collectors.toMap(e -> e.getRelationMarketId().toString(), e -> e,(oldValue,newValue)->newValue));
             Set<Long> categoryIds = new HashSet<Long>();
             Set<StandardMarketDataMessage> closeMarketSet = new HashSet<StandardMarketDataMessage>();
             for (StandardMarketDataMessage standardMarketDataMessage : standardMarketLiveDataMessageMap.values()) {
-                String redisKey = DigestUtil.md5Hex(Constant.REDIS_KEY.RONGHE_STANDARD_CATEGORY_MARKET + standardMatchInfo.getId() + "_" + standardMarketDataMessage.getDataSourceCode() + "_" + standardMarketDataMessage.getMarketCategoryId());
+                String redisKey = DigestUtil.md5Hex(Constant.REDIS_KEY.RONGHE_STANDARD_CATEGORY_MARKET + standardMatchInfo.getId() + "_" + standardMarketDataMessage.getDataSourceCode()+"_"+standardMarketDataMessage.getMarketCategoryId());
                 //只修改有改变的玩法 状态改为关盘
                 Long marketCategoryId = standardMarketDataMessage.getMarketCategoryId();
                 if (standardMarketDataMessage.getOldThirdMarketSourceStatus() != null &&
@@ -4572,8 +4133,8 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                     standardMarketDataMessage.setThirdMarketSourceStatus(Constant.TRADE_MARKET_CONFIG.MARKET_STATUS.DEACTIVATED);
                     standardMarketDataMessage.setLinkId(linkId);
                     standardMarketDataMessage.setRemark("进球事件触发强转过的盘口 进行关盘处理");
-                    log.info("::{}:autoCloseOldMarket，进球事件触发强转过的盘口 进行关盘处理缓存赔率信息，relationMarketId={}",
-                            linkId, standardMarketDataMessage.getRelationMarketId().toString());
+                    log.info("::{}:autoCloseOldMarket，进球事件触发强转过的盘口 进行关盘处理缓存赔率信息，relationMarketId={}, standardMarketDataMessage={}",
+                            linkId, standardMarketDataMessage.getRelationMarketId().toString(), standardMarketDataMessage);
                     boolean flag = redisService.hSet(redisKey, standardMarketDataMessage.getRelationMarketId().toString(), standardMarketDataMessage, marketCacheTime(standardMatchInfo.getBeginTime()));
                     categoryIds.add(marketCategoryId);
                     closeMarketSet.add(standardMarketDataMessage);
@@ -4589,12 +4150,11 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
             thirdSportMarketOddsService.deleteMatchMarketOddsOfRedis(linkId, standardMatchInfo.getId(), closeMarketSet, dataSourceTime);
             configMatchStatusService.saveDeaMarketOfRedis(linkId, standardMatchInfo.getId(), closeMarketSet, standardMatchInfo.getBeginTime());
 
-        } finally {
-            redisService.unLock(redisLocKey, lockValue);
-            log.info("::{}:: autoCloseOldMarket 进球事件触发强转过的盘口 进行关盘处理,redisLocKey:{},释放分布式锁,lockValue:{}", linkId, redisLocKey, lockValue);
+        }finally {
+            redisService.unLock(redisLocKey,lockValue);
+            log.info("::{}:: autoCloseOldMarket 进球事件触发强转过的盘口 进行关盘处理,redisLocKey:{},释放分布式锁,lockValue:{}", linkId,redisLocKey, lockValue);
         }
     }
-
     @Override
     public Response<Boolean> emergencyOperationOfMarket(Long matchId, Integer marketStatus) {
         try {
@@ -4633,8 +4193,8 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                         Constant.TRADE_MARKET_CONFIG.MARKET_STATUS.DEACTIVATED);
                 // 下发赛事状态给到业务
                 standardMarketOddsProducer.standardMarketOddsAsyncSend(linkId, standardMatchInfo,
-                        null, dataSourceTime, false);
-                log.info("::{}::emergencyOperationOfMarket,标准赛事id：{},赛事级别关盘", linkId, standardMatchInfo.getId());
+                        null, dataSourceTime,false);
+                log.info("::{}::emergencyOperationOfMarket,标准赛事id：{},赛事级别关盘",linkId, standardMatchInfo.getId());
                 return Response.success(Boolean.TRUE, "关盘操作成功");
             } else if (Constant.TRADE_MARKET_CONFIG.MARKET_STATUS.ACTIVE.equals(marketStatus)) {
                 //查询赛事的开售信息
@@ -4651,8 +4211,8 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                         Constant.TRADE_MARKET_CONFIG.MARKET_STATUS.ACTIVE);
                 // 获取缓存中的所有盘口（赛前数据商和滚球数据商）
                 Map<String, StandardMarketDataMessage> marketDataMessageMap =
-                        getStringStandardMarketDataMessageMap(new HashSet<>(), linkId, standardMatchInfo, standardSportMarketSell);
-                log.info("::{}::emergencyOperationOfMarket,标准赛事id：{},获取缓存数据总数：{}", linkId,
+                        getStringStandardMarketDataMessageMap(new HashSet<>(),linkId, standardMatchInfo, standardSportMarketSell);
+                log.info("::{}::emergencyOperationOfMarket,标准赛事id：{},获取缓存数据总数：{}",linkId,
                         standardMatchInfo.getId(), marketDataMessageMap.size());
                 // 获取数据里面的玩法
                 Set<Long> marketCategoryIdSet = new HashSet<>();
@@ -4673,7 +4233,6 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
             return Response.failed(String.format("赛事级别开关盘紧急操作发生异常，赛事ID:%d,错误信息:%s", matchId, e));
         }
     }
-
     @Override
     public Response putDiscountOddsConfig(Request<List<DiscountOddsConfigDTO>> requests) {
         String linkId = requests.getLinkId();
@@ -4742,8 +4301,8 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
         }
         List<ThirdMatchInfo> thirdMatchInfoLTList = thirdMatchInfoList.stream().filter(e -> e.getDataSourceCode().equalsIgnoreCase(DataSourceCodeEnum.TX.getCode()) || e.getDataSourceCode().equalsIgnoreCase(DataSourceCodeEnum.LS.getCode())|| e.getDataSourceCode().equalsIgnoreCase(DataSourceCodeEnum.L02.getCode())).collect(Collectors.toList());
         return Response.success(categoryCodeProcessor.processStandardMatchInternalCode(request.getLinkId(),
-                thirdMatchInfoLTList,
-                standardMatchInfoId));
+                                                                                       thirdMatchInfoLTList,
+                                                                                       standardMatchInfoId));
     }
 
     @Override
@@ -4751,8 +4310,8 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
         ValidatorUtils.validate(validator, request);
         MatchCategoryDataSourcesDTO data = request.getData();
         log.info("::{}::getStandardCategoryAvailableDataSources,请求参数：{}",
-                request.getLinkId(),
-                JSON.toJSONString(data));
+                 request.getLinkId(),
+                 JSON.toJSONString(data));
         return dataSourceAutoSwitchService.getDataSources(request);
 
     }
@@ -4789,12 +4348,11 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
         Response<MatchDataSourceDTO> result = dataSourceAutoSwitchService.autoSwitch(request);
         stopWatch.stop();
         log.info("linkId:{},autoSwitchDataSource, millis:{}, result:{}",
-                request.getLinkId(),
-                stopWatch.getTotalTimeMillis(),
-                JSON.toJSONString(result));
+                 request.getLinkId(),
+                 stopWatch.getTotalTimeMillis(),
+                 JSON.toJSONString(result));
         return result;
     }
-
 
 
 
@@ -4813,7 +4371,6 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
 
         List<ConfigOutrightTradeMarket> batchUpdate = Lists.newArrayList();
         List<ConfigOutrightTradeMarket> batchSave = Lists.newArrayList();
-        List<StandardOutrightMarket> batchUpdateOutrightMarket = Lists.newArrayList();
 
         Map<Long, ConfigOutrightTradeMarket> marketTradeMap = null;
         List<ConfigOutrightTradeMarket> configOutrightTradeMarkets = outrightTradeMarketConfigService.selectListItem(matchId);
@@ -4822,16 +4379,10 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                     .collect(Collectors.toMap(ConfigOutrightTradeMarket::getStandardMarketId, Function.identity()));
         }
 
-        StringBuilder sb = new StringBuilder();
-        sb.append("linkId:" + linkId +",matchId:" + matchId + "人工操盘过过滤盘口");
         for ( StandardOutrightMarket championMarket : championMarketList ) {
 
             if ( MapUtils.isNotEmpty(marketTradeMap) && marketTradeMap.containsKey(championMarket.getId()) ) {
                 ConfigOutrightTradeMarket tradeMarket = marketTradeMap.get(championMarket.getId());
-                if ( null != tradeMarket.getOperateType() && Constant.OUTRIGHT_ONE.equals(tradeMarket.getOperateType()) ) {
-                    sb.append( "," +  championMarket.getId());
-                    continue;
-                }
                 tradeMarket.setMarketStatus(Constant.TRADE_MARKET_CONFIG.MARKET_STATUS.DEACTIVATED);
                 tradeMarket.setModifyTime(TimeUtils.millsSecondsEast8ZoneGmt());
                 if ( StringUtils.isNotEmpty(linkId)) {
@@ -4856,9 +4407,7 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
                 championMarket.setLinkId(linkId);
             }
             championMarket.setModfiyTime(TimeUtils.millsSecondsEast8ZoneGmt());
-            batchUpdateOutrightMarket.add(championMarket);
         }
-        log.info(sb.toString());
 
         if ( !CollectionUtils.isEmpty(batchUpdate) ) {
             outrightTradeMarketConfigService.updateBatchById(batchUpdate);
@@ -4869,19 +4418,7 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
         }
 
         // Au模式下的盘口关闭
-        if ( !CollectionUtils.isEmpty(batchUpdateOutrightMarket) ) {
-            standardOutrightMarketService.updateBatchById(batchUpdateOutrightMarket);
-        }
-
-        // 三方的赔率列表的调整
-        List<StandardSportMarket> standardSportMarketList = standardSportMarketService.getItemList(matchId);
-        if ( !CollectionUtils.isEmpty(standardSportMarketList) ) {
-            for ( StandardSportMarket ssm : standardSportMarketList ) {
-                ssm.setThirdMarketSourceStatus(Constant.TRADE_MARKET_CONFIG.MARKET_STATUS.DEACTIVATED);
-                ssm.setModifyTime(TimeUtils.millsSecondsEast8ZoneGmt());
-                standardSportMarketService.updateByPrimaryKeySelective(ssm);
-            }
-        }
+        standardOutrightMarketService.updateBatchById(championMarketList);
 
 
         // 获取标准赛事
@@ -4907,7 +4444,6 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
         redisService.hSetAll(key,map,Integer.MAX_VALUE);
         return Response.success("操作成功");
     }
-
     @Override
     public Response basketballEarlyRollLeagueSwitchConfig(Request<List<LeagueSwitchConfigDTO>> request) {
         log.info("::{}::basketballEarlyRollLeagueSwitchConfig处理入参:{}", request.getLinkId(),JSON.toJSONString(request.getData()));
@@ -4943,65 +4479,4 @@ public class TradeMarketConfigApiServiceImpl extends BaseProcessor implements IT
         }
         return Response.success("操作成功");
     }
-
-    @Override
-    public Response footballWinnerConfig(Request<FootballConfigDTO> request) {
-        log.info("::{}::footballWinnerConfig处理入参:{}", request.getLinkId(),JSON.toJSONString(request.getData()));
-        String key = Constant.REDIS_KEY.RONGHE_FOOT_MARKET_WINNER_CONFIG;
-        redisService.set(key,request.getData().getStatus(),Integer.MAX_VALUE);
-        return Response.success("操作成功");
-    }
-
-    @Override
-    public Response<Map<String, ThirdMarketModifytimeDTO>> getThirdMarletLastModifyTime(Request<ThirdMarketLastModifyTimeDTO> request) {
-        log.info("::{}::getThirdMarletLastModifyTime处理入参:{}", request.getLinkId(),JSON.toJSONString(request.getData()));
-        String thirdKey = Constant.REDIS_KEY.THIRD_MARKET_108048+request.getData().getMatchId();
-        Map<String, ThirdMarketModifytimeDTO> map = redisService.hGetAll(thirdKey);
-        if (MapUtils.isEmpty(map)){
-            return Response.success(new HashMap<>());
-        }
-        Set<Long> categoryFilter = CollectionUtils.isEmpty(request.getData().getCategoryIds())
-                ? null
-                : new HashSet<>(request.getData().getCategoryIds());
-        Integer marketTypeFilter = ThirdMarket108048Helper.normalizeMarketType(request.getData().getMarketType());
-        long now = System.currentTimeMillis();
-        Map<String, ThirdMarketModifytimeDTO> result = new HashMap<>(map.size());
-        List<String> invalidFields = new ArrayList<>();
-        map.forEach((fieldKey, dto) -> {
-            if (dto == null) {
-                return;
-            }
-            if (!ThirdMarket108048Helper.isValidFieldKey(fieldKey)) {
-                invalidFields.add(fieldKey);
-                return;
-            }
-            if (categoryFilter != null) {
-                Long categoryId = ThirdMarket108048Helper.parseCategoryId(fieldKey);
-                if (categoryId == null || !categoryFilter.contains(categoryId)) {
-                    return;
-                }
-            }
-            Integer fieldMarketType = ThirdMarket108048Helper.parseMarketType(fieldKey);
-            if (marketTypeFilter != null && !marketTypeFilter.equals(fieldMarketType)) {
-                return;
-            }
-            if (dto.getMarketType() == null) {
-                dto.setMarketType(fieldMarketType);
-            }
-            if (StringUtils.isBlank(dto.getDateSourceCode())) {
-                dto.setDateSourceCode(ThirdMarket108048Helper.parseDataSourceCode(fieldKey));
-            }
-            ThirdMarket108048Helper.applyLevel(dto, now);
-            result.put(fieldKey, dto);
-        });
-        if (!invalidFields.isEmpty()) {
-            log.info("::{}::getThirdMarletLastModifyTime忽略历史非法field,赛事ID:{},field:{}",
-                    request.getLinkId(), request.getData().getMatchId(), invalidFields);
-        }
-        log.info("::{}::getThirdMarletLastModifyTime返回,赛事ID:{},请求玩法:{},请求早滚:{},redis全部field:{},返回field:{}",
-                request.getLinkId(), request.getData().getMatchId(), request.getData().getCategoryIds(),
-                request.getData().getMarketType(), map.keySet(), result.keySet());
-        return Response.success(result);
-    }
-
 }

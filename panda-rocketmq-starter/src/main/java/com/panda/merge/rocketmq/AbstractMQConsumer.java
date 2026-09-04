@@ -18,7 +18,7 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * 消费者抽象类
+ *消费者抽象类
  *
  * @param <T> 消息体的类型
  */
@@ -35,7 +35,7 @@ public abstract class AbstractMQConsumer<T extends Request<?>>
     // mq consumer优雅关闭下线，最多等多久。注意是单个consumer的等待时间
     private final Long awaitShutDownAwaitMilli = 5000L;
 
-    private static final Integer consumeMessageBatchMaxSize = 20;
+    private  static final Integer consumeMessageBatchMaxSize =20;
 
     @Autowired
     private RocketMQProperties rocketMQProperties;
@@ -67,7 +67,7 @@ public abstract class AbstractMQConsumer<T extends Request<?>>
     protected abstract MessageListenerConcurrently getBizLogic();
 
     @Override
-    public void destroy() {
+    public void destroy()  {
         consumer.shutdown();
         if (Objects.nonNull(secondConsumer)) {
             secondConsumer.shutdown();
@@ -84,7 +84,7 @@ public abstract class AbstractMQConsumer<T extends Request<?>>
                 secondConsumer.setInstanceName(
                         secondConsumer.getInstanceName() + "_second_" + INSTANCE_NUM.incrementAndGet());
                 MqConsumerConfig mqConsumerConfig = buildConfig();
-                mqConsumerConfig.setConsumerGroupName(mqConsumerConfig.getConsumerGroupName() + "_second");
+                mqConsumerConfig.setConsumerGroupName(mqConsumerConfig.getConsumerGroupName()+"_second");
                 initConsumer(secondConsumer, mqConsumerConfig, secondProperties.getSlaveNamesrvAddr());
                 log.info("init second consumer success {}", this.getClass().getName());
             } catch (Exception e) {
@@ -99,45 +99,35 @@ public abstract class AbstractMQConsumer<T extends Request<?>>
      */
     private void initConsumer(DefaultMQPushConsumer consumer, MqConsumerConfig mqConsumerConfig, String nameServer)
             throws MQClientException {
-        consumer.subscribe(mqConsumerConfig.getTopic(), "*");
+        consumer.subscribe(mqConsumerConfig.getTopic(),"*");
         consumer.setConsumerGroup(mqConsumerConfig.getConsumerGroupName());
         consumer.setAwaitTerminationMillisWhenShutdown(awaitShutDownAwaitMilli);
         consumer.setConsumeMessageBatchMaxSize(consumeMessageBatchMaxSize);
         consumer.setNamesrvAddr(nameServer);
-        processConsumerConfigDetail(consumer, mqConsumerConfig);
+        processConsumerConfigDetail(consumer,mqConsumerConfig);
         consumer.registerMessageListener(getBizLogic());
         consumer.setAwaitTerminationMillisWhenShutdown(awaitShutDownAwaitMilli);
-        // 方法二：直接 try-catch 吞掉重复start的异常（最简单）
-        try {
-            consumer.start();
-        } catch (MQClientException e) {
-            if (e.getMessage().contains("RUNNING")) {
-                log.warn("Consumer already running, skip start");
-            } else {
-                throw e; // 其他异常继续抛
-            }
-        }
+        consumer.start();
     }
 
     /**
      * 消费者高级配置
-     *
      * @param consumer
      * @param mqConsumerConfig
      */
     protected void processConsumerConfigDetail(DefaultMQPushConsumer consumer, MqConsumerConfig mqConsumerConfig) {
         ConsumerConfigDetail consumerConfigDetail = mqConsumerConfig.getConsumerConfigDetail();
-        if (consumerConfigDetail.getThreadNumber() != null) {
+        if(consumerConfigDetail.getThreadNumber()!=null){
             consumer.setConsumeThreadMin(consumerConfigDetail.getThreadNumber());
             consumer.setConsumeThreadMax(consumerConfigDetail.getThreadNumber());
         }
-        if (consumerConfigDetail.getMessageSize() != null) {
+        if( consumerConfigDetail.getMessageSize()!=null){
             consumer.setConsumeMessageBatchMaxSize(consumerConfigDetail.getMessageSize());
         }
-        if (consumerConfigDetail.getPullBatchSize() != null) {
+        if( consumerConfigDetail.getPullBatchSize()!=null){
             consumer.setPullBatchSize(consumerConfigDetail.getPullBatchSize());
         }
-        if (consumerConfigDetail.getPullInterval() != null && consumerConfigDetail.getPullInterval() >= 0) {
+        if(consumerConfigDetail.getPullInterval() != null && consumerConfigDetail.getPullInterval() >= 0) {
             consumer.setPullInterval(consumerConfigDetail.getPullInterval());
         }
     }
@@ -145,18 +135,9 @@ public abstract class AbstractMQConsumer<T extends Request<?>>
 
     protected abstract MqConsumerConfig buildConfig();
 
-    protected T extractRequest(MessageExt msg) {
-        /*return  JSON.parseObject(msg.getBody()
-                , typeReference.getType());*/
-        T data = JSON.parseObject(msg.getBody()
+    protected  T extractRequest(MessageExt msg) {
+        return  JSON.parseObject(msg.getBody()
                 , typeReference.getType());
-        // 将 tag 注入到实体中
-        if (data != null) {
-            if (data instanceof Request) {
-                ((Request) data).setTag(msg.getTags());
-            }
-        }
-        return data;
     }
 
     public synchronized DefaultMQPushConsumer getConsumer() {

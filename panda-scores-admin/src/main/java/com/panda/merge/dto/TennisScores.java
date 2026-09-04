@@ -89,13 +89,11 @@ public class TennisScores extends  AbstractSportScores{
 
     public boolean setFieldByEvent( MatchEventInfo data){
         if(data.getEventCode().equals("tennis_score_change")){
-            log.info("setFieldByEvent,单条事件处理逻辑1,linkId={},点球事件无需处理！{},{}",data.getLinkId(),this.setScore,this.matchScore);
+//            log.info(" thirdMatchId:{} ,eventCode:{},before: home:{},away:{}",data.getThirdMatchId(),"matchScore",matchScore.getHome(),matchScore.getAway());
             this.setScore.setHome(data.getFirstT1());
             this.setScore.setAway(data.getFirstT2());
             this.matchScore.setHome(data.getT1());
             this.matchScore.setAway(data.getT2());
-            log.info("setFieldByEvent,单条事件处理逻辑2,linkId={},点球事件无需处理！{},{}",data.getLinkId(),this.setScore,this.matchScore);
-
             /**抢七规则判断*/
             if(data.getSecondNum()>12&& ((data.getSecondT1()>0&&data.getSecondT1()<=10)||(data.getSecondT2()>0&&data.getSecondT2()<=10))){
                 qiangScore.setHome(data.getSecondT1());
@@ -107,11 +105,20 @@ public class TennisScores extends  AbstractSportScores{
 
             if(data.getHomeAway().equals(TeamTypeConstant.HOME)){
                 scoreNumber.setHome(scoreNumber.getHome()+1);
+                //1.破发计算 home 发球
+//                if((data.getSecondT2()==40||data.getSecondT2()==50)&&(!(data.getSecondT2()==40&&data.getSecondT1()==40))){
+//                    // away 破发点
+//                    breakPointCount.setAway(breakPointCount.getAway()+1);
+//                }
             }else {
                 scoreNumber.setAway(scoreNumber.getAway()+1);
+                //1.破发计算 away 发球
+//                if((data.getSecondT1()==40||data.getSecondT1()==50)&&(!(data.getSecondT2()==40&&data.getSecondT1()==40))){
+//                    // home 破发点
+//                    breakPointCount.setHome(breakPointCount.getHome()+1);
+//                }
             }
 
-            //发球得分次数
             if(data.getExtraInfo()!=null&&data.getExtraInfo().equals("1")){
                 if(data.getHomeAway().equals(TeamTypeConstant.HOME)){
                     servesScoredCount.setHome(servesScoredCount.getHome()+1);

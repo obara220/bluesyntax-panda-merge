@@ -29,7 +29,7 @@ public class ConfigMarketHeadGapLogServiceImpl implements ConfigMarketHeadGapLog
     @Override
     public ConfigMarketCategoryHeadLog create(String linkId, Long operaterId, TradeMarketHeadGapConfigDTO tradeMarketHeadGapConfigDTO) {
         ConfigMarketCategoryHeadLog configMarketCategoryHeadLog = new ConfigMarketCategoryHeadLog();
-        /*configMarketCategoryHeadLog.setId(UUIdUtils.getId());
+        configMarketCategoryHeadLog.setId(UUIdUtils.getId());
         configMarketCategoryHeadLog.setStandardMatchInfoId(tradeMarketHeadGapConfigDTO.getStandardMatchInfoId());
         configMarketCategoryHeadLog.setStandardCategoryId(tradeMarketHeadGapConfigDTO.getStandardCategoryId());
         configMarketCategoryHeadLog.setChildStandardCategoryId(tradeMarketHeadGapConfigDTO.getChildStandardCategoryId());
@@ -39,7 +39,7 @@ public class ConfigMarketHeadGapLogServiceImpl implements ConfigMarketHeadGapLog
         configMarketCategoryHeadLog.setOperaterId(operaterId);
         configMarketCategoryHeadLog.setCreateTime(TimeUtils.millsSecondsEast8ZoneGmt());
         configMarketCategoryHeadLog.setModifyTime(TimeUtils.millsSecondsEast8ZoneGmt());
-        configMarketCategoryHeadLogMapper.insertSelective(configMarketCategoryHeadLog);*/
+//        configMarketCategoryHeadLogMapper.insertSelective(configMarketCategoryHeadLog);
         return configMarketCategoryHeadLog;
     }
 }

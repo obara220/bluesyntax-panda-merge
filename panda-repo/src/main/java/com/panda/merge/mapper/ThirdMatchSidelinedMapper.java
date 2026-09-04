@@ -4,9 +4,7 @@ import com.panda.merge.model.ThirdMatchSidelined;
 import com.panda.merge.model.ThirdMatchSidelinedExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
-import org.springframework.stereotype.Repository;
 
-@Repository
 public interface ThirdMatchSidelinedMapper {
     long countByExample(ThirdMatchSidelinedExample example);
 

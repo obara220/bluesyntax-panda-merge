@@ -20,8 +20,6 @@ public interface StandardMarketCategoryService {
      * */
     Page<StandardMarketCategoryDetail> getItemPageByModifyTime(PageModel<StandardSportMarketCategoryDTO> page);
 
-    StandardMarketCategory getItemById(Long id);
-
     /**
      * 清理全量缓存
      * */

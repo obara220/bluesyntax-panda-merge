@@ -83,7 +83,6 @@ public class CommonProducer<T> {
 //    }
 
     public void asyncSend(Object request, String topic, String linkId) {
-        log.info("数据中心MQ消息转发：topic：{},linkId：{}",topic,linkId);
         MessageBuilder<Object> builder = MessageBuilder.withPayload(request).setHeader(MessageConst.PROPERTY_KEYS, linkId);
         rocketMqTemplate.asyncSend(topic, builder.build(), new SendCallback() {
             @Override
@@ -95,7 +94,6 @@ public class CommonProducer<T> {
                 log.error("::{}::TOPIC={}，数据中心MQ消息转发失败 send fail; ", linkId, topic, throwable);
             }
         });
-        log.info("数据中心MQ消息转发成功：topic：{},linkId：{}",topic,linkId);
     }
 
     /**

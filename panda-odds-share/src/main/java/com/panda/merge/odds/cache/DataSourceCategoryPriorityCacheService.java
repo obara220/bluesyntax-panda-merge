@@ -46,7 +46,7 @@ public class DataSourceCategoryPriorityCacheService {
         if (Objects.isNull(priority) || Objects.isNull(priority.getTp()) || priority.getTp() < 0) {
             return false;
         }
-        if (priority.getOp()!=null && priority.getTp() < priority.getOp()){
+        if (priority.getTp() < priority.getOp()){
             return true;
         }
 

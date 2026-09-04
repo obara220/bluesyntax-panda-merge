@@ -91,7 +91,7 @@ public class OutrightMarketOrderProcessor extends BaseProcessor {
         String marketKey = Constant.REDIS_KEY.RONGHE_STANDARD_MARKET + marketOrderMessage.getStandardMatchId() + "_" + standardMatchInfo.getDataSourceCode();
         log.info("::{}:: processOutrightMarketOrder redisKey={} ", linkId, marketKey);
         Map<String, StandardMarketDataMessage> standardMarketMessageMap = redisService.hGetAll(marketKey);
-        log.info("::{}:: processOutrightMarketOrder redisKey={}", linkId, marketKey );
+        log.info("::{}:: processOutrightMarketOrder redisKey={} standardMarketMessageMap::{}", linkId, marketKey, JSON.toJSONString(standardMarketMessageMap) );
         if (CollectionUtils.isEmpty(standardMarketMessageMap)) {
             log.info("::{}:: processOutrightMarketOrder standardMarketMessageMap is null", linkId);
             return;
@@ -176,21 +176,12 @@ public class OutrightMarketOrderProcessor extends BaseProcessor {
         swCalculate.start("editChampionMarketOrder冠军操盘全部盘口计算耗时");
         List<StandardMarketDataMessage> collect = standardMarketMessageMap.values().stream().filter(e -> marketIdSet.contains(e.getRelationMarketId())).collect(Collectors.toList());
         log.info("::{}:: editChampionMarketOrder processOddsByOutright:{}", linkId, JSON.toJSONString(collect));
-        //兼容冠军盘口的排序值
-        List<StandardOutrightMarket> outrightMarketOrderList = standardOutrightMarketService.selectOutrightMarketSellList(standardMatchInfo.getId());
-        Map<Long, Integer> marketOrderMap = new HashMap<>();
-        if (!CollectionUtils.isEmpty(outrightMarketOrderList)) {
-            marketOrderMap = outrightMarketOrderList.stream().collect(Collectors.toMap(StandardOutrightMarket::getId, StandardOutrightMarket::getMarketOrderNumber));
-        }
         //构建下发给下游的list集合
         List<StandardMarketMessage> standardMarketMessageSendListAUTO = new ArrayList<>();
         for (StandardMarketDataMessage marketDataMsg : collect) {
             //数据组装及转换(按relationMarketId、relationMarketOddsId下发盘口、赔率)
             StandardMarketMessage standardMarketMessage = thirdMatchMarketProcessor.convertStandardMarketMessage(linkId, marketDataMsg, standardMatchInfo.getOperateMatchStatus(), true,true, changeCategoryOddsType);
             log.info("::{}::editChampionMarketOrder 数据组装及转换后的赔率:{}", linkId, JSON.toJSONString(standardMarketMessage));
-            if (marketOrderMap.containsKey(standardMarketMessage.getId())) {
-                standardMarketMessage.setOrderNo(marketOrderMap.get(standardMarketMessage.getId()));
-            }
             //盘口状态处理
             ConfigOutrightTradeMarket configOutrightTradeMarket = outrightTradeMarketConfigService.selectItem(standardMatchInfo.getId(), standardMarketMessage.getId());
             if(null != configOutrightTradeMarket){
@@ -257,9 +248,6 @@ public class OutrightMarketOrderProcessor extends BaseProcessor {
             }
             //赔率优化(两项盘小数位优化)
             thirdMatchMarketProcessor.processOddsValueDecimals(linkId, standardMarketMessage, standardMatchInfo);
-            if ( null == standardMarketMessage.getNumberOfWinners() || standardMarketMessage.getNumberOfWinners() < 1 ) {
-                standardMarketMessage.setNumberOfWinners(1);
-            }
             standardMarketMessageSendListAUTO.add(standardMarketMessage);
         }
         //-------------赔率下发-----------------

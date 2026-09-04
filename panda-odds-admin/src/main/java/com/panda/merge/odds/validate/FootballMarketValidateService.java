@@ -5,7 +5,6 @@ import com.alibaba.nacos.api.config.annotation.NacosValue;
 import com.panda.merge.cache.CommonItem;
 import com.panda.merge.common.enums.*;
 import com.panda.merge.common.utils.ListUtils;
-import com.panda.merge.component.ClosedMarketPlaceSortHelper;
 import com.panda.merge.component.FootballMarketsSoreProcessor;
 import com.panda.merge.config.RedisService;
 import com.panda.merge.constant.MarginCategoryConfig;
@@ -22,7 +21,6 @@ import com.panda.merge.odds.cache.*;
 import com.panda.merge.odds.enums.MarketHandlingEnum;
 import com.panda.merge.odds.model.CategoryMarketMessageData;
 import com.panda.merge.odds.model.MatchMarketMessageData;
-import com.panda.merge.odds.service.FlowControlService;
 import com.panda.merge.odds.utils.MarketUtils;
 import com.panda.merge.service.MarketCategorySellService;
 import com.panda.merge.service.StandardSportMarketCategoryService;
@@ -39,7 +37,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -89,25 +86,18 @@ public class FootballMarketValidateService {
     private FootballScoreCacheService footballScoreCacheService;
 
     @Autowired
-    private BallHeadValidationService ballHeadValidationService;
-
-    @Autowired
     private StandardSportMarketNewService standardSportMarketNewService;
 
     @Autowired
     private StandardSportMarketOddsService standardSportMarketOddsService;
 
     @Autowired
+    private BallHeadValidationService ballHeadValidationService;
+    @Autowired
     private MarketCategorySellService marketCategorySellService;
-
-    @Autowired
-    private FlowControlService flowControlService;
-
-    @Autowired
-    private ClosedMarketPlaceSortHelper closedMarketPlaceSortHelper;
-
     @Value("#{'${ballhead.remove.decimal.categoryId}'.split(',')}")
     private Set<Long> ballHeadRemoveDecimalCategoryIdSet;
+
 
     public boolean shouldValidateFootball(StandardMatchInfo matchInfo) {
         if (Objects.isNull(matchInfo)) {
@@ -120,6 +110,7 @@ public class FootballMarketValidateService {
         if (Objects.equals(matchInfo.getDataSourceCode(), DataSourceCodeEnum.OD.getCode())){
             return false;
         }
+
         return footballValidateEnabled;
     }
 
@@ -131,10 +122,6 @@ public class FootballMarketValidateService {
             return marketMessageList;
         }
         if (CollectionUtils.isEmpty(marketMessageList)) {
-            return marketMessageList;
-        }
-        if (flowControlService.inFlowControl(standardMatchInfo.getId())) {
-            log.info("::{}::matchId:{} flow control, do not validate football match", linkId,standardMatchInfo.getId());
             return marketMessageList;
         }
         log.info("linkId:{},matchId:{}, validate football market,market size:{}",
@@ -256,7 +243,6 @@ public class FootballMarketValidateService {
             if (null != categorySetStatus) {
                 categoryStatus = categorySetStatus;
             }
-            log.info("::{}::玩法集状态缓存={},当前玩法状态={}",linkId,categorySetStatusMap,categorySetStatus);
             //D:盘口校验状态
             Integer paStatus = standardMarketMessage.getPaStatus();
 
@@ -370,9 +356,9 @@ public class FootballMarketValidateService {
                 standardMarketMessage.setRiskStatus(2);
                 standardMarketMessage.addRemark(MergeMarketStatusEnum.AUTO_CLOSE.name());
                 log.info("::{}::automaticClosing关盘兜底,三方盘口：{}，标准盘口：{}",
-                         linkId,
-                         standardMarketMessage.getThirdMarketSourceId(),
-                         standardMarketMessage.getId());
+                        linkId,
+                        standardMarketMessage.getThirdMarketSourceId(),
+                        standardMarketMessage.getId());
             }
             // A01 加时玩法被豁免时仍需走 validateMarket，避免 third=2 与 status=1 不一致
             categoryData.categoryClose = allMarketsAutoClosed;
@@ -527,7 +513,7 @@ public class FootballMarketValidateService {
             standardMarketMessageList.removeAll(removeMarket);
             standardMarketMessageList.addAll(addMarket);
             //找出变动玩法下所有盘口重新排序
-            againSortPlaceNum(linkId, standardMatchInfo.getId(), standardMarketMessageList, marketCategoryIds);
+            againSortPlaceNum(standardMarketMessageList, marketCategoryIds);
         }
     }
 
@@ -584,9 +570,9 @@ public class FootballMarketValidateService {
                                                                                        categorySetStatus.toString()));
                 break;
             case MARKET_END:
-                categoryData.operatorCount++;
+                //categoryData.operatorCount++;
                 standardMarketMessage.setMergeMarketStatus(MergeMarketStatusEnum.PLACE_NUM.code);
-                standardMarketMessage.setThirdMarketSourceStatus(resultStatus);
+                //standardMarketMessage.setThirdMarketSourceStatus(resultStatus);
                 standardMarketMessage.addRemark(MergeMarketStatusEnum.MARKET_END.name());
                 break;
             default:
@@ -640,7 +626,7 @@ public class FootballMarketValidateService {
                       categoryData.categoryId);
             return;
         }
-        if ((StringUtils.equalsAnyIgnoreCase(marketCategorySell.getDataSourceCode(), "LS", "TX","L02")) ||
+        if (StringUtils.equalsAnyIgnoreCase(marketCategorySell.getDataSourceCode(), "LS", "TX","L02") ||
                 categoryData.hasMultipleDataSources()) {
             return;
         }
@@ -718,7 +704,6 @@ public class FootballMarketValidateService {
                 standardMarketMessage.setPaStatusReason(MarketTipsLanguageEnum.getEnum(MarketTipsLanguageEnum.PLAY_STATUS_CLOSE.getCode(),
                                                                                        "0"));
                 standardMarketMessage.setStatus(Constant.SPORT_MARKET.STATUS.DEACTIVATED);
-                standardMarketMessage.setThirdMarketSourceStatus(Constant.SPORT_MARKET.STATUS.DEACTIVATED);
                 categoryData.categoryClose = true;
                 standardMarketMessage.addRemark(MergeMarketStatusEnum.CATEGORY_INVALID.name());
             });
@@ -772,46 +757,44 @@ public class FootballMarketValidateService {
         });
     }
 
-    private void closeDisplay(CategoryMarketMessageData categoryData, Map<String, Object> thirdMarketHeadCacheMap) {
+    private void closeDisplay(CategoryMarketMessageData categoryData,Map<String, Object> thirdMarketHeadCacheMap) {
         if (!CATEGORY_SCORE_TYPE_MAP.containsKey(categoryData.categoryId)) {
             return;
         }
         if (categoryData.categoryClose) {
             return;
         }
-        if (categoryData.operatorCount > 0) {
+        if (categoryData.operatorCount > 0 ) {
             return;
         }
         if (!categoryData.allClosed()) {
             return;
         }
-        if (!categoryData.marketSource()) {
-            return;
-        }
-
         Long categoryId = categoryData.categoryId;
-        String linkId = categoryData.matchData.linkId;
+
         CommonItem commonItem = footballScoreCacheService.getCacheScoreMarketScoreType(categoryData);
-        Integer cacheScoreSum = Objects.isNull(commonItem) ? 0 : commonItem.getScoreSum();
+        Integer cacheScoreSum = Objects.isNull(commonItem) ? null : commonItem.getScoreSum();
         List<StandardMarketMessage> marketMessages = categoryData.marketMessages;
         boolean isOverUnder = OVER_UNDER_SET.contains(categoryId);
-        boolean isHandicap = HANDICAP_SET.contains(categoryId);
+        StandardMarketMessage firstMarketCloseDisplay = null;
+        BigDecimal fOHead = null;
+        boolean anyPassed = false;
 
-        try {
-            String prefixKey = Constant.REDIS_KEY.THIRD_MARKET_HEAD + categoryData.matchData.getMatchId() + "_"
-                    + DataSourceCodeEnum.AO.code;
+        //要关转封，先获取A01数据
+        ThirdMarketDTO thirdMarketHeadCache = null;
+        try{
+            String prefixKey = Constant.REDIS_KEY.THIRD_MARKET_HEAD + categoryData.matchData.getMatchId() + "_" + DataSourceCodeEnum.AO.code;
             String key = prefixKey + "-" + categoryId;
-            ThirdMarketDTO thirdMarketHeadCache = (ThirdMarketDTO) thirdMarketHeadCacheMap.get(key);
-            if (thirdMarketHeadCache != null
-                    && (System.currentTimeMillis() - thirdMarketHeadCache.getModifyTime()) < footballValidateExpire
-                    && thirdMarketHeadCache.getStatus() < 2) {
-                againSortPlaceNum(linkId, categoryData.matchData.getMatchId(), marketMessages,
-                        new HashSet<>(Collections.singletonList(categoryId)));
+            thirdMarketHeadCache = (ThirdMarketDTO) thirdMarketHeadCacheMap.get(key);
+            if (thirdMarketHeadCache !=null
+                    && (System.currentTimeMillis() - thirdMarketHeadCache.getModifyTime())< footballValidateExpire
+                    && thirdMarketHeadCache.getStatus() < 2){
+                againSortPlaceNum(marketMessages, new HashSet<>(Arrays.asList(categoryId)));
                 for (StandardMarketMessage marketMessage : marketMessages) {
                     if (skipMarketCloseDisplay(marketMessage, categoryData)) {
                         continue;
                     }
-                    if (marketMessage.getPlaceNum() == 1) {
+                    if (marketMessage.getPlaceNum() == 1){
                         marketMessage.setThirdMarketSourceStatus(Constant.SPORT_MARKET.STATUS.SUSPENDED);
                         marketMessage.setStatus(Constant.SPORT_MARKET.STATUS.SUSPENDED);
                         marketMessage.setPaStatus(Constant.SPORT_MARKET.STATUS.SUSPENDED);
@@ -823,163 +806,59 @@ public class FootballMarketValidateService {
                         marketMessage.setAddition4(thirdMarketHeadCache.getAddition4());
                         marketMessage.setAddition5(thirdMarketHeadCache.getAddition5());
                         marketMessage.setPlaceNum(1);
-                        marketMessage.addRemark(String.format("ballhead from %s to %s",
-                                marketMessage.getThirdMarketSourceId(), thirdMarketHeadCache.getThirdMarketSourceId()));
-                        ballHeadsRemoveDecimal(marketMessage);
+                        marketMessage.addRemark(String.format("ballhead from %s to %s", marketMessage.getThirdMarketSourceId(), thirdMarketHeadCache.getThirdMarketSourceId()));
+                        marketMessage = ballHeadsRemoveDecimal(marketMessage);
                         refreshRelationMarketId(categoryData, marketMessage);
-                        redisService.hSet(Constant.REDIS_KEY.THIRD_MARKET_HEAD_CLOSE + categoryData.matchData.getMatchId(),
-                                categoryId.toString(), 1);
-                        dedupeByRelationMarketIdKeepMinPlaceNum(linkId, categoryData);
+                        redisService.hSet(Constant.REDIS_KEY.THIRD_MARKET_HEAD_CLOSE + categoryData.matchData.getMatchId(),categoryId.toString(),1);
                         return;
                     }
                 }
             }
-        } catch (Exception e) {
-            log.error("::{}::closeDisplay AO球头处理异常,categoryId:{}", linkId, categoryId, e);
+        }catch(Exception e){
+
         }
-
-        againSortPlaceNum(linkId, categoryData.matchData.getMatchId(), marketMessages,
-                new HashSet<>(Collections.singletonList(categoryId)));
-
         for (StandardMarketMessage marketMessage : marketMessages) {
             if (skipMarketCloseDisplay(marketMessage, categoryData)) {
                 continue;
             }
-            if (isOverUnder) {
-                applyOverUnderCloseDisplay(categoryData, marketMessage, commonItem, cacheScoreSum);
-            } else if (isHandicap) {
-                applyHandicapCloseDisplay(categoryData, marketMessage, commonItem, cacheScoreSum);
-            } else {
-                applyStatusOnlyCloseDisplay(categoryData, marketMessage, commonItem);
-            }
-        }
-        dedupeByRelationMarketIdKeepMinPlaceNum(linkId, categoryData);
-    }
 
-    private void applyOverUnderCloseDisplay(CategoryMarketMessageData categoryData,
-                                            StandardMarketMessage marketMessage,
-                                            CommonItem commonItem,
-                                            Integer cacheScoreSum) {
-        if (isScoreMismatch(marketMessage, commonItem)) {
-            BigDecimal oHead = null;
-            BigDecimal nHead = null;
+            BigDecimal oHead = null, nHead = null;
             String oHeadStr = MarketUtils.getBallhead(marketMessage);
             Integer marketScoreSum = marketMessage.scoreSum();
             if (StringUtils.isNotEmpty(oHeadStr)) {
-                oHead = new BigDecimal(oHeadStr);
-                nHead = oHead;
-                if (Objects.nonNull(cacheScoreSum) && Objects.nonNull(marketScoreSum)) {
-                    nHead = oHead
-                            .add(BigDecimal.valueOf(cacheScoreSum))
-                            .subtract(BigDecimal.valueOf(marketScoreSum))
-                            .max(BigDecimal.valueOf(cacheScoreSum).add(BigDecimal.valueOf(0.5)));
+                nHead = oHead = new BigDecimal(oHeadStr);
+                if (isOverUnder && Objects.nonNull(cacheScoreSum)) {
+                    if (Objects.nonNull(marketScoreSum)) {
+                        nHead = oHead
+                                .add(BigDecimal.valueOf(cacheScoreSum))
+                                .subtract(BigDecimal.valueOf(marketScoreSum))
+                                .max(BigDecimal.valueOf(cacheScoreSum).add(BigDecimal.valueOf(0.5)));
+                    }
                 }
             }
-            if (odNoScore(marketMessage, marketScoreSum)
-                    || nHead == null
-                    || !ballHeadValidationService.validate(nHead, cacheScoreSum, marketMessage, categoryData)) {
-                return;
-            }
-            doMarketCloseDisplay(categoryData, marketMessage, commonItem, oHead, nHead, cacheScoreSum);
-            return;
-        }
-        doMarketCloseDisplayCommon(marketMessage, commonItem);
-        refreshRelationMarketId(categoryData, marketMessage);
-    }
 
-    private void applyHandicapCloseDisplay(CategoryMarketMessageData categoryData,
-                                           StandardMarketMessage marketMessage,
-                                           CommonItem commonItem,
-                                           Integer cacheScoreSum) {
-        if (isScoreMismatch(marketMessage, commonItem)) {
-            if (Objects.isNull(commonItem) || Objects.isNull(commonItem.getHome()) || Objects.isNull(commonItem.getAway())) {
-                return;
+            if (!odNoScore(marketMessage, marketScoreSum) &&
+                    ballHeadValidationService.validate(nHead, cacheScoreSum, marketMessage, categoryData)) {
+                anyPassed = true;
+                doMarketCloseDisplay(categoryData, marketMessage, commonItem, oHead, nHead, cacheScoreSum);
+            } else if (marketMessage.getPlaceNum() == 1) {
+                firstMarketCloseDisplay = marketMessage;
+                fOHead = oHead;
             }
-            if (StringUtils.isBlank(marketMessage.getAddition1())) {
-                return;
-            }
-            BigDecimal add1 = new BigDecimal(marketMessage.getAddition1());
-            int cacheHome = commonItem.getHome();
-            int cacheAway = commonItem.getAway();
-            BigDecimal newAdd2 = add1.subtract(BigDecimal.valueOf(cacheHome - cacheAway));
-            if (!ballHeadValidationService.validate(newAdd2, cacheScoreSum, marketMessage, categoryData)) {
-                return;
-            }
-            String oldAdd2 = marketMessage.getAddition2();
-            doMarketCloseDisplayCommon(marketMessage, commonItem);
-            marketMessage.setAddition2(newAdd2.stripTrailingZeros().toPlainString());
-            if (oldAdd2 != null && !oldAdd2.equals(marketMessage.getAddition2())) {
-                marketMessage.addRemark(String.format("market value from %s to %s", oldAdd2, marketMessage.getAddition2()));
-            }
-            ballHeadsRemoveDecimal(marketMessage);
-            refreshRelationMarketId(categoryData, marketMessage);
-            log.info("linkId:{},standardMatchId:{},categoryId:{},marketId:{}, handicap closeDisplay, add1:{}, add2:{}",
-                    categoryData.matchData.linkId,
-                    categoryData.matchData.standardMatchInfo.getId(),
-                    categoryData.categoryId,
-                    marketMessage.getRelationMarketId(),
-                    marketMessage.getAddition1(),
-                    marketMessage.getAddition2());
-            return;
         }
-        doMarketCloseDisplayCommon(marketMessage, commonItem);
-        refreshRelationMarketId(categoryData, marketMessage);
-    }
+        if (!anyPassed && Objects.nonNull(firstMarketCloseDisplay)) {
+            if (OVER_UNDER_SET.contains(categoryData.categoryId) && Objects.nonNull(cacheScoreSum)) {
+                BigDecimal nHead = BigDecimal.valueOf(cacheScoreSum).add(BigDecimal.valueOf(0.5));
+                doMarketCloseDisplay(categoryData, firstMarketCloseDisplay, commonItem, fOHead, nHead, cacheScoreSum);
+            } else if (HANDICAP_SET.contains(categoryData.categoryId)) {
+                changeMarketCloseDisplayHandicap(categoryData, firstMarketCloseDisplay, commonItem);
+            }
 
-    private void applyStatusOnlyCloseDisplay(CategoryMarketMessageData categoryData,
-                                             StandardMarketMessage marketMessage,
-                                             CommonItem commonItem) {
-        doMarketCloseDisplayCommon(marketMessage, commonItem);
-        refreshRelationMarketId(categoryData, marketMessage);
-    }
-
-    private boolean isScoreMismatch(StandardMarketMessage marketMessage, CommonItem cacheScore) {
-        if (Objects.isNull(cacheScore) || Objects.isNull(cacheScore.getHome()) || Objects.isNull(cacheScore.getAway())) {
-            return false;
         }
-        return !StringUtils.equals(marketMessage.score(), cacheScore.getHome() + "_" + cacheScore.getAway());
-    }
-
-    private void dedupeByRelationMarketIdKeepMinPlaceNum(String linkId, CategoryMarketMessageData categoryData) {
-        List<StandardMarketMessage> messages = categoryData.marketMessages;
-        if (CollectionUtils.isEmpty(messages)) {
-            return;
-        }
-        Map<Long, StandardMarketMessage> bestByRelationId = new HashMap<>();
-        List<StandardMarketMessage> dropped = new ArrayList<>();
-        for (StandardMarketMessage market : messages) {
-            Long relationMarketId = market.getRelationMarketId();
-            if (relationMarketId == null) {
-                continue;
-            }
-            StandardMarketMessage existing = bestByRelationId.get(relationMarketId);
-            if (existing == null) {
-                bestByRelationId.put(relationMarketId, market);
-                continue;
-            }
-            StandardMarketMessage kept = pickCloseDisplayBySmallerPlaceNum(existing, market);
-            StandardMarketMessage removed = kept == existing ? market : existing;
-            dropped.add(removed);
-            log.info("::{}::关转封统一盘口id去重,categoryId:{},relationMarketId:{},保留坑位:{},剔除坑位:{}",
-                    linkId, categoryData.categoryId, relationMarketId, kept.getPlaceNum(), removed.getPlaceNum());
-            bestByRelationId.put(relationMarketId, kept);
-        }
-        if (dropped.isEmpty()) {
-            return;
-        }
-        messages.removeAll(dropped);
-        closedMarketPlaceSortHelper.compactPlaceNumsAfterDedupe(linkId, categoryData.categoryId, messages);
-        log.info("::{}::关转封统一盘口id去重完成,categoryId:{},剔除:{}",
-                linkId, categoryData.categoryId, dropped.size());
-    }
-
-    private StandardMarketMessage pickCloseDisplayBySmallerPlaceNum(StandardMarketMessage m1, StandardMarketMessage m2) {
-        Integer p1 = m1.getPlaceNum() == null ? ClosedMarketPlaceSortHelper.UNKNOWN_PLACE_NUM : m1.getPlaceNum();
-        Integer p2 = m2.getPlaceNum() == null ? ClosedMarketPlaceSortHelper.UNKNOWN_PLACE_NUM : m2.getPlaceNum();
-        return p1 <= p2 ? m1 : m2;
+        removeDuplicate(categoryData);
     }
     public StandardMarketMessage ballHeadsRemoveDecimal(StandardMarketMessage standardMarketMessage) {
-        //if (ballHeadRemoveDecimalCategoryIdSet.contains(standardMarketMessage.getMarketCategoryId())) {
+        if (ballHeadRemoveDecimalCategoryIdSet.contains(standardMarketMessage.getMarketCategoryId())) {
             if (StringUtils.isNotBlank(standardMarketMessage.getAddition1()) && standardMarketMessage.getAddition1().contains(".0")) {
                 standardMarketMessage.setAddition1(standardMarketMessage.getAddition1().replace(".0", ""));
             }
@@ -1027,7 +906,7 @@ public class FootballMarketValidateService {
             if (StringUtils.isNotBlank(standardMarketMessage.getAddition5()) && standardMarketMessage.getAddition5().contains(".50")) {
                 standardMarketMessage.setAddition5(standardMarketMessage.getAddition5().replace(".50", ".5"));
             }
-       // }
+        }
         return standardMarketMessage;
     }
     private void doMarketCloseDisplay(CategoryMarketMessageData categoryData,
@@ -1042,7 +921,6 @@ public class FootballMarketValidateService {
             marketMessage.addRemark(String.format("ballhead from %s to %s", oValue, nValue));
             MarketUtils.setBallhead(marketMessage, String.valueOf(nValue));
         }
-        ballHeadsRemoveDecimal(marketMessage);
         refreshRelationMarketId(categoryData, marketMessage);
         log.info("linkId:{},standardMatchId:{},categoryId:{},markedId:{}, closeDisplay, old ballhead:{},new " +
                          "ballhead:{}," + "marketScoreSum:{}," + "cacheScoreSum:{}",
@@ -1051,6 +929,47 @@ public class FootballMarketValidateService {
                  categoryData.categoryId, marketMessage.getRelationMarketId(), oValue, nValue,
                  marketMessage.scoreSum(),
                  cacheScoreSum);
+    }
+
+    private void changeMarketCloseDisplayHandicap(CategoryMarketMessageData categoryData,
+                                                  StandardMarketMessage marketMessage,
+                                                  CommonItem commonItem) {
+        if (Objects.isNull(commonItem) || Objects.isNull(commonItem.getHome()) ||
+                Objects.isNull(commonItem.getAway())) {
+            return;
+        }
+        if (!categoryData.marketSource()) {
+            return;
+        }
+
+        BigDecimal oValue = null, nValue = null;
+        String oValueStr = marketMessage.getAddition2();
+        if (StringUtils.isNotEmpty(oValueStr)) {
+            oValue = new BigDecimal(oValueStr);
+        }
+
+        BigDecimal ad3 = new BigDecimal(commonItem.getHome());
+        BigDecimal ad4 = new BigDecimal(commonItem.getAway());
+        MarketUtils.setBallhead(marketMessage,"0");
+        nValue = BigDecimal.ZERO.add(ad4).subtract(ad3);//(ad2 = ad1 + （ad4-ad3）)
+        doMarketCloseDisplayCommon(marketMessage, commonItem);
+
+        if (oValue != null && !oValue.equals(nValue)) {
+            marketMessage.setAddition2(String.valueOf(nValue));
+            marketMessage.addRemark(String.format("market value from %s to %s", oValue, nValue));
+            refreshRelationMarketId(categoryData, marketMessage);
+        }
+
+        log.info("linkId:{},standardMatchId:{},categoryId:{},markedId:{}, closeDisplay, old marketValue:{},new " +
+                         "marketValue:{}," + "marketScoreSum:{}," + "cacheScoreSum:{}",
+                 categoryData.matchData.linkId,
+                 categoryData.matchData.standardMatchInfo.getId(),
+                 categoryData.categoryId,
+                 marketMessage.getRelationMarketId(),
+                 oValue,
+                 nValue,
+                 marketMessage.scoreSum(),
+                 commonItem.getScoreSum());
     }
 
     private boolean skipMarketCloseDisplay(StandardMarketMessage marketMessage,
@@ -1118,22 +1037,61 @@ public class FootballMarketValidateService {
         return 0;
     }
 
+    private void removeDuplicate(CategoryMarketMessageData categoryData) {
+        Long categoryId = categoryData.categoryId;
+        if (CollectionUtils.isEmpty(categoryData.marketMessages)) {
+            return;
+        }
+        if (!OVER_UNDER_SET.contains(categoryId) && !HANDICAP_SET.contains(categoryId)) {
+            return;
+        }
+        categoryData.marketMessages = new ArrayList<>(categoryData.marketMessages
+                                                              .stream()
+                                                              .collect(Collectors.toMap(StandardMarketMessage::getRelationMarketId,
+                                                                                        message -> message,
+                                                                                        this::mergeMarket)).values());
+        if (HANDICAP_SET.contains(categoryId)) {
+            categoryData.marketMessages = new ArrayList<>(categoryData.marketMessages
+                                                                  .stream()
+                                                                  .collect(Collectors.toMap(StandardMarketMessage::getAddition1,
+                                                                                            message -> message,
+                                                                                            this::mergeMarket))
+                                                                  .values());
+        }
+    }
+
+    private StandardMarketMessage mergeMarket(StandardMarketMessage m1, StandardMarketMessage m2) {
+
+        Integer s1 = m1.getMergeMarketStatus();
+        Integer s2 = m2.getMergeMarketStatus();
+        if (Objects.equals(MergeMarketStatusEnum.CLOSE_DISPLAY.code, s1) &&
+                Objects.equals(MergeMarketStatusEnum.CLOSE_DISPLAY.code, s2)) {
+
+            Integer p1 = m1.getPlaceNum();
+            Integer p2 = m2.getPlaceNum();
+            if (Objects.nonNull(p1) && Objects.nonNull(p2) && p1 <= p2) {
+                return m1;
+            }
+            return m2;
+        }
+
+        if (Objects.equals(MergeMarketStatusEnum.CLOSE_DISPLAY.code, s1))
+            return m1;
+        return m2;
+    }
+
     /**
      * 重新排序
      *
      * @param standardMarketMessageList
      */
-    private void againSortPlaceNum(String linkId, Long matchId, List<StandardMarketMessage> standardMarketMessageList, Set<Long> marketCategoryIds) {
+    private void againSortPlaceNum(List<StandardMarketMessage> standardMarketMessageList, Set<Long> marketCategoryIds) {
         Map<Long, List<StandardMarketMessage>> standardMarketMessagesMap = standardMarketMessageList
                 .stream()
                 .filter(standardMarketMessage -> marketCategoryIds.contains(standardMarketMessage.getMarketCategoryId()))
                 .collect(Collectors.groupingBy(StandardMarketMessage::getChildMarketCategoryId));
         for (Map.Entry<Long, List<StandardMarketMessage>> entry : standardMarketMessagesMap.entrySet()) {
             List<StandardMarketMessage> standardMarketMessages = entry.getValue();
-            if (closedMarketPlaceSortHelper.isAllClosedForPlaceSort(standardMarketMessages)) {
-                closedMarketPlaceSortHelper.sortClosedStandardMarkets(linkId, matchId, entry.getKey(), standardMarketMessages, standardMarketMessageList);
-                continue;
-            }
             // 算出投注项赔率差
             standardMarketMessages.forEach(m -> {
                 if (!CollectionUtils.isEmpty(m.getMarketOddsList())) {

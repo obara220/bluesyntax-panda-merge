@@ -19,23 +19,6 @@
         order by modify_time, id
     </select>
 
-    <select id="getTournamentRulePage" parameterType="com.panda.merge.dto.StandardTournamentRuleDTO" resultMap="com.panda.merge.mapper.ThirdSportTournamentMapper.ResultMapWithBLOBs">
-        SELECT
-            reference_id,
-            zs_tournament_rule
-        FROM
-            third_sport_tournament
-        WHERE
-            modify_time &gt;= #{beginTime}
-            <if test="endTime != null">
-                and modify_time &lt;= #{endTime}
-            </if>
-          AND data_source_code = #{dataSourceCode}
-          AND reference_id != 0
-          AND reference_id IS NOT NULL
-          AND zs_tournament_rule IS NOT NULL
-        order by
-            modify_time, id
-    </select>
+
 
 </mapper>

@@ -1,10 +1,7 @@
 package com.panda.merge.rocketmq.producer;
 
 import cn.hutool.json.JSONUtil;
-import com.alibaba.fastjson.JSON;
 import com.panda.merge.common.utils.CommUtils;
-import com.panda.merge.constant.ConstantSystem;
-import com.panda.merge.dto.PlayerModifyDTO;
 import com.panda.merge.dto.Request;
 import com.panda.merge.dto.ThirdSportPlayerDetail;
 import com.panda.merge.model.DataSource;
@@ -13,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.common.message.MessageConst;
 import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
 
@@ -55,24 +51,5 @@ public class ThirdSportPlayerProducer {
         MessageBuilder<String> builder = MessageBuilder.withPayload(JSONUtil.toJsonStr(request)).setHeader(MessageConst.PROPERTY_KEYS, linkId);
         rocketMqTemplate.syncSend(THIRD_SPORT_PLAYER_PLS +":"+ item.getThirdSourcePlayerId(), builder.build(), SECOND_1 * THREE,ONE);
         log.info("【"+ PROJECT_ID_NOREALTIME +" ："+ THIRD_SPORT_PLAYER_PLS+"】【{} : {}】推送三方球员给比分网后台完成【topic : "+ THIRD_SPORT_PLAYER_PLS +"】 ,id:{},thirdSourcePlayerId:{}", dataSource.getCode(),linkId,item.getId(),item.getThirdSourcePlayerId());
-    }
-
-    /**
-     * 球员信息变动预警
-     * @param linkId
-     * @param standardMatchInfo
-     */
-    public void pushPlayerModifyAlert(String linkId, PlayerModifyDTO playerModifyDTO) {
-
-        Request<PlayerModifyDTO> request = new Request<>(playerModifyDTO, linkId, ConstantSystem.PLAYER_MODIFY_ALERT, String.valueOf(playerModifyDTO.getStandardMatchId()), null);
-        try {
-            Message<String> message = MessageBuilder.withPayload(JSON.toJSONString(request))
-                    .setHeader(MessageConst.PROPERTY_KEYS, request.getLinkId())
-                    .build();
-            rocketMqTemplate.send(ConstantSystem.PLAYER_MODIFY_ALERT +":"+ playerModifyDTO.getStandardMatchId(), message);
-        } catch (Exception e) {
-            log.error("球员信息变动预警下发异常, linkId={}, topic={} 赛事id={}", linkId, PLAYER_MODIFY_ALERT , playerModifyDTO.getStandardMatchId(), e);
-        }
-        log.info("球员信息变动预警下发, linkId={}, topic={} playerModifyDTO={}", linkId, PLAYER_MODIFY_ALERT , JSONUtil.toJsonStr(playerModifyDTO));
     }
 }

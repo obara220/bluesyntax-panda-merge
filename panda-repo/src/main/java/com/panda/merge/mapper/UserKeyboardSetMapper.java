@@ -62,22 +62,4 @@ public interface UserKeyboardSetMapper {
      * @return 删除数量
      */
     int deleteKeyboardByUserIdList(@Param("userIds") List<String> userIds);
-
-    /**
-     * 按球种批量查找
-     *
-     * @param userIds  用户ID列表
-     * @param sportId  球种ID
-     * @return 热键列表
-     */
-    List<UserKeyboardSet> selectKeyboardByUserIdListAndSportId(@Param("userIds") List<String> userIds, @Param("sportId") Long sportId);
-
-    /**
-     * 按球种批量删除（仅删除指定球种的热键，不跨球种误删）
-     *
-     * @param userIds  用户ID列表
-     * @param sportId  球种ID
-     * @return 删除数量
-     */
-    int deleteKeyboardByUserIdListAndSportId(@Param("userIds") List<String> userIds, @Param("sportId") Long sportId);
 }

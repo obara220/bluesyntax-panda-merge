@@ -58,10 +58,10 @@ public class CheckStandardMatchMarketJob extends BaseProcessor {
     @NacosValue(value = "${market.pre.switch}", autoRefreshed = true)
     private boolean marketPreSwitch;
     //设置每5s检测一次
-//    @Scheduled(cron = "*/5 * * * * ?")
+    @Scheduled(cron = "*/5 * * * * ?")
     public void check() {
         if (!marketPreSwitch) {
-            //log.info("提前结算NACOS关,定时任务不处理");
+            log.info("提前结算NACOS关,定时任务不处理");
             return;
         }
         String lockKey = RedisConfig.REDIS_KEY_DATABASE + "::job:checkStandardMatch";
@@ -70,7 +70,7 @@ public class CheckStandardMatchMarketJob extends BaseProcessor {
             if (!redisService.tryLockOnce(lockKey, lockKey, REDIS_FOUR_SECOND)) {
                 return;
             }
-//            //log.info("【CheckStandardMatchMarketJob 提前结算,获取NACOS定时时间为：{}】", closeTime);
+//            log.info("【CheckStandardMatchMarketJob 提前结算,获取NACOS定时时间为：{}】", closeTime);
             JSONObject closeTimeObj = JSONObject.parseObject(closeTime);
 
             //提前结算是否关盘检测缓存 Map<标准盘口ID，标准提前结算盘口参数>
@@ -88,19 +88,20 @@ public class CheckStandardMatchMarketJob extends BaseProcessor {
 
                     if (null == standardMatchInfo) {
                         redisService.hDel(checkStandardMatchInfo, standardMatchId);
-//                        //log.info("::{}::【CheckStandardMatchMarketJob 提前结算是否关盘检测任务失败,标准赛事不存在:{}】", linkId, standardMatchId);
+//                        log.info("::{}::【CheckStandardMatchMarketJob 提前结算是否关盘检测任务失败,标准赛事不存在:{}】", linkId, standardMatchId);
                         continue;
                     }
+                    standardMatchInfo.setMatchPeriodId(getMatchPeriod(standardMatchInfo.getId()));
                     //赛事未到LIVE状态、中场休息阶段 不下发
                     if (!standardMatchInfo.getMatchStatus().equals(MatchStatusEnum.Live.value)
                             || Constant.FOOT_BALL_PERIOD_FILTER_WARNING.contains(standardMatchInfo.getMatchPeriodId())) {
-//                        //log.info("::{}::【CheckStandardMatchMarketJob 提前结算,赛事处于LIVE状态、中场休息阶段,不下发:{}】", linkId, standardMatchId);
+//                        log.info("::{}::【CheckStandardMatchMarketJob 提前结算,赛事处于LIVE状态、中场休息阶段,不下发:{}】", linkId, standardMatchId);
                         continue;
                     }
 
                     //清除缓存(判定条件:比赛是否结束)
                     if (YesNoEnum.Y.value.equals(standardMatchInfo.getMatchOver())) {
-//                        //log.info("::{}::【CheckStandardMatchMarketJob 提前结算是否关盘检测任务,清除提前结算辅助信息缓存，标准赛事ID：{}】", linkId, standardMatchId);
+//                        log.info("::{}::【CheckStandardMatchMarketJob 提前结算是否关盘检测任务,清除提前结算辅助信息缓存，标准赛事ID：{}】", linkId, standardMatchId);
                         redisService.hDel(checkStandardMatchInfo, standardMatchId);
                         continue;
                     }
@@ -113,7 +114,7 @@ public class CheckStandardMatchMarketJob extends BaseProcessor {
                             standardMatchMarketPreResultMessageMap = redisService.hGetAll(standardPreMarketKey);
                     //判定提前结算列表是否存在
                     if (CollectionUtils.isEmpty(standardMatchMarketPreResultMessageMap) || 0 == standardMatchMarketPreResultMessageMap.size()) {
-//                        //log.info("【::{}::CheckStandardMatchMarketJob 提前结算是否关盘检测任务失败,提前结算盘口不存在,赛事信息为：{}】", linkId, standardMatchId);
+//                        log.info("【::{}::CheckStandardMatchMarketJob 提前结算是否关盘检测任务失败,提前结算盘口不存在,赛事信息为：{}】", linkId, standardMatchId);
                         continue;
                     }
                     //系统时间 - 获取参数时间 > 8s 表示 （8s内上游没有再下发数据，直接关盘）
@@ -126,7 +127,7 @@ public class CheckStandardMatchMarketJob extends BaseProcessor {
                         StandardMatchMarketPreResultMessage marketMessage = standardMatchMarketPreResultMessageMap.get(key);
                         //判定thirdSportSendTime是否为空,为空不进行后面流程
                         if (null == marketMessage.getThirdSportSendTime() || 0L == marketMessage.getThirdSportSendTime()) {
-//                            //log.info("【::{}::CheckStandardMatchMarketJob 提前结算是否关盘检测任务失败,第三方数据商下发数据时间为空,结束后续流程:{}】", linkId, marketMessage);
+//                            log.info("【::{}::CheckStandardMatchMarketJob 提前结算是否关盘检测任务失败,第三方数据商下发数据时间为空,结束后续流程:{}】", linkId, marketMessage);
                             continue;
                         }
                         Long marketCategoryId = marketMessage.getMarketCategoryId();
@@ -138,7 +139,7 @@ public class CheckStandardMatchMarketJob extends BaseProcessor {
                             marketMessage.setCashOutStatus(-1);
                             redisService.hSet(standardPreMarketKey, key, marketMessage, marketCacheTime(standardMatchInfo.getBeginTime()));
                             marketPreResultMessageList.add(marketMessage);
-//                            //log.info("【::{}::CheckStandardMatchMarketJob 提前结算盘口信息更改成功:{}】", linkId, marketMessage);
+//                            log.info("【::{}::CheckStandardMatchMarketJob 提前结算盘口信息更改成功:{}】", linkId, marketMessage);
 
                         }
                     }
@@ -146,10 +147,10 @@ public class CheckStandardMatchMarketJob extends BaseProcessor {
                     if (!CollectionUtils.isEmpty(marketPreResultMessageList)) {
                         standardMatchPreResultProducer.sendStandardMatchPreResult(linkId, standardMatchInfo, standardMatchInfo.getSportId(),
                                 marketPreResultMessageList, marketPreResultMessageList.get(0).getMatchPreStatus(), System.currentTimeMillis());
-                        //log.info("::{}::CheckStandardMatchMarketJob 提前结算MQ数据下发成功,标准赛事id:{}", linkId, standardMatchInfo.getId());
+                        log.info("::{}::CheckStandardMatchMarketJob 提前结算MQ数据下发成功,标准赛事id:{}", linkId, standardMatchInfo.getId());
 
                     } else {
-//                        //log.info("::{}::CheckStandardMatchMarketJob 提前结算,marketPreResultMessageList为空,标准赛事id:{}", linkId, standardMatchInfo.getId());
+//                        log.info("::{}::CheckStandardMatchMarketJob 提前结算,marketPreResultMessageList为空,标准赛事id:{}", linkId, standardMatchInfo.getId());
                         }
                 }
             }

@@ -219,7 +219,7 @@ public class SettleTemplateServiceImpl implements ISettleTemplateService {
         return weight>=50&&weight>weight2;
     }
 
-    public Long getGrayId(Long standardMatchId,String dataSourceCode, String grayType, Integer min) {
+    private Long getGrayId(Long standardMatchId,String dataSourceCode, String grayType, Integer min) {
         Integer i=DATA_SOURCE_CODE_LIST.indexOf(dataSourceCode.trim());
         Integer type=0;
         if("min15Goal".equals(grayType)){

@@ -34,7 +34,8 @@ public class MatchOddWarningProducer {
         matchOddsWarningMessage.setMarketCategoryId(marketCategoryId);
         matchOddsWarningMessage.setSign(sign);
         matchOddsWarningMessage.setLinkId(linkId);
-        MessageBuilder<MatchOddsWarningMessage> builder = MessageBuilder.withPayload(matchOddsWarningMessage).setHeader(MessageConst.PROPERTY_KEYS, linkId);
+        MessageBuilder<MatchOddsWarningMessage> builder = MessageBuilder.withPayload(matchOddsWarningMessage)
+                .setHeader(MessageConst.PROPERTY_KEYS, linkId);
         rocketMqTemplate.send("MATCH_ODDS_WARNING_RISK:" + standardMatchInfoId + ":" + marketCategoryId, builder.build());
         log.info("::{}::通知风控赔率告警,topic=MATCH_ODDS_WARNING_RISK,消息体:{}", linkId, JSON.toJSONString(matchOddsWarningMessage));
     }

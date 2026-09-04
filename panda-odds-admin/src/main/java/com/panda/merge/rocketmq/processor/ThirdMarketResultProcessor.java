@@ -188,14 +188,15 @@ public class ThirdMarketResultProcessor extends BaseProcessor {
                 }
             }
             //下发数据到topic
-            if (isNeedSend)
+            standardMatchResultProducer.pushStandardMatchResultInfo(linkId, thirdMatchResultDTO.getMatchType(), standardSettledList, standardSportMarket, thirdMatchInfo ,thirdMarketResultDTO,thirdMatchInfo.getReferenceId());
+            /*if (isNeedSend)
             {
                 standardMatchResultProducer.pushStandardMatchResultInfo(linkId, thirdMatchResultDTO.getMatchType(), standardSettledList, standardSportMarket, thirdMatchInfo ,thirdMarketResultDTO,thirdMatchInfo.getReferenceId());
             }
             else
             {
                 log.info("::{}::标准赔率各个投注项赛果一致，不下发赛果:{},", linkId, thirdMarketResultDTO);
-            }
+            }*/
             //冠军玩法赛果统计
             if(MarginCategoryConfig.STANDARD_OUTRIGHT_CATEGORY.contains(standardSportMarket.getMarketCategoryId())){
                 StandardOutrightMatchCategory standardOutrightMatchCategory = new StandardOutrightMatchCategory();

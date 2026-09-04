@@ -4,9 +4,7 @@ import com.panda.merge.model.ThirdMatchTeamSkillStatistics;
 import com.panda.merge.model.ThirdMatchTeamSkillStatisticsExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
-import org.springframework.stereotype.Repository;
 
-@Repository
 public interface ThirdMatchTeamSkillStatisticsMapper {
     long countByExample(ThirdMatchTeamSkillStatisticsExample example);
 

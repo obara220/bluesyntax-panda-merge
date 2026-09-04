@@ -120,15 +120,13 @@ public class LanguageInternationServiceImpl extends BaseServiceImpl<LanguageInte
         }
         //球队、球员、联赛国际化信息变更时推送赛程MQ
         if(!CollectionUtils.isEmpty(list)){
-            Long nameCode = list.get(0).getNameCode();
-            if(redisService.hasKey("THIRD_TEAM_TOURNAMENT_UPDATE:" + nameCode)){
+            Long nameCode = (Long) redisService.get("THIRD_TEAM_TOURNAMENT_UPDATE:" + list.get(0).getNameCode());
+            if(null != nameCode){
                 Map<String, Long> map = new HashMap<>();
                 map.put("nameCode", nameCode);
                 MessageBuilder<String> builder = MessageBuilder.withPayload(JSON.toJSONString(map)).setHeader(MessageConst.PROPERTY_KEYS, nameCode);
                 rocketMqTemplate.send(THIRD_TEAM_TOURNAMENT_UPDATE_REDIS+":"+nameCode, builder.build());
-                log.info("linkId={},球队球员联赛国际化信息变更后推送完成, topic : "+THIRD_TEAM_TOURNAMENT_UPDATE_REDIS+", nameCode={}, dataSourceCode={}", linkId, nameCode, list.get(0).getDataSourceCode());
-                //通知后清理缓存
-                redisService.del("THIRD_TEAM_TOURNAMENT_UPDATE:" + nameCode);
+                log.info("::{}, 球队球员联赛国际化信息变更后推送完成, topic : "+THIRD_TEAM_TOURNAMENT_UPDATE_REDIS+", nameCode={}, dataSourceCode={}", linkId, nameCode, list.get(0).getNameCode());
             }
         }
         return list;

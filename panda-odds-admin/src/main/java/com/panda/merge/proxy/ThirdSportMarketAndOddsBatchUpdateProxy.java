@@ -70,9 +70,8 @@ public class ThirdSportMarketAndOddsBatchUpdateProxy {
                 "        addition2, addition3, addition4,\n" +
                 "        addition5, remark, create_time,\n" +
                 "        modify_time, extra_info, third_market_source_status,\n" +
-                "        offer_line_id, number_of_winners, internal_data_source_code,\n" +
-                "        event_type) " +
-                " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                "        offer_line_id, number_of_winners, internal_data_source_code ) " +
+                " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         oddsJdbcTemplate.batchUpdate(sql,
                 new BatchPreparedStatementSetter() {
                     public void setValues(PreparedStatement ps, int i) throws SQLException {
@@ -106,7 +105,6 @@ public class ThirdSportMarketAndOddsBatchUpdateProxy {
                         ps.setInt(28, Objects.isNull(thirdSportMarkets.get(i).getOfferLineId()) ? 0 : thirdSportMarkets.get(i).getOfferLineId());
                         ps.setInt(29, Objects.isNull(thirdSportMarkets.get(i).getNumberOfWinners()) ? 0 : thirdSportMarkets.get(i).getNumberOfWinners());
                         ps.setString(30, Objects.isNull(thirdSportMarkets.get(i).getInternalDataSourceCode()) ? null : thirdSportMarkets.get(i).getInternalDataSourceCode());
-                        ps.setInt(31, Objects.isNull(thirdSportMarkets.get(i).getEventType()) ? 0 : thirdSportMarkets.get(i).getEventType());
                     }
                     public int getBatchSize() {
                         return thirdSportMarkets.size();
@@ -124,22 +122,6 @@ public class ThirdSportMarketAndOddsBatchUpdateProxy {
             e.printStackTrace();
             log.info("::{}::batchMarketInsert，三方盘口新增,批量接收数据：{}，清理缓存：{}，错误信息：：{}", linkId, JSONObject.toJSONString(thirdSportMarkets), keyList, e.getMessage());
         }
-
-
-     /*   try {
-            int i = thirdSportMarketDao.insertList(thirdSportMarkets);
-            System.out.println("三方盘口执行完成" + i);
-        } catch (DuplicateKeyException e) {
-            log.info("::{}::batchMarketInsert，三方盘口批量新增：{}，出现主键冲突", linkId, JSONObject.toJSONString(thirdSportMarkets), e);
-            //出现主键冲突，重新设置主键后，改为单条新增 ,要重新设置下缓存数据
-            for (ThirdSportMarket thirdSportMarket : thirdSportMarkets) {
-                thirdSportMarket.setId(UUIdUtils.getId());
-                thirdSportMarketMapper.insert(thirdSportMarket);
-                String key = RedisConfig.REDIS_KEY_DATABASE + "::ThirdSportMarket:" + thirdSportMarket.getMatchId() + "-" + thirdSportMarket.getThirdMarketSourceId();
-                redisService.set(key, thirdSportMarket);
-                log.info("::{}::batchMarketInsert，三方盘口批量新增：{}，出现主键冲突后再次单条入库", linkId, JSONObject.toJSONString(thirdSportMarket));
-            }
-        }*/
     }
 
     /**
@@ -158,7 +140,6 @@ public class ThirdSportMarketAndOddsBatchUpdateProxy {
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
         if(CollectionUtils.isEmpty(thirdSportMarkets)){
-            log.info("::{}:: batchMarketUpdate，三方盘口修改,批量接收数据不存在: {} requests: {}", linkIds, uuid, JSONObject.toJSONString(requests));
             return;
         }
         try {
@@ -190,9 +171,8 @@ public class ThirdSportMarketAndOddsBatchUpdateProxy {
                             "  `extra_info` = ?," +
                             "  `third_market_source_status` = ?," +
                             "  `offer_line_id` = ?," +
-                            "  `number_of_winners` = ?," +
-                            "  `internal_data_source_code` = ?," +
-                            "  `event_type` = ? " +
+                            "  `number_of_winners` = ?, " +
+                            "  `internal_data_source_code` = ? " +
                             "WHERE " +
                             "  `id` = ?" +
                             " and "+
@@ -228,9 +208,8 @@ public class ThirdSportMarketAndOddsBatchUpdateProxy {
                             ps.setInt(27, Objects.isNull(thirdSportMarkets.get(i).getOfferLineId())? 0 :thirdSportMarkets.get(i).getOfferLineId());
                             ps.setInt(28, Objects.isNull(thirdSportMarkets.get(i).getNumberOfWinners())? 0 :thirdSportMarkets.get(i).getNumberOfWinners());
                             ps.setString(29, Objects.isNull(thirdSportMarkets.get(i).getInternalDataSourceCode())? null :thirdSportMarkets.get(i).getInternalDataSourceCode());
-                            ps.setInt(30, Objects.isNull(thirdSportMarkets.get(i).getEventType())? 0 : thirdSportMarkets.get(i).getEventType());
-                            ps.setLong(31, thirdSportMarkets.get(i).getId());
-                            ps.setLong(32, thirdSportMarkets.get(i).getModifyTime());
+                            ps.setLong(30, thirdSportMarkets.get(i).getId());
+                            ps.setLong(31, thirdSportMarkets.get(i).getModifyTime());
                         }
                         public int getBatchSize() {
                             return thirdSportMarkets.size();
@@ -269,57 +248,57 @@ public class ThirdSportMarketAndOddsBatchUpdateProxy {
             List<ThirdSportMarketOdds> thirdSportMarketOdds = entry.getValue();
             log.info("::{}::三方盘口赔率新增,批量接收数据: {}，开始入库数据源：{}", linkId, thirdSportMarketOdds.size(),dataSourceCode);
             try {
-                String sql = " insert into third_sport_market_odds_"+dataSourceCode.toLowerCase()+
-                        "(id, market_id, reference_id,\n" +
-                        "        active, settlement_result_text, settlement_result,\n" +
-                        "        bet_settlement_certainty, odds_type, addition1,\n" +
-                        "        addition2, addition3, addition4,\n" +
-                        "        addition5, third_odds_field_source_id, order_odds,\n" +
-                        "        name_code, name_expression_value, odds_value,\n" +
-                        "        pa_odds_value, original_odds_value, odds_fields_template_id,\n" +
-                        "        third_template_source_id, target_side, data_source_code,\n" +
-                        "        remark, create_time, modify_time,\n" +
-                        "        extra_info, name, third_match_id\n" +
-                        "        )" +
-                        " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                oddsJdbcTemplate.batchUpdate(sql,
-                        new BatchPreparedStatementSetter() {
-                            public void setValues(PreparedStatement ps, int i) throws SQLException {
-                                ps.setLong(1, Objects.isNull(thirdSportMarketOdds.get(i).getId()) ? 0 : thirdSportMarketOdds.get(i).getId());
-                                ps.setLong(2, Objects.isNull(thirdSportMarketOdds.get(i).getMarketId()) ? 0 : thirdSportMarketOdds.get(i).getMarketId());
-                                ps.setLong(3, Objects.isNull(thirdSportMarketOdds.get(i).getReferenceId()) ? 0 : thirdSportMarketOdds.get(i).getReferenceId());
-                                ps.setInt(4, Objects.isNull(thirdSportMarketOdds.get(i).getActive()) ? 0 : thirdSportMarketOdds.get(i).getActive());
-                                ps.setString(5, Objects.isNull(thirdSportMarketOdds.get(i).getSettlementResultText()) ? null : thirdSportMarketOdds.get(i).getSettlementResultText());
-                                ps.setString(6, Objects.isNull(thirdSportMarketOdds.get(i).getSettlementResult()) ? null : thirdSportMarketOdds.get(i).getSettlementResult());
-                                ps.setString(7, Objects.isNull(thirdSportMarketOdds.get(i).getBetSettlementCertainty()) ? null : thirdSportMarketOdds.get(i).getBetSettlementCertainty());
-                                ps.setString(8, Objects.isNull(thirdSportMarketOdds.get(i).getOddsType()) ? null : thirdSportMarketOdds.get(i).getOddsType());
-                                ps.setString(9, Objects.isNull(thirdSportMarketOdds.get(i).getAddition1()) ? null : thirdSportMarketOdds.get(i).getAddition1());
-                                ps.setString(10, Objects.isNull(thirdSportMarketOdds.get(i).getAddition2()) ? null : thirdSportMarketOdds.get(i).getAddition2());
-                                ps.setString(11, Objects.isNull(thirdSportMarketOdds.get(i).getAddition3()) ? null : thirdSportMarketOdds.get(i).getAddition3());
-                                ps.setString(12, Objects.isNull(thirdSportMarketOdds.get(i).getAddition4()) ? null : thirdSportMarketOdds.get(i).getAddition4());
-                                ps.setString(13, Objects.isNull(thirdSportMarketOdds.get(i).getAddition5()) ? null : thirdSportMarketOdds.get(i).getAddition5());
-                                ps.setString(14, Objects.isNull(thirdSportMarketOdds.get(i).getThirdOddsFieldSourceId()) ? null : thirdSportMarketOdds.get(i).getThirdOddsFieldSourceId());
-                                ps.setInt(15, Objects.isNull(thirdSportMarketOdds.get(i).getOrderOdds()) ? 0 : thirdSportMarketOdds.get(i).getOrderOdds());
-                                ps.setLong(16, Objects.isNull(thirdSportMarketOdds.get(i).getNameCode()) ? 0 : thirdSportMarketOdds.get(i).getNameCode());
-                                ps.setString(17, Objects.isNull(thirdSportMarketOdds.get(i).getNameExpressionValue()) ? null : thirdSportMarketOdds.get(i).getNameExpressionValue());
-                                ps.setInt(18, Objects.isNull(thirdSportMarketOdds.get(i).getOddsValue()) ? 0 : thirdSportMarketOdds.get(i).getOddsValue());
-                                ps.setInt(19, Objects.isNull(thirdSportMarketOdds.get(i).getPaOddsValue()) ? 0 : thirdSportMarketOdds.get(i).getPaOddsValue());
-                                ps.setInt(20, Objects.isNull(thirdSportMarketOdds.get(i).getOriginalOddsValue()) ? 0 : thirdSportMarketOdds.get(i).getOriginalOddsValue());
-                                ps.setLong(21, Objects.isNull(thirdSportMarketOdds.get(i).getOddsFieldsTemplateId()) ? 0 : thirdSportMarketOdds.get(i).getOddsFieldsTemplateId());
-                                ps.setString(22, Objects.isNull(thirdSportMarketOdds.get(i).getThirdTemplateSourceId()) ? null : thirdSportMarketOdds.get(i).getThirdTemplateSourceId());
-                                ps.setString(23, Objects.isNull(thirdSportMarketOdds.get(i).getTargetSide()) ? null: thirdSportMarketOdds.get(i).getTargetSide());
-                                ps.setString(24, Objects.isNull(thirdSportMarketOdds.get(i).getDataSourceCode()) ? null : thirdSportMarketOdds.get(i).getDataSourceCode());
-                                ps.setString(25, Objects.isNull(thirdSportMarketOdds.get(i).getRemark()) ? null : thirdSportMarketOdds.get(i).getRemark());
-                                ps.setLong(26, Objects.isNull(thirdSportMarketOdds.get(i).getCreateTime()) ? 0 : thirdSportMarketOdds.get(i).getCreateTime());
-                                ps.setLong(27, Objects.isNull(thirdSportMarketOdds.get(i).getModifyTime()) ? 0 : thirdSportMarketOdds.get(i).getModifyTime());
-                                ps.setString(28, Objects.isNull(thirdSportMarketOdds.get(i).getExtraInfo()) ? null : thirdSportMarketOdds.get(i).getExtraInfo());
-                                ps.setString(29, Objects.isNull(thirdSportMarketOdds.get(i).getName()) ? null : thirdSportMarketOdds.get(i).getName());
-                                ps.setLong(30, Objects.isNull(thirdSportMarketOdds.get(i).getThirdMatchId()) ? 0 : thirdSportMarketOdds.get(i).getThirdMatchId());
-                            }
-                            public int getBatchSize() {
-                                return thirdSportMarketOdds.size();
-                            }
-                        });
+            String sql = " insert into third_sport_market_odds_"+dataSourceCode.toLowerCase()+
+                    "(id, market_id, reference_id,\n" +
+                    "        active, settlement_result_text, settlement_result,\n" +
+                    "        bet_settlement_certainty, odds_type, addition1,\n" +
+                    "        addition2, addition3, addition4,\n" +
+                    "        addition5, third_odds_field_source_id, order_odds,\n" +
+                    "        name_code, name_expression_value, odds_value,\n" +
+                    "        pa_odds_value, original_odds_value, odds_fields_template_id,\n" +
+                    "        third_template_source_id, target_side, data_source_code,\n" +
+                    "        remark, create_time, modify_time,\n" +
+                    "        extra_info, name, third_match_id\n" +
+                    "        )" +
+                    " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            oddsJdbcTemplate.batchUpdate(sql,
+                    new BatchPreparedStatementSetter() {
+                        public void setValues(PreparedStatement ps, int i) throws SQLException {
+                            ps.setLong(1, Objects.isNull(thirdSportMarketOdds.get(i).getId()) ? 0 : thirdSportMarketOdds.get(i).getId());
+                            ps.setLong(2, Objects.isNull(thirdSportMarketOdds.get(i).getMarketId()) ? 0 : thirdSportMarketOdds.get(i).getMarketId());
+                            ps.setLong(3, Objects.isNull(thirdSportMarketOdds.get(i).getReferenceId()) ? 0 : thirdSportMarketOdds.get(i).getReferenceId());
+                            ps.setInt(4, Objects.isNull(thirdSportMarketOdds.get(i).getActive()) ? 0 : thirdSportMarketOdds.get(i).getActive());
+                            ps.setString(5, Objects.isNull(thirdSportMarketOdds.get(i).getSettlementResultText()) ? null : thirdSportMarketOdds.get(i).getSettlementResultText());
+                            ps.setString(6, Objects.isNull(thirdSportMarketOdds.get(i).getSettlementResult()) ? null : thirdSportMarketOdds.get(i).getSettlementResult());
+                            ps.setString(7, Objects.isNull(thirdSportMarketOdds.get(i).getBetSettlementCertainty()) ? null : thirdSportMarketOdds.get(i).getBetSettlementCertainty());
+                            ps.setString(8, Objects.isNull(thirdSportMarketOdds.get(i).getOddsType()) ? null : thirdSportMarketOdds.get(i).getOddsType());
+                            ps.setString(9, Objects.isNull(thirdSportMarketOdds.get(i).getAddition1()) ? null : thirdSportMarketOdds.get(i).getAddition1());
+                            ps.setString(10, Objects.isNull(thirdSportMarketOdds.get(i).getAddition2()) ? null : thirdSportMarketOdds.get(i).getAddition2());
+                            ps.setString(11, Objects.isNull(thirdSportMarketOdds.get(i).getAddition3()) ? null : thirdSportMarketOdds.get(i).getAddition3());
+                            ps.setString(12, Objects.isNull(thirdSportMarketOdds.get(i).getAddition4()) ? null : thirdSportMarketOdds.get(i).getAddition4());
+                            ps.setString(13, Objects.isNull(thirdSportMarketOdds.get(i).getAddition5()) ? null : thirdSportMarketOdds.get(i).getAddition5());
+                            ps.setString(14, Objects.isNull(thirdSportMarketOdds.get(i).getThirdOddsFieldSourceId()) ? null : thirdSportMarketOdds.get(i).getThirdOddsFieldSourceId());
+                            ps.setInt(15, Objects.isNull(thirdSportMarketOdds.get(i).getOrderOdds()) ? 0 : thirdSportMarketOdds.get(i).getOrderOdds());
+                            ps.setLong(16, Objects.isNull(thirdSportMarketOdds.get(i).getNameCode()) ? 0 : thirdSportMarketOdds.get(i).getNameCode());
+                            ps.setString(17, Objects.isNull(thirdSportMarketOdds.get(i).getNameExpressionValue()) ? null : thirdSportMarketOdds.get(i).getNameExpressionValue());
+                            ps.setInt(18, Objects.isNull(thirdSportMarketOdds.get(i).getOddsValue()) ? 0 : thirdSportMarketOdds.get(i).getOddsValue());
+                            ps.setInt(19, Objects.isNull(thirdSportMarketOdds.get(i).getPaOddsValue()) ? 0 : thirdSportMarketOdds.get(i).getPaOddsValue());
+                            ps.setInt(20, Objects.isNull(thirdSportMarketOdds.get(i).getOriginalOddsValue()) ? 0 : thirdSportMarketOdds.get(i).getOriginalOddsValue());
+                            ps.setLong(21, Objects.isNull(thirdSportMarketOdds.get(i).getOddsFieldsTemplateId()) ? 0 : thirdSportMarketOdds.get(i).getOddsFieldsTemplateId());
+                            ps.setString(22, Objects.isNull(thirdSportMarketOdds.get(i).getThirdTemplateSourceId()) ? null : thirdSportMarketOdds.get(i).getThirdTemplateSourceId());
+                            ps.setString(23, Objects.isNull(thirdSportMarketOdds.get(i).getTargetSide()) ? null: thirdSportMarketOdds.get(i).getTargetSide());
+                            ps.setString(24, Objects.isNull(thirdSportMarketOdds.get(i).getDataSourceCode()) ? null : thirdSportMarketOdds.get(i).getDataSourceCode());
+                            ps.setString(25, Objects.isNull(thirdSportMarketOdds.get(i).getRemark()) ? null : thirdSportMarketOdds.get(i).getRemark());
+                            ps.setLong(26, Objects.isNull(thirdSportMarketOdds.get(i).getCreateTime()) ? 0 : thirdSportMarketOdds.get(i).getCreateTime());
+                            ps.setLong(27, Objects.isNull(thirdSportMarketOdds.get(i).getModifyTime()) ? 0 : thirdSportMarketOdds.get(i).getModifyTime());
+                            ps.setString(28, Objects.isNull(thirdSportMarketOdds.get(i).getExtraInfo()) ? null : thirdSportMarketOdds.get(i).getExtraInfo());
+                            ps.setString(29, Objects.isNull(thirdSportMarketOdds.get(i).getName()) ? null : thirdSportMarketOdds.get(i).getName());
+                            ps.setLong(30, Objects.isNull(thirdSportMarketOdds.get(i).getThirdMatchId()) ? 0 : thirdSportMarketOdds.get(i).getThirdMatchId());
+                        }
+                        public int getBatchSize() {
+                            return thirdSportMarketOdds.size();
+                        }
+                    });
                 log.info("::{}::三方盘口赔率新增,批量接收数据: {}，入库数据源完成：{}", linkId, thirdSportMarketOdds.size(), dataSourceCode);
 
             } catch (Exception e) {
@@ -329,35 +308,10 @@ public class ThirdSportMarketAndOddsBatchUpdateProxy {
                     String key = RedisConfig.REDIS_KEY_DATABASE + "::ThirdSportMarketOdds:" + odds.getMarketId()+"-"+odds.getThirdOddsFieldSourceId();
                     keyList.add(key);
                 });
-                //清理盘口id下投注项缓存
-                String key = RedisConfig.REDIS_KEY_DATABASE + "::ThirdSportMarketOdds:" + thirdSportMarketOdds.get(0).getMarketId();
-                keyList.add(key);
                 redisService.del(keyList);
                 e.printStackTrace();
-                log.info("::{}::batchInsert，三方投注项数据源:{},批量新增：{}，清理缓存：{}，出现主键冲突:{}", linkId, dataSourceCode,keyList, JSONObject.toJSONString(thirdSportMarketOdds), e.getMessage());
+                log.info("::{}::batchInsert，三方投注项数据源:{},批量新增：{}，出现主键冲突:{}", linkId, dataSourceCode, JSONObject.toJSONString(thirdSportMarketOdds), e.getMessage());
             }
-
-   /*         HintManager instance = HintManager.getInstance();
-            try {
-                instance.addTableShardingValue("third_sport_market_odds", dataSourceCode.toLowerCase());
-                instance.addDatabaseShardingValue("third_sport_market_odds", "ds1");
-                log.info("::{}::batchInsert，三方投注项数据源:{},批量新增处理盘口:{}", linkId, dataSourceCode, thirdSportMarketOdds.size());
-                thirdSportMarketOddsDao.insertList(thirdSportMarketOdds, dataSourceCode.toLowerCase());
-                System.out.println("------------------------执行结果" + thirdSportMarketOdds.size());
-            } catch (DuplicateKeyException e) {
-                log.info("::{}::batchInsert，三方投注项数据源:{},批量新增：{}，出现主键冲突", linkId, dataSourceCode, JSONObject.toJSONString(thirdSportMarketOdds), e);
-                //出现主键冲突，重新设置主键后，改为单条新增 ,要重新设置下缓存数据
-                for (ThirdSportMarketOdds thirdSportMarketOdd : thirdSportMarketOdds) {
-                    thirdSportMarketOdd.setId(UUIdUtils.getId());
-                    thirdSportMarketOddsMapper.insert(thirdSportMarketOdd);
-                    String key = RedisConfig.REDIS_KEY_DATABASE + "::ThirdSportMarketOdds:" + thirdSportMarketOdd.getMarketId() + '-' + thirdSportMarketOdd.getThirdOddsFieldSourceId();
-                    redisService.set(key, thirdSportMarketOdd);
-                    log.info("::{}::batchInsert，三方投注项数据源:{},批量新增：{}，出现主键冲突后再次单条入库", linkId, dataSourceCode, JSONObject.toJSONString(thirdSportMarketOdd));
-                }
-            } finally {
-                instance.close();
-                log.info("::{}::batchInsert，三方投注项数据源:{},批量新增处理完成", linkId, dataSourceCode);
-            }*/
         }
     }
 
@@ -452,19 +406,6 @@ public class ThirdSportMarketAndOddsBatchUpdateProxy {
                 log.info("::{}::batchUpdate，三方投注项数据源:{},批量修改处理盘口出现异常:{}", uuid, dataSourceCode, e.getMessage());
                 e.printStackTrace();
             }
-
-          /*  HintManager instance = HintManager.getInstance();
-            try {
-                instance.addTableShardingValue("third_sport_market_odds", dataSourceCode.toLowerCase());
-                instance.addDatabaseShardingValue("third_sport_market_odds", "ds1");
-                log.info("::{}::batchUpdate，三方投注项数据源:{},批量修改处理盘口:{}", linkId, dataSourceCode, thirdSportMarketOdds.size());
-                thirdSportMarketOddsDao.upDataList(thirdSportMarketOdds, dataSourceCode.toLowerCase());
-            } catch (Exception e) {
-                log.info("::{}::batchUpdate，三方投注项数据源:{},批量修改处理盘口出现异常", linkId, dataSourceCode, e);
-                e.printStackTrace();
-            } finally {
-                instance.close();
-            }*/
         }
     }
 

@@ -108,19 +108,14 @@ public class ThirdSportMarketOddsNewServiceImpl implements ThirdSportMarketOddsN
         if(CollectionUtils.isEmpty(requiredCallItems)){
             return result;
         }
-        Long uuid = UUIdUtils.getId();
-        log.info("::{}::2724,查询三方盘口赔率数据库：{}",uuid, requiredCallItems);
+
         String sql = "select *  from third_sport_market_odds_" + thirdMarketDTOs.get(0).getDataSourceCode().toLowerCase()
                 + " where (third_odds_field_source_id, data_source_code, market_id) in (";
         for (OddsWrapper<ThirdMarketOddsDTO> item : requiredCallItems) {
             sql += "(\"" + item.getData().getThirdOddsFieldSourceId() + "\", \""+ item.getData().getDataSourceCode() + "\", " + item.getThirdSportMarketId() + "), ";
         }
         sql = sql.substring(0, sql.length()-2) + ")";
-        log.info("::{}::2724,查询三方盘口赔率数据库sql：{}",uuid, sql);
-
         List<ThirdSportMarketOdds> thirdSportMarketOdds = jdbcTemplate1.query(sql, new BeanPropertyRowMapper<>(ThirdSportMarketOdds.class));
-        log.info("::{}::2724,查询三方盘口赔率数据库返回：{}",uuid, thirdSportMarketOdds.size());
-
         result.addAll(thirdSportMarketOdds);
         // Storing the remained data into redis
         Map<String, Object> redisVal = thirdSportMarketOdds.stream().collect(Collectors.toMap(t->
@@ -281,7 +276,7 @@ public class ThirdSportMarketOddsNewServiceImpl implements ThirdSportMarketOddsN
         if (obj == null || StringUtils.isEmpty(obj.toString())) {
             relationMarketOddsId = MD5Utils.getLongByMD5(redisKey);//UUIdUtils.getId();
         } else {
-            relationMarketOddsId = Long.valueOf(redisService.get(redisKey).toString());
+            relationMarketOddsId = Long.valueOf(obj.toString());
         }
         return relationMarketOddsId;
     }

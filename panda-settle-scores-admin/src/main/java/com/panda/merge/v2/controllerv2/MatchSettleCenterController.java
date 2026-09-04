@@ -74,8 +74,8 @@ public class MatchSettleCenterController {
     MatchSettleOperateLogV2Repository matchSettleOperateLogV2Repository;
     @Autowired
     IWsPushService wsPushService;
-    @Autowired
-    MatchGrayIntervalMapper matchGrayIntervalMapper;
+//    @Autowired
+//    MatchGrayIntervalMapper matchGrayIntervalMapper;
     @Autowired
     MatchSettleOperateLogMapper matchSettleOperateLogMapper;
     @Autowired
@@ -1031,8 +1031,7 @@ public class MatchSettleCenterController {
         matchSettleOperateLog.setOperateMatchId("-");
         matchSettleOperateLog.setOperateMatchName("-");
 
-//        matchSettleOperateLogV2Repository.saveOrUpdateBatch(Arrays.asList(matchSettleOperateLog));
-        matchSettleOperateLogV2Repository.save(matchSettleOperateLog);
+        matchSettleOperateLogV2Repository.saveOrUpdateBatch(Arrays.asList(matchSettleOperateLog));
     }
 
     public Response changeMatchAutoSettleStatus(String standardMatchId, Boolean isEnableAutoSettle, String userName, String ipAddress) {
@@ -1370,70 +1369,70 @@ public class MatchSettleCenterController {
         return Response.success();
     }
 
-    public Response setDataSourceGrayInterval(List<DataSourceGrayIntervalDto> grayIntervalDtoList) {
-        log.info("setDataSourceGrayInterval设置灰色区间入参:{}", JSON.toJSONString(grayIntervalDtoList));
-        if (CollectionUtils.isEmpty(grayIntervalDtoList)) {
-            Response.failed("设置灰色区间参数不能为空!");
-        }
-        Integer tournamentLevel = grayIntervalDtoList.get(0).getTournamentLevel();
-        if (null == tournamentLevel || tournamentLevel < 0) {
-            Response.failed("编辑的联赛等级异常!");
-        }
+//    public Response setDataSourceGrayInterval(List<DataSourceGrayIntervalDto> grayIntervalDtoList) {
+//        log.info("setDataSourceGrayInterval设置灰色区间入参:{}", JSON.toJSONString(grayIntervalDtoList));
+//        if (CollectionUtils.isEmpty(grayIntervalDtoList)) {
+//            Response.failed("设置灰色区间参数不能为空!");
+//        }
+//        Integer tournamentLevel = grayIntervalDtoList.get(0).getTournamentLevel();
+//        if (null == tournamentLevel || tournamentLevel < 0) {
+//            Response.failed("编辑的联赛等级异常!");
+//        }
+//
+//        MatchGrayIntervalExample grayIntervalExample = new MatchGrayIntervalExample();
+//        grayIntervalExample.createCriteria().andTournamentLevelEqualTo(tournamentLevel);
+//        List<MatchGrayInterval> dbGrayIntervals = matchGrayIntervalMapper.selectByExample(grayIntervalExample);
+//        Map<String, MatchGrayInterval> dsgMap = Maps.newConcurrentMap();
+//        if (!CollectionUtils.isEmpty(dbGrayIntervals)) {
+//            dsgMap = dbGrayIntervals.stream().collect(Collectors.toMap(MatchGrayInterval::getDataSourceCode, Function.identity()));
+//        }
+//
+//        List<MatchSettleOperateLogEntity> operateLogEntityList = new ArrayList<>();
+//
+//        for (DataSourceGrayIntervalDto grayIntervalDto : grayIntervalDtoList) {
+//            String dataSourceCode = grayIntervalDto.getDataSourceCode();
+//            if (null != dsgMap && dsgMap.size() > 0 && dsgMap.containsKey(dataSourceCode)) {
+//                MatchGrayInterval dbGray = dsgMap.get(dataSourceCode);
+//                dbGray.setModifyTime(System.currentTimeMillis());
+//                dbGray.setMin5Goal(grayIntervalDto.getMin5Goal());
+//                dbGray.setMin15Goal(grayIntervalDto.getMin15Goal());
+//                dbGray.setMin15Bookings(grayIntervalDto.getMin15Bookings());
+//                dbGray.setMin15Corner(grayIntervalDto.getMin15Corner());
+//                matchGrayIntervalMapper.updateByPrimaryKeySelective(dbGray);
+//                matchSettleLogService.updateDataSourceGrayIntervalLog(grayIntervalDto, dsgMap.get(dataSourceCode), operateLogEntityList);
+//            } else {
+//                MatchGrayInterval grayInterval = new MatchGrayInterval();
+//                BeanUtils.copyProperties(grayIntervalDto, grayInterval);
+//                grayInterval.setModifyTime(System.currentTimeMillis());
+//                grayInterval.setCreateTime(System.currentTimeMillis());
+//                matchGrayIntervalMapper.insert(grayInterval);
+//                matchSettleLogService.updateDataSourceGrayIntervalLog(grayIntervalDto, null, operateLogEntityList);
+//            }
+//        }
+//
+//        if (!CollectionUtils.isEmpty(operateLogEntityList)){
+//            matchSettleOperateLogV2Repository.saveOrUpdateBatch(operateLogEntityList);
+//        }
+//        // 缓存的刷新
+//        return Response.success();
+//    }
 
-        MatchGrayIntervalExample grayIntervalExample = new MatchGrayIntervalExample();
-        grayIntervalExample.createCriteria().andTournamentLevelEqualTo(tournamentLevel);
-        List<MatchGrayInterval> dbGrayIntervals = matchGrayIntervalMapper.selectByExample(grayIntervalExample);
-        Map<String, MatchGrayInterval> dsgMap = Maps.newConcurrentMap();
-        if (!CollectionUtils.isEmpty(dbGrayIntervals)) {
-            dsgMap = dbGrayIntervals.stream().collect(Collectors.toMap(MatchGrayInterval::getDataSourceCode, Function.identity()));
-        }
-
-        List<MatchSettleOperateLogEntity> operateLogEntityList = new ArrayList<>();
-
-        for (DataSourceGrayIntervalDto grayIntervalDto : grayIntervalDtoList) {
-            String dataSourceCode = grayIntervalDto.getDataSourceCode();
-            if (null != dsgMap && dsgMap.size() > 0 && dsgMap.containsKey(dataSourceCode)) {
-                MatchGrayInterval dbGray = dsgMap.get(dataSourceCode);
-                dbGray.setModifyTime(System.currentTimeMillis());
-                dbGray.setMin5Goal(grayIntervalDto.getMin5Goal());
-                dbGray.setMin15Goal(grayIntervalDto.getMin15Goal());
-                dbGray.setMin15Bookings(grayIntervalDto.getMin15Bookings());
-                dbGray.setMin15Corner(grayIntervalDto.getMin15Corner());
-                matchGrayIntervalMapper.updateByPrimaryKeySelective(dbGray);
-                matchSettleLogService.updateDataSourceGrayIntervalLog(grayIntervalDto, dsgMap.get(dataSourceCode), operateLogEntityList);
-            } else {
-                MatchGrayInterval grayInterval = new MatchGrayInterval();
-                BeanUtils.copyProperties(grayIntervalDto, grayInterval);
-                grayInterval.setModifyTime(System.currentTimeMillis());
-                grayInterval.setCreateTime(System.currentTimeMillis());
-                matchGrayIntervalMapper.insert(grayInterval);
-                matchSettleLogService.updateDataSourceGrayIntervalLog(grayIntervalDto, null, operateLogEntityList);
-            }
-        }
-
-        if (!CollectionUtils.isEmpty(operateLogEntityList)){
-            matchSettleOperateLogV2Repository.saveOrUpdateBatch(operateLogEntityList);
-        }
-        // 缓存的刷新
-        return Response.success();
-    }
-
-    public Response getGrayIntervalByTournamentLevel(DataSourceGrayIntervalDto dto) {
-        log.info("getGrayIntervalByTournamentLevel查询灰色区间列表入参:{}", JSON.toJSONString(dto));
-        Integer tournamentLevel = dto.getTournamentLevel();
-        if (null == tournamentLevel || tournamentLevel < 0) {
-            Response.failed("查询的联赛等级异常!");
-        }
-        List<MatchGrayInterval> grayIntervalList = Lists.newArrayList();
-        MatchGrayIntervalExample grayIntervalExample = new MatchGrayIntervalExample();
-        grayIntervalExample.createCriteria().andTournamentLevelEqualTo(tournamentLevel);
-        List<MatchGrayInterval> dbGrayIntervals = matchGrayIntervalMapper.selectByExample(grayIntervalExample);
-        if (!CollectionUtils.isEmpty(dbGrayIntervals)) {
-            grayIntervalList.addAll(dbGrayIntervals);
-        }
-        log.info("getGrayIntervalByTournamentLevel返回结果:{}", JSON.toJSONString(grayIntervalList));
-        return Response.success(grayIntervalList);
-    }
+//    public Response getGrayIntervalByTournamentLevel(DataSourceGrayIntervalDto dto) {
+//        log.info("getGrayIntervalByTournamentLevel查询灰色区间列表入参:{}", JSON.toJSONString(dto));
+//        Integer tournamentLevel = dto.getTournamentLevel();
+//        if (null == tournamentLevel || tournamentLevel < 0) {
+//            Response.failed("查询的联赛等级异常!");
+//        }
+//        List<MatchGrayInterval> grayIntervalList = Lists.newArrayList();
+//        MatchGrayIntervalExample grayIntervalExample = new MatchGrayIntervalExample();
+//        grayIntervalExample.createCriteria().andTournamentLevelEqualTo(tournamentLevel);
+//        List<MatchGrayInterval> dbGrayIntervals = matchGrayIntervalMapper.selectByExample(grayIntervalExample);
+//        if (!CollectionUtils.isEmpty(dbGrayIntervals)) {
+//            grayIntervalList.addAll(dbGrayIntervals);
+//        }
+//        log.info("getGrayIntervalByTournamentLevel返回结果:{}", JSON.toJSONString(grayIntervalList));
+//        return Response.success(grayIntervalList);
+//    }
 
     private void checkAndinitFiveMinScore(Long standardMatchId) {
 
@@ -1560,7 +1559,7 @@ public class MatchSettleCenterController {
                             matchSettleLogService.editBasketBallTimeLimitConfigLog(old, n, dto, willSaveOperateLogList);
                         }
                         if (old.getRealTimeOnOff() != n.getRealTimeOnOff()){
-                            matchSettleLogService.editBasketBallRealTimeConfigLog(old, n, dto, willSaveOperateLogList);
+                            matchSettleLogService.editBasketBallRealTimeConfigLog(old,n,dto,willSaveOperateLogList);
                         }
                     }
                 });

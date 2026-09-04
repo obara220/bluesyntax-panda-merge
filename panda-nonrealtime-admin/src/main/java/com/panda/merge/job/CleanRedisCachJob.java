@@ -86,19 +86,19 @@ public class CleanRedisCachJob extends IJobHandler {
             "third_market_category_field", "standard_market_category", "standard_sport_market_category", "standard_market_category_field");
     @Override
     public ReturnT<String> execute(String parKey){
-        //log.info("【CleanRedisCachJob 根据传入key值清除缓存】 处理开始,入参: {}",parKey);
+        log.info("【CleanRedisCachJob 根据传入key值清除缓存】 处理开始,入参: {}",parKey);
         XxlJobLogger.log("【CleanRedisCachJob 根据传入key值清除缓存】 处理开始,入参: {}",parKey);
         try {
             if(StringUtils.isNotBlank(parKey)){
                 if(parKey.contains(XIN)){
                     //清除redis缓存,根据*清理缓存已经废弃，运维那边禁止了的，只能根据明确的key清理
                     Set<String> keys = redisService.keys(parKey);
-                    //log.info("【CleanRedisCachJob 根据传入key值清除缓存】 需要清除的缓存条数：{}",keys.size());
+                    log.info("【CleanRedisCachJob 根据传入key值清除缓存】 需要清除的缓存条数：{}",keys.size());
                     XxlJobLogger.log("【CleanRedisCachJob 根据传入key值清除缓存】 需要清除的缓存条数：{}",keys.size());
 
                     if(!CollectionUtils.isEmpty(keys)){
                         Long num = redisService.delete(keys);
-                        //log.info("【CleanRedisCachJob 根据传入key值清除缓存】 成功清除的缓存条数：{}",num);
+                        log.info("【CleanRedisCachJob 根据传入key值清除缓存】 成功清除的缓存条数：{}",num);
                         XxlJobLogger.log("【CleanRedisCachJob 根据传入key值清除缓存】 成功清除的缓存条数：{}",num);
                     }
                 }else if (tabs.contains(parKey)) {
@@ -125,15 +125,15 @@ public class CleanRedisCachJob extends IJobHandler {
                         default:
                             break;
                     }
-                    //log.info("【CleanRedisCachJob 根据传入表{}清除缓存】 成功清除的缓存条数：{}",parKey, num);
+                    log.info("【CleanRedisCachJob 根据传入表{}清除缓存】 成功清除的缓存条数：{}",parKey, num);
                     XxlJobLogger.log("【CleanRedisCachJob 根据传入表{}清除缓存】 成功清除的缓存条数：{}",parKey, num);
                 } else{
 //                    Object obj = redisService.get(parKey);
-//                    //log.info("【CleanRedisCachJob 根据传入key值清除缓存】 缓存信息为：{}",obj);
+//                    log.info("【CleanRedisCachJob 根据传入key值清除缓存】 缓存信息为：{}",obj);
 //                    XxlJobLogger.log("【CleanRedisCachJob 根据传入key值清除缓存】 缓存信息为：{}",obj);
 
                     redisService.del(parKey);
-                    //log.info("【CleanRedisCachJob 根据传入key值清除缓存】 成功清除的缓存");
+                    log.info("【CleanRedisCachJob 根据传入key值清除缓存】 成功清除的缓存");
                     XxlJobLogger.log("【CleanRedisCachJob 根据传入key值清除缓存】 成功清除的缓存");
                 }
             }else{
@@ -141,14 +141,14 @@ public class CleanRedisCachJob extends IJobHandler {
                 languageTypeService.refreshCache();
                 dataSourceService.refreshCache();
                 thirdSportTypeService.refreshCache();
-                //log.info("【CleanRedisCachJob 根据传入key值清除缓存】 刷新本地缓存完成");
+                log.info("【CleanRedisCachJob 根据传入key值清除缓存】 刷新本地缓存完成");
                 XxlJobLogger.log("【CleanRedisCachJob 根据传入key值清除缓存】 刷新本地缓存完成");
             }
         } catch (Exception e) {
             log.error("【CleanRedisCachJob 根据传入key值清除缓存执行异常】 Exception:", e);
             XxlJobLogger.log("【CleanRedisCachJob 根据传入key值清除缓存执行异常】 Exception:"+e.getMessage());
         }
-        //log.info("【CleanRedisCachJob 根据传入key值清除缓存】 处理结束");
+        log.info("【CleanRedisCachJob 根据传入key值清除缓存】 处理结束");
         XxlJobLogger.log("【CleanRedisCachJob 根据传入key值清除缓存】 处理结束");
         return ReturnT.SUCCESS;
     }
@@ -162,7 +162,7 @@ public class CleanRedisCachJob extends IJobHandler {
         //避免分布式定时任务启动重复
         String lockKey = RedisConfig.REDIS_KEY_DATABASE +"::job:cleanRedisCacheByDay";
         if(!redisService.tryLockOnce(lockKey,lockKey,REDIS_FIVE_MINS_TIME)){
-            //log.info("定时任务[每天凌晨3点]：根据开始时间小于等于1天前，大于等于等于2天前的赛事，定时任务启动重复，一次只能启动一个定时任务！");
+            log.info("定时任务[每天凌晨3点]：根据开始时间小于等于1天前，大于等于等于2天前的赛事，定时任务启动重复，一次只能启动一个定时任务！");
             return;
         }
         StopWatch stopWatch = new StopWatch(UUID.randomUUID().toString());
@@ -179,29 +179,28 @@ public class CleanRedisCachJob extends IJobHandler {
         //开始时间小于等于1天前，大于等于等于2天前
         standardMatchInfoExample.createCriteria().andMatchOverEqualTo(YesNoEnum.Y.value).andBeginTimeLessThanOrEqualTo(oneDayTime).andBeginTimeGreaterThanOrEqualTo(twoDayTime);
         List<StandardMatchInfo> standardMatchInfoList = standardMatchInfoMapper.selectByExample(standardMatchInfoExample);
-        //log.info("定时任务[每天凌晨3点]：根据开始时间小于等于1天前，大于等于等于2天前的赛事，标准赛事条数：{}",standardMatchInfoList.size());
+        log.info("定时任务[每天凌晨3点]：根据开始时间小于等于1天前，大于等于等于2天前的赛事，标准赛事条数：{}",standardMatchInfoList.size());
         //需要清理的总条数值
         Long totalNum = 0L;
         if(!CollectionUtils.isEmpty(standardMatchInfoList)){
-            //方法废弃， 注释
             //需要根据标准赛事关联的KEY （标准盘口信息：Ronghe:StandardMarketData:1509650_SR）
-            //Set<String> marketIdKeys = standardMatchInfoList.stream().map(obj -> Constant.REDIS_KEY.RONGHE_STANDARD_MARKET + obj.getId()).collect(Collectors.toSet());
-            //Set<String> marketKeys = redisService.keys(Constant.REDIS_KEY.RONGHE_STANDARD_MARKET + "*");
-            ////log.info("定时任务[每天凌晨3点]：根据开始时间小于等于1天前，大于等于等于2天前的赛事，缓存标准盘口条数：{}，标准盘口条数：{}",marketKeys.size(),marketIdKeys.size());
-            //Set<String> delKeys1 = getDelKey(marketKeys, marketIdKeys);
+//            Set<String> marketIdKeys = standardMatchInfoList.stream().map(obj -> Constant.REDIS_KEY.RONGHE_STANDARD_MARKET + obj.getId()).collect(Collectors.toSet());
+//            Set<String> marketKeys = redisService.keys(Constant.REDIS_KEY.RONGHE_STANDARD_MARKET + "*");
+//            log.info("定时任务[每天凌晨3点]：根据开始时间小于等于1天前，大于等于等于2天前的赛事，缓存标准盘口条数：{}，标准盘口条数：{}",marketKeys.size(),marketIdKeys.size());
+//            Set<String> delKeys1 = getDelKey(marketKeys, marketIdKeys);
             Long num = 0L;
 
-            //totalNum += num;
-            ////log.info("定时任务[每天凌晨3点]：根据开始时间小于等于1天前，大于等于等于2天前的赛事，缓存标准盘口需要删除的条数：{}，删除成功的条数：{}",delKeys1.size(),num);
+            totalNum += num;
+//            log.info("定时任务[每天凌晨3点]：根据开始时间小于等于1天前，大于等于等于2天前的赛事，缓存标准盘口需要删除的条数：{}，删除成功的条数：{}",delKeys1.size(),num);
             //需要根据标准赛事关联的KEY （标准盘口关联信息：Ronghe:StandardMarket:RelationMarketId:1465105_28_4）
             Set<String> relationMatchIdKeys = standardMatchInfoList.stream().map(obj -> Constant.REDIS_KEY.RONGHE_STANDARD_MARKET_RELATION_MARKET_ID + obj.getId()).collect(Collectors.toSet());
             Set<String> relationMarketKeys = redisService.keys(Constant.REDIS_KEY.RONGHE_STANDARD_MARKET_RELATION_MARKET_ID + "*");
-            //log.info("定时任务[每天凌晨3点]：根据开始时间小于等于1天前，大于等于等于2天前的赛事，缓存标准盘口关联信息条数：{}，标准盘口关联条数：{}",relationMarketKeys.size(),relationMatchIdKeys.size());
+            log.info("定时任务[每天凌晨3点]：根据开始时间小于等于1天前，大于等于等于2天前的赛事，缓存标准盘口关联信息条数：{}，标准盘口关联条数：{}",relationMarketKeys.size(),relationMatchIdKeys.size());
             Set<String> delKeys2 = getDelKey(relationMarketKeys, relationMatchIdKeys);
             num = redisService.delete(delKeys2);
 
             totalNum += num;
-            //log.info("定时任务[每天凌晨3点]：根据开始时间小于等于1天前，大于等于等于2天前的赛事，缓存标准盘口关联信息需要删除的条数：{}，删除成功的条数：{}",delKeys2.size(),num);
+            log.info("定时任务[每天凌晨3点]：根据开始时间小于等于1天前，大于等于等于2天前的赛事，缓存标准盘口关联信息需要删除的条数：{}，删除成功的条数：{}",delKeys2.size(),num);
             //标准赛事ID列表
             List<Long> matchIds = standardMatchInfoList.stream().map(obj -> obj.getId()).collect(Collectors.toList());
             //查询标准赛事盘口信息
@@ -212,16 +211,16 @@ public class CleanRedisCachJob extends IJobHandler {
                 //需要根据标准盘口投注项关联的KEY （标准盘口投注项信息：Ronghe:StandardMarketOdds:RelationMarketOddsId:1319916083809005570_1）
                 Set<String> marketOddsIdKeys = standardSportMarketList.stream().map(obj -> Constant.REDIS_KEY.RONGHE_STANDARD_MARKET_ODDS_RELATION_MARKET_ODDS_ID + obj.getRelationMarketId()).collect(Collectors.toSet());
                 Set<String> marketOddsKeys = redisService.keys(Constant.REDIS_KEY.RONGHE_STANDARD_MARKET_ODDS_RELATION_MARKET_ODDS_ID + "*");
-                //log.info("定时任务[每天凌晨3点]：根据开始时间小于等于1天前，大于等于等于2天前的赛事，缓存标准盘口投注项信息条数：{}，标准盘口条数：{}",marketOddsKeys.size(),marketOddsIdKeys.size());
+                log.info("定时任务[每天凌晨3点]：根据开始时间小于等于1天前，大于等于等于2天前的赛事，缓存标准盘口投注项信息条数：{}，标准盘口条数：{}",marketOddsKeys.size(),marketOddsIdKeys.size());
                 Set<String> delKeys3 = getDelKey(marketOddsKeys, marketOddsIdKeys);
                 num = redisService.delete(delKeys3);
                 totalNum += num;
-                //log.info("定时任务[每天凌晨3点]：根据开始时间小于等于1天前，大于等于等于2天前的赛事，缓存标准盘口投注项需要删除的条数：{}，删除成功的条数：{}",delKeys3.size(),num);
+                log.info("定时任务[每天凌晨3点]：根据开始时间小于等于1天前，大于等于等于2天前的赛事，缓存标准盘口投注项需要删除的条数：{}，删除成功的条数：{}",delKeys3.size(),num);
                 //清除TX坑位数据
                 Set<String> thirdMarketKey = standardSportMarketList.stream().map(obj -> Constant.REDIS_KEY.RONGHE_TX_THIRD_MARKET + obj.getStandardMatchInfoId() + "_" + obj.getMarketCategoryId()).collect(Collectors.toSet());
                 num = redisService.delete(thirdMarketKey);
                 totalNum += num;
-                //log.info("定时任务[每天凌晨3点]：根据开始时间小于等于1天前，大于等于等于2天前的赛事，缓存TX坑位数据需要删除的条数：{}，删除成功的条数：{}", delKeys3.size(), num);
+                log.info("定时任务[每天凌晨3点]：根据开始时间小于等于1天前，大于等于等于2天前的赛事，缓存TX坑位数据需要删除的条数：{}，删除成功的条数：{}", delKeys3.size(), num);
             }
             //玩法自动关盘清理
             Set<String> delKeys6 = new HashSet<>();
@@ -233,7 +232,7 @@ public class CleanRedisCachJob extends IJobHandler {
             if (!CollectionUtils.isEmpty(delKeys6)) {
                 num = redisService.delete(delKeys6);
                 totalNum += num;
-                //log.info("定时任务[每天凌晨3点]：根据开始时间小于等于1天前，大于等于等于2天前的赛事，缓存自动关盘需要删除的条数：{}，删除成功的条数：{}", delKeys6.size(), num);
+                log.info("定时任务[每天凌晨3点]：根据开始时间小于等于1天前，大于等于等于2天前的赛事，缓存自动关盘需要删除的条数：{}，删除成功的条数：{}", delKeys6.size(), num);
             }
         }
         //查询三方赛事表
@@ -241,7 +240,7 @@ public class CleanRedisCachJob extends IJobHandler {
         //开始时间小于等于1天前，大于等于等于2天前
         thirdMatchInfoExample.createCriteria().andBeginTimeLessThanOrEqualTo(oneDayTime).andBeginTimeGreaterThanOrEqualTo(twoDayTime);
         List<ThirdMatchInfo> thirdMatchInfoList = thirdMatchInfoMapper.selectByExample(thirdMatchInfoExample);
-        //log.info("定时任务[每天凌晨3点]：根据开始时间小于等于1天前，大于等于等于2天前的赛事，三方赛事条数：{}",thirdMatchInfoList.size());
+        log.info("定时任务[每天凌晨3点]：根据开始时间小于等于1天前，大于等于等于2天前的赛事，三方赛事条数：{}",thirdMatchInfoList.size());
         if(!CollectionUtils.isEmpty(thirdMatchInfoList)){
             //三方ID列表
             Map<Long,ThirdMatchInfo> thirdMatchId2Item = thirdMatchInfoList.stream().collect(Collectors.toMap(ThirdMatchInfo::getId, thi -> thi));
@@ -250,7 +249,7 @@ public class CleanRedisCachJob extends IJobHandler {
             thirdSportMarketExample.createCriteria().andDataSourceCodeEqualTo(DataSourceCodeEnum.BC.code).andMatchIdIn(Lists.newArrayList(thirdMatchId2Item.keySet()));
             List<ThirdSportMarket> thirdSportMarketList = thirdSportMarketMapper.selectByExample(thirdSportMarketExample);
             if(!CollectionUtils.isEmpty(thirdSportMarketList)){
-                //log.info("定时任务[每天凌晨3点]：根据开始时间小于等于1天前，大于等于等于2天前的赛事，三方盘口条数：{}",thirdSportMarketList.size());
+                log.info("定时任务[每天凌晨3点]：根据开始时间小于等于1天前，大于等于等于2天前的赛事，三方盘口条数：{}",thirdSportMarketList.size());
                 Set<String> delKeys4 = new HashSet<>();
                 for (ThirdSportMarket item:thirdSportMarketList) {
                     ThirdMatchInfo thirdMatchInfo = thirdMatchId2Item.get(item.getMatchId());
@@ -263,12 +262,12 @@ public class CleanRedisCachJob extends IJobHandler {
                 if(!CollectionUtils.isEmpty(delKeys4)){
                     Long num = redisService.delete(delKeys4);
                     totalNum += num;
-                    //log.info("定时任务[每天凌晨3点]：根据开始时间小于等于1天前，大于等于等于2天前的赛事，缓存三方盘口(BC)需要删除的条数：{}，删除成功的条数：{}",delKeys4.size(),num);
+                    log.info("定时任务[每天凌晨3点]：根据开始时间小于等于1天前，大于等于等于2天前的赛事，缓存三方盘口(BC)需要删除的条数：{}，删除成功的条数：{}",delKeys4.size(),num);
                 }
             }
         }
         stopWatch.stop();
-        //log.info("定时任务[每天凌晨3点]：根据开始时间小于等于1天前，大于等于等于2天前的赛事，清理redis中相关缓存条数：{}！执行用时{}毫秒",totalNum,stopWatch.getTotalTimeMillis());
+        log.info("定时任务[每天凌晨3点]：根据开始时间小于等于1天前，大于等于等于2天前的赛事，清理redis中相关缓存条数：{}！执行用时{}毫秒",totalNum,stopWatch.getTotalTimeMillis());
     }
 
     /**
@@ -279,7 +278,7 @@ public class CleanRedisCachJob extends IJobHandler {
         //避免分布式定时任务启动重复
         String lockKey = RedisConfig.REDIS_KEY_DATABASE +"::job:updatePandaMergeCachExpire";
         if(!redisService.tryLockOnce(lockKey,lockKey,REDIS_FIVE_MINS_TIME)){
-            //log.info("定时任务[每天凌晨1点]：根据开始时间小于等于1天前，大于等于等于2天前的赛事，定时任务启动重复，一次只能启动一个定时任务！");
+            log.info("定时任务[每天凌晨1点]：根据开始时间小于等于1天前，大于等于等于2天前的赛事，定时任务启动重复，一次只能启动一个定时任务！");
             return;
         }
         StopWatch stopWatch = new StopWatch(UUID.randomUUID().toString());
@@ -307,7 +306,7 @@ public class CleanRedisCachJob extends IJobHandler {
             }
         }
         stopWatch.stop();
-        //log.info("定时任务[每天凌晨1点检查panda-merge下缓存]：缓存时间为-1的设置为一天！执行用时{}毫秒",stopWatch.getTotalTimeMillis());
+        log.info("定时任务[每天凌晨1点检查panda-merge下缓存]：缓存时间为-1的设置为一天！执行用时{}毫秒",stopWatch.getTotalTimeMillis());
     }
 
 

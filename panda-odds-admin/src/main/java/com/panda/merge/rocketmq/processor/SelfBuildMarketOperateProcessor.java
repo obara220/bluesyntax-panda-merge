@@ -91,16 +91,16 @@ public class SelfBuildMarketOperateProcessor extends BaseProcessor {
             return;
         }
         //Step1:生成标准盘口
-        Map<String, StandardMarketDataMessage> marketDataMessageMap = soldMessageToOddsProcessor.processMarketBySold(linkId, standardMatchInfo, thirdSportMarketList);
-        log.info("::{}::processBuildOutRightMarket marketDataMessageMap:{}", linkId, JSON.toJSONString(marketDataMessageMap));
+        Map<String, StandardMarketDataMessage> marketDataMessageMap = soldMessageToOddsProcessor.processMarketBySold(linkId,standardMatchInfo, thirdSportMarketList);
+        log.info("::{}::processBuildOutRightMarket marketDataMessageMap:{}", linkId, JSON.toJSONString(marketDataMessageMap) );
 
         //过滤下发数据的操盘方式
         Map<String, StandardMarketDataMessage> newMarketDataMessageMap = new HashMap<>();
 
         String operateText = "盘口id:";
         Iterator iterator = marketDataMessageMap.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<String, StandardMarketDataMessage> entry = (Map.Entry<String, StandardMarketDataMessage>) iterator.next();
+        while(iterator.hasNext()){
+            Map.Entry<String, StandardMarketDataMessage> entry = (Map.Entry<String, StandardMarketDataMessage>)iterator.next();
             StandardMarketDataMessage marketDataMessage = new StandardMarketDataMessage();
             StandardMarketDataMessage oldmarketData = marketDataMessageMap.get(entry.getKey());
             BeanUtils.copyProperties(oldmarketData, marketDataMessage);
@@ -109,9 +109,9 @@ public class SelfBuildMarketOperateProcessor extends BaseProcessor {
                 marketDataMessage.setTradeType(Constant.OUTRIGHT_ONE);
                 operateText += marketDataMessage.getRelationMarketId();
             }
-            newMarketDataMessageMap.put(entry.getKey(), marketDataMessage);
+            newMarketDataMessageMap.put(entry.getKey(),marketDataMessage);
         }
-        log.info("::{}::processBuildOutRightMarket newMarketDataMessageMap:{}", linkId, JSON.toJSONString(newMarketDataMessageMap));
+        log.info("::{}::processBuildOutRightMarket newMarketDataMessageMap:{}", linkId, JSON.toJSONString(newMarketDataMessageMap) );
 
         //Step2:初始化盘口开售表
         String operateTitle = "盘口编辑";
@@ -174,31 +174,30 @@ public class SelfBuildMarketOperateProcessor extends BaseProcessor {
 
         //Step4:记录操作日志
         Long operateTargetId = standardMatchInfo.getId();
-        this.workRecordOfOutright(standardOutrightMatchDTO.getOperatorId(), standardOutrightMatchDTO.getOperatorName(), operateTargetId, operateTitle, operateText);
+        this.workRecordOfOutright (standardOutrightMatchDTO.getOperatorId(), standardOutrightMatchDTO.getOperatorName(), operateTargetId, operateTitle, operateText);
 
 
     }
 
     /**
      * 手动冠军赛事与盘口的操作日志的处理
-     *
      * @param operateTargetId
      * @param operateType
      * @param operateContext
      */
-    public void workRecordOfOutright(Long operatorId, String operatorName, Long operateTargetId, String operateType, String operateContext) {
+    public void workRecordOfOutright (Long operatorId, String operatorName, Long operateTargetId, String operateType, String operateContext) {
 
         OutrightMatchLog outrightMatchLog = new OutrightMatchLog();
         outrightMatchLog.setOperateTargetId(operateTargetId);   //standardOutrightMatchInfo.getId()
-        outrightMatchLog.setOperatorId(operatorId);
+        outrightMatchLog.setOperatorId( operatorId );
         outrightMatchLog.setOperatorName(operatorName);
-        outrightMatchLog.setOperatorNumber(UUID.randomUUID().toString().replaceAll("-", ""));
+        outrightMatchLog.setOperatorNumber(UUID.randomUUID().toString().replaceAll("-",""));
 
         //日志内容
-        List<Map<String, String>> listParamsCurrent = Lists.newArrayList();
-        Map<String, String> mapsCurrnet = Maps.newHashMap();
-        mapsCurrnet.put("operatorModle", operateType);
-        mapsCurrnet.put("operatorText", operateContext);
+        List<Map<String,String>> listParamsCurrent = Lists.newArrayList();
+        Map<String,String> mapsCurrnet = Maps.newHashMap();
+        mapsCurrnet.put("operatorModle",  operateType );
+        mapsCurrnet.put("operatorText", operateContext );
         listParamsCurrent.add(mapsCurrnet);
 
         //保存操作日志

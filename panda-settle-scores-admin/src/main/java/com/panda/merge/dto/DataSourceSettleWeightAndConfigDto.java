@@ -33,15 +33,6 @@ public class DataSourceSettleWeightAndConfigDto {
      * 权重上限
      */
     private Integer WeightNum;
-
-    private Integer heartbeatSecond;
-
-    /**
-     * 单数据源结算开关：0关闭，1开启
-     */
-    private Integer singleDatasourceSettleSwitch;
-
-
     /**
      * 初始化参数
      * @return

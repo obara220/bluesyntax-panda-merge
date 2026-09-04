@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
  * @create: 2024-03-04 11:52
  **/
 @Data
+@Component
 public class OddsWrapper<T> {
     private String linkId;
 

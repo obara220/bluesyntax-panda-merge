@@ -1,6 +1,5 @@
 package com.panda.merge.component;
 
-import cn.hutool.core.exceptions.ExceptionUtil;
 import com.alibaba.fastjson.JSON;
 import com.panda.merge.config.RedisConfig;
 import com.panda.merge.config.RedisService;
@@ -91,23 +90,13 @@ public class BindingResultAspect {
                     jsonStr = "入参长度为"+jsonStr.length()+"，自行根据LinkId查询入参！";
                 }
                 if(StringUtils.isNotBlank(request.getDataSourceCode())){
-                    e.printStackTrace();
-                    log.error("业务处理异常1【"+ className+" : "+methodName+" : "+request.getDataType()+"】【"+request.getDataSourceCode()+" ::"+request.getLinkId()+"::】,data="+jsonStr+" ,Exception="+getExceptionMessage(e));
+                    log.error("业务处理异常1【"+ className+" : "+methodName+" : "+request.getDataType()+"】【"+request.getDataSourceCode()+" ::"+request.getLinkId()+"::】,data="+jsonStr+" ,Exception:",e);
                 }else{
-                    e.printStackTrace();
-                    log.error("业务处理异常2【"+ className+" : "+methodName+" : "+request.getDataType()+"】【::"+request.getLinkId()+"::】,data="+jsonStr+"  stack"+ ExceptionUtil.stacktraceToString(e)+"+,Exception:",e );
+                    log.error("业务处理异常2【"+ className+" : "+methodName+" : "+request.getDataType()+"】【::"+request.getLinkId()+"::】,data="+jsonStr+" ,Exception:",e);
                 }
                 continue;
             }
-            e.printStackTrace();
             log.error("业务处理异常3【"+ className+" : "+methodName+"】,data="+JSON.toJSONString(reqPars)+" Exception:",e);
         }
-    }
-
-    public static String getExceptionMessage(Throwable e)
-    {
-        StringWriter sw = new StringWriter();
-        e.printStackTrace(new PrintWriter(sw, true));
-        return sw.toString();
     }
 }

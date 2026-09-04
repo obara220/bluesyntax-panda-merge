@@ -27,9 +27,6 @@ public class ConfigOutrightTradeMarket implements Serializable {
     @ApiModelProperty(value = "操作人ID")
     private Long operaterId;
 
-    @ApiModelProperty(value = "是否人工操盘;0:自动,1:手动,默认0")
-    private Integer operateType;
-
     private static final long serialVersionUID = 1L;
 
     public Long getId() {
@@ -96,14 +93,6 @@ public class ConfigOutrightTradeMarket implements Serializable {
         this.operaterId = operaterId;
     }
 
-    public Integer getOperateType() {
-        return operateType;
-    }
-
-    public void setOperateType(Integer operateType) {
-        this.operateType = operateType;
-    }
-
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -118,7 +107,6 @@ public class ConfigOutrightTradeMarket implements Serializable {
         sb.append(", createTime=").append(createTime);
         sb.append(", modifyTime=").append(modifyTime);
         sb.append(", operaterId=").append(operaterId);
-        sb.append(", operateType=").append(operateType);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

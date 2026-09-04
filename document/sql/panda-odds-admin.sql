@@ -564,46 +564,6 @@ CREATE TABLE `third_sport_market_odds_be` (
   KEY `idx_reference` (`reference_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs ROW_FORMAT=DYNAMIC COMMENT='第三方赛事盘口投注项表';
 
--------------三方投注项表----------------------
-DROP TABLE IF EXISTS `third_sport_market_odds_od`;
-CREATE TABLE `third_sport_market_odds_od` (
-      `id` bigint(20) NOT NULL COMMENT '表ID, 自增',
-      `market_id` bigint(20) DEFAULT NULL COMMENT '盘口ID  third_sport_market.id',
-      `reference_id` bigint(20) DEFAULT NULL COMMENT '如果当前盘口与标准盘口中的B记录玩法相同且盘口显示内容相同, 则该记录的当前字段值为B.ID',
-      `active` tinyint(4) DEFAULT NULL COMMENT '当前投注项是否被激活.1激活; 0未激活(锁盘)',
-      `settlement_result_text` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs DEFAULT '' COMMENT '投注项结算结果文本',
-      `settlement_result` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs DEFAULT '' COMMENT '投注项结算结果文本',
-      `bet_settlement_certainty` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs DEFAULT NULL COMMENT '赛果已确认: Confirmed, 盘中事件确认: LiveScouted, 未知: Unknown',
-      `odds_type` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs DEFAULT '' COMMENT '投注项类型',
-      `addition1` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs DEFAULT '' COMMENT '附加字段1',
-      `addition2` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs DEFAULT '' COMMENT '附加字段2',
-      `addition3` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs DEFAULT '' COMMENT '附加字段3',
-      `addition4` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs DEFAULT '' COMMENT '附加字段4',
-      `addition5` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs DEFAULT '' COMMENT '附加字段5',
-      `third_odds_field_source_id` varchar(225) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs DEFAULT NULL,
-      `order_odds` int(11) DEFAULT '0' COMMENT '用于排序, 大于1, 越小越靠前',
-      `name_code` bigint(20) DEFAULT NULL COMMENT '名称编码. 用于多语言. 投注项可能有也可能没有该字段. 需要的时候填入',
-      `name_expression_value` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs DEFAULT NULL COMMENT '投注项名称中包含的表达式的值',
-      `odds_value` int(11) DEFAULT NULL COMMENT '投注项赔率. 单位: 0.0001',
-      `pa_odds_value` int(11) DEFAULT '0' COMMENT '投注项PA赔率. 单位: 0.0001',
-      `original_odds_value` int(11) DEFAULT NULL COMMENT '投注项原始赔率. 单位: 0.0001',
-      `odds_fields_template_id` bigint(20) DEFAULT '0' COMMENT '标准投注项模板id   standard_market_category_field.id',
-      `third_template_source_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs DEFAULT NULL COMMENT '三方投注项模板源ID，third_market_category_field.id',
-      `target_side` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs DEFAULT NULL COMMENT '投注给哪一方: T1主队, T2客队',
-      `data_source_code` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs DEFAULT NULL COMMENT '取值:  SR BC分别代表: SportRadar、FeedConstruc. 详情见data_source',
-      `remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs DEFAULT NULL,
-      `create_time` bigint(20) DEFAULT NULL,
-      `modify_time` bigint(20) DEFAULT NULL,
-      `extra_info` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs DEFAULT NULL,
-      `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs DEFAULT NULL,
-      `third_match_id` bigint(20) NOT NULL DEFAULT '0' COMMENT '赛事ID,third_match_info.id',
-      PRIMARY KEY (`id`) USING BTREE,
-      UNIQUE KEY `idx_ds_source_id` (`third_odds_field_source_id`,`data_source_code`,`market_id`) USING BTREE,
-      KEY `idx_market` (`market_id`) USING BTREE,
-      KEY `idx_data_source_code` (`data_source_code`) USING BTREE,
-      KEY `idx_reference` (`reference_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs ROW_FORMAT=DYNAMIC COMMENT='第三方赛事盘口投注项表';
-
 
 
 

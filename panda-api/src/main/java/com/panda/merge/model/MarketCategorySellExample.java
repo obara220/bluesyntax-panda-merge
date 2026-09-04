@@ -2015,66 +2015,6 @@ public class MarketCategorySellExample {
             return (Criteria) this;
         }
 
-        public Criteria andOnexWeightIsNull() {
-            addCriterion("onex_weight is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andOnexWeightIsNotNull() {
-            addCriterion("onex_weight is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andOnexWeightEqualTo(Integer value) {
-            addCriterion("onex_weight =", value, "onexWeight");
-            return (Criteria) this;
-        }
-
-        public Criteria andOnexWeightNotEqualTo(Integer value) {
-            addCriterion("onex_weight <>", value, "onexWeight");
-            return (Criteria) this;
-        }
-
-        public Criteria andOnexWeightGreaterThan(Integer value) {
-            addCriterion("onex_weight >", value, "onexWeight");
-            return (Criteria) this;
-        }
-
-        public Criteria andOnexWeightGreaterThanOrEqualTo(Integer value) {
-            addCriterion("onex_weight >=", value, "onexWeight");
-            return (Criteria) this;
-        }
-
-        public Criteria andOnexWeightLessThan(Integer value) {
-            addCriterion("onex_weight <", value, "onexWeight");
-            return (Criteria) this;
-        }
-
-        public Criteria andOnexWeightLessThanOrEqualTo(Integer value) {
-            addCriterion("onex_weight <=", value, "onexWeight");
-            return (Criteria) this;
-        }
-
-        public Criteria andOnexWeightIn(List<Integer> values) {
-            addCriterion("onex_weight in", values, "onexWeight");
-            return (Criteria) this;
-        }
-
-        public Criteria andOnexWeightNotIn(List<Integer> values) {
-            addCriterion("onex_weight not in", values, "onexWeight");
-            return (Criteria) this;
-        }
-
-        public Criteria andOnexWeightBetween(Integer value1, Integer value2) {
-            addCriterion("onex_weight between", value1, value2, "onexWeight");
-            return (Criteria) this;
-        }
-
-        public Criteria andOnexWeightNotBetween(Integer value1, Integer value2) {
-            addCriterion("onex_weight not between", value1, value2, "onexWeight");
-            return (Criteria) this;
-        }
-
         public Criteria andBeWeightIsNull() {
             addCriterion("be_weight is null");
             return (Criteria) this;

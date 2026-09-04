@@ -4,11 +4,8 @@ import com.panda.merge.model.StandardSportTournament;
 import com.panda.merge.model.StandardSportTournamentExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
-import org.springframework.stereotype.Repository;
 
-@Repository
 public interface StandardSportTournamentMapper {
-
     long countByExample(StandardSportTournamentExample example);
 
     int deleteByExample(StandardSportTournamentExample example);

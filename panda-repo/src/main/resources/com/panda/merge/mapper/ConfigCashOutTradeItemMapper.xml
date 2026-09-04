@@ -73,7 +73,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, match_id, market_type, market_category_id, match_pre_status, category_pre_status, 
+    id, match_id, market_type, market_category_id, match_pre_status, category_pre_status,
     cash_out_margin, leve, create_time, modify_time, data_source_code
   </sql>
   <select id="selectByExample" parameterType="com.panda.merge.model.ConfigCashOutTradeItemExample" resultMap="BaseResultMap">
@@ -91,7 +91,7 @@
     </if>
   </select>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
-    select 
+    select
     <include refid="Base_Column_List" />
     from config_cash_out_trade_item
     where id = #{id,jdbcType=BIGINT}
@@ -107,14 +107,14 @@
     </if>
   </delete>
   <insert id="insert" parameterType="com.panda.merge.model.ConfigCashOutTradeItem">
-    insert into config_cash_out_trade_item (id, match_id, market_type, 
-      market_category_id, match_pre_status, category_pre_status, 
-      cash_out_margin, leve, create_time, 
-      modify_time, data_source_code)
-    values (#{id,jdbcType=BIGINT}, #{matchId,jdbcType=BIGINT}, #{marketType,jdbcType=INTEGER}, 
-      #{marketCategoryId,jdbcType=BIGINT}, #{matchPreStatus,jdbcType=INTEGER}, #{categoryPreStatus,jdbcType=INTEGER}, 
-      #{cashOutMargin,jdbcType=BIGINT}, #{leve,jdbcType=INTEGER}, #{createTime,jdbcType=BIGINT}, 
-      #{modifyTime,jdbcType=BIGINT}, #{dataSourceCode,jdbcType=VARCHAR})
+    insert into config_cash_out_trade_item (id, match_id, market_type,
+                                            market_category_id, match_pre_status, category_pre_status,
+                                            cash_out_margin, leve, create_time,
+                                            modify_time, data_source_code)
+    values (#{id,jdbcType=BIGINT}, #{matchId,jdbcType=BIGINT}, #{marketType,jdbcType=INTEGER},
+            #{marketCategoryId,jdbcType=BIGINT}, #{matchPreStatus,jdbcType=INTEGER}, #{categoryPreStatus,jdbcType=INTEGER},
+            #{cashOutMargin,jdbcType=BIGINT}, #{leve,jdbcType=INTEGER}, #{createTime,jdbcType=BIGINT},
+            #{modifyTime,jdbcType=BIGINT}, #{dataSourceCode,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.panda.merge.model.ConfigCashOutTradeItem">
     insert into config_cash_out_trade_item
@@ -239,16 +239,16 @@
   <update id="updateByExample" parameterType="map">
     update config_cash_out_trade_item
     set id = #{record.id,jdbcType=BIGINT},
-      match_id = #{record.matchId,jdbcType=BIGINT},
-      market_type = #{record.marketType,jdbcType=INTEGER},
-      market_category_id = #{record.marketCategoryId,jdbcType=BIGINT},
-      match_pre_status = #{record.matchPreStatus,jdbcType=INTEGER},
-      category_pre_status = #{record.categoryPreStatus,jdbcType=INTEGER},
-      cash_out_margin = #{record.cashOutMargin,jdbcType=BIGINT},
-      leve = #{record.leve,jdbcType=INTEGER},
-      create_time = #{record.createTime,jdbcType=BIGINT},
-      modify_time = #{record.modifyTime,jdbcType=BIGINT},
-      data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR}
+    match_id = #{record.matchId,jdbcType=BIGINT},
+    market_type = #{record.marketType,jdbcType=INTEGER},
+    market_category_id = #{record.marketCategoryId,jdbcType=BIGINT},
+    match_pre_status = #{record.matchPreStatus,jdbcType=INTEGER},
+    category_pre_status = #{record.categoryPreStatus,jdbcType=INTEGER},
+    cash_out_margin = #{record.cashOutMargin,jdbcType=BIGINT},
+    leve = #{record.leve,jdbcType=INTEGER},
+    create_time = #{record.createTime,jdbcType=BIGINT},
+    modify_time = #{record.modifyTime,jdbcType=BIGINT},
+    data_source_code = #{record.dataSourceCode,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -292,15 +292,15 @@
   <update id="updateByPrimaryKey" parameterType="com.panda.merge.model.ConfigCashOutTradeItem">
     update config_cash_out_trade_item
     set match_id = #{matchId,jdbcType=BIGINT},
-      market_type = #{marketType,jdbcType=INTEGER},
-      market_category_id = #{marketCategoryId,jdbcType=BIGINT},
-      match_pre_status = #{matchPreStatus,jdbcType=INTEGER},
-      category_pre_status = #{categoryPreStatus,jdbcType=INTEGER},
-      cash_out_margin = #{cashOutMargin,jdbcType=BIGINT},
-      leve = #{leve,jdbcType=INTEGER},
-      create_time = #{createTime,jdbcType=BIGINT},
-      modify_time = #{modifyTime,jdbcType=BIGINT},
-      data_source_code = #{dataSourceCode,jdbcType=VARCHAR}
+        market_type = #{marketType,jdbcType=INTEGER},
+        market_category_id = #{marketCategoryId,jdbcType=BIGINT},
+        match_pre_status = #{matchPreStatus,jdbcType=INTEGER},
+        category_pre_status = #{categoryPreStatus,jdbcType=INTEGER},
+        cash_out_margin = #{cashOutMargin,jdbcType=BIGINT},
+        leve = #{leve,jdbcType=INTEGER},
+        create_time = #{createTime,jdbcType=BIGINT},
+        modify_time = #{modifyTime,jdbcType=BIGINT},
+        data_source_code = #{dataSourceCode,jdbcType=VARCHAR}
     where id = #{id,jdbcType=BIGINT}
   </update>
 </mapper>

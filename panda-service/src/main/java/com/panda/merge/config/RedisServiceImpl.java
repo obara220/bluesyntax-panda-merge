@@ -5,7 +5,6 @@ import com.panda.merge.constant.ConstantSystem;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisStringCommands;
@@ -13,21 +12,11 @@ import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.data.redis.core.types.Expiration;
-import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -38,16 +27,13 @@ import java.util.stream.Collectors;
  * Created by macro on 2020/3/3.
  */
 @Slf4j
-@Service
 public class RedisServiceImpl implements RedisService {
     @Autowired
     private RedisTemplate redisTemplate;
 
-    @Lazy
     @Resource(name = "CallRedisThreadPool")
     private ThreadPoolTaskExecutor threadPoolTaskExecutor;
 
-    @Lazy
     @Resource(name = "CallOddsRedisThreadPool")
     private ThreadPoolTaskExecutor oddsThreadPoolTaskExecutor;
 
@@ -398,30 +384,18 @@ public class RedisServiceImpl implements RedisService {
         return lock(key,hashValue,expireTime);
     }
 
-    /**
-     * @param key     锁的键，通常是 Redis 中的某个唯一标识
-     * @param lockId  锁的标识符，通常是某个特定的客户端或线程 ID
-     * @param expireTime 锁的过期时间，防止死锁
-     * */
     private boolean lock(String key,String lockId,int expireTime) {
         try{
-            // 创建一个 DefaultRedisScript 实例
             DefaultRedisScript<Long> redisScript = new DefaultRedisScript<>();
-            // 设置 Lua 脚本，这个脚本应该是用于获取锁的脚本
             redisScript.setScriptText(SRIPT_LOCK);
-            // 设置脚本执行的返回类型
             redisScript.setResultType(Long.class);
-            // 执行脚本，尝试获取锁
             Long result = (Long)redisTemplate.execute(redisScript, Collections.singletonList(key),lockId,expireTime);
-            // 判断返回值，成功获取锁时返回 true
             return SUCCESS.equals(result);
         }catch(Exception e){
             log.error("创建redis锁时发生异常",e);
         }
-        // 如果异常或者获取锁失败，返回 false
         return false;
     }
-
     @Override
     public void setLongTime(String key, Object value) {
         redisTemplate.opsForValue().set(key, value);
@@ -630,6 +604,9 @@ public class RedisServiceImpl implements RedisService {
         }
         return result;
     }
+
+
+
 
     @Override
     public <K1, V> Map<K1, Map<String, V>> syncObtainMultiGetAllWithoutMerge(Collection<K1> ids,

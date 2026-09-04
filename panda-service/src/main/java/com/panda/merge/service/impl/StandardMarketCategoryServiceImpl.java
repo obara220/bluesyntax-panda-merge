@@ -26,19 +26,12 @@ public class StandardMarketCategoryServiceImpl implements StandardMarketCategory
     @Autowired
     private StandardMarketCategoryDao standardMarketCategoryDao;
 
-    @Autowired
-    private StandardMarketCategoryMapper standardMarketCategoryMapper;
-
     @Override
     public Page<StandardMarketCategoryDetail> getItemPageByModifyTime(PageModel<StandardSportMarketCategoryDTO> page){
         PageHelper.startPage(page.getCurrent(), page.getSize());
         return standardMarketCategoryDao.getItemPageByModifyTime(page.getData());
     }
 
-    @Override
-    public StandardMarketCategory getItemById(Long id) {
-        return standardMarketCategoryMapper.selectByPrimaryKey(id);
-    }
 
     public int delRedisByAll(){
         return 0;

@@ -309,16 +309,6 @@ public class SettleNumToScoreCodeUtils {
         footballSettleResultIndex.put("S555",11);
         footballSettleResultIndex.put("S500",12);
         footballSettleResultIndex.put("S170",18);
-
-//        footballSettleResultIndex.put("S14",1);
-//        footballSettleResultIndex.put("S1402",2);
-//        footballSettleResultIndex.put("S12001",3);
-//        footballSettleResultIndex.put("S506",4);
-//        footballSettleResultIndex.put("S13",5);
-//        footballSettleResultIndex.put("S1302",6);
-//        footballSettleResultIndex.put("S11001",7);
-//        footballSettleResultIndex.put("S503",8);
-
     }
     public static Integer getBasketSettleScoreIndex(String settleNum) {
         return basketSettleScoreIndex.get(settleNum);

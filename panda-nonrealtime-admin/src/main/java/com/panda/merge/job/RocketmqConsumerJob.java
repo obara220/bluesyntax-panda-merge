@@ -32,7 +32,7 @@ public class RocketmqConsumerJob extends IJobHandler {
     @Override
     public ReturnT<String> execute(String param) {
         long currentTime = System.currentTimeMillis();
-        //log.info("【RocketmqConsumerJob 手动触发MQ暂停消费（部分topic）:{}】 处理开始,入参: {}", currentTime, param);
+        log.info("【RocketmqConsumerJob 手动触发MQ暂停消费（部分topic）:{}】 处理开始,入参: {}", currentTime, param);
         XxlJobLogger.log("【RocketmqConsumerJob 手动触发MQ暂停消费（部分topic）:{}】 处理开始,入参: {}", currentTime, param);
         try {
             JSONObject jsonObject = JSON.parseObject(param);
@@ -41,7 +41,7 @@ public class RocketmqConsumerJob extends IJobHandler {
             log.error("【RocketmqConsumerJob 手动触发MQ暂停消费（部分topic）执行异常:" + currentTime + "】 Exception:", e);
             XxlJobLogger.log("【RocketmqConsumerJob 手动触发MQ暂停消费（部分topic）执行异常:" + currentTime + "】 Exception:" + e.getMessage());
         }
-        //log.info("【RocketmqConsumerJob 手动触发MQ暂停消费（部分topic）:{}】 处理结束", currentTime);
+        log.info("【RocketmqConsumerJob 手动触发MQ暂停消费（部分topic）:{}】 处理结束", currentTime);
         XxlJobLogger.log("【RocketmqConsumerJob 手动触发MQ暂停消费（部分topic）:{}】 处理结束", currentTime);
         return ReturnT.SUCCESS;
     }
@@ -56,13 +56,13 @@ public class RocketmqConsumerJob extends IJobHandler {
         if (consumer != null) {
             if(ONE.equals(pandaDbIsError)){
                 consumer.suspend();
-                //log.info("【RocketmqConsumerJob 手动触发MQ暂停消费（部分topic）:{}】 已暂停消费!", currentTime);
+                log.info("【RocketmqConsumerJob 手动触发MQ暂停消费（部分topic）:{}】 已暂停消费!", currentTime);
             }else{
                 consumer.resume();
-                //log.info("【RocketmqConsumerJob 手动触发MQ暂停消费（部分topic）:{}】 已恢复消费!", currentTime);
+                log.info("【RocketmqConsumerJob 手动触发MQ暂停消费（部分topic）:{}】 已恢复消费!", currentTime);
             }
         }else{
-            //log.info("【RocketmqConsumerJob 手动触发MQ暂停消费（部分topic）:{}】 consumer为空,无法处理!", currentTime);
+            log.info("【RocketmqConsumerJob 手动触发MQ暂停消费（部分topic）:{}】 consumer为空,无法处理!", currentTime);
         }
     }
 }

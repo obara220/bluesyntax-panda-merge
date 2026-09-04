@@ -55,7 +55,7 @@ public class ThirdSeasonInfoProcessor extends BaseProcessor {
         stopWatch.start();
         Response response = Response.success();
         try{
-            log.info("【"+ PROJECT_ID_NOREALTIME +" ："+ PROJECT_ID_NOREALTIME+" ："+ THIRD_SEASON_INFO_API +"】【::" + request.getLinkId() + "::】第三方赛季数据接收开始...");
+            log.info("【"+ PROJECT_ID_NOREALTIME+" ："+ THIRD_SEASON_INFO_API +"】【::" + request.getLinkId() + "::】第三方赛季数据接收开始...");
             //对linkid进行校验防止数据的重复接入
             validateLinkId(THIRD_SEASON_INFO_API, request);
             ThirdSeasonInfoDTO thirdSeasonDTO = request.getData();
@@ -79,7 +79,7 @@ public class ThirdSeasonInfoProcessor extends BaseProcessor {
                             stopWatch.getTotalTimeMillis(),Integer.parseInt(String.valueOf(response.getCode())),response.getMsg())
             );
         }
-        log.info("【"+ PROJECT_ID_NOREALTIME +" ："+PROJECT_ID_NOREALTIME+" ："+ THIRD_SEASON_INFO_API+"】【"+request.getDataSourceCode()+" ::"+request.getLinkId()+"::】第三方赛季数据处理结束,返回结果 ：{}" , JSON.toJSONString(response));
+        log.info("【"+PROJECT_ID_NOREALTIME+" ："+ THIRD_SEASON_INFO_API+"】【"+request.getDataSourceCode()+" ::"+request.getLinkId()+"::】第三方赛季数据处理结束,返回结果 ：{}" , JSON.toJSONString(response));
         return response;
     }
 

@@ -80,8 +80,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, third_match_source_id, sport_id, data_source_code, third_team_source_id, third_player_source_id, 
-    third_player_name, third_player_en_name, third_player_pic_url, position, shirt_number, 
+    id, third_match_source_id, sport_id, data_source_code, third_team_source_id, third_player_source_id,
+    third_player_name, third_player_en_name, third_player_pic_url, position, shirt_number,
     home_away, reason, description_id, description, create_time, modify_time, invalid
   </sql>
   <select id="selectByExample" parameterType="com.panda.merge.model.ThirdMatchSidelinedExample" resultMap="BaseResultMap">
@@ -99,7 +99,7 @@
     </if>
   </select>
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
-    select 
+    select
     <include refid="Base_Column_List" />
     from third_match_sidelined
     where id = #{id,jdbcType=VARCHAR}
@@ -115,18 +115,18 @@
     </if>
   </delete>
   <insert id="insert" parameterType="com.panda.merge.model.ThirdMatchSidelined">
-    insert into third_match_sidelined (id, third_match_source_id, sport_id, 
-      data_source_code, third_team_source_id, third_player_source_id, 
-      third_player_name, third_player_en_name, third_player_pic_url, 
-      position, shirt_number, home_away, 
-      reason, description_id, description, 
+    insert into third_match_sidelined (id, third_match_source_id, sport_id,
+      data_source_code, third_team_source_id, third_player_source_id,
+      third_player_name, third_player_en_name, third_player_pic_url,
+      position, shirt_number, home_away,
+      reason, description_id, description,
       create_time, modify_time, invalid
       )
-    values (#{id,jdbcType=VARCHAR}, #{thirdMatchSourceId,jdbcType=VARCHAR}, #{sportId,jdbcType=BIGINT}, 
-      #{dataSourceCode,jdbcType=VARCHAR}, #{thirdTeamSourceId,jdbcType=VARCHAR}, #{thirdPlayerSourceId,jdbcType=VARCHAR}, 
-      #{thirdPlayerName,jdbcType=VARCHAR}, #{thirdPlayerEnName,jdbcType=VARCHAR}, #{thirdPlayerPicUrl,jdbcType=VARCHAR}, 
-      #{position,jdbcType=VARCHAR}, #{shirtNumber,jdbcType=INTEGER}, #{homeAway,jdbcType=INTEGER}, 
-      #{reason,jdbcType=VARCHAR}, #{descriptionId,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, 
+    values (#{id,jdbcType=VARCHAR}, #{thirdMatchSourceId,jdbcType=VARCHAR}, #{sportId,jdbcType=BIGINT},
+      #{dataSourceCode,jdbcType=VARCHAR}, #{thirdTeamSourceId,jdbcType=VARCHAR}, #{thirdPlayerSourceId,jdbcType=VARCHAR},
+      #{thirdPlayerName,jdbcType=VARCHAR}, #{thirdPlayerEnName,jdbcType=VARCHAR}, #{thirdPlayerPicUrl,jdbcType=VARCHAR},
+      #{position,jdbcType=VARCHAR}, #{shirtNumber,jdbcType=INTEGER}, #{homeAway,jdbcType=INTEGER},
+      #{reason,jdbcType=VARCHAR}, #{descriptionId,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR},
       #{createTime,jdbcType=BIGINT}, #{modifyTime,jdbcType=BIGINT}, #{invalid,jdbcType=TINYINT}
       )
   </insert>

@@ -35,7 +35,7 @@ import java.util.List;
 @Component
 public class SpareStandMatchScoresUpdateConsumer {
     private static final String TOPIC = "STANDARD_MATCH_SCORES_UPDATE";
-    private static final String CONSUMER_GROUP = "scores-group-STANDARD_MATCH_SCORES_UPDATE2";
+    private static final String CONSUMER_GROUP = "scores-group-STANDARD_MATCH_SCORES_UPDATE";
 
     @Value("${slaveNamesrvAddr}")
     private String nameServers;

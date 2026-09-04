@@ -13,11 +13,9 @@ import org.apache.rocketmq.common.message.MessageConst;
 import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.support.MessageBuilder;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -56,9 +54,6 @@ public class DiffService {
     @Autowired
     private RocketMQTemplate rocketMqTemplate;
 
-    @Resource(name = "dataSourceSwitchPool")
-    private ThreadPoolTaskExecutor taskExecutor;
-
     /**
      * 清除盘口水差、玩法水差、坑位水差，篮球的话还有盘口差
      * 清理独赢配置 清概率差，水差
@@ -80,28 +75,28 @@ public class DiffService {
         log.info("::{}::处理清除水差delDiffByMatchIdAndCategoryList,开始处理", linkId);
         CompletableFuture c1 = CompletableFuture.runAsync(() -> {
             configMarketAutoDiffTradeService.delDiffByMatchIdAndCategoryList(linkId, standardMatchId, categoryList);
-        },taskExecutor);
+        });
         CompletableFuture c2 = CompletableFuture.runAsync(() -> {
             headGapService.delCacheByCategoryIdList(linkId, standardMatchId, categoryList);
-        },taskExecutor);
+        });
         CompletableFuture c3 = CompletableFuture.runAsync(() -> {
             configCategoryAutoDiffTradeService.delDiffByMatchIdAndCategoryList(linkId, standardMatchId, categoryList);
-        },taskExecutor);
+        });
         CompletableFuture c4 = CompletableFuture.runAsync(() -> {
             configPlaceNumAutoDiffTradeService.delDiffByMatchIdAndCategoryList(linkId, standardMatchId, categoryList);
-        },taskExecutor);
+        });
         CompletableFuture c6 = CompletableFuture.runAsync(() -> {
             List<Long> thanThreeCategoryIds = getMoreCategoryId(categoryList, true);
             if (!CollectionUtils.isEmpty(thanThreeCategoryIds)) {
                 configMarketMarginGapService.upProbabilityByMatchIdAndCategoryIdList(linkId, standardMatchId, thanThreeCategoryIds);
             }
-        },taskExecutor);
+        });
         CompletableFuture c7 = CompletableFuture.runAsync(() -> {
             List<Long> otherCategoryIds = getMoreCategoryId(categoryList, false);
             if (!CollectionUtils.isEmpty(otherCategoryIds)) {
                 configMarketMarginGapService.updateByMatchIdAndCategoryList(linkId, standardMatchId, otherCategoryIds);
             }
-        },taskExecutor);
+        });
         CompletableFuture.allOf(c1, c2, c3, c4, c6, c7);
         log.info("::{}::处理清除水差delDiffByMatchIdAndCategoryList,处理完成", linkId);
     }

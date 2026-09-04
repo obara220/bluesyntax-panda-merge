@@ -386,10 +386,6 @@ public class MatchStatisticsInfoProcessor extends BaseProcessor {
         if (marketCategoryIds == null) {
             marketCategoryIds = new HashSet<Long>();
         }
-        Pair<Set<Long>, Map<String, JSONObject>> childCloseMarketCategory = getAutoCloseChildMarketCategoryDisposeBySportId(linkId, Long.valueOf(secondsFromStart == null ? 0 : secondsFromStart), standardMatchInfo, matchStatisticsInfoDTO.getPeriod().longValue(), "0");
-        if (null != childCloseMarketCategory) {
-            iTradeMarketConfigApi.autoCloseChildMarketCategory(linkId+"_childCloseMarket", standardMatchInfo.getId(), childCloseMarketCategory, TimeUtils.millsSecondsEast8ZoneGmt());
-        }
         //1852 兜底功能，进入下一个阶段时，关闭上一个阶段的玩法盘口
         Set<Long> marketCategoryIds1 = getAutoCloseBeforePeriodCategory(linkId, standardMatchInfo, matchStatisticsInfoDTO.getPeriod().longValue());
         if (!CollectionUtils.isEmpty(marketCategoryIds1)) {

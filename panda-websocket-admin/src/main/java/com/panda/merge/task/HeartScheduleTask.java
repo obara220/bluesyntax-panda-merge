@@ -141,7 +141,7 @@ public class HeartScheduleTask {
             if(channel.getCreateTime()<System.currentTimeMillis()-60*1000){
                 log.warn("失去客户端连接 channel: " + channelId);
                 //赛事回滚状态订阅清理
-                MyCacheService.sessionOperatorOnlineMap.remove(channelId);
+                MyCacheService.sessionIdMatchScoreMap.remove(channelId);
                 try {
                     channel.getSession().close();
                 } catch (Exception e) {

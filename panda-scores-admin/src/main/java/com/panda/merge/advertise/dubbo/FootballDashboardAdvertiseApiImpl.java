@@ -343,9 +343,6 @@ public class FootballDashboardAdvertiseApiImpl implements FootballDashboardAdver
                     if(timeStatusEventDto.getPeriod()!=null){
                         period = timeStatusEventDto.getPeriod();
                     }
-                    if(timeStatusEventDto.getTimeFromStartSecond()!=null){
-                        matchTime = timeStatusEventDto.getTimeFromStartSecond();
-                    }
                     matchTimeInfo.setPeriod(period);
                     matchScoresInfo.setPeriod(period);
                     matchTimeInfo.setTimeGo(timeStatusEventDto.getTimeGo());
@@ -434,7 +431,7 @@ public class FootballDashboardAdvertiseApiImpl implements FootballDashboardAdver
                     matchScorePdLogService.changeMatchStatusLog(response.getData(), changeMatchStatus);
                     // 暂停 1，不暂停 0
                     response.getData().getThirdMatchInfo().setWhetherStop(1);
-//                    scoresProducer.sendToMQ(response.getData().getThirdMatchInfo(), response.getData().getMatchScoresInfo(), changeMatchStatus.getLinkedId());
+                    scoresProducer.sendToMQ(response.getData().getThirdMatchInfo(), response.getData().getMatchScoresInfo(), changeMatchStatus.getLinkedId());
                     redisUtils.cacheRequestLinkId(changeMatchStatus.getLinkedId());
                     // 推送ws
                     redisUtils.pushFootBallScore(changeMatchStatus.getThirdMatchId());
@@ -454,7 +451,7 @@ public class FootballDashboardAdvertiseApiImpl implements FootballDashboardAdver
                     matchScorePdLogService.changeMatchStatusLog(response.getData(), changeMatchStatus);
                     // 暂停 1，不暂停 0
                     response.getData().getThirdMatchInfo().setWhetherStop(0);
-//                    scoresProducer.sendToMQ(response.getData().getThirdMatchInfo(), response.getData().getMatchScoresInfo(), changeMatchStatus.getLinkedId());
+                    scoresProducer.sendToMQ(response.getData().getThirdMatchInfo(), response.getData().getMatchScoresInfo(), changeMatchStatus.getLinkedId());
                     redisUtils.cacheRequestLinkId(changeMatchStatus.getLinkedId());
                     // 推送ws
                     redisUtils.pushFootBallScore(changeMatchStatus.getThirdMatchId());
@@ -465,7 +462,7 @@ public class FootballDashboardAdvertiseApiImpl implements FootballDashboardAdver
                 if (MATCH_END.equals(changeMatchStatus.getControlType())) {
                     Response endRes = footBallAdvertiseService.matchEnd(response.getData(), changeMatchStatus.getLinkedId());
                     matchScorePdLogService.changeMatchStatusLog(response.getData(), changeMatchStatus);
-//                    scoresProducer.sendToMQ(response.getData().getThirdMatchInfo(), response.getData().getMatchScoresInfo(), changeMatchStatus.getLinkedId());
+                    scoresProducer.sendToMQ(response.getData().getThirdMatchInfo(), response.getData().getMatchScoresInfo(), changeMatchStatus.getLinkedId());
                     redisUtils.cacheRequestLinkId(changeMatchStatus.getLinkedId());
                     // 推送ws
                     redisUtils.pushFootBallScore(changeMatchStatus.getThirdMatchId());

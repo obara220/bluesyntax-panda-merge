@@ -7,7 +7,6 @@ import com.panda.merge.dto.DownSettleDto;
 import com.panda.merge.dto.GrayAreaSettleDto;
 import com.panda.merge.model.*;
 import com.panda.merge.v2.entity.MatchSettleAbnormalEntity;
-import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,7 +14,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Slf4j
 public class FootBallMatchSettleScoreUtils {
 
     private static final List<String> basketballGrayDelayNum = Arrays.asList(BasketBallSettleNumEnum.BK_Q1041.getCode(),
@@ -488,14 +486,12 @@ public class FootBallMatchSettleScoreUtils {
         initfa_cardEvent(list,standardMatchId);
         
         // 为eventType=1的事件创建对应的eventType=3（时段事件）
-        log.info("createInitMatchSettleEvents before size:{}", list.size());
         initEventType3Events(list, standardMatchId);
-        log.info("createInitMatchSettleEvents after size:{}", list.size());
+        
         // 如果存在已创建的事件，则过滤掉已存在的事件
         if (existingEvents != null && !existingEvents.isEmpty()) {
             list = filterExistingEvents(list, existingEvents);
         }
-        log.info("createInitMatchSettleEvents after filter size:{}", list.size());
         return list;
     }
 
@@ -514,7 +510,7 @@ public class FootBallMatchSettleScoreUtils {
                 }
             }
         }
-        log.info("createInitMatchSettleEvents inside before eventType1Events size:{} param:{}", eventType1Events.size(), eventType1Events);
+        
         // 为每个eventType=1的事件创建对应的eventType=3事件
         List<MatchSettleEvent> eventType3Events = new ArrayList<>();
         for (MatchSettleEvent eventType1Event : eventType1Events) {
@@ -530,13 +526,12 @@ public class FootBallMatchSettleScoreUtils {
             eventType3Event.setEventType(3);
             // 使用SettleNumUtils获取eventType=3的settleNum
             String settleNum = SettleNumUtils.getTypeEventSettleNum(eventType3Event.getEventCode(), eventType3Event.getPeriodId(), 3);
-            log.info("createInitMatchSettleEvents inside before settleNum:{}", settleNum);
             if (settleNum != null && !settleNum.isEmpty()) {
                 eventType3Event.setSettleNum(settleNum);
                 eventType3Events.add(eventType3Event);
             }
         }
-        log.info("createInitMatchSettleEvents inside before eventType3Events size:{} param:{}", eventType3Events.size(), eventType3Events);
+        
         // 将eventType=3事件添加到列表中
         list.addAll(eventType3Events);
     }

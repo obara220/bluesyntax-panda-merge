@@ -20,7 +20,8 @@ import javax.annotation.Resource;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import static com.panda.merge.constant.ConstantSystem.*;
+import static com.panda.merge.constant.ConstantSystem.CONSUME_REALTIME_GROUP;
+import static com.panda.merge.constant.ConstantSystem.THIRD_MATCH_EVENT_LIST_INFO_API;
 
 /**
  * 备用多条事件MQ消费

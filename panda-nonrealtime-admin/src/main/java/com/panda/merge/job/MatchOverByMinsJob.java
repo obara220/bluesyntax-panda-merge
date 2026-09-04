@@ -68,7 +68,7 @@ public class MatchOverByMinsJob extends IJobHandler {
      */
     @Override
     public ReturnT<String> execute(String param){
-        //log.info("【MatchOverByMinsJob 完赛操作调度，每分钟执行】 完赛处理结束");
+        log.info("【MatchOverByMinsJob 完赛操作调度，每分钟执行】 完赛处理结束");
         //2.针对爬虫无法爬取到滚球赛事的完赛处理（非商业数据源不能生成标准赛事）
 //        try {
 //            this.matchOverScrapyMatch();
@@ -110,7 +110,7 @@ public class MatchOverByMinsJob extends IJobHandler {
             log.error("【fixStandardInfoMatchOverRecords 完赛操作调度，每分钟执行异常】 赛事状态未999的赛事完赛处理异常！Exception:", e);
             XxlJobLogger.log("【fixStandardInfoMatchOverRecords 完赛操作调度，每分钟执行异常】 赛事状态未999的赛事完赛处理异常！Exception:"+e.getMessage());
         }
-        //log.info("【MatchOverByMinsJob 完赛操作调度，每分钟执行】 完赛处理结束");
+        log.info("【MatchOverByMinsJob 完赛操作调度，每分钟执行】 完赛处理结束");
         XxlJobLogger.log("【MatchOverByMinsJob 完赛操作调度，每分钟执行】 完赛处理结束");
         return ReturnT.SUCCESS;
     }
@@ -125,7 +125,7 @@ public class MatchOverByMinsJob extends IJobHandler {
                 .andMatchPeriodIdEqualTo(Long.valueOf(MatchStatusEnum.Ended999.value))
                 .andMatchOverEqualTo(YesNoEnum.N.value);
         List<StandardMatchInfo> standardMatchInfoList = standardMatchInfoMapper.selectByExample(standardMatchInfoExample);
-        //log.info("checkToMatchOver :标准赛事需要完赛的集合条数{}", standardMatchInfoList.size());
+        log.info("checkToMatchOver :标准赛事需要完赛的集合条数{}", standardMatchInfoList.size());
         matchOverBaseMethod.standardMatchInfoListProcessOver(standardMatchInfoList);
 
         //3.查询三方赛事表
@@ -134,7 +134,7 @@ public class MatchOverByMinsJob extends IJobHandler {
                 .andMatchPeriodEqualTo(String.valueOf(MatchStatusEnum.Ended999.value))
                 .andMatchOverEqualTo(YesNoEnum.N.value);
         List<ThirdMatchInfo> thirdMatchInfoList = thirdMatchInfoMapper.selectByExample(thirdMatchInfoExample);
-        //log.info("checkToMatchOver :三方赛事需要完赛的集合条数{}", thirdMatchInfoList.size());
+        log.info("checkToMatchOver :三方赛事需要完赛的集合条数{}", thirdMatchInfoList.size());
         matchOverBaseMethod.thirdMatchInfoListProcessOver(thirdMatchInfoList);
     }
 
@@ -155,7 +155,7 @@ public class MatchOverByMinsJob extends IJobHandler {
                 .andBeginTimeLessThanOrEqualTo(nowTime+MINS_1)
                 .andBeginTimeGreaterThanOrEqualTo(beginTime);
         List<StandardMatchInfo> standardMatchInfoList = standardMatchInfoMapper.selectByExample(standardMatchInfoExample);
-        //log.info("fixMatchOverOtherStatus :标准赛事需要完赛的集合条数{}", standardMatchInfoList.size());
+        log.info("fixMatchOverOtherStatus :标准赛事需要完赛的集合条数{}", standardMatchInfoList.size());
         matchOverBaseMethod.standardMatchInfoListProcessOver(standardMatchInfoList);
 
         //3.查询三方赛事表
@@ -164,7 +164,7 @@ public class MatchOverByMinsJob extends IJobHandler {
                 .andBeginTimeLessThanOrEqualTo(nowTime+MINS_1)
                 .andBeginTimeGreaterThanOrEqualTo(beginTime);
         List<ThirdMatchInfo> thirdMatchInfoList = thirdMatchInfoMapper.selectByExample(thirdMatchInfoExample);
-        //log.info("fixMatchOverOtherStatus :三方赛事需要完赛的集合条数{}", thirdMatchInfoList.size());
+        log.info("fixMatchOverOtherStatus :三方赛事需要完赛的集合条数{}", thirdMatchInfoList.size());
         matchOverBaseMethod.thirdMatchInfoListProcessOver(thirdMatchInfoList);
     }
 
@@ -319,7 +319,7 @@ public class MatchOverByMinsJob extends IJobHandler {
                matchOverBaseMethod.standardMatchInfoProcessOver(standardMatchInfo);
             });
             Set<Long> standardMatchIds = list.stream().map(StandardMatchInfo::getId).collect(Collectors.toSet());
-            //log.info("standardMatchIds:{}", standardMatchIds);
+            log.info("standardMatchIds:{}", standardMatchIds);
             StandardSportMarketSellExample tandardSportMarketSellExample = new StandardSportMarketSellExample();
             tandardSportMarketSellExample.createCriteria().andMatchInfoIdIn(Lists.newArrayList(standardMatchIds));
             List<StandardSportMarketSell> standardSportMarketSells = standardSportMarketSellMapper.selectByExample(tandardSportMarketSellExample);
@@ -327,7 +327,7 @@ public class MatchOverByMinsJob extends IJobHandler {
                 for (StandardSportMarketSell standardSportMarketSell : standardSportMarketSells) {
                     standardSportMarketSell.setStatus(PreSaleMatchStatusEnum.Enable.name());
                     int updateNum = standardSportMarketSellMapper.updateByPrimaryKeySelective(standardSportMarketSell);
-                    //log.info("end=enable:{},更新条数:{}", standardSportMarketSell.getMatchInfoId(), updateNum);
+                    log.info("end=enable:{},更新条数:{}", standardSportMarketSell.getMatchInfoId(), updateNum);
                 }
             }
         }

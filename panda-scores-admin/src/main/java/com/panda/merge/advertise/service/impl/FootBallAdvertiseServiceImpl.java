@@ -98,15 +98,14 @@ public class FootBallAdvertiseServiceImpl implements FootBallAdvertiseService {
     @Override
     public Response matchStart(MatchScoreAndTimeVo matchScoreAndTimeVo, String linkedId, KickOffDto kickOff, ChangeMatchStatusDto changeMatchStatus) {
         //1.计算阶段
-        Long nextPeriod= 6L;
+        Long nextPeriod= 6l;
         //2 计算时长
         Long startTimeSecond= 0l;
         //修改赛事阶段以及时间
         //3.查询阶段比分
         MatchScoreCommonVo matchScoreCommonVo= footBallScoreService.searchCommonMatchScore(matchScoreAndTimeVo.getMatchScoresInfo(),nextPeriod);
         //4.下发阶段事件
-        commonEventService.changeMatchPeriodEvent( matchScoreAndTimeVo, nextPeriod, startTimeSecond, startTimeSecond,
-                System.currentTimeMillis(), matchScoreCommonVo, linkedId,"");
+        commonEventService.changeMatchPeriodEvent(matchScoreAndTimeVo,nextPeriod,startTimeSecond,startTimeSecond,System.currentTimeMillis(),matchScoreCommonVo,linkedId,"");
         String oddsDataSourceCode = matchScoreAndTimeVo.getThirdMatchInfo().getDataSourceCode();
 //        StandardSportMarketSellExample example= new StandardSportMarketSellExample();
 //        example.createCriteria().andMatchInfoIdEqualTo(matchScoreAndTimeVo.getThirdMatchInfo().getReferenceId());
@@ -273,14 +272,12 @@ public class FootBallAdvertiseServiceImpl implements FootBallAdvertiseService {
         Integer infoTimeGo = timeInfo.getTimeGo();
         MatchTimeInfo matchTimeInfo = pdMatchInfoRepository.getMatchTimeInfo(data.getMatchTimeInfo().getThirdMatchId(), SourceTypeEnum.LIVE_DATA.getCode(), null);
         if ( !Objects.isNull(matchTimeInfo) ) {
-            if ( null == matchTimeInfo.getTimeGo() || !Objects.equals(infoTimeGo, matchTimeInfo.getTimeGo())) {
+            if ( null == matchTimeInfo.getTimeGo() || !infoTimeGo.equals(matchTimeInfo.getTimeGo())) {
                 matchTimeInfo.setTimeGo(infoTimeGo);
             }
-            if ( !Objects.equals(infoPeriod, matchTimeInfo.getPeriod()) ) {
+            if ( !infoPeriod.equals(matchTimeInfo.getPeriod()) ) {
                 matchTimeInfo.setPeriod(infoPeriod);
             }
-        } else {
-            matchTimeInfo = timeInfo;
         }
 //        MatchScoresInfo matchScoresInfo =data.getMatchScoresInfo();
         MatchScoresInfo matchScoresInfo =pdMatchInfoRepository.getMatchScoresInfoByPrimaryKey(data.getMatchScoresInfo().getId(), null);
@@ -320,9 +317,7 @@ public class FootBallAdvertiseServiceImpl implements FootBallAdvertiseService {
         }
         log.info("足球报球板事件时间，thirdMatchId={},matchTime-startTimeSecond={},secondFromStart={},eventTime={}",
                 matchTimeInfo.getThirdMatchId(),startTimeSecond,matchTimeInfo.getSecondFromStart(),matchTimeInfo.getEventTime());
-        if (data.getStandardMatchInfo() != null) {
-            pdMatchAdvertiseVo.setMatchManageId(data.getStandardMatchInfo().getMatchManageId());
-        }
+        pdMatchAdvertiseVo.setMatchManageId(data.getStandardMatchInfo().getMatchManageId());
         pdMatchAdvertiseVo.setMatchTime(startTimeSecond);
         //比分计算
         FootBallScoreVo footBallScoreVo = footBallScoreService.transforScore(matchScoresInfo);
@@ -353,9 +348,6 @@ public class FootBallAdvertiseServiceImpl implements FootBallAdvertiseService {
         footballMatchCount(matchScoresInfo, pdMatchAdvertiseVo);
 
         MatchTimeInfo timeStatusDto = footballDashboardAdvertiseApi.getMatchTimeInfoUpdated(matchTimeInfo.getThirdMatchId());
-        if (timeStatusDto == null) {
-            timeStatusDto = matchTimeInfo;
-        }
         timeStatusDto.setSecondFromStart(startTimeSecond);
         pdMatchAdvertiseVo.setInjuryAndtimeStatus(timeStatusDto);
 
@@ -394,9 +386,6 @@ public class FootBallAdvertiseServiceImpl implements FootBallAdvertiseService {
 
         //查询结算状态
         buildSettleStatus(pdMatchAdvertiseVo);
-        if (data.getStandardMatchInfo() != null) {
-            pdMatchAdvertiseVo.setLiveEventSource(data.getStandardMatchInfo().getLiveEventSource());
-        }
         stopWatch.stop();
         log.info("BasketBallAdvertiseServiceImpl-buildFootBallAdvertiseVo-耗时={}, thirdMatchId={}",stopWatch.getTotalTimeMillis(),matchTimeInfo.getThirdMatchId());
         return Response.success(pdMatchAdvertiseVo);
@@ -761,25 +750,21 @@ public class FootBallAdvertiseServiceImpl implements FootBallAdvertiseService {
     }
 
     private Integer countHasPeriod(MatchScoreAndTimeVo data) {
-        Long period = data.getMatchTimeInfo().getPeriod();
-        if (period == null) {
-            period = 0L;
-        }
-        if(period.equals(0l)||
-                period.equals(6l)||
-                period.equals(7l)||
-                period.equals(31l)||
-                period.equals(100l)){
+        if(data.getMatchTimeInfo().getPeriod().equals(0l)||
+                data.getMatchTimeInfo().getPeriod().equals(6l)||
+                data.getMatchTimeInfo().getPeriod().equals(7l)||
+                data.getMatchTimeInfo().getPeriod().equals(31l)||
+                data.getMatchTimeInfo().getPeriod().equals(100l)){
             return 1;
-        }else if(period.equals(32L)||
-                period.equals(41L)||
-                period.equals(33L)||
-                period.equals(42L)||
-                period.equals(110L)){
+        }else if(data.getMatchTimeInfo().getPeriod().equals(32L)||
+                data.getMatchTimeInfo().getPeriod().equals(41L)||
+                data.getMatchTimeInfo().getPeriod().equals(33L)||
+                data.getMatchTimeInfo().getPeriod().equals(42L)||
+                data.getMatchTimeInfo().getPeriod().equals(110L)){
             return 2;
-        }else if(period.equals(34l)||
-                period.equals(50l)||
-                period.equals(120l)){
+        }else if(data.getMatchTimeInfo().getPeriod().equals(34l)||
+                data.getMatchTimeInfo().getPeriod().equals(50l)||
+                data.getMatchTimeInfo().getPeriod().equals(120l)){
             return 3;
         }else{
             JSONObject periodFootballScores = JSONObject.parseObject(data.getMatchScoresInfo().getScoresJson());

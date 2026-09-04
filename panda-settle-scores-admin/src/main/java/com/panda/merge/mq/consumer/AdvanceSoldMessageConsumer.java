@@ -71,8 +71,8 @@ public class AdvanceSoldMessageConsumer implements RocketMQListener<Request<Stan
         log.info("【AdvanceSoldMessageConsumer:"+
                          MATCH_ADVANCE_SALE +"】【::"+request.getLinkId()+"::】预开售处理后预生成开始");
         //只接足球
-        if(!request.getData().getSportId().equals(1l) && !request.getData().getSportId().equals(2l)){
-            log.info("linkId: {} 事件不是足/蓝球", request.getLinkId());
+        if(!request.getData().getSportId().equals(1l)){
+            log.info("linkId: {} 事件不是足球", request.getLinkId());
             return;
         }
         MatchSettleInfo matchSettleInfo =matchSettleInfoRepository.getModelMatchSettleInfo(request.getData().getMatchInfoId());

@@ -15,7 +15,6 @@ import com.panda.merge.model.ThirdMatchInfo;
 import com.panda.merge.odds.AutoSwitchConfigService;
 import com.panda.merge.odds.ThirdMarketMonitor;
 import com.panda.merge.odds.cache.MatchLiveCacheService;
-import com.panda.merge.odds.utils.DataSourceUtils;
 import com.panda.merge.service.MarketCategorySellService;
 import com.panda.merge.service.StandardMatchInfoService;
 import com.panda.merge.service.StandardSportMarketSellService;
@@ -162,8 +161,6 @@ public class DataSourceAutoSwitchService {
                  request.getLinkId(),
                  matchId,
                  result);
-
-
         return Response.success(result);
     }
 
@@ -252,15 +249,7 @@ public class DataSourceAutoSwitchService {
             return categoryDataSource;
         }
 
-        // 手动切换完成后，数据商推盘会触发 monitor → 自动切换；若 DB 已是目标源则不再走 soldHandler 关旧，避免关盘覆盖刚开的盘
-        if (DataSourceUtils.isSameDataSourceCode(marketCategorySell.getDataSourceCode(),
-                                                 categoryDataSource.internalTds)) {
-            log.info("linkId:{},matchId:{},categoryId:{}, auto switch skip, already on target ds:{}, current:{}",
-                     linkId, standardMatch.getId(), cds.getCategoryId(),
-                     categoryDataSource.internalTds, marketCategorySell.getDataSourceCode());
-            categoryDataSource.status = 0;
-            return categoryDataSource;
-        }
+
 
         dataSourceSwitchService.switchCategory(categoryDataSource);
         return categoryDataSource;

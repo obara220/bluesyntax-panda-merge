@@ -202,7 +202,7 @@ public class ThirdSportMarketNewServiceImpl implements ThirdSportMarketNewServic
         if (obj == null || StringUtils.isEmpty(obj.toString())) {
             relationMarketId = MD5Utils.getLongByMD5(redisKey);//UUIdUtils.getId();
         } else {
-            relationMarketId = Long.valueOf(redisService.get(redisKey).toString());
+            relationMarketId = Long.valueOf(obj.toString());
         }
         return relationMarketId;
     }
@@ -335,7 +335,7 @@ public class ThirdSportMarketNewServiceImpl implements ThirdSportMarketNewServic
         thirdSportMarket.setOfferLineId(thirdMarketDTO.getOfferLineId());
         MergeFunctionUtils.setNumberOfWinners( thirdSportMarket, thirdMarketDTO.getNumberOfWinners());
         thirdSportMarket.setInternalDataSourceCode(thirdMarketDTO.getInternalDataSourceCode());
-        thirdSportMarket.setEventType(thirdMarketDTO.getEventType());
+        //thirdSportMarket.setEventType(thirdMarketDTO.getEventType());
         try {
             //发送mq
             marketDbProducer.sendThirdMarketInsertInfo(linkId, Arrays.asList(thirdSportMarket));

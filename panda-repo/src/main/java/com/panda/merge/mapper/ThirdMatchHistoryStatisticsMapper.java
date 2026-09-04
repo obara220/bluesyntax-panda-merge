@@ -4,9 +4,7 @@ import com.panda.merge.model.ThirdMatchHistoryStatistics;
 import com.panda.merge.model.ThirdMatchHistoryStatisticsExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
-import org.springframework.stereotype.Repository;
 
-@Repository
 public interface ThirdMatchHistoryStatisticsMapper {
     long countByExample(ThirdMatchHistoryStatisticsExample example);
 

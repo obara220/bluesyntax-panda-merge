@@ -74,8 +74,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, standard_match_id, market_category_id, market_sell_status, name_code, market_status, 
-     order_type, market_order_number, next_closing_time, link_id, create_time, modfiy_time
+    id, standard_match_id, market_category_id, market_sell_status, name_code, market_status,
+    order_type, market_order_number, next_closing_time, link_id, create_time, modfiy_time
   </sql>
   <select id="selectByExample" parameterType="com.panda.merge.model.StandardOutrightMarketExample" resultMap="BaseResultMap">
     select
@@ -92,7 +92,7 @@
     </if>
   </select>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
-    select 
+    select
     <include refid="Base_Column_List" />
     from standard_outright_market
     where id = #{id,jdbcType=BIGINT}
@@ -108,14 +108,14 @@
     </if>
   </delete>
   <insert id="insert" parameterType="com.panda.merge.model.StandardOutrightMarket">
-    insert into standard_outright_market (id, standard_match_id, market_category_id, 
-      market_sell_status, name_code, market_status, 
-      market_order_number, next_closing_time, link_id, 
-      create_time, modfiy_time)
-    values (#{id,jdbcType=BIGINT}, #{standardMatchId,jdbcType=BIGINT}, #{marketCategoryId,jdbcType=BIGINT}, 
-      #{marketSellStatus,jdbcType=VARCHAR}, #{nameCode,jdbcType=BIGINT}, #{marketStatus,jdbcType=TINYINT}, 
-      #{marketOrderNumber,jdbcType=INTEGER}, #{nextClosingTime,jdbcType=BIGINT}, #{linkId,jdbcType=VARCHAR}, 
-      #{createTime,jdbcType=BIGINT}, #{modfiyTime,jdbcType=BIGINT})
+    insert into standard_outright_market (id, standard_match_id, market_category_id,
+                                          market_sell_status, name_code, market_status,
+                                          market_order_number, next_closing_time, link_id,
+                                          create_time, modfiy_time)
+    values (#{id,jdbcType=BIGINT}, #{standardMatchId,jdbcType=BIGINT}, #{marketCategoryId,jdbcType=BIGINT},
+            #{marketSellStatus,jdbcType=VARCHAR}, #{nameCode,jdbcType=BIGINT}, #{marketStatus,jdbcType=TINYINT},
+            #{marketOrderNumber,jdbcType=INTEGER}, #{nextClosingTime,jdbcType=BIGINT}, #{linkId,jdbcType=VARCHAR},
+            #{createTime,jdbcType=BIGINT}, #{modfiyTime,jdbcType=BIGINT})
   </insert>
   <insert id="insertSelective" parameterType="com.panda.merge.model.StandardOutrightMarket">
     insert into standard_outright_market
@@ -240,16 +240,16 @@
   <update id="updateByExample" parameterType="map">
     update standard_outright_market
     set id = #{record.id,jdbcType=BIGINT},
-      standard_match_id = #{record.standardMatchId,jdbcType=BIGINT},
-      market_category_id = #{record.marketCategoryId,jdbcType=BIGINT},
-      market_sell_status = #{record.marketSellStatus,jdbcType=VARCHAR},
-      name_code = #{record.nameCode,jdbcType=BIGINT},
-      market_status = #{record.marketStatus,jdbcType=TINYINT},
-      market_order_number = #{record.marketOrderNumber,jdbcType=INTEGER},
-      next_closing_time = #{record.nextClosingTime,jdbcType=BIGINT},
-      link_id = #{record.linkId,jdbcType=VARCHAR},
-      create_time = #{record.createTime,jdbcType=BIGINT},
-      modfiy_time = #{record.modfiyTime,jdbcType=BIGINT}
+    standard_match_id = #{record.standardMatchId,jdbcType=BIGINT},
+    market_category_id = #{record.marketCategoryId,jdbcType=BIGINT},
+    market_sell_status = #{record.marketSellStatus,jdbcType=VARCHAR},
+    name_code = #{record.nameCode,jdbcType=BIGINT},
+    market_status = #{record.marketStatus,jdbcType=TINYINT},
+    market_order_number = #{record.marketOrderNumber,jdbcType=INTEGER},
+    next_closing_time = #{record.nextClosingTime,jdbcType=BIGINT},
+    link_id = #{record.linkId,jdbcType=VARCHAR},
+    create_time = #{record.createTime,jdbcType=BIGINT},
+    modfiy_time = #{record.modfiyTime,jdbcType=BIGINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -293,15 +293,15 @@
   <update id="updateByPrimaryKey" parameterType="com.panda.merge.model.StandardOutrightMarket">
     update standard_outright_market
     set standard_match_id = #{standardMatchId,jdbcType=BIGINT},
-      market_category_id = #{marketCategoryId,jdbcType=BIGINT},
-      market_sell_status = #{marketSellStatus,jdbcType=VARCHAR},
-      name_code = #{nameCode,jdbcType=BIGINT},
-      market_status = #{marketStatus,jdbcType=TINYINT},
-      market_order_number = #{marketOrderNumber,jdbcType=INTEGER},
-      next_closing_time = #{nextClosingTime,jdbcType=BIGINT},
-      link_id = #{linkId,jdbcType=VARCHAR},
-      create_time = #{createTime,jdbcType=BIGINT},
-      modfiy_time = #{modfiyTime,jdbcType=BIGINT}
+        market_category_id = #{marketCategoryId,jdbcType=BIGINT},
+        market_sell_status = #{marketSellStatus,jdbcType=VARCHAR},
+        name_code = #{nameCode,jdbcType=BIGINT},
+        market_status = #{marketStatus,jdbcType=TINYINT},
+        market_order_number = #{marketOrderNumber,jdbcType=INTEGER},
+        next_closing_time = #{nextClosingTime,jdbcType=BIGINT},
+        link_id = #{linkId,jdbcType=VARCHAR},
+        create_time = #{createTime,jdbcType=BIGINT},
+        modfiy_time = #{modfiyTime,jdbcType=BIGINT}
     where id = #{id,jdbcType=BIGINT}
   </update>
 </mapper>

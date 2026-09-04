@@ -120,7 +120,6 @@ public class StandardMarketOddsDTO implements Serializable{
      * @since v1.2丢弃, 将在后续版本删除
      */
     private Integer oddsValue;
-
     /**
      * 马来赔
      */

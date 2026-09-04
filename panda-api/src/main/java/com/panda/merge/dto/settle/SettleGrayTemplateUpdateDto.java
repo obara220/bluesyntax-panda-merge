@@ -3,7 +3,7 @@ package com.panda.merge.dto.settle;
 import lombok.Data;
 
 @Data
-public class SettleGrayTemplateUpdateDto extends AbstructMatchSettleDto{
+public class SettleGrayTemplateUpdateDto extends AbstructMatchSettleDto {
     /**
      * 模版id
      * */

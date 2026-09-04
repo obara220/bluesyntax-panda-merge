@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class ConfirmEventDto extends AbstructAdvertiseDto  {
     private Long thirdMatchId;
-    private String  confirmEventCode;
+    private String confirmEventCode;
     private String homeAway;
     private Long timeFromStartSecond;
     private String penaltyGoal;

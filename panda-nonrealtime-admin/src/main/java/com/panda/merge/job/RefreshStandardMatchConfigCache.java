@@ -47,18 +47,18 @@ public class RefreshStandardMatchConfigCache  extends IJobHandler {
     private RedisService redisService;
     @Override
     public ReturnT<String> execute(String s) throws Exception {
-        //log.info("【RefreshStandardMatchConfigCache】 处理开始");
+        log.info("【RefreshStandardMatchConfigCache】 处理开始");
         XxlJobLogger.log("RefreshStandardMatchConfigCache】 处理开始");
         StandardMatchInfoExample example = new StandardMatchInfoExample();
         example.createCriteria().andMatchOverEqualTo(YesNoEnum.N.value);
         List<StandardMatchInfo> standardMatchInfos = standardMatchInfoMapper.selectByExample(example);
-        //log.info("【RefreshStandardMatchConfigCache】 处理开始条数:{}", standardMatchInfos.size());
+        log.info("【RefreshStandardMatchConfigCache】 处理开始条数:{}", standardMatchInfos.size());
         for (StandardMatchInfo standardMatchInfo : standardMatchInfos) {
             if (standardMatchInfo.getSportId().equals(StandardSportTypeEnum.Snooker.getCode())){
                 standardMatchInfo.setBeginTime(standardMatchInfo.getBeginTime()+(RedisConfig.REDIS_WEEK_TIME * 1000));
             }
         }
-        //log.info("【RefreshStandardMatchConfigCache】 ConfigTradeType 处理开始");
+        log.info("【RefreshStandardMatchConfigCache】 ConfigTradeType 处理开始");
         for (StandardMatchInfo standardMatchInfo : standardMatchInfos) {
             ConfigTradeTypeExample configTradeTypeExample = new ConfigTradeTypeExample();
             configTradeTypeExample.createCriteria()
@@ -76,9 +76,9 @@ public class RefreshStandardMatchConfigCache  extends IJobHandler {
                 redisService.hSetAll(key,map,marketCacheTime(standardMatchInfo.getBeginTime()));
             }
         }
-        //log.info("【RefreshStandardMatchConfigCache】 ConfigTradeType 处理结束");
+        log.info("【RefreshStandardMatchConfigCache】 ConfigTradeType 处理结束");
 
-        //log.info("【RefreshStandardMatchConfigCache】 ConfigMarketTradeItem 处理开始");
+        log.info("【RefreshStandardMatchConfigCache】 ConfigMarketTradeItem 处理开始");
         for (StandardMatchInfo standardMatchInfo : standardMatchInfos) {
             ConfigMarketTradeItemExample configMarketTradeItemExample = new ConfigMarketTradeItemExample();
             configMarketTradeItemExample.createCriteria().andMatchIdEqualTo(standardMatchInfo.getId());
@@ -89,9 +89,9 @@ public class RefreshStandardMatchConfigCache  extends IJobHandler {
                 redisService.hSetAll(key,map,marketCacheTime(standardMatchInfo.getBeginTime()));
             }
         }
-        //log.info("【RefreshStandardMatchConfigCache】 ConfigMarketTradeItem 处理结束");
+        log.info("【RefreshStandardMatchConfigCache】 ConfigMarketTradeItem 处理结束");
 
-        //log.info("【RefreshStandardMatchConfigCache】 ConfigMarketCategoryMargin 处理开始");
+        log.info("【RefreshStandardMatchConfigCache】 ConfigMarketCategoryMargin 处理开始");
         for (StandardMatchInfo standardMatchInfo : standardMatchInfos){
             //根据赛事ID查出margin配置
             ConfigMarketCategoryMarginExample configMarketCategoryMarginExample = new ConfigMarketCategoryMarginExample();
@@ -104,9 +104,9 @@ public class RefreshStandardMatchConfigCache  extends IJobHandler {
             redisService.hSetAll(keyMap.get("ConfigMarketCategoryMargin_Tree"),configThree,marketCacheTime(standardMatchInfo.getBeginTime()));
             redisService.hSetAll(keyMap.get("ConfigMarketCategoryMargin_Two"),configTwo,marketCacheTime(standardMatchInfo.getBeginTime()));
         }
-        //log.info("【RefreshStandardMatchConfigCache】 ConfigMarketCategoryMargin 处理结束");
+        log.info("【RefreshStandardMatchConfigCache】 ConfigMarketCategoryMargin 处理结束");
 
-        //log.info("【RefreshStandardMatchConfigCache】 ConfigMarketDisplayTrade 处理开始");
+        log.info("【RefreshStandardMatchConfigCache】 ConfigMarketDisplayTrade 处理开始");
         for (StandardMatchInfo standardMatchInfo : standardMatchInfos){
             ConfigMarketDisplayTradeExample configMarketDisplayTradeExample = new ConfigMarketDisplayTradeExample();
             configMarketDisplayTradeExample.createCriteria().andStandardMatchIdEqualTo(standardMatchInfo.getId());
@@ -116,9 +116,9 @@ public class RefreshStandardMatchConfigCache  extends IJobHandler {
                 redisService.set(key,e,marketCacheTime(standardMatchInfo.getBeginTime()));
             });
         }
-        //log.info("【RefreshStandardMatchConfigCache】 ConfigMarketDisplayTrade 处理结束");
+        log.info("【RefreshStandardMatchConfigCache】 ConfigMarketDisplayTrade 处理结束");
 
-        //log.info("【RefreshStandardMatchConfigCache】 ConfigMarketStatusTrade 处理开始");
+        log.info("【RefreshStandardMatchConfigCache】 ConfigMarketStatusTrade 处理开始");
         for (StandardMatchInfo standardMatchInfo : standardMatchInfos){
             ConfigMarketStatusTradeExample configMarketStatusTradeExample = new ConfigMarketStatusTradeExample();
             configMarketStatusTradeExample.createCriteria().andStandardMatchInfoIdEqualTo(standardMatchInfo.getId());
@@ -127,10 +127,10 @@ public class RefreshStandardMatchConfigCache  extends IJobHandler {
             String key = getConfigMarketStatusTradeKey(standardMatchInfo.getId());
             redisService.hSetAll(key,configMarketStatusTradeMap,marketCacheTime(standardMatchInfo.getBeginTime()));
         }
-        //log.info("【RefreshStandardMatchConfigCache】 ConfigMarketStatusTrade 处理结束");
+        log.info("【RefreshStandardMatchConfigCache】 ConfigMarketStatusTrade 处理结束");
 
 
-        //log.info("【RefreshStandardMatchConfigCache】 处理结束");
+        log.info("【RefreshStandardMatchConfigCache】 处理结束");
         XxlJobLogger.log("RefreshStandardMatchConfigCache】 处理结束");
 
         return ReturnT.SUCCESS;

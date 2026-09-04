@@ -1,6 +1,5 @@
 package com.panda.merge.repository;
 
-import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.panda.merge.config.RedisConfig;
@@ -21,7 +20,9 @@ import com.panda.merge.model.MatchTimeInfo;
 import com.panda.merge.model.MatchTimeInfoExample;
 import com.panda.merge.model.StandardMatchInfo;
 import com.panda.merge.model.StandardSportMarketSell;
+import com.panda.merge.model.StandardSportMarketSellExample;
 import com.panda.merge.model.ThirdMatchInfo;
+import com.panda.merge.model.ThirdMatchInfoExample;
 import com.panda.merge.model.UserKeyboardSet;
 import com.panda.merge.mq.producer.MatchScoresInfoProducer;
 import com.panda.merge.mq.producer.MatchTimeInfoProducer;
@@ -34,12 +35,10 @@ import com.panda.merge.utils.MessageGZIP;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
-import java.util.Objects;
 
 import static com.panda.merge.constant.RepositoryConstant.FOOTBALL_KEYBOARD_SET;
 import static com.panda.merge.constant.RepositoryConstant.MATCH_SCORES_INFO;
@@ -96,6 +95,25 @@ public class PdMatchInfoRepository {
      * @return 三方赛事信息
      */
     public ThirdMatchInfo getThirdMatchInfo(Long thirdMatchId, Integer time) {
+//        String key = RedisConfig.REDIS_KEY_DATABASE + "::ThirdMatchInfo:" + thirdMatchId;
+//        Object o = redisService.get(key);
+//        ThirdMatchInfo thirdMatchInfo;
+//        if (ObjectUtils.isEmpty(o)) {
+//            thirdMatchInfo = thirdMatchInfoMapper.selectByPrimaryKey(thirdMatchId);
+//            if (ObjectUtils.isEmpty(thirdMatchInfo)) {
+//                return null;
+//            }
+//            if (ObjectUtils.isEmpty(time)) {
+//                redisService.set(key, thirdMatchInfo);
+//                redisService.set(RedisConfig.REDIS_KEY_DATABASE + "::ThirdMatchInfo:" + thirdMatchInfo.getReferenceId(), thirdMatchInfo);
+//            } else {
+//                redisService.set(key, thirdMatchInfo, time);
+//                redisService.set(RedisConfig.REDIS_KEY_DATABASE + "::ThirdMatchInfo:" + thirdMatchInfo.getReferenceId(), thirdMatchInfo, time);
+//            }
+//        } else {
+////            ParserConfig.getGlobalInstance().setAutoTypeSupport(true);
+//            thirdMatchInfo = JSON.parseObject(JSON.toJSONString(o), ThirdMatchInfo.class);
+//        }
         //不在自身服务设置key，统一使用实时服务提供的公共方法
         return thirdMatchInfoService.getItem(thirdMatchId);
     }
@@ -109,6 +127,26 @@ public class PdMatchInfoRepository {
      * @return 三方赛事
      */
     public ThirdMatchInfo getThirdMatchInfo(Long referenceId, String datasourceCode, Integer time) {
+//        String key = RedisConfig.REDIS_KEY_DATABASE + "::ThirdMatchInfo:" + referenceId;
+//        Object o = redisService.get(key);
+//        ThirdMatchInfo thirdMatchInfo;
+//        if (ObjectUtils.isEmpty(o)) {
+//            ThirdMatchInfoExample example = new ThirdMatchInfoExample();
+//            example.createCriteria().andReferenceIdEqualTo(referenceId).andDataSourceCodeEqualTo(datasourceCode);
+//            List<ThirdMatchInfo> thirdMatchInfoList = thirdMatchInfoMapper.selectByExample(example);
+//            if (CollectionUtils.isEmpty(thirdMatchInfoList)) {
+//                return null;
+//            }
+//            thirdMatchInfo = thirdMatchInfoList.get(0);
+//            if (ObjectUtils.isEmpty(time)) {
+//                redisService.set(key, thirdMatchInfo);
+//            } else {
+//                redisService.set(key, thirdMatchInfo, time);
+//            }
+//        } else {
+////            ParserConfig.getGlobalInstance().setAutoTypeSupport(true);
+//            thirdMatchInfo = JSON.parseObject(JSON.toJSONString(o), ThirdMatchInfo.class);
+//        }
         return thirdMatchInfoService.getItem(referenceId, datasourceCode);
     }
 
@@ -139,63 +177,36 @@ public class PdMatchInfoRepository {
         String key = MATCH_SCORES_INFO + thirdMatchId + "_" + sourceType;
         Object o = redisService.get(key);
         MatchScoresInfo matchScoresInfo;
-        if (ObjectUtils.isEmpty(o)) {
-            log.info("::{}::报球版查询比分redis不存在，开始查询数据库", thirdMatchId);
-            matchScoresInfo = loadMatchScoresFromDb(thirdMatchId);
-            if (matchScoresInfo == null) {
+        if (org.apache.commons.lang3.ObjectUtils.isEmpty(o)) {
+            log.info("::{}::报球版查询比分开始redis不存在，开始查询数据库",thirdMatchId);
+            MatchScoresInfoExample example = new MatchScoresInfoExample();
+            example.createCriteria().andThirdMatchIdEqualTo(thirdMatchId);
+            List<MatchScoresInfo> matchScoresInfoList = matchScoresInfoMapper.selectByExample(example);
+            log.info("::{}::报球版查询比分开始redis不存在，查询到数据库数据:{}",thirdMatchId, JSONObject.toJSONString(matchScoresInfoList));
+            if (CollectionUtils.isEmpty(matchScoresInfoList)) {
                 return null;
             }
-            cacheMatchScores(key, matchScoresInfo, time);
-        } else {
-            matchScoresInfo = parseMatchScoresFromRedis(o);
-            log.info("::{}::报球版查询比分redis存在，查询redis数据:{}", thirdMatchId, JSONObject.toJSONString(matchScoresInfo));
-            // scoresJson 为空说明缓存数据不完整（可能是旧数据或初始化未完成），回源 DB 补齐
-            if (StringUtils.isBlank(matchScoresInfo.getScoresJson())) {
-                log.warn("::{}::报球版scoresJson为空，回源DB重新加载", thirdMatchId);
-                matchScoresInfo = loadMatchScoresFromDb(thirdMatchId);
-                if (matchScoresInfo != null) {
-                    cacheMatchScores(key, matchScoresInfo, time);
-                }
+            matchScoresInfo = matchScoresInfoList.get(0);
+            if (org.apache.commons.lang3.ObjectUtils.isEmpty(time)) {
+                redisService.set(key, MessageGZIP.compressToByte(((JSONObject) JSONObject.toJSON(matchScoresInfo)).toJSONString()));
+                redisService.set(MATCH_SCORES_INFO + matchScoresInfo.getId(), MessageGZIP.compressToByte(((JSONObject) JSONObject.toJSON(matchScoresInfo)).toJSONString()));
+            } else {
+                redisService.set(key, MessageGZIP.compressToByte(((JSONObject) JSONObject.toJSON(matchScoresInfo)).toJSONString()), time);
+                redisService.set(MATCH_SCORES_INFO + matchScoresInfo.getId(), MessageGZIP.compressToByte(((JSONObject) JSONObject.toJSON(matchScoresInfo)).toJSONString()), time);
             }
+        } else {
+//            ParserConfig.getGlobalInstance().setAutoTypeSupport(true);
+            if (o instanceof MatchScoresInfo) {
+                matchScoresInfo = JSON.parseObject(JSON.toJSONString(o), MatchScoresInfo.class);
+                log.info("::{}::报球版查询比分开始redis存在，查询redis数据:{}",thirdMatchId,JSONObject.toJSONString(matchScoresInfo));
+            } else {
+                String str = MessageGZIP.uncompressToString((byte[]) o);
+                matchScoresInfo = JSON.toJavaObject(JSONObject.parseObject(str), MatchScoresInfo.class);
+                log.info("::{}::报球版查询比分开始redis存在，查询redis二进字数据:{}",thirdMatchId,JSONObject.toJSONString(matchScoresInfo));
+            }
+
         }
         return matchScoresInfo;
-    }
-
-    /**
-     * 从数据库加载 MatchScoresInfo，按 thirdMatchId 查询取第一条。
-     */
-    private MatchScoresInfo loadMatchScoresFromDb(Long thirdMatchId) {
-        MatchScoresInfoExample example = new MatchScoresInfoExample();
-        example.createCriteria().andThirdMatchIdEqualTo(thirdMatchId);
-        List<MatchScoresInfo> list = matchScoresInfoMapper.selectByExample(example);
-        log.info("::{}::报球版查询比分数据库结果:{}", thirdMatchId, JSONObject.toJSONString(list));
-        return CollectionUtils.isEmpty(list) ? null : list.get(0);
-    }
-
-    /**
-     * 将 MatchScoresInfo 写入 Redis，同时写入 thirdMatchId_key 和 id_key 两份缓存。
-     */
-    private void cacheMatchScores(String key, MatchScoresInfo matchScoresInfo, Integer time) {
-        String json = ((JSONObject) JSONObject.toJSON(matchScoresInfo)).toJSONString();
-        byte[] bytes = MessageGZIP.compressToByte(json);
-        if (ObjectUtils.isEmpty(time)) {
-            redisService.set(key, bytes);
-            redisService.set(MATCH_SCORES_INFO + matchScoresInfo.getId(), bytes);
-        } else {
-            redisService.set(key, bytes, time);
-            redisService.set(MATCH_SCORES_INFO + matchScoresInfo.getId(), bytes, time);
-        }
-    }
-
-    /**
-     * 从 Redis 对象解析 MatchScoresInfo，兼容普通序列化与 GZIP 二进制两种格式。
-     */
-    private MatchScoresInfo parseMatchScoresFromRedis(Object o) {
-        if (o instanceof MatchScoresInfo) {
-            return JSON.parseObject(JSON.toJSONString(o), MatchScoresInfo.class);
-        }
-        String str = MessageGZIP.uncompressToString((byte[]) o);
-        return JSON.toJavaObject(JSONObject.parseObject(str), MatchScoresInfo.class);
     }
 
     /**
@@ -206,6 +217,18 @@ public class PdMatchInfoRepository {
      */
     public void addMatchScoresInfo(MatchScoresInfo matchScoresInfo, Integer time) {
         matchScoreInfoRepository.updateScoresInfo(matchScoresInfo);
+//        String key = MATCH_SCORES_INFO + matchScoresInfo.getThirdMatchId() + "_" + matchScoresInfo.getDataSourceType();
+//        Object o = redisService.get(key);
+//        if (ObjectUtils.isEmpty(o)) {
+//            matchScoresInfoMapper.insert(matchScoresInfo);
+//            if (ObjectUtils.isEmpty(time)) {
+//                redisService.set(key, MessageGZIP.compressToByte(((JSONObject) JSONObject.toJSON(matchScoresInfo)).toJSONString()));
+//                redisService.set(MATCH_SCORES_INFO + matchScoresInfo.getId(), MessageGZIP.compressToByte(((JSONObject) JSONObject.toJSON(matchScoresInfo)).toJSONString()));
+//            } else {
+//                redisService.set(key, matchScoresInfo, time);
+//                redisService.set(MATCH_SCORES_INFO + matchScoresInfo.getId(), MessageGZIP.compressToByte(((JSONObject) JSONObject.toJSON(matchScoresInfo)).toJSONString()), time);
+//            }
+//        }
     }
 
     /**
@@ -293,36 +316,26 @@ public class PdMatchInfoRepository {
         Object o = redisService.get(key);
         MatchTimeInfo matchTimeInfo;
         if (org.apache.commons.lang3.ObjectUtils.isEmpty(o)) {
-            matchTimeInfo = loadMatchTimeInfoAndRefreshCache(thirdMatchId, key, time);
-        } else if (o instanceof MatchTimeInfo) {
-            matchTimeInfo = JSON.parseObject(JSON.toJSONString(o), MatchTimeInfo.class);
-        } else {
-            try {
-                matchTimeInfo = JSONUtil.toBean(JSONUtil.toJsonStr(o), MatchTimeInfo.class);
-            } catch (Exception e) {
-                // 缓存里可能是其他写入方（如 MatchTimeInfoRepository 曾经的 gzip byte[] 格式）留下的脏数据，
-                // 解析失败时清掉脏缓存并回源查库，避免整个接口报错
-                log.warn("赛事时间缓存反序列化失败，key={}，清除脏缓存并回源查库", key, e);
-                redisService.del(key);
-                matchTimeInfo = loadMatchTimeInfoAndRefreshCache(thirdMatchId, key, time);
+            MatchTimeInfoExample example = new MatchTimeInfoExample();
+            example.createCriteria().andThirdMatchIdEqualTo(thirdMatchId);
+            List<MatchTimeInfo> matchTimeInfoList = matchTimeInfoMapper.selectByExample(example);
+            if (CollectionUtils.isEmpty(matchTimeInfoList)) {
+                return null;
             }
-        }
-        return matchTimeInfo;
-    }
-
-    private MatchTimeInfo loadMatchTimeInfoAndRefreshCache(Long thirdMatchId, String key, Integer time) {
-        MatchTimeInfoExample example = new MatchTimeInfoExample();
-        example.createCriteria().andThirdMatchIdEqualTo(thirdMatchId);
-        List<MatchTimeInfo> matchTimeInfoList = matchTimeInfoMapper.selectByExample(example);
-        if (CollectionUtils.isEmpty(matchTimeInfoList)) {
-            return null;
-        }
-        MatchTimeInfo matchTimeInfo = matchTimeInfoList.get(0);
-        JSONObject jsonObject = (JSONObject) JSONObject.toJSON(matchTimeInfo);
-        if (org.apache.commons.lang3.ObjectUtils.isEmpty(time)) {
-            redisService.set(key, jsonObject.toJSONString(), RepositoryConstant.REDIS_THREE_TIME);
+            matchTimeInfo = matchTimeInfoList.get(0);
+            if (org.apache.commons.lang3.ObjectUtils.isEmpty(time)) {
+                redisService.set(key, MessageGZIP.compressToByte(((JSONObject) JSONObject.toJSON(matchTimeInfo)).toJSONString()));
+            } else {
+                redisService.set(key, MessageGZIP.compressToByte(((JSONObject) JSONObject.toJSON(matchTimeInfo)).toJSONString()), time);
+            }
         } else {
-            redisService.set(key, jsonObject.toJSONString(), time);
+//            ParserConfig.getGlobalInstance().setAutoTypeSupport(true);
+            if (o instanceof MatchTimeInfo) {
+                matchTimeInfo = JSON.parseObject(JSON.toJSONString(o), MatchTimeInfo.class);
+            } else {
+                String str = MessageGZIP.uncompressToString((byte[]) o);
+                matchTimeInfo = JSON.toJavaObject(JSONObject.parseObject(str), MatchTimeInfo.class);
+            }
         }
         return matchTimeInfo;
     }
@@ -360,6 +373,14 @@ public class PdMatchInfoRepository {
         matchTimeInfoRepository.updateByPrimaryKey(matchTimeInfo);
     }
 
+    public void onlyUpdateMatchTimeInfoRedis(MatchTimeInfo matchTimeInfo) {
+        String key = MATCH_TIME_INFO +matchTimeInfo.getId();
+        JSONObject jsonObject = (JSONObject) JSONObject.toJSON(matchTimeInfo);
+        redisService.set(key, MessageGZIP.compressToByte(jsonObject.toJSONString()), RepositoryConstant.REDIS_THREE_TIME);
+        String thirdMatchIdKey = MATCH_TIME_INFO + matchTimeInfo.getThirdMatchId() + "_" + matchTimeInfo.getDataSourceType();
+        redisService.set(thirdMatchIdKey, MessageGZIP.compressToByte(jsonObject.toJSONString()), RepositoryConstant.REDIS_THREE_TIME);
+    }
+
     public void onlyUpdateMatchTimeInfoDB(MatchTimeInfo matchTimeInfo) {
         matchTimeInfoProducer.updateMatchTimesInfoByMq(matchTimeInfo);
     }
@@ -373,13 +394,12 @@ public class PdMatchInfoRepository {
     public void setRedisMatchTimeInfo(MatchTimeInfo matchTimeInfo, Integer time) {
         String key = MATCH_TIME_INFO + matchTimeInfo.getThirdMatchId() + "_" + matchTimeInfo.getDataSourceType();
         String timekey = MATCH_TIME_INFO + matchTimeInfo.getId();
-        String jsonStr = ((JSONObject) JSONObject.toJSON(matchTimeInfo)).toJSONString();
         if (org.apache.commons.lang3.ObjectUtils.isEmpty(time)) {
-            redisService.set(key, jsonStr);
-            redisService.set(timekey, jsonStr);
+            redisService.set(key, MessageGZIP.compressToByte(((JSONObject) JSONObject.toJSON(matchTimeInfo)).toJSONString()));
+            redisService.set(timekey, MessageGZIP.compressToByte(((JSONObject) JSONObject.toJSON(matchTimeInfo)).toJSONString()));
         } else {
-            redisService.set(key, jsonStr, time);
-            redisService.set(timekey, jsonStr, time);
+            redisService.set(key, MessageGZIP.compressToByte(((JSONObject) JSONObject.toJSON(matchTimeInfo)).toJSONString()), time);
+            redisService.set(timekey, MessageGZIP.compressToByte(((JSONObject) JSONObject.toJSON(matchTimeInfo)).toJSONString()),time);
         }
     }
 
@@ -445,6 +465,26 @@ public class PdMatchInfoRepository {
      * @return 开售信息
      */
     public StandardSportMarketSell getStandardSportMarketSell(Long matchInfoId, Integer time) {
+//        String key = RedisConfig.REDIS_KEY_DATABASE + "::StandardSportMarketSell:" + matchInfoId;
+//        Object o = redisService.get(key);
+//        StandardSportMarketSell standardSportMarketSell;
+//        if (ObjectUtils.isEmpty(o)) {
+//            StandardSportMarketSellExample example = new StandardSportMarketSellExample();
+//            example.createCriteria().andMatchInfoIdEqualTo(matchInfoId);
+//            List<StandardSportMarketSell> list = standardSportMarketSellMapper.selectByExample(example);
+//            if (CollectionUtils.isEmpty(list)) {
+//                return null;
+//            }
+//            standardSportMarketSell = list.get(0);
+//            if (ObjectUtils.isEmpty(time)) {
+//                redisService.set(key, standardSportMarketSell);
+//            } else {
+//                redisService.set(key, standardSportMarketSell, time);
+//            }
+//        } else {
+////            ParserConfig.getGlobalInstance().setAutoTypeSupport(true);
+//            standardSportMarketSell = JSON.parseObject(JSON.toJSONString(o), StandardSportMarketSell.class);
+//        }
         //不在自身服务设置key，统一使用实时服务提供的公共方法
         return standardSportMarketSellService.getItem(matchInfoId);
     }
@@ -456,6 +496,13 @@ public class PdMatchInfoRepository {
      * @param time                    失效时间，单位：秒
      */
     public void setRedisAndStandardSportMarketSell(StandardSportMarketSell standardSportMarketSell, Integer time) {
+//        String key = RedisConfig.REDIS_KEY_DATABASE + "::StandardSportMarketSell:" + standardSportMarketSell.getMatchInfoId();
+//        standardSportMarketSellMapper.updateByPrimaryKey(standardSportMarketSell);
+//        if (ObjectUtils.isEmpty(time)) {
+//            redisService.set(key, standardSportMarketSell);
+//        } else {
+//            redisService.set(key, standardSportMarketSell, time);
+//        }
         standardSportMarketSellService.refreshCache(standardSportMarketSell);
     }
 
@@ -592,31 +639,6 @@ public class PdMatchInfoRepository {
 
     public int removeAllKeyboardInfo(List<String> userIds) {
         int count = userKeyboardSetMapper.deleteKeyboardByUserIdList(userIds);
-        return count;
-    }
-
-    /**
-     * 按球种批量查找热键
-     *
-     * @param userIds 用户ID列表
-     * @param sportId 球种ID
-     * @return 热键列表
-     */
-    public List<UserKeyboardSet> getAllKeyboardInfoBySportId(List<String> userIds, Long sportId) {
-        return userKeyboardSetMapper.selectKeyboardByUserIdListAndSportId(userIds, sportId);
-    }
-
-    /**
-     * 按球种批量删除热键（仅删除指定球种，不跨球种误删）
-     *
-     * @param userIds 用户ID列表
-     * @param sportId 球种ID
-     * @return 删除数量
-     */
-    public int removeAllKeyboardInfoBySportId(List<String> userIds, Long sportId) {
-        String redisKey = FOOTBALL_KEYBOARD_SET + sportId;
-        int count = userKeyboardSetMapper.deleteKeyboardByUserIdListAndSportId(userIds, sportId);
-        redisService.del(redisKey);
         return count;
     }
 }

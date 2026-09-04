@@ -42,9 +42,9 @@ public class TradeMarketHeadGapConfigDTO implements Serializable {
      * 子玩法ID
      */
     private Long childStandardCategoryId;
+
     /**
      * 盘口差最初值
      */
     private Double marketHeadGapInitial;
-
 }

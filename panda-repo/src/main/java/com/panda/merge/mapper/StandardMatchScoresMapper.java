@@ -1,5 +1,7 @@
 package com.panda.merge.mapper;
 
+import com.panda.merge.model.MatchScoresInfo;
+import com.panda.merge.model.MatchScoresPdLogExample;
 import com.panda.merge.model.StandardMatchScores;
 import com.panda.merge.model.StandardMatchScoresExample;
 import org.springframework.stereotype.Repository;

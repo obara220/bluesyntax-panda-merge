@@ -90,19 +90,4 @@ public interface IMatchSettleScoreFootBallService {
     boolean countPenaltyScores(EditMatchSettleEventDto matchSettleEvent, MatchSettleEvent settleEvent);
 
     boolean isTeamFirstSettled(Long standardMatchId);
-
-    Response updateMatchSettleScoreV3(UpdateMatchSettleScoreDto matchSettleScoreDto);
-    Response confirmMatchSettleScoreV3(ConfirmMatchSettleScoreDto matchSettleScoreDto);
-
-    Response settleMatchScoreV3(SettleMatchScoreDto matchSettleScoreDto);
-
-    Response addMatchSettleEventV3(AddMatchSettleEventDto addMatchSettleEventDto);
-
-    Response editMatchSettleEventV3(EditMatchSettleEventDto editMatchSettleEventDto);
-
-    Response editMatchSettleEventMethodAndPlayerV3(EditMatchSettleEventDto editMatchSettleEventDto);
-
-    Response confirmMatchSettleEventV3(EditMatchSettleEventDto matchSettleEventDto);
-
-    Response settleMatchSettleEventV3(EditMatchSettleEventDto matchSettleScoreDto);
 }

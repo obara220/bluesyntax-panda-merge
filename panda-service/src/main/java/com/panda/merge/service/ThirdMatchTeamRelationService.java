@@ -55,11 +55,4 @@ public interface ThirdMatchTeamRelationService {
      * @return
      */
     List<ThirdMatchTeamRelationDetail> getItemsByMatchId(Long matchId);
-
-    /**
-     * 根据球队获取赛事、球队、球员关系
-     * @param teamId
-     * @return
-     */
-    List<ThirdMatchTeamRelation> listByTeamId(Long teamId);
 }

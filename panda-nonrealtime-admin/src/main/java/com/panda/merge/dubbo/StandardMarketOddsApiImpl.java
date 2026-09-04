@@ -33,7 +33,7 @@ public class StandardMarketOddsApiImpl extends BaseProcessor implements IStandar
 
 	@Override
 	public Response<Integer> getAoOriginalOddsById(Request<StandardMarketOddsDTO> reqDto) {
-		log.info("【getAoOriginalOddsById】【::"+reqDto.getLinkId()+"::】根据投注项ID 查询AO原始赔率,入参：{}",reqDto.getData());
+		log.info("【"+ PROJECT_ID_NOREALTIME +" ：getAoOriginalOddsById】【::"+reqDto.getLinkId()+"::】根据投注项ID 查询AO原始赔率,入参：{}",reqDto.getData());
 		
 		StandardMarketOddsDTO odds = reqDto.getData();
 		if(odds == null || odds.getMatchId() == null || odds.getId()==null) {
@@ -46,7 +46,7 @@ public class StandardMarketOddsApiImpl extends BaseProcessor implements IStandar
 			response.setData(data.get(odds.getId()));
 		}
 		response.setDataSourceTime(System.currentTimeMillis());
-		log.info("【getAoOriginalOddsById】【::"+reqDto.getLinkId()+"::】查询标准赛果信息结束,返回结果 ：{}" ,response);
+		log.info("【"+ PROJECT_ID_NOREALTIME +" ：getAoOriginalOddsById】【::"+reqDto.getLinkId()+"::】查询标准赛果信息结束,返回结果 ：{}" ,response);
 		return response;
 	}
 

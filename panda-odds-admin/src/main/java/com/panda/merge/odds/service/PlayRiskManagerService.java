@@ -43,62 +43,17 @@ public class PlayRiskManagerService {
                                          Integer marketType,
                                          Long categoryId,
                                          StandardSportMarketSell sell) {
-        String matchLevelCode = fallbackRiskManagerCode(marketType, sell);
         try {
             String key = buildKey(matchId, marketType);
             Object v = redisService.hGet(key, String.valueOf(categoryId));
-            if (v == null || StringUtils.isBlank(String.valueOf(v))) {
-                return matchLevelCode;
+            if (v != null && StringUtils.isNotBlank(String.valueOf(v))) {
+                return String.valueOf(v);
             }
-            return resolvePlayRiskManagerCode(linkId, matchId, marketType, categoryId, String.valueOf(v), matchLevelCode);
         } catch (Throwable t) {
             log.warn("::{}::getPlayRiskManagerCode read redis failed, matchId={}, marketType={}, categoryId={}",
                     linkId, matchId, marketType, categoryId, t);
         }
-        return matchLevelCode;
-    }
-
-    /**
-     * 4405：玩法 Redis 为 stale PA 时，若赛事级为 XTS 家族且玩法开售源与赛事操盘对应源一致（或开售 Redis 缺失），回落赛事级操盘。
-     * 非对应数据源玩法（如 GTS 赛事下 SR 开售源）仍保持 PA，符合 4405 混合操盘语义。
-     */
-    private String resolvePlayRiskManagerCode(String linkId,
-                                              Long matchId,
-                                              Integer marketType,
-                                              Long categoryId,
-                                              String redisCode,
-                                              String matchLevelCode) {
-        if (!StringUtils.equalsIgnoreCase(redisCode, RiskManagerCodeEnums.PA.name())
-                || !isMtsFamily(matchLevelCode)) {
-            return redisCode;
-        }
-        String categorySellDs = getCategorySellDataSourceCode(matchId, marketType, categoryId);
-        String expectedDs = expectedDataSourceCodeForRiskManager(matchLevelCode);
-        if (StringUtils.isBlank(categorySellDs)) {
-            log.info("::{}::getPlayRiskManagerCode fallback match level, playRiskManager=PA, category sell cache missing, matchId={}, categoryId={}, matchLevel={}",
-                    linkId, matchId, categoryId, matchLevelCode);
-            return matchLevelCode;
-        }
-        if (StringUtils.isNotBlank(expectedDs)
-                && StringUtils.equalsIgnoreCase(expectedDs, normalizeSellDataSourceCode(categorySellDs))) {
-            log.info("::{}::getPlayRiskManagerCode fallback match level, stale PA, matchId={}, categoryId={}, matchLevel={}, sellDs={}",
-                    linkId, matchId, categoryId, matchLevelCode, categorySellDs);
-            return matchLevelCode;
-        }
-        return redisCode;
-    }
-
-    private String getCategorySellDataSourceCode(Long matchId, Integer marketType, Long categoryId) {
-        if (matchId == null || marketType == null || categoryId == null) {
-            return null;
-        }
-        try {
-            String categoryRedisKey = Constant.REDIS_KEY.RONGHE_MARKET_CATEGORY_SELL + matchId + "_" + marketType;
-            Object ds = redisService.hGet(categoryRedisKey, String.valueOf(categoryId));
-            return ds != null ? String.valueOf(ds) : null;
-        } catch (Throwable t) {
-            return null;
-        }
+        return fallbackRiskManagerCode(marketType, sell);
     }
 
     public String fallbackRiskManagerCode(Integer marketType, StandardSportMarketSell sell) {

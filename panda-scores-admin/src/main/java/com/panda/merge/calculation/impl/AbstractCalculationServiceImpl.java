@@ -8,10 +8,8 @@ import com.panda.merge.calculation.CalculationService;
 import com.panda.merge.common.enums.DataSourceCodeEnum;
 import com.panda.merge.common.enums.FootballBallPeroidEnum;
 import com.panda.merge.common.enums.OperateLogTypeEnum;
-import com.panda.merge.common.utils.StringPool;
 import com.panda.merge.config.RedisService;
 import com.panda.merge.constant.SourceTypeEnum;
-import com.panda.merge.constant.SportPeriodConstant;
 import com.panda.merge.constant.SportTypeEnum;
 import com.panda.merge.dto.*;
 import com.panda.merge.dto.resultScore.MatchResultScoreMsgVo;
@@ -34,7 +32,6 @@ import com.panda.merge.utils.MessageBuilderUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.dubbo.common.utils.CollectionUtils;
-import org.apache.rocketmq.common.ServiceThread;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -956,11 +953,11 @@ public class AbstractCalculationServiceImpl implements CalculationService {
             }
             if(allPeriodScores.get(periodId)!=null){
                 log.info("{}，比分修正下发，组装阶段比分：{}",standardMatchInfo.getId(),allPeriodScores.get(periodId).getMatchScore().doScoreStr());
-                score.add(getScoreCode(periodId) + StringPool.PIPE + allPeriodScores.get(periodId).getSetScore().doScoreStr());
+                score.add(getScoreCode(periodId) + "|" + allPeriodScores.get(periodId).getSetScore().doScoreStr());
             }
         }
-        score.add("S1" + StringPool.PIPE + allPeriodScores.get(-1L).getMatchScore().doScoreStr());
-        score.add("S115" + StringPool.PIPE + allPeriodScores.get(-1L).getSetScore().doScoreStr());
+        score.add("S1" + "|" + allPeriodScores.get(-1L).getMatchScore().doScoreStr());
+        score.add("S115" + "|" + allPeriodScores.get(-1L).getSetScore().doScoreStr());
         MatchResultScoreMsgVo msgVo = new MatchResultScoreMsgVo();
         msgVo.setSportId(standardMatchInfo.getSportId());
         msgVo.setMatchId(standardMatchInfo.getId());
@@ -1052,60 +1049,56 @@ public class AbstractCalculationServiceImpl implements CalculationService {
                     }
                     str.append(s.getPeriodId());
                     //换行符
-                    str.append(StringPool.PIPE);
+                    str.append("|");
                 }
             }
         }else if (SportTypeEnum.FOOTBALL.getValue().equals(scores.getSportId())){
             //足球按照栏位展示顺序
             for(int i = 1; i <= 18; i++) {
                 int finalI = i;
-                //不存全场阶段的日志
-                if(finalI==3 || finalI==7 || finalI==11 || finalI==15){
-                    continue;
-                }
                 List<StandardScoreDTO> allScores = scores.getScores().stream().filter(s -> s.getIndex() == finalI).collect(Collectors.toList());
                 if(!allScores.isEmpty()){
                     if(allScores.get(0).getHome()==null || allScores.get(0).getAway()==null){
                         continue;
                     }
                 }
-                str.append(i).append(StringPool.PIPE);
+                str.append(i).append("|");
             }
             if(!scores.getMinute15Scores().isEmpty()){
 //                List<Long> allScores = scores.getMinute15Scores().stream().map(StandardScoresDetailDTO::getPeriodId).collect(Collectors.toList());
                 //前端传15分钟比分必然会全部传，所以无需再次获取和校验
-                List<Long> allScores = Arrays.asList(SportPeriodConstant.FootballPeriod.period_60899,SportPeriodConstant.FootballPeriod.period_61799,SportPeriodConstant.FootballPeriod.period_62699,SportPeriodConstant.FootballPeriod.period_73599,SportPeriodConstant.FootballPeriod.period_74499,SportPeriodConstant.FootballPeriod.period_75399);
+                List<Long> allScores = Arrays.asList(60899L,61799L,62699L,73599L,74499L,75399L);
                 for(Long period : allScores){
-                    if(period==SportPeriodConstant.FootballPeriod.period_60899){
-                        str.append(FootballBallPeroidEnum.MIN_0_15_YELLOW_CARD.getCode()).append(StringPool.PIPE);
-                        str.append(FootballBallPeroidEnum.MIN_0_15_RED_CARD.getCode()).append(StringPool.PIPE);
-                        str.append(FootballBallPeroidEnum.MIN_0_15_CORNER.getCode()).append(StringPool.PIPE);
-                        str.append(FootballBallPeroidEnum.MIN_0_15_GOAL.getCode()).append(StringPool.PIPE);
-                    }else if(period==SportPeriodConstant.FootballPeriod.period_61799){
-                        str.append(FootballBallPeroidEnum.MIN_15_30_YELLOW_CARD.getCode()).append(StringPool.PIPE);
-                        str.append(FootballBallPeroidEnum.MIN_15_30_RED_CARD.getCode()).append(StringPool.PIPE);
-                        str.append(FootballBallPeroidEnum.MIN_15_30_CORNER.getCode()).append(StringPool.PIPE);
-                        str.append(FootballBallPeroidEnum.MIN_15_30_GOAL.getCode()).append(StringPool.PIPE);
-                    }else if(period==SportPeriodConstant.FootballPeriod.period_62699){
-                        str.append(FootballBallPeroidEnum.MIN_30_45_YELLOW_CARD.getCode()).append(StringPool.PIPE);
-                        str.append(FootballBallPeroidEnum.MIN_30_45_RED_CARD.getCode()).append(StringPool.PIPE);
-                        str.append(FootballBallPeroidEnum.MIN_30_45_CORNER.getCode()).append(StringPool.PIPE);
-                        str.append(FootballBallPeroidEnum.MIN_30_45_GOAL.getCode()).append(StringPool.PIPE);
-                    }else if(period==SportPeriodConstant.FootballPeriod.period_73599){
-                        str.append(FootballBallPeroidEnum.MIN_45_60_YELLOW_CARD.getCode()).append(StringPool.PIPE);
-                        str.append(FootballBallPeroidEnum.MIN_45_60_RED_CARD.getCode()).append(StringPool.PIPE);
-                        str.append(FootballBallPeroidEnum.MIN_45_60_CORNER.getCode()).append(StringPool.PIPE);
-                        str.append(FootballBallPeroidEnum.MIN_45_60_GOAL.getCode()).append(StringPool.PIPE);
-                    }else if(period==SportPeriodConstant.FootballPeriod.period_74499){
-                        str.append(FootballBallPeroidEnum.MIN_60_75_YELLOW_CARD.getCode()).append(StringPool.PIPE);
-                        str.append(FootballBallPeroidEnum.MIN_60_75_RED_CARD.getCode()).append(StringPool.PIPE);
-                        str.append(FootballBallPeroidEnum.MIN_60_75_CORNER.getCode()).append(StringPool.PIPE);
-                        str.append(FootballBallPeroidEnum.MIN_60_75_GOAL.getCode()).append(StringPool.PIPE);
-                    }else if(period==SportPeriodConstant.FootballPeriod.period_75399){
-                        str.append(FootballBallPeroidEnum.MIN_75_90_YELLOW_CARD.getCode()).append(StringPool.PIPE);
-                        str.append(FootballBallPeroidEnum.MIN_75_90_RED_CARD.getCode()).append(StringPool.PIPE);
-                        str.append(FootballBallPeroidEnum.MIN_75_90_CORNER.getCode()).append(StringPool.PIPE);
-                        str.append(FootballBallPeroidEnum.MIN_75_90_GOAL.getCode()).append(StringPool.PIPE);
+                    if(period==60899L){
+                        str.append(FootballBallPeroidEnum.MIN_0_15_YELLOW_CARD.getCode()).append("|");
+                        str.append(FootballBallPeroidEnum.MIN_0_15_RED_CARD.getCode()).append("|");
+                        str.append(FootballBallPeroidEnum.MIN_0_15_CORNER.getCode()).append("|");
+                        str.append(FootballBallPeroidEnum.MIN_0_15_GOAL.getCode()).append("|");
+                    }else if(period==61799L){
+                        str.append(FootballBallPeroidEnum.MIN_15_30_YELLOW_CARD.getCode()).append("|");
+                        str.append(FootballBallPeroidEnum.MIN_15_30_RED_CARD.getCode()).append("|");
+                        str.append(FootballBallPeroidEnum.MIN_15_30_CORNER.getCode()).append("|");
+                        str.append(FootballBallPeroidEnum.MIN_15_30_GOAL.getCode()).append("|");
+                    }else if(period==62699L){
+                        str.append(FootballBallPeroidEnum.MIN_30_45_YELLOW_CARD.getCode()).append("|");
+                        str.append(FootballBallPeroidEnum.MIN_30_45_RED_CARD.getCode()).append("|");
+                        str.append(FootballBallPeroidEnum.MIN_30_45_CORNER.getCode()).append("|");
+                        str.append(FootballBallPeroidEnum.MIN_30_45_GOAL.getCode()).append("|");
+                    }else if(period==73599L){
+                        str.append(FootballBallPeroidEnum.MIN_45_60_YELLOW_CARD.getCode()).append("|");
+                        str.append(FootballBallPeroidEnum.MIN_45_60_RED_CARD.getCode()).append("|");
+                        str.append(FootballBallPeroidEnum.MIN_45_60_CORNER.getCode()).append("|");
+                        str.append(FootballBallPeroidEnum.MIN_45_60_GOAL.getCode()).append("|");
+                    }else if(period==74499L){
+                        str.append(FootballBallPeroidEnum.MIN_60_75_YELLOW_CARD.getCode()).append("|");
+                        str.append(FootballBallPeroidEnum.MIN_60_75_RED_CARD.getCode()).append("|");
+                        str.append(FootballBallPeroidEnum.MIN_60_75_CORNER.getCode()).append("|");
+                        str.append(FootballBallPeroidEnum.MIN_60_75_GOAL.getCode()).append("|");
+                    }else if(period==75399L){
+                        str.append(FootballBallPeroidEnum.MIN_75_90_YELLOW_CARD.getCode()).append("|");
+                        str.append(FootballBallPeroidEnum.MIN_75_90_RED_CARD.getCode()).append("|");
+                        str.append(FootballBallPeroidEnum.MIN_75_90_CORNER.getCode()).append("|");
+                        str.append(FootballBallPeroidEnum.MIN_75_90_GOAL.getCode()).append("|");
                     }
                 }
             }
@@ -1197,41 +1190,41 @@ public class AbstractCalculationServiceImpl implements CalculationService {
                 textBuilder.append(cc.doCountScoreStr()).append(" | ");
             }
         }
-        if(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_60899)!=null){
-            textBuilder.append(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_60899).getYellowCard().doCountScoreStr()).append(StringPool.PIPE);
-            textBuilder.append(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_60899).getRedCard().doCountScoreStr()).append(StringPool.PIPE);
-            textBuilder.append(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_60899).getCorner().doCountScoreStr()).append(StringPool.PIPE);
-            textBuilder.append(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_60899).getGoal().doCountScoreStr()).append(StringPool.PIPE);
+        if(allPeriodScores.get(60899L)!=null){
+            textBuilder.append(allPeriodScores.get(60899L).getYellowCard().doCountScoreStr()).append("|");
+            textBuilder.append(allPeriodScores.get(60899L).getRedCard().doCountScoreStr()).append("|");
+            textBuilder.append(allPeriodScores.get(60899L).getCorner().doCountScoreStr()).append("|");
+            textBuilder.append(allPeriodScores.get(60899L).getGoal().doCountScoreStr()).append("|");
         }
-        if(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_61799)!=null){
-            textBuilder.append(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_61799).getYellowCard().doCountScoreStr()).append(StringPool.PIPE);
-            textBuilder.append(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_61799).getRedCard().doCountScoreStr()).append(StringPool.PIPE);
-            textBuilder.append(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_61799).getCorner().doCountScoreStr()).append(StringPool.PIPE);
-            textBuilder.append(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_61799).getGoal().doCountScoreStr()).append(StringPool.PIPE);
+        if(allPeriodScores.get(61799L)!=null){
+            textBuilder.append(allPeriodScores.get(61799L).getYellowCard().doCountScoreStr()).append("|");
+            textBuilder.append(allPeriodScores.get(61799L).getRedCard().doCountScoreStr()).append("|");
+            textBuilder.append(allPeriodScores.get(61799L).getCorner().doCountScoreStr()).append("|");
+            textBuilder.append(allPeriodScores.get(61799L).getGoal().doCountScoreStr()).append("|");
         }
-        if(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_62699)!=null){
-            textBuilder.append(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_62699).getYellowCard().doCountScoreStr()).append(StringPool.PIPE);
-            textBuilder.append(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_62699).getRedCard().doCountScoreStr()).append(StringPool.PIPE);
-            textBuilder.append(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_62699).getCorner().doCountScoreStr()).append(StringPool.PIPE);
-            textBuilder.append(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_62699).getGoal().doCountScoreStr()).append(StringPool.PIPE);
+        if(allPeriodScores.get(62699L)!=null){
+            textBuilder.append(allPeriodScores.get(62699L).getYellowCard().doCountScoreStr()).append("|");
+            textBuilder.append(allPeriodScores.get(62699L).getRedCard().doCountScoreStr()).append("|");
+            textBuilder.append(allPeriodScores.get(62699L).getCorner().doCountScoreStr()).append("|");
+            textBuilder.append(allPeriodScores.get(62699L).getGoal().doCountScoreStr()).append("|");
         }
-        if(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_73599)!=null){
-            textBuilder.append(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_73599).getYellowCard().doCountScoreStr()).append(StringPool.PIPE);
-            textBuilder.append(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_73599).getRedCard().doCountScoreStr()).append(StringPool.PIPE);
-            textBuilder.append(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_73599).getCorner().doCountScoreStr()).append(StringPool.PIPE);
-            textBuilder.append(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_73599).getGoal().doCountScoreStr()).append(StringPool.PIPE);
+        if(allPeriodScores.get(73599L)!=null){
+            textBuilder.append(allPeriodScores.get(73599L).getYellowCard().doCountScoreStr()).append("|");
+            textBuilder.append(allPeriodScores.get(73599L).getRedCard().doCountScoreStr()).append("|");
+            textBuilder.append(allPeriodScores.get(73599L).getCorner().doCountScoreStr()).append("|");
+            textBuilder.append(allPeriodScores.get(73599L).getGoal().doCountScoreStr()).append("|");
         }
-        if(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_74499)!=null){
-            textBuilder.append(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_74499).getYellowCard().doCountScoreStr()).append(StringPool.PIPE);
-            textBuilder.append(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_74499).getRedCard().doCountScoreStr()).append(StringPool.PIPE);
-            textBuilder.append(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_74499).getCorner().doCountScoreStr()).append(StringPool.PIPE);
-            textBuilder.append(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_74499).getGoal().doCountScoreStr()).append(StringPool.PIPE);
+        if(allPeriodScores.get(74499L)!=null){
+            textBuilder.append(allPeriodScores.get(74499L).getYellowCard().doCountScoreStr()).append("|");
+            textBuilder.append(allPeriodScores.get(74499L).getRedCard().doCountScoreStr()).append("|");
+            textBuilder.append(allPeriodScores.get(74499L).getCorner().doCountScoreStr()).append("|");
+            textBuilder.append(allPeriodScores.get(74499L).getGoal().doCountScoreStr()).append("|");
         }
-        if(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_75399)!=null){
-            textBuilder.append(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_75399).getYellowCard().doCountScoreStr()).append(StringPool.PIPE);
-            textBuilder.append(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_75399).getRedCard().doCountScoreStr()).append(StringPool.PIPE);
-            textBuilder.append(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_75399).getCorner().doCountScoreStr()).append(StringPool.PIPE);
-            textBuilder.append(allPeriodScores.get(SportPeriodConstant.FootballPeriod.period_75399).getGoal().doCountScoreStr()).append(StringPool.PIPE);
+        if(allPeriodScores.get(75399L)!=null){
+            textBuilder.append(allPeriodScores.get(75399L).getYellowCard().doCountScoreStr()).append("|");
+            textBuilder.append(allPeriodScores.get(75399L).getRedCard().doCountScoreStr()).append("|");
+            textBuilder.append(allPeriodScores.get(75399L).getCorner().doCountScoreStr()).append("|");
+            textBuilder.append(allPeriodScores.get(75399L).getGoal().doCountScoreStr()).append("|");
         }
 
 

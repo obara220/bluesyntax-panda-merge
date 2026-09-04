@@ -18,7 +18,7 @@ public class NacosParameterConfig {
     /**
      * 联动开关 0关 1开
      */
-    @NacosValue(value = "${odds.linkage.status:1}", autoRefreshed = true)
+    @NacosValue(value = "${odds.linkage.status:0}", autoRefreshed = true)
     private Integer linkageStatus;
 
     /**

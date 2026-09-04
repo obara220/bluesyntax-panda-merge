@@ -74,7 +74,6 @@ public class MatchSettleNewEventConsumer implements RocketMQListener<Request<Mat
 //        }
         //1、过滤
         if (!check(request.getData())) {
-            log.info("{} MatchSettleEventConsumer事件过滤:{}", linkId, request.getData());
             return;
         }
         //2、处理同步比分中心的逻辑
@@ -94,11 +93,11 @@ public class MatchSettleNewEventConsumer implements RocketMQListener<Request<Mat
             return false;
         }
         //非已结算不对接
-        if (data.getStatus()==null || !data.getStatus().equals(3)) {
+        if (!data.getStatus().equals(3)) {
             return false;
         }
         //非进球比分事件不对接
-        if(data.getEventType()==null ||  !data.getEventType().equals(1)){
+        if(!data.getEventType().equals(1)){
             return false;
         }
         return true;
@@ -150,12 +149,6 @@ public class MatchSettleNewEventConsumer implements RocketMQListener<Request<Mat
             MatchSettleResult matchSettleResult = list.get(0);
             Integer red2H_T1 = redCodeDto.getT1()-matchSettleResult.getT1();
             Integer red2H_T2 = redCodeDto.getT2()-matchSettleResult.getT2();
-            if(red2H_T1<0){
-                red2H_T1 = 0;
-            }
-            if(red2H_T2<0){
-                red2H_T2 = 0;
-            }
             //更新下半场黄牌
             updateAndSentEventMsgById(matchSettleEvent.getStandardMatchId(),"S1402", red2H_T1, red2H_T2);
         }catch (Exception e){
@@ -175,12 +168,6 @@ public class MatchSettleNewEventConsumer implements RocketMQListener<Request<Mat
             MatchSettleResult matchSettleResult = list.get(0);
             Integer red2H_T2 = redCodeDto.getT2()-matchSettleResult.getT2();
             Integer red2H_T1 = redCodeDto.getT1()-matchSettleResult.getT1();
-            if(red2H_T1<0){
-                red2H_T1 = 0;
-            }
-            if(red2H_T2<0){
-                red2H_T2 = 0;
-            }
             //更新下半场红牌
             updateAndSentEventMsgById(matchSettleEvent.getStandardMatchId(),"S1302", red2H_T1, red2H_T2);
         }catch (Exception e){

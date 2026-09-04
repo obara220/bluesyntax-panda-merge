@@ -1,7 +1,6 @@
 package com.panda.merge.rocketmq.consumer;
 
 import cn.hutool.core.lang.TypeReference;
-import com.panda.merge.common.RateLimiterHandler;
 import com.panda.merge.dto.Request;
 import com.panda.merge.dto.ThirdMatchMarketDTO;
 import com.panda.merge.rocketmq.AbstractMultipleMessageMQConsumer;
@@ -44,7 +43,6 @@ public class ThirdAllMarketConsumer extends AbstractMultipleMessageMQConsumer<Re
 
     @Resource
     private ThirdAllBatchMarketProcessor thirdAllBatchMarketProcessor;
-
 
     @Override
     public MqConsumerConfig buildConfig() {

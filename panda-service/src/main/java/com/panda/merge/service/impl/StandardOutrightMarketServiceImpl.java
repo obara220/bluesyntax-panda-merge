@@ -93,11 +93,4 @@ public class StandardOutrightMarketServiceImpl implements StandardOutrightMarket
         return standardOutrightMarketMapper.selectByExample(standardOutrightMarketExample);
     }
 
-    @Override
-    public List<StandardOutrightMarket> queryChampionMarket(List<Long> ids){
-        StandardOutrightMarketExample standardOutrightMarketExample = new StandardOutrightMarketExample();
-        standardOutrightMarketExample.createCriteria().andIdIn(ids);
-        return standardOutrightMarketMapper.selectByExample(standardOutrightMarketExample);
-    }
-
 }

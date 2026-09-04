@@ -34,8 +34,6 @@ public class MatchSettleScoreFootBallController {
     @Autowired
     IMatchSettleBatchCheckService matchSettleBatchCheckService;
     @Autowired
-    IBasketballInSettleService basketballInSettleService;
-    @Autowired
     MatchSettleInfoRepository matchSettleInfoRepository;
     @Autowired
     StandardSportMarketSellService standardSportMarketSellService;
@@ -185,13 +183,5 @@ public class MatchSettleScoreFootBallController {
 
     public boolean isTeamFirstSettled(Long standardMatchId) {
         return matchSettleScoreFootBallService.isTeamFirstSettled(standardMatchId);
-    }
-
-    public Response updateMatchSettleScoreV3(UpdateMatchSettleScoreDto matchSettleScoreDto) {
-        return matchSettleScoreFootBallService.updateMatchSettleScoreV3(matchSettleScoreDto);
-    }
-
-    public Response confirmMatchSettleScoreV3(ConfirmMatchSettleScoreDto matchSettleScoreDto) {
-        return matchSettleScoreFootBallService.confirmMatchSettleScoreV3(matchSettleScoreDto);
     }
 }

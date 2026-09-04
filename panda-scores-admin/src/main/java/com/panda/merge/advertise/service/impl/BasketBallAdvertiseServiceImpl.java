@@ -342,10 +342,10 @@ public class BasketBallAdvertiseServiceImpl implements BasketBallAdvertiseServic
         //4.下发阶段事件
         if(basketBallScoreService.hasExtryPeriod(matchScoreAndTimeVo.getMatchScoresInfo())){
             commonEventService.changeMatchPeriodEvent(matchScoreAndTimeVo,110l,0L,0L,System.currentTimeMillis(),matchScoreCommonVo,linkedId+"_PD",userName);
-//            scoresProducer.sendToMQ(matchScoreAndTimeVo.getThirdMatchInfo(),matchScoreAndTimeVo.getMatchScoresInfo(),linkedId);
+            scoresProducer.sendToMQ(matchScoreAndTimeVo.getThirdMatchInfo(),matchScoreAndTimeVo.getMatchScoresInfo(),linkedId);
         }else {
             commonEventService.changeMatchPeriodEvent(matchScoreAndTimeVo,100l,0L,0L,System.currentTimeMillis(),matchScoreCommonVo,linkedId+"_PD",userName);
-//            scoresProducer.sendToMQ(matchScoreAndTimeVo.getThirdMatchInfo(),matchScoreAndTimeVo.getMatchScoresInfo(),linkedId);
+            scoresProducer.sendToMQ(matchScoreAndTimeVo.getThirdMatchInfo(),matchScoreAndTimeVo.getMatchScoresInfo(),linkedId);
         }
         try {
             Thread.sleep(700);
@@ -367,7 +367,7 @@ public class BasketBallAdvertiseServiceImpl implements BasketBallAdvertiseServic
             pdMatchInfoRepository.setRedisAndStandardMatchInfo(newStandardMatchInfo, null);
         }
         commonEventService.changeMatchPeriodEvent(matchScoreAndTimeVo,999l,0L,0L,System.currentTimeMillis(),matchScoreCommonVo,linkedId,userName);
-//        scoresProducer.sendToMQ(matchScoreAndTimeVo.getThirdMatchInfo(),matchScoreAndTimeVo.getMatchScoresInfo(),linkedId);
+        scoresProducer.sendToMQ(matchScoreAndTimeVo.getThirdMatchInfo(),matchScoreAndTimeVo.getMatchScoresInfo(),linkedId);
 
         return Response.success();
     }
@@ -385,7 +385,7 @@ public class BasketBallAdvertiseServiceImpl implements BasketBallAdvertiseServic
         MatchScoreCommonVo matchScoreCommonVo= basketBallScoreService.searchCommonMatchScore(data.getMatchScoresInfo(),periodId);
         if(periodId.equals(32l)){
             commonEventService.changeMatchPeriodEvent(data,100l,0L,0L,System.currentTimeMillis(),matchScoreCommonVo,linkedId+"_PD","");
-//            scoresProducer.sendToMQ(data.getThirdMatchInfo(),data.getMatchScoresInfo(),linkedId);
+            scoresProducer.sendToMQ(data.getThirdMatchInfo(),data.getMatchScoresInfo(),linkedId);
             try {
                 Thread.sleep(700);
             } catch (InterruptedException e) {
@@ -394,7 +394,7 @@ public class BasketBallAdvertiseServiceImpl implements BasketBallAdvertiseServic
         }
         //4.下发阶段事件
         commonEventService.changeMatchPeriodEvent(data,periodId,0L,0L,System.currentTimeMillis(),matchScoreCommonVo,linkedId,"");
-//        scoresProducer.sendToMQ(data.getThirdMatchInfo(),data.getMatchScoresInfo(),linkedId);
+        scoresProducer.sendToMQ(data.getThirdMatchInfo(),data.getMatchScoresInfo(),linkedId);
         return Response.success();
     }
 
@@ -811,7 +811,7 @@ public class BasketBallAdvertiseServiceImpl implements BasketBallAdvertiseServic
             }
 
         //7. 下发比分变更事件  或者比分修正事件
-//        scoresProducer.sendToMQ(data.getThirdMatchInfo(),data.getMatchScoresInfo(),changeMatchScoreDto.getLinkedId());
+        scoresProducer.sendToMQ(data.getThirdMatchInfo(),data.getMatchScoresInfo(),changeMatchScoreDto.getLinkedId());
         return Response.success();
     }
 

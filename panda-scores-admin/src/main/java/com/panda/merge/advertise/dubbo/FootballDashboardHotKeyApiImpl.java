@@ -8,13 +8,12 @@ import com.panda.merge.constant.ScoreEventCodeSourceEnum;
 import com.panda.merge.constant.SportTypeEnum;
 import com.panda.merge.dto.Response;
 import com.panda.merge.dto.ResultCode;
-import com.panda.merge.dto.advertise.v2.HotkeysSaveDto;
+import com.panda.merge.mapper.ThirdMatchInfoMapper;
+import com.panda.merge.mapper.UserKeyboardSetMapper;
 import com.panda.merge.model.FootballKeyboardSet;
 import com.panda.merge.model.ThirdMatchInfo;
 import com.panda.merge.model.UserKeyboardSet;
 import com.panda.merge.repository.PdMatchInfoRepository;
-import com.panda.merge.snooker.service.IMatchCommonProcessor;
-import com.panda.merge.snooker.service.impl.MatchFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboService;
@@ -49,9 +48,6 @@ public class FootballDashboardHotKeyApiImpl implements FootballDashboardHotKeyAp
     @Autowired
     private PdMatchInfoRepository pdMatchInfoRepository;
 
-    @Autowired
-    private MatchFactory matchFactory;
-
 //    @Autowired
 //    private UserKeyboardSetMapper userKeyboardSetMapper;
 
@@ -63,8 +59,12 @@ public class FootballDashboardHotKeyApiImpl implements FootballDashboardHotKeyAp
 //        ThirdMatchInfo thirdMatchInfo = thirdMatchInfoMapper.selectByPrimaryKey(thirdMatchId);
         ThirdMatchInfo thirdMatchInfo = pdMatchInfoRepository.getThirdMatchInfo(thirdMatchId,null);
         Long sportId = thirdMatchInfo.getSportId();
-        IMatchCommonProcessor processor = matchFactory.getProcessor(sportId);
-        return processor.getHotkeysBySportIdAndUsername(sportId, userName);
+//        UserKeyboardSet keyboardSet = userKeyboardSetMapper.selectKeyboardByUserNameAndSportId(userName,sportId);
+        UserKeyboardSet keyboardSet = pdMatchInfoRepository.getKeyboardByUserNameAndSportId(userName, sportId, null);
+        if (ObjectUtil.isEmpty(keyboardSet)) {
+            return Response.success(new UserKeyboardSet(), "用户信息不存在");
+        }
+        return Response.success(keyboardSet, ResultCode.SUCCESS.getMessage());
     }
 
     @Override
@@ -90,16 +90,17 @@ public class FootballDashboardHotKeyApiImpl implements FootballDashboardHotKeyAp
             }
             // 加redis锁，执行插入操作
             if (redisService.tryLock(key, key, 2, 3)) {
+//                UserKeyboardSet keyboardSet = userKeyboardSetMapper.selectKeyboardByUserNameAndSportId(userName,sportId);
                 UserKeyboardSet keyboardSet = pdMatchInfoRepository.getKeyboardByUserNameAndSportId(userName, sportId, null);
                 if (ObjectUtil.isNotEmpty(keyboardSet)) {
                     return Response.failed("用户信息已存在");
                 }
-                IMatchCommonProcessor processor = matchFactory.getProcessor(sportId);
-                Response resp = processor.saveHotkeys(buildSaveDto(footballKeyboardSet, sportId));
-                if (!resp.isSuccess()) {
-                    return resp;
+//                int count = userKeyboardSetMapper.insertKeyboardInfo(userKeyboardSet);
+                int count = pdMatchInfoRepository.addKeyboardInfo(userKeyboardSet,REDIS_WEEK_TIME);
+                if (count == 0) {
+                    return Response.failed(ResultCode.INSERT_FAILED, "数据插入失败");
                 }
-                return Response.success(1, ResultCode.SUCCESS.getMessage());
+                return Response.success(count, ResultCode.SUCCESS.getMessage());
             }
         } catch (Exception e) {
             ByteArrayOutputStream exception = new ByteArrayOutputStream();
@@ -135,16 +136,17 @@ public class FootballDashboardHotKeyApiImpl implements FootballDashboardHotKeyAp
             if (redisService.tryLock(key, key, 2, 3)) {
                 String userName = userKeyboardSet.getUserName();
                 Long sportId = footballKeyboardSet.getSportId();
+//                UserKeyboardSet keyboardSet = userKeyboardSetMapper.selectKeyboardByUserNameAndSportId(userName,sportId);
                 UserKeyboardSet keyboardSet = pdMatchInfoRepository.getKeyboardByUserNameAndSportId(userName,sportId,null);
                 if (ObjectUtil.isEmpty(keyboardSet)) {
                     return Response.failed("用户信息不存在");
                 }
-                IMatchCommonProcessor processor = matchFactory.getProcessor(sportId);
-                Response resp = processor.saveHotkeys(buildSaveDto(footballKeyboardSet, sportId));
-                if (!resp.isSuccess()) {
-                    return resp;
+//                int count = userKeyboardSetMapper.updateKeyboardByUserName(userKeyboardSet);
+                int count = pdMatchInfoRepository.setRedisAndKeyboard(userKeyboardSet,REDIS_WEEK_TIME);
+                if (count == 0) {
+                    return Response.failed("更新失败");
                 }
-                return Response.success(1, ResultCode.SUCCESS.getMessage());
+                return Response.success(count, ResultCode.SUCCESS.getMessage());
             }
         } catch (Exception e) {
             ByteArrayOutputStream exception = new ByteArrayOutputStream();
@@ -167,8 +169,17 @@ public class FootballDashboardHotKeyApiImpl implements FootballDashboardHotKeyAp
 //                ThirdMatchInfo thirdMatchInfo = thirdMatchInfoMapper.selectByPrimaryKey(thirdMatchId);
                 ThirdMatchInfo thirdMatchInfo = pdMatchInfoRepository.getThirdMatchInfo(thirdMatchId,null);
                 Long sportId = thirdMatchInfo.getSportId();
-                IMatchCommonProcessor processor = matchFactory.getProcessor(sportId);
-                return processor.deleteHotkeysBySportIdAndUsername(sportId, userName);
+//                UserKeyboardSet keyboardSet = userKeyboardSetMapper.selectKeyboardByUserNameAndSportId(userName,sportId);
+                UserKeyboardSet keyboardSet = pdMatchInfoRepository.getKeyboardByUserNameAndSportId(userName,sportId,null);
+                if (ObjectUtil.isEmpty(keyboardSet)) {
+                    return Response.failed("用户信息不存在");
+                }
+//                int count = userKeyboardSetMapper.deleteKeyboardByUserNameAndSportId(keyboardSet.getUserName(),sportId);
+                int count = pdMatchInfoRepository.removeKeyboardInfo(keyboardSet.getUserName(),sportId);
+                if (count == 0) {
+                    return Response.failed("删除失败");
+                }
+                return Response.success(count, ResultCode.SUCCESS.getMessage());
             }
         } catch (Exception e) {
             ByteArrayOutputStream exception = new ByteArrayOutputStream();
@@ -192,6 +203,7 @@ public class FootballDashboardHotKeyApiImpl implements FootballDashboardHotKeyAp
                 if (CollectionUtil.isEmpty(keyboardSetList)) {
                     return Response.failed("用户信息不存在");
                 }
+//                int count = userKeyboardSetMapper.deleteKeyboardByUserIdList(userIds);
                 int count = pdMatchInfoRepository.removeAllKeyboardInfo(userIds);
                 if (count == 0) {
                     return Response.failed("删除失败");
@@ -206,22 +218,5 @@ public class FootballDashboardHotKeyApiImpl implements FootballDashboardHotKeyAp
             redisService.unLock(key, key);
         }
         return Response.failed("服务器错误");
-    }
-
-    private HotkeysSaveDto buildSaveDto(FootballKeyboardSet footballKeyboardSet, Long sportId) {
-        HotkeysSaveDto dto = new HotkeysSaveDto();
-        dto.setSportId(sportId);
-        dto.setUserId(footballKeyboardSet.getUserId());
-        dto.setUserName(footballKeyboardSet.getUserName());
-        dto.setKeyboardInfo(footballKeyboardSet.getKeyboardInfo());
-
-        // 透传链路/操作人信息（用于落库 createUser/modifyUser 等）
-        dto.setLinkedId(footballKeyboardSet.getLinkedId());
-        dto.setOperatorId(footballKeyboardSet.getOperatorId());
-        dto.setOperatorName(footballKeyboardSet.getOperatorName());
-        dto.setIpAddress(footballKeyboardSet.getIpAddress());
-        dto.setRequestId(footballKeyboardSet.getRequestId());
-        dto.setLanguage(footballKeyboardSet.getLanguage());
-        return dto;
     }
 }

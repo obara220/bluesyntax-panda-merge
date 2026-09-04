@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.panda.merge.mapper.FootballKeyboardSetMapper">
+    <resultMap id="BaseResultMap" type="com.panda.merge.model.FootballKeyboardSet">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="sport_id" jdbcType="BIGINT" property="sportId" />
+        <result column="third_match_id" jdbcType="BIGINT" property="thirdMatchId" />
+        <result column="user_id" jdbcType="VARCHAR" property="userId" />
+        <result column="user_name" jdbcType="VARCHAR" property="userName" />
+        <result column="keyboard_info" jdbcType="VARCHAR" property="keyboardInfo" />
+        <result column="create_time" jdbcType="BIGINT" property="createTime" />
+        <result column="modify_time" jdbcType="BIGINT" property="modifyTime" />
+        <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+        <result column="modify_user" jdbcType="VARCHAR" property="modifyUser" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        sport_id, third_match_id, user_id, user_name, keyboard_info, create_time, modify_time, create_user, modify_user
+    </sql>
+    <insert id="insertKeyboardInfo">
+        insert into
+        football_keyboard_set
+        (<include refid="Base_Column_List" />)
+        values
+        (#{sportId,jdbcType=BIGINT}, #{thirdMatchId,jdbcType=BIGINT}, #{userId,jdbcType=VARCHAR}, #{userName,jdbcType=VARCHAR},
+        #{keyboardInfo,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{modifyTime,jdbcType=BIGINT},
+        #{createUser,jdbcType=VARCHAR}, #{modifyUser,jdbcType=VARCHAR})
+    </insert>
+    <update id="updateKeyboardByUserName">
+        update football_keyboard_set
+        <set>
+            <if test="keyboardInfo != null">
+                keyboard_info = #{keyboardInfo,jdbcType=VARCHAR},
+            </if>
+            <if test="modifyUser != null">
+                modify_user = #{modifyUser,jdbcType=VARCHAR},
+            </if>
+            <if test="modifyTime != null">
+                modify_time = #{modifyTime,jdbcType=BIGINT},
+            </if>
+        </set>
+        where user_name = #{userName,jdbcType=VARCHAR}
+    </update>
+
+    <select id="selectKeyboardByUserName" parameterType="java.lang.String" resultType="com.panda.merge.model.FootballKeyboardSet">
+        select
+        id,
+        sport_id as sportId,
+        third_match_id as thirdMatchId,
+        user_id as userId,
+        user_name as userName,
+        keyboard_info as keyboardInfo,
+        create_time as createTime,
+        modify_time as modifyTime,
+        create_user as createUser,
+        modify_user as modifyUser
+        from football_keyboard_set
+        where user_name = #{userName,jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectKeyboardByUserIdList" resultType="com.panda.merge.model.FootballKeyboardSet">
+        select
+            id,
+            sport_id as sportId,
+            third_match_id as thirdMatchId,
+            user_id as userId,
+            user_name as userName,
+            keyboard_info as keyboardInfo,
+            create_time as createTime,
+            modify_time as modifyTime,
+            create_user as createUser,
+            modify_user as modifyUser
+        from football_keyboard_set
+        where user_id in
+        <foreach collection="userIds" item="userId" open="(" close=")" separator=",">
+            #{userId, jdbcType=VARCHAR}
+        </foreach>
+    </select>
+
+    <delete id="deleteKeyboardByUserName" parameterType="java.lang.String">
+        delete from football_keyboard_set
+        where user_name = #{userName,jdbcType=VARCHAR}
+    </delete>
+
+    <delete id="deleteKeyboardByUserIdList">
+        delete from football_keyboard_set
+        where user_id in
+        <foreach collection="userIds" item="userId" open="(" close=")" separator=",">
+            #{userId, jdbcType=VARCHAR}
+        </foreach>
+    </delete>
+</mapper>

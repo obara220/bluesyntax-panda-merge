@@ -1,9 +1,8 @@
 package com.panda.merge.api;
 
-import com.panda.merge.bo.ThirdSportMarketCategoryBO;
-import com.panda.merge.dto.*;
-
-import java.util.List;
+import com.panda.merge.dto.Request;
+import com.panda.merge.dto.Response;
+import com.panda.merge.dto.ThirdMatchMarketDTO;
 
 
 /**
@@ -20,19 +19,4 @@ public interface IThirdMarketCategoryPutApi {
      * */
     Response pushThirdMarketCategory(Request<ThirdMatchMarketDTO> request);
 
-
-    /**
-     * 查询三方盘口列表
-     * @param request
-     * @return
-     */
-    Response<List<ThirdSportMarketCategoryBO>> queryThirdMarketCategory(Request<ThirdCategoryDTO> request);
-
-    /**
-     * 修改三方玩法配置
-     * @param request
-     * @return
-     */
-    Response updateThirdMarketCategory(Request<ThirdCategoryDTO> request);
-    
 }

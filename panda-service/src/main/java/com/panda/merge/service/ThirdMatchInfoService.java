@@ -3,6 +3,7 @@ package com.panda.merge.service;
 import com.github.pagehelper.Page;
 import com.panda.merge.common.OddsWrapper;
 import com.panda.merge.dto.PageModel;
+import com.panda.merge.dto.Request;
 import com.panda.merge.dto.ThirdMatchInfoDetail;
 import com.panda.merge.dto.ThirdMatchMarketDTO;
 import com.panda.merge.dto.nonrealttime.query.ThirdMatchInfoDTO;
@@ -68,8 +69,6 @@ public interface ThirdMatchInfoService {
 
     ThirdMatchInfo getItemByPrimaryKey(Long id);
 
-    ThirdMatchInfo getItemByReferenceId(Long referenceId, String dataSourceCode);
-
     /**
      * 通过主键新增部分数据
      * @param item  对象信息
@@ -89,7 +88,6 @@ public interface ThirdMatchInfoService {
      */
     ThirdMatchInfo updateByPrimaryKeySelective(ThirdMatchInfo thirdMatchInfo,String linkId);
 
-
     /**
      * 处理关联三方赛事完赛（同一标准赛事下超过3个数据源完赛的自动把其他数据源的三方赛事进行完赛处理）
      * @param referenceId  标准赛事id
@@ -103,4 +101,5 @@ public interface ThirdMatchInfoService {
     ThirdMatchInfo refreshCache(ThirdMatchInfo thirdMatchInfo);
 
     List<ThirdMatchInfo> getThirdMatchInfoForSettle(Long standardMatchId,String businessEvent);
+
 }

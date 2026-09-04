@@ -1,6 +1,5 @@
 package com.panda.merge.service.impl;
 
-import com.panda.merge.common.enums.Constant;
 import com.panda.merge.common.utils.TimeUtils;
 import com.panda.merge.component.UUIdUtils;
 import com.panda.merge.config.RedisConfig;
@@ -50,8 +49,6 @@ public class OutrightTradeMarketConfigServiceImpl implements OutrightTradeMarket
         configOutrightTradeMarket.setMarketStatus(outrightTradeMarketConfigDTO.getMarketStatus());
         configOutrightTradeMarket.setLinkId(linkId);
         configOutrightTradeMarket.setOperaterId(outrightTradeMarketConfigDTO.getOperaterId());
-        Integer operateType = null == outrightTradeMarketConfigDTO.getOperateType() ? Constant.OUTRIGHT_ONE : outrightTradeMarketConfigDTO.getOperateType();
-        configOutrightTradeMarket.setOperateType(operateType);
         configOutrightTradeMarket.setCreateTime(TimeUtils.millsSecondsEast8ZoneGmt());
         configOutrightTradeMarket.setModifyTime(TimeUtils.millsSecondsEast8ZoneGmt());
         configOutrightTradeMarketMapper.insert(configOutrightTradeMarket);
@@ -77,33 +74,12 @@ public class OutrightTradeMarketConfigServiceImpl implements OutrightTradeMarket
         return configOutrightTradeMarketList.get(0);
     }
 
-    @Override
-    public List<ConfigOutrightTradeMarket> selectItems(Map<Long, Set<Long>> matchAndMarketIdsMap) {
-        ConfigOutrightTradeMarketExample example = new ConfigOutrightTradeMarketExample();
-        for(Map.Entry<Long, Set<Long>> entry : matchAndMarketIdsMap.entrySet()) {
-            example.or().andStandardMatchIdEqualTo(entry.getKey()).andStandardMarketIdIn((List<Long>) entry.getValue());
-        }
-        return configOutrightTradeMarketMapper.selectByExample(example);
-    }
-
 
     @Override
     @Cacheable(key = "'ConfigTradeMarketByMatchId:' +#standardMatchId")
     public List<ConfigOutrightTradeMarket> selectListItem(Long standardMatchId) {
         ConfigOutrightTradeMarketExample example = new ConfigOutrightTradeMarketExample();
         example.createCriteria().andStandardMatchIdEqualTo(standardMatchId);
-        List<ConfigOutrightTradeMarket> configOutrightTradeMarketList = configOutrightTradeMarketMapper.selectByExample(example);
-        if(CollectionUtils.isEmpty(configOutrightTradeMarketList)){
-            return null;
-        }
-        return configOutrightTradeMarketList;
-    }
-
-
-    @Override
-    public List<ConfigOutrightTradeMarket> selectList(List<Long> ids) {
-        ConfigOutrightTradeMarketExample example = new ConfigOutrightTradeMarketExample();
-        example.createCriteria().andStandardMarketIdIn(ids);
         List<ConfigOutrightTradeMarket> configOutrightTradeMarketList = configOutrightTradeMarketMapper.selectByExample(example);
         if(CollectionUtils.isEmpty(configOutrightTradeMarketList)){
             return null;
@@ -121,20 +97,6 @@ public class OutrightTradeMarketConfigServiceImpl implements OutrightTradeMarket
         }
         return configOutrightTradeMarketList.stream().collect(Collectors.toMap(ConfigOutrightTradeMarket::getStandardMarketId, ConfigOutrightTradeMarket::getMarketStatus));
     }
-
-
-
-    @Override
-    public List<ConfigOutrightTradeMarket> queryTradeMarketList( List<Long> matchIds) {
-        ConfigOutrightTradeMarketExample example = new ConfigOutrightTradeMarketExample();
-        example.createCriteria().andStandardMatchIdIn(matchIds);
-        List<ConfigOutrightTradeMarket> configOutrightTradeMarketList = configOutrightTradeMarketMapper.selectByExample(example);
-        if(CollectionUtils.isEmpty(configOutrightTradeMarketList)){
-            return null;
-        }
-        return configOutrightTradeMarketList;
-    }
-
 
     @Override
     public void updateBatchById(List<ConfigOutrightTradeMarket> configOutrightTradeMarkets) {

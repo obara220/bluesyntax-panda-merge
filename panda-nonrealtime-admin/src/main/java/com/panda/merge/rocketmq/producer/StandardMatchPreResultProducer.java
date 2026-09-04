@@ -40,6 +40,7 @@ public class StandardMatchPreResultProducer extends BaseProcessor {
         aoMatchPreIconStatus(linkId, standardMatchInfo.getId(), marketPreResultMessageList);
         matchMarketPreMessage.setMatchPreStatusRisk(marketPreResultMessageList.get(0).getMatchPreStatusRisk());
         matchMarketPreMessage.setMatchPreStatus(marketPreResultMessageList.get(0).getMatchPreStatus());
+
         matchMarketPreMessage.setMarketPreResultMessages(marketPreResultMessageList);
 
         Request<StandardMatchMarketPreMessage> request = new Request<>();
@@ -48,7 +49,7 @@ public class StandardMatchPreResultProducer extends BaseProcessor {
         request.setDataSourceTime(dataSourceTime);
 
         MessageBuilder<Request<StandardMatchMarketPreMessage>> builder = MessageBuilder.withPayload(request).setHeader(MessageConst.PROPERTY_KEYS, linkId);
-        log.info("::{}::开始组装提前结算盘口消息并下发,topic:STANDARD_MARKET_PRE_RESULT,request:{}", linkId, JSON.toJSONString(request));
+        log.info("::{}::开始组装提前结算盘口消息并下发,topic:STANDARD_MARKET_PRE_RESULT", linkId);
         //第一个参数表示topic:tag
         mqDelegate.asyncSend("STANDARD_MARKET_PRE_RESULT:" + standardMatchInfo.getId(), builder.build(), new SendCallback() {
             @Override

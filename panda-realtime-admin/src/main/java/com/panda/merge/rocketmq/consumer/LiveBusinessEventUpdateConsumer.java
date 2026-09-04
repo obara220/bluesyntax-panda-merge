@@ -45,10 +45,8 @@ public class LiveBusinessEventUpdateConsumer implements RocketMQListener<Request
     @Override
     public void onMessage(Request<SaleUpdateLiveBusinessEventMessage> request) {
         if (!realtimeSwitch && !realtimeEventSwitch) {
-            if (dataCenterProducer.checkForward(request.getData().getMatchId(),request.getLinkId())) {
-                dataCenterProducer.send(request,LIVE_BUSINESS_EVENT_UPDATE_MESSAGE);
-                return;
-            }
+            dataCenterProducer.send(request,LIVE_BUSINESS_EVENT_UPDATE_MESSAGE);
+            return;
         }
         liveBusinessEventUpdateProcessor.reissueEventInfo(request);
     }

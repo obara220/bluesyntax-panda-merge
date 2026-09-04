@@ -51,6 +51,7 @@ public class QueueMatchConsumer implements RocketMQListener<String> {
     @Override
     public void onMessage(String s) {
         log.info("QueueMatchConsumer MQ消费数据开始...{}",datacenterMergeSwitch);
+
         StopWatch extWatch = new StopWatch();
         extWatch.start();
         if(StrUtil.isEmpty(s)){
@@ -79,7 +80,7 @@ public class QueueMatchConsumer implements RocketMQListener<String> {
            StandardMatchScores standardMatchScores = scoresRedisHelp.getCatchStandScoreByMatchId(standatdMatchId);
             if(null!=standardMatchScores){
                 if(StrUtil.isEmpty(standardMatchScores.getMatchManageId())){
-                    log.info("QueueMatchConsumer 已存在标准赛事：,重新保存：{}",standatdMatchId);
+                    log.info("已存在标准赛事：,重新保存：{}",standatdMatchId);
                     //已存在
                     standardMatchScores.setMatchManageId(jsonObject.getStr("matchManageId"));
                     standardMatchScores.setUpdateTime(System.currentTimeMillis());
@@ -106,11 +107,7 @@ public class QueueMatchConsumer implements RocketMQListener<String> {
             scores.setMatchId(standatdMatchId);
             scores.setShowStatus(0);
             if(null != jsonObject.get("businessEvent")){
-                scores.setDataSourceCode(jsonObject.getStr("businessEvent"));
-            }
-            //保存赛制
-            if(null != jsonObject.get("matchLength")){
-               scores.setMatchLength(jsonObject.getInt("matchLength"));
+                scores.setDataSourceCode(jsonObject.get("businessEvent").toString());
             }
             scores.setDataSourceAccoSwitch(getSwitchsAsSportId(sportId));
             scores.setCreateTime(System.currentTimeMillis());
@@ -119,7 +116,7 @@ public class QueueMatchConsumer implements RocketMQListener<String> {
             scores.setSendSettleCount(0);
             scoresRedisHelp.saveCatchStandScore(scores);
             extWatch.stop();
-            log.info("QueueMatchConsumer 保存标准比分数据：{},用时:{}",standatdMatchId,extWatch.getTotalTimeMillis());
+            log.info("保存标准比分数据：{},用时:{}",standatdMatchId,extWatch.getTotalTimeMillis());
        }catch (Exception e){
            log.error("队列匹配赛事数据异常：{}",e.getMessage(),e);
        }

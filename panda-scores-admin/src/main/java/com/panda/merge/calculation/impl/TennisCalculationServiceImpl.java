@@ -7,7 +7,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.panda.merge.common.enums.DataSourceCodeEnum;
 import com.panda.merge.common.utils.IdWorker;
-import com.panda.merge.common.utils.StringPool;
 import com.panda.merge.constant.SourceTypeEnum;
 import com.panda.merge.constant.SportPeriodConstant;
 import com.panda.merge.constant.TeamTypeConstant;
@@ -1097,11 +1096,11 @@ public class TennisCalculationServiceImpl extends AbstractCalculationServiceImpl
             log.info("{}，比分修正下发，组装阶段比分：{}",standardMatchInfo.getId(),periodId);
             if(allPeriodScores.get(periodId)!=null){
                 log.info("{}，比分修正下发，组装阶段比分：{}",standardMatchInfo.getId(),allPeriodScores.get(periodId).getMatchScore().doScoreStr());
-                score.add(getScoreCode(periodId) + StringPool.PIPE + allPeriodScores.get(periodId).getSetScore().doScoreStr());
+                score.add(getScoreCode(periodId) + "|" + allPeriodScores.get(periodId).getSetScore().doScoreStr());
             }
         }
-        score.add("S1" + StringPool.PIPE + allPeriodScores.get(-1L).getMatchScore().doScoreStr());
-        score.add("S115" + StringPool.PIPE + allPeriodScores.get(-1L).getSetScore().doScoreStr());
+        score.add("S1" + "|" + allPeriodScores.get(-1L).getMatchScore().doScoreStr());
+        score.add("S115" + "|" + allPeriodScores.get(-1L).getSetScore().doScoreStr());
         MatchResultScoreMsgVo msgVo = new MatchResultScoreMsgVo();
         msgVo.setSportId(standardMatchInfo.getSportId());
         msgVo.setMatchId(standardMatchInfo.getId());

@@ -52,14 +52,6 @@ public interface OutrightTradeTypeConfigService {
      */
     Map<Long, Integer> getTradeTypeMapByMatchId(Long standardMatchId, Set<Long> marketIdSet);
 
-
-    /**
-     * 获取完整的操盘方式
-     * @param marketIds
-     * @return
-     */
-    List<ConfigOutrightTradeType> getTradeTypeList( List<Long> marketIds);
-
     /**
      * 获取操盘方式
      *

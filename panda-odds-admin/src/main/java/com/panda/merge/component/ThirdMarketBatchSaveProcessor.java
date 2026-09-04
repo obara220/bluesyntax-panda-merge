@@ -44,8 +44,6 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.panda.merge.component.ThirdMarketSaveProcessor.checkA01ExtendedTimeStatus;
-
 /**
  * 开出去的玩法不是三方数据源直接入库
  */
@@ -312,18 +310,13 @@ public class ThirdMarketBatchSaveProcessor {
         return newList;
     }
 
-
     /**
      * 47319：数据商盘口状态是封 数据商盘口投注项全是未激活 ，改为关
      * @param marketList
      */
     public void checkMarketStateAndChange(List<OddsWrapper<ThirdMarketDTO>> marketList) {
-        Set<Long> sportIds = new HashSet<>(Arrays.asList(1L, 2L));
         List<String> dataSourceCodes = Arrays.asList(DataSourceCodeEnum.OD.getCode(), DataSourceCodeEnum.BE.getCode(), DataSourceCodeEnum.F01.getCode());
-        marketList = marketList
-                .stream()
-                .filter(t -> !dataSourceCodes.contains(t.getDataSourceCode()) && sportIds.contains(t.getSportId()))
-                .collect(Collectors.toList());
+        marketList = marketList.stream().filter(t->!dataSourceCodes.contains(t.getDataSourceCode())).collect(Collectors.toList());
 //        Map<Long, Integer> matchIsLiveMap = getMatchIsLiveMap(marketList);
 
         for (OddsWrapper<ThirdMarketDTO> thirdMarketDTO : marketList) {
@@ -420,7 +413,6 @@ public class ThirdMarketBatchSaveProcessor {
                 //不走加锁逻辑直接入库
                 thirdMarketDTO.getData().setLock(Boolean.FALSE);
             }
-
             //auto open 校验开盘盘口
             if (StandardSportTypeEnum.FootBall.code.equals(thirdMatchInfo.getSportId())
                     && MarginCategoryConfig.FootBall_MAIN_CATEGORY.contains(marketCategoryId)
@@ -444,21 +436,10 @@ public class ThirdMarketBatchSaveProcessor {
             }
             log.info("::{}::autoOpenCategoryMap:{},matchId:{}",thirdMarketDTO.getLinkId(),autoOpenCategoryMap,thirdMarketDTO.getStandardSourceId());
             //两项盘数据源赔率合法性验证
-            if (Constant.SPORT_MARKET.STATUS.ACTIVE.equals(thirdMarketDTO.getData().getStatus())
-                    && !CollectionUtils.isEmpty(thirdMarketDTO.getData().getMarketOddsList())
-                    && thirdMarketDTO.getData().getMarketOddsList().size() == 2) {
-                if (thirdMarketDTO.getData().getMarketOddsList().get(0).getOriginalOddsValue() < 1.01 * 100000
-                        || thirdMarketDTO.getData().getMarketOddsList().get(1).getOriginalOddsValue() < 1.01 * 100000) {
-
-                    //如果是A01赔率 判断是否开启延长开售才封盘 开启则不封盘/不开启则正常处理 注:(玩法id 2 4 18 19)
-                    Object a01ExtendedTimeObjects  = null;
-                    if (thirdMatchInfo.getReferenceId() != null) {
-                        a01ExtendedTimeObjects = redisService.get(Constant.REDIS_KEY.A01_EXTENDED_TIME_STATUS_KEY + thirdMatchInfo.getReferenceId());
-                    }
-                    if(!thirdMarketDTO.getDataSourceCode().equals(DataSourceCodeEnum.AO.code)||!checkA01ExtendedTimeStatus(thirdMarketDTO.getData(),a01ExtendedTimeObjects)){
-                        thirdMarketDTO.getData().setStatus(Constant.SPORT_MARKET.STATUS.SUSPENDED);
-                        log.info("::{}::ThirdMarketSaveProcessor,两项盘(三方盘口源id):{},如果存在一个投注项原始赔率小于1.01,合法性封盘", thirdMarketDTO.getLinkId(), thirdMarketDTO.getData().getThirdMarketSourceId());
-                    }
+            if (Constant.SPORT_MARKET.STATUS.ACTIVE.equals(thirdMarketDTO.getData().getStatus()) && !CollectionUtils.isEmpty(thirdMarketDTO.getData().getMarketOddsList()) && thirdMarketDTO.getData().getMarketOddsList().size() == 2) {
+                if (thirdMarketDTO.getData().getMarketOddsList().get(0).getOriginalOddsValue() < 1.01 * 100000 || thirdMarketDTO.getData().getMarketOddsList().get(1).getOriginalOddsValue() < 1.01 * 100000) {
+                    thirdMarketDTO.getData().setStatus(Constant.SPORT_MARKET.STATUS.SUSPENDED);
+                    log.info("::{}::ThirdMarketSaveProcessor,两项盘(三方盘口源id):{},如果存在一个投注项原始赔率小于1.01,合法性封盘", thirdMarketDTO.getLinkId(), thirdMarketDTO.getData().getThirdMarketSourceId());
                 }
             }
             String dataSourceTimeKeyMd5 = genKeyBasedDatasourceTime(thirdMarketDTO, thirdMatchInfoBasedIdMap);

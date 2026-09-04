@@ -64,7 +64,6 @@
     <result column="order_no" jdbcType="VARCHAR" property="orderNo" />
     <result column="replay_match_code" jdbcType="VARCHAR" property="replayMatchCode" />
     <result column="pls_standard_match_id" jdbcType="BIGINT" property="plsStandardMatchId" />
-    <result column="live_event_source" jdbcType="INTEGER" property="liveEventSource" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.panda.merge.model.StandardMatchInfo">
     <result column="team_name" jdbcType="LONGVARCHAR" property="teamName" />
@@ -141,7 +140,7 @@
     match_over, hot_match_status, financial_time, remark, create_time, modify_time, odds_live,
     tournament_name_code, auto_audit_flag, score_opflag, team_change_status, tournament_number_status,
     begin_time_change_status, tournament_change_status, interruption_cancellation_status,
-    order_no,pls_standard_match_id,live_event_source
+    order_no,pls_standard_match_id
   </sql>
   <sql id="Blob_Column_List">
     team_name, team_manage_id

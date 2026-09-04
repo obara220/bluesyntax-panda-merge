@@ -177,13 +177,4 @@ public enum DataSourceCodeEnum {
     public static List<String> getBusinessCode() {
         return Lists.newArrayList(BG.code, SR.code, KO.code, RB.code);
     }
-
-    /**
-     * 106940 【生产】【产品】S01,G01新增球员或更变球员信息时页面预警
-     * 球员信息变更进行告警,涉及的数据源
-     * @return
-     */
-    public static List<String> getPlayerModifyAlertCode() {
-        return Lists.newArrayList(BG.code, SR.code);
-    }
 }

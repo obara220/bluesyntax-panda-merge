@@ -5,7 +5,7 @@ import com.panda.merge.model.ConfigCategoryAutoDiffTrade;
 
 import java.util.List;
 
-public interface  ConfigCategoryAutoDiffTradeService {
+public interface ConfigCategoryAutoDiffTradeService {
     ConfigCategoryAutoDiffTrade getItem(String linkId, Long matchId, Long categoryId,Long childCategoryId);
 
     ConfigCategoryAutoDiffTrade create(String linkId, TradeCategoryAutoDiffConfigItemDTO tradeCategoryAutoDiffConfigItemDTO, Long matchId, Long operaterId);

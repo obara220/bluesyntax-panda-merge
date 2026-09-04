@@ -30,7 +30,7 @@ import java.util.List;
 @Component
 public class SparePlsMatchConsumer {
     private static final String TOPIC = "NOTIFY_SCORE_CENTER_SEND_SCORE_PLS";
-    private static final String CONSUMER_GROUP = "scores_group_NOTIFY_SCORE_CENTER_SEND_SCORE_PLS2";
+    private static final String CONSUMER_GROUP = "scores_group_NOTIFY_SCORE_CENTER_SEND_SCORE_PLS";
 
     @Value("${slaveNamesrvAddr}")
     private String nameServers;

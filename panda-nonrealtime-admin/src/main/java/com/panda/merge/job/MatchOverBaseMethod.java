@@ -86,7 +86,7 @@ public class MatchOverBaseMethod {
             thirdMatchInfo.setMatchOver(YesNoEnum.Y.value);
             thirdMatchInfo.setModifyTime(TimeUtils.millsSecondsEast8ZoneGmt());
             thirdMatchInfoMapper.updateByPrimaryKeySelective(thirdMatchInfo);
-            //log.info("【thirdMatchInfoProcessOver 三方赛事完赛处理】 三方赛事ID={}",oldThirdMatchInfo.getId());
+            log.info("【thirdMatchInfoProcessOver 三方赛事完赛处理】 三方赛事ID={}",oldThirdMatchInfo.getId());
             XxlJobLogger.log("【thirdMatchInfoProcessOver 三方赛事完赛处理】 三方赛事ID={}",oldThirdMatchInfo.getId());
             DataSource dataSource = dataSourceService.getItemByCode(oldThirdMatchInfo.getDataSourceCode());
             if(null != dataSource){
@@ -145,7 +145,7 @@ public class MatchOverBaseMethod {
             standardMatchInfo.setMatchOver(YesNoEnum.Y.value);
             standardMatchInfo.setModifyTime(TimeUtils.millsSecondsEast8ZoneGmt());
             standardMatchInfoMapper.updateByPrimaryKeySelective(standardMatchInfo);
-            //log.info("【standardMatchInfoProcessOver 标准赛事完赛处理】 标准赛事ID={}",oldStandardMatchInfo.getId());
+            log.info("【standardMatchInfoProcessOver 标准赛事完赛处理】 标准赛事ID={}",oldStandardMatchInfo.getId());
             XxlJobLogger.log("【standardMatchInfoProcessOver 标准赛事完赛处理】 标准赛事ID={}",oldStandardMatchInfo.getId());
             //完赛通知预开售
             matchSaleOverJobProducer.sendMatchSaleOverMessage(standardMatchInfo.getId()+"_MinsJob",oldStandardMatchInfo);

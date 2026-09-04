@@ -90,7 +90,6 @@ public class MatchEndSettleScoresConsumer implements RocketMQListener<Request<Ma
 
         //1、过滤不符合的消息
         if (!check(request.getData())) {
-            log.info("{} MatchSettleScoresConsumer事件比分中心处理校验不通过，状态异常：{}", linkId, request.getData().getStatus());
             return;
         }
         StandardMatchInfo standardMatchInfo = standardMatchInfoMapper.selectByPrimaryKey(request.getData().getStandardMatchId());
@@ -222,7 +221,7 @@ public class MatchEndSettleScoresConsumer implements RocketMQListener<Request<Ma
      */
     private boolean check(MatchSettleScore data){
         //非已结算不对接
-        if (data.getStatus()!=null && !data.getStatus().equals(3)) {
+        if (!data.getStatus().equals(3)) {
             log.info("2--------{}",data);
             return false;
         }

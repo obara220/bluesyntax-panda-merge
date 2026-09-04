@@ -105,7 +105,7 @@ public class StandardMatchInfoServiceImpl implements StandardMatchInfoService {
         if(CollectionUtils.isEmpty(requiredCallItems)){
             return result;
         }
-        log.info("2724,查询标准赛事数据库：{}", requiredCallItems);
+
         // Obtaining remained data from mysql
         StandardMatchInfoExample example = new StandardMatchInfoExample();
         example.createCriteria().andIdIn(requiredCallItems);
@@ -148,7 +148,7 @@ public class StandardMatchInfoServiceImpl implements StandardMatchInfoService {
     @Override
 //    @CachePut(key = "'StandardMatchInfo:'+ #standardMatchInfo.id", unless = "#result == null")
     public StandardMatchInfo updateByPrimaryKeySelective(StandardMatchInfo standardMatchInfo) {
-        return updateByPrimaryKeySelective(standardMatchInfo,null);
+        return updateByPrimaryKeySelective(standardMatchInfo,"updateByPrimaryKeySelective");
     }
 
 
@@ -165,7 +165,8 @@ public class StandardMatchInfoServiceImpl implements StandardMatchInfoService {
                 int num = standardMatchInfoMapper.updateByPrimaryKeySelective(standardMatchInfo);
                 //修改完成后，将修改后的字段忽略空值拷贝到原对象
                 BeanUtil.copyProperties(standardMatchInfo,oldStandardMatchInfo,CopyOptions.create().setIgnoreNullValue(true).setIgnoreError(true));
-                log.info("linkId=【{}】【标准赛事ID="+standardMatchInfo.getId()+"】updateByPrimaryKeySelective,修改三方赛事数据条数num={},修改后赛事状态={}",linkId,num,oldStandardMatchInfo.getMatchStatus());
+                log.info("linkId=【{}】【标准赛事ID="+standardMatchInfo.getId()+"】updateByPrimaryKeySelective,修改三方赛事数据条数num={},修改后赛事状态={},入参={}"
+                        ,linkId,num,oldStandardMatchInfo.getMatchStatus(),JSON.toJSONString(standardMatchInfo));
             }
             return refreshCache(oldStandardMatchInfo);
         } finally {

@@ -114,26 +114,6 @@ public interface ITradeMarketConfigApi {
     void autoCloseMarket(String linkId, Long standardMatchId, Set<Long> marketCategoryIds, Long dataSourceTime);
 
     /**
-     * 自动开盘
-     *
-     * @param linkId            linkID
-     * @param standardMatchId   标准比赛ID
-     * @param marketCategoryIds 需要关盘的标准玩法ID List
-     * @param dataSourceTime
-     */
-    void autoOpenMarket(String linkId, Long standardMatchId, Set<Long> marketCategoryIds, Long dataSourceTime);
-
-
-    /**
-     * 自动关盘子玩法
-     * @param linkId
-     * @param standardMatchId
-     * @param map
-     * @param dataSourceTime
-     */
-    void autoCloseChildMarketCategory(String linkId, Long standardMatchId, Pair<Set<Long>, Map<String, JSONObject>> map, Long dataSourceTime);
-
-    /**
      * 操盘-盘口差配置
      * @param message
      * @return
@@ -161,13 +141,6 @@ public interface ITradeMarketConfigApi {
      * @param marketCategoryId 标准玩法ID
      */
     Response clearCacheMarketCategoryId(Long standardMatchId, Long marketCategoryId);
-    /**
-     * 自动关盘 - 清除缓存玩法已经自动关盘
-     *
-     * @param standardMatchId 标准比赛ID
-     * @param period          阶段
-     */
-    Response clearCacheMarketCategoryIdByPeriod(Long standardMatchId, Integer period);
 
     /**
      * 操盘-检查是否能切MTS
@@ -340,7 +313,6 @@ public interface ITradeMarketConfigApi {
      * @return
      */
     Response basketballWinnerConfig(Request<List<BasketballConfigDTO>> request);
-
     /**
      * 篮球早转滚联赛开关配置
      *
@@ -356,20 +328,4 @@ public interface ITradeMarketConfigApi {
      * @return
      */
     Response tournamentLevelChange(Request<TournamentLevelChangeDTO> request);
-
-    /**
-     * 98387
-     *
-     * @param request
-     * @return
-     */
-    Response footballWinnerConfig(Request<FootballConfigDTO> request);
-
-
-    /**
-     * 根据赛事id，玩法id集合获取三方盘口最后更新时间
-     * @param request
-     */
-
-    Response<Map<String, ThirdMarketModifytimeDTO>> getThirdMarletLastModifyTime(Request<ThirdMarketLastModifyTimeDTO> request);
 }

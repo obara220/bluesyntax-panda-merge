@@ -39,11 +39,7 @@ public interface StandardSportMarketOddsService {
 
     List<StandardSportMarketOdds> getItemList(Long marketId);
 
-    List<StandardSportMarketOdds> getMarketOddsByMatchIdList(List<Long> standardSportMarketIdList);
-
     String adjustmentTxCreateRelationMarketOddsId(StandardSportMarketOdds standardSportMarketOdds, StandardMarketDataMessage standardSportMarket);
 
-    void upStandardOddsList(String linkId, Long standardMatchId, List<StandardSportMarketOdds> upOddsList);
-
-
+    List<StandardSportMarketOdds> getMarketOddsByMatchIdList(List<Long> standardSportMarketIdList);
 }

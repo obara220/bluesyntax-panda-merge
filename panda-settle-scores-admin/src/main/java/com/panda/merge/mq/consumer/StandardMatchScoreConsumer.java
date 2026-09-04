@@ -78,9 +78,7 @@ public class StandardMatchScoreConsumer implements RocketMQListener<Request<Comm
         long start =System.currentTimeMillis();
         String linkId = commonStandardScoresDtoRequest.getLinkId();
         log.info("linkId::{}::StandardMatchScoreConsumer start score {}", linkId, commonStandardScoresDtoRequest);
-        // 109585 【生产】【产品】篮球结算2.0不接收N01,N02,N03事件与页面不展示比分
-        if(commonStandardScoresDtoRequest.getData().getDataSourceCode().equals("N02")||commonStandardScoresDtoRequest.getData().getDataSourceCode().equals("RC")||commonStandardScoresDtoRequest.getData().getDataSourceCode().equals("TS")||commonStandardScoresDtoRequest.getData().getDataSourceCode().equals("N01")||commonStandardScoresDtoRequest.getData().getDataSourceCode().equals("N03")){
-            log.info("linkId::{}::StandardMatchScoreConsumer 数据源RC/V02/N02/N01/N03不处理", linkId);
+        if(commonStandardScoresDtoRequest.getData().getDataSourceCode().equals("N02")||commonStandardScoresDtoRequest.getData().getDataSourceCode().equals("RC")||commonStandardScoresDtoRequest.getData().getDataSourceCode().equals("TS")){
             return;
         }
         //过滤报球板监控事件,避免影响 结算
